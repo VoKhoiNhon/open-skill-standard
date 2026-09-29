@@ -824,3 +824,6 @@ def main(argv=None) -> int:
         where = f": {e.filename}" if getattr(e, "filename", None) else ""
         print(f"open-skill: {getattr(e, 'strerror', None) or e}{where}", file=sys.stderr)
         return 2
+    except OSError as e:  # the home or a target folder is read-only, full, locked...: the environment, not the input
+        print(f"open-skill: {e.strerror or e}{f': {e.filename}' if e.filename else ''}", file=sys.stderr)
+        return 1

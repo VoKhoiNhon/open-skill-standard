@@ -80,3 +80,31 @@ def test_notes_path_that_is_a_file_stops_writes_before_anything_changes(home, tm
     assert "not a folder" in capsys.readouterr().err
     assert sorted(p.name for p in home.iterdir()) == ["knowledge"]
     assert (home / "knowledge").read_text(encoding="utf-8") == "my stuff\n"
+
+
+posix_perms = pytest.mark.skipif(sys.platform == "win32" or (hasattr(os, "geteuid") and os.geteuid() == 0),
+                                 reason="needs POSIX permission bits and a non-root user")
+
+
+@pytest.fixture
+def read_only_home(home):
+    knowledge.learn("Keep this.", ["role:*"])
+    before = _snapshot(home)
+    dirs = [home, home / "knowledge"]
+    for d in dirs:
+        d.chmod(0o500)
+    yield before
+    for d in dirs:
+        d.chmod(0o700)
+
+
+@posix_perms
+def test_read_only_home_fails_writes_clearly_and_still_routes(home, read_only_home, capsys):
+    # Writes died with a PermissionError traceback, and route printed nothing because recording the route failed.
+    assert cli.main(["learn", "New fact.", "--applies-to", "role:*"]) == 1
+    err = capsys.readouterr().err
+    assert err.startswith("open-skill: ") and "Permission denied" in err and "Traceback" not in err
+    assert cli.main(["route", "add tests", "--project", str(home.parent)]) == 0
+    out, err = capsys.readouterr()
+    assert json.loads(out)["route_id"] and "not recorded" in err
+    assert _snapshot(home) == read_only_home
