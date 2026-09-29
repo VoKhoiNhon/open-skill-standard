@@ -29,3 +29,9 @@ def parse(text: str) -> tuple[dict, str]:
         return split(text)
     except ValueError:
         return {}, text
+
+
+def text(meta: dict, key: str, default: str = "") -> str:
+    """A field's value when it is a string, else default. Never str() other YAML values: an alias tree can be huge."""
+    v = meta.get(key)
+    return v if isinstance(v, str) else default

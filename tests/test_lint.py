@@ -200,3 +200,31 @@ def test_broken_frontmatter_is_named_instead_of_reporting_missing_fields(text, w
 def test_quoted_colon_and_crlf_frontmatter_are_fine():
     text = '---\r\nname: good-skill\r\ndescription: "Dùng khi cần: kết nối dữ liệu"\r\n---\r\nbody\r\n'
     assert rules(text) == []
+
+
+@pytest.mark.parametrize("field,value", [
+    ("name", "2024"),            # a YAML int; str() made it look like a valid name
+    ("name", "true"),
+    ("description", "[a, b]"),   # a list; str() made it a non-empty description
+    ("description", "2024-01-01"),
+    ("description", "'   '"),    # blank
+    ("description", "~"),        # null
+])
+def test_name_and_description_must_be_non_empty_strings(field, value):
+    values = {"name": "good-skill", "description": "Does a thing.", field: value}
+    text = f"---\nname: {values['name']}\ndescription: {values['description']}\n---\nbody"
+    assert f"frontmatter-{field}" in rules(text)
+
+
+def test_yaml_alias_bomb_in_description_is_not_expanded():
+    lines = ["a0: &a0 [x, x, x, x, x, x, x, x, x, x]"]
+    lines += [f"a{i}: &a{i} [*a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}, *a{i-1}]"
+              for i in range(1, 9)]
+    text = "---\nname: good-skill\n" + "\n".join(lines).replace("a8:", "description:") + "\n---\nbody"
+    found = rules(text)  # str() of this value would build 10**9 items
+    assert "frontmatter-description" in found
+
+
+@pytest.mark.parametrize("desc", [">\n  Folded over\n  two lines.", "|\n  Literal\n  block.", "&d Anchored.", '"Quoted: colon."'])
+def test_yaml_scalar_styles_are_valid_descriptions(desc):
+    assert rules(f"---\nname: good-skill\ndescription: {desc}\n---\nbody") == []

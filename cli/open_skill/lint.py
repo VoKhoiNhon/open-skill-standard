@@ -96,18 +96,28 @@ def _finding(path, rule_id: str, message: str, source: str | None = None) -> Fin
     return Finding(str(path), rule_id, message, source or r.source, r.severity)
 
 
+def _not_text(meta: dict, key: str) -> str | None:
+    """Why a required text field is unusable, or None when it is a non-blank string."""
+    v = meta.get(key)
+    if v is None:
+        return f"{key} is missing"
+    if not isinstance(v, str):
+        return f"{key} must be a string, not a YAML {type(v).__name__} (quote it)"
+    return None if v.strip() else f"{key} is blank"
+
+
 def _check_fields(meta: dict, folder: str | None, add) -> None:
-    name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
-    if not name:
-        add("frontmatter-name", "name is missing", BEST)
+    name, desc = frontmatter.text(meta, "name"), frontmatter.text(meta, "description")
+    if _not_text(meta, "name"):
+        add("frontmatter-name", _not_text(meta, "name"), BEST)
     elif len(name) > 64 or not NAME_RX.match(name):
         add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen", SPEC)
     elif "claude" in name or "anthropic" in name:
         add("frontmatter-name", "name must not contain 'claude' or 'anthropic'", BEST)
     if name and folder and name != folder:
         add("name-matches-folder", f"name '{name}' must match its folder '{folder}'", SPEC)
-    if not desc:
-        add("frontmatter-description", "description is missing", BEST)
+    if _not_text(meta, "description"):
+        add("frontmatter-description", _not_text(meta, "description"), BEST)
     elif len(desc) > 1024 or "<" in desc or ">" in desc:
         add("frontmatter-description", "description must be at most 1024 chars with no angle brackets", BEST)
     for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS):
@@ -136,7 +146,7 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
         meta, body = {}, text
     else:
         _check_fields(meta, folder, add)
-    name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
+    name, desc = frontmatter.text(meta, "name"), frontmatter.text(meta, "description")
     if len(body) / 4 > 5000:  # rough token estimate; the spec recommends under 5000 tokens for instructions
         add("body-tokens", f"instructions are about {len(body) // 4} tokens; keep SKILL.md under ~5000 and move detail to references/", SPEC)
     if text.count("\n") + 1 > 500:
