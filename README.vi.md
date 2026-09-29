@@ -95,6 +95,8 @@ phase window: plan → build → verify → review (medium build task: starts at
    runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/write-query 0.9, knowledge-work-data/sql-queries 0.7
 ```
 
+Khi không có từ khoá phase nào khớp, dòng phase ghi `phase: build (guessed, no signal)` và JSON có `"phase_from": "guessed"`. Agent đã đọc cuộc hội thoại nên tự truyền `--phase` (và `--size`); dò từ khoá chỉ là phương án dự phòng.
+
 **Sao không chọn skill kia?** `--why-not` nhận id hoặc tên gọi của skill và nêu lý do: chưa cài (kèm lệnh cài), sai phase hoặc sai cỡ việc, project chưa đủ điều kiện, xung đột với skill đã chọn, điểm dưới ngưỡng hoặc thua skill thắng (hiện cả hai điểm), bị cắt vì giới hạn số bước của model, hoặc việc đủ nhỏ để làm thẳng.
 
 ```text

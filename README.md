@@ -112,6 +112,8 @@ phase window: plan → build → verify → review (medium build task: starts at
    runner-ups: knowledge-work-data/validate-data 2.0 (close call), open-skill/open-skill-standards 2.0, …
 ```
 
+When no phase keyword matches, the phase line reads `phase: build (guessed, no signal)` and the JSON has `"phase_from": "guessed"`. An agent that has read the conversation should pass `--phase` (and `--size`) itself; keyword detection is the fallback.
+
 **Why not that skill?** `--why-not` takes a skill id or invoke name and names the reason: not installed (with the install command), wrong phase or size, a requirement the project does not meet, a conflict with a chosen skill, a score below the minimum or below the winner's (both scores), the model's step limit, or a task small enough to do directly.
 
 ```text
@@ -215,7 +217,7 @@ Organizations can add private skills and house rules as an **L1 overlay** (a sep
 ## CLI
 
 ```text
-open-skill route "<task>" [--project .] [--agent a] [--role r] [--size s] [--model m] [--explain | --why-not <skill>]
+open-skill route "<task>" [--project .] [--agent a] [--role r] [--size s] [--phase p] [--model m] [--explain | --why-not <skill>]
 open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed] [--agent a]
 open-skill doctor                   open-skill scan [--agent a] [--memory]
 open-skill agents [--project .]     open-skill install <skill|folder> --agent a [--project .] [--symlink] [--dry-run]
