@@ -35,6 +35,8 @@ jobs:
         run: uv run python scripts/check_versions.py
       - name: Privacy guard
         run: uv run python scripts/privacy_guard.py
+      - name: README images are up to date
+        run: uv run python scripts/render_assets.py --check
   release-check:
     # A release pull request must be ready to tag: versions bumped, CHANGELOG section and compare links in place.
     if: startsWith(github.head_ref, 'release/')

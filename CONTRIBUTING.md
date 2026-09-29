@@ -19,9 +19,10 @@ uv run open-skill lint skills/ .claude-plugin/   # Agent Skills spec, prompting 
 uv run open-skill audit skills/ .claude-plugin/ --strict   # heuristic security review of our own skills
 uv run open-skill build --check       # generated playbooks/schemas/dist are current
 uv run python scripts/privacy_guard.py
+uv run python scripts/render_assets.py --check   # README images match the code and registry
 ```
 
-If `build --check` fails, run `uv run open-skill build` and commit the result.
+If `build --check` fails, run `uv run open-skill build` and commit the result. If `render_assets.py --check` fails, run `uv run python scripts/render_assets.py` and commit the images it rewrites in `.github/assets/`.
 
 ## Add or update an adapter
 
