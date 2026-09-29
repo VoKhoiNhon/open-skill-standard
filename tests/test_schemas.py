@@ -78,3 +78,28 @@ def test_agent_relocation_names_an_env_var_and_prefix():
     ok = [{"var": "DEMO_HOME", "replaces": "~/.demo", "source": "https://example.org/env"}]
     assert not list(v.iter_errors(_agent(relocate=ok)))
     assert list(v.iter_errors(_agent(relocate=[{"var": "demo home", "replaces": "~/.demo", "source": "https://x.org"}])))
+
+
+def test_locale_blocks_take_a_locale_tag_other_than_english():
+    v = jsonschema.Draft202012Validator(schemas.adapter_schema(TAX))
+    doc = {"source": "demo", "upstream": "u", "license": "MIT", "skills": [{"name": "x", "phases": ["build"]}]}
+    for tag in ("vi", "ja", "es", "pt-BR", "zh-Hant"):
+        doc["skills"][0]["triggers_i18n"] = {tag: ["word"]}
+        assert not list(v.iter_errors(doc)), tag
+    for tag in ("en", "en-GB", "EN", "vietnamese", "vi_VN"):  # English is the canonical list, not a locale block
+        doc["skills"][0]["triggers_i18n"] = {tag: ["word"]}
+        assert list(v.iter_errors(doc)), tag
+    doc["skills"][0]["triggers_i18n"] = {"vi": "not a list"}
+    assert list(v.iter_errors(doc))
+
+
+def test_taxonomy_matches_its_schema_and_rejects_misspelled_locale_blocks():
+    v = jsonschema.Draft202012Validator(schemas.taxonomy_schema(TAX))
+    assert not list(v.iter_errors(TAX))
+    import copy
+    bad = copy.deepcopy(TAX)
+    bad["phases"][0]["keyword_i18n"] = {"ja": ["アイデア"]}
+    assert list(v.iter_errors(bad))
+    bad = copy.deepcopy(TAX)
+    bad["size_keywords_i18n"] = {"ja": {"huge": ["巨大"]}}
+    assert list(v.iter_errors(bad))

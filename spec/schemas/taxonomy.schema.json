@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Open Skill Standard taxonomy",
+  "type": "object",
+  "required": [
+    "version",
+    "phases",
+    "artifacts",
+    "edges",
+    "task_sizes",
+    "role_families",
+    "knowledge_types"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "keywords"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "keywords_i18n": {
+            "type": "object",
+            "propertyNames": {
+              "pattern": "^(?!en(-|$))[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+            },
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "per-locale additions to the English list, keyed by BCP 47 language tag"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "task_sizes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "size_keywords": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ]
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "size_keywords_i18n": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!en(-|$))[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ]
+        },
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "description": "per-locale additions to the English list, keyed by BCP 47 language tag"
+    },
+    "role_families": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "native_markers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "framework",
+          "paths"
+        ]
+      }
+    },
+    "tool_markers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "knowledge_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

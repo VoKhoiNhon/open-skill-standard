@@ -91,7 +91,7 @@ def _schema_errors(doc: dict, schema: dict, where: str) -> list[str]:
 def validate(reg: Registry) -> list[str]:
     """Schema checks per document plus cross-reference checks. Empty list means valid."""
     sch = schemas.all_schemas(reg.taxonomy)
-    errors: list[str] = []
+    errors: list[str] = _schema_errors(reg.taxonomy, sch["taxonomy"], "spec/taxonomy.yaml")
     for src, a in reg.adapters.items():
         errors += _schema_errors(a, sch["adapter"], reg.files.get(f"adapter:{src}", src))
     for rid, r in reg.roles.items():

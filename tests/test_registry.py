@@ -92,3 +92,9 @@ def test_relocation_vars_are_cleared_for_tests():
     reg = registry.load()
     used = {r["var"] for a in reg.agents.values() for r in a.get("relocate", [])}
     assert used <= set(RELOCATION_VARS), "add new relocation vars to tests/conftest.py"
+
+
+def test_validate_checks_the_taxonomy_itself():
+    reg = registry.load(FIX / "repo")
+    reg.taxonomy = {**reg.taxonomy, "size_keyword_i18n": {"ja": {"small": ["小さい"]}}}  # misspelled block
+    assert any("taxonomy" in e and "size_keyword_i18n" in e for e in registry.validate(reg))
