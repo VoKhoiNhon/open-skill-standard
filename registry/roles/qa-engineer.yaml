@@ -82,6 +82,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Name each test after the behavior it protects.
-- Run the affected tests for a diff before running everything.
-- Keep test data factories next to the tests that use them.
+- id: name-test-behavior-protects
+  text: Name each test after the behavior it protects.
+- id: run-affected-tests-diff-running
+  text: Run the affected tests for a diff before running everything.
+- id: keep-test-data-factories-next
+  text: Keep test data factories next to the tests that use them.

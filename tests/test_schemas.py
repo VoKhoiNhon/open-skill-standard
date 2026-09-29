@@ -34,3 +34,12 @@ def test_28_roles_in_five_families():
     roles = [r for fam in TAX["role_families"].values() for r in fam]
     assert len(roles) == len(set(roles)) == 28
     assert len(TAX["role_families"]) == 5
+
+
+def test_seeds_accept_stable_objects_and_legacy_strings():
+    role = {"id": "qa-engineer", "name": "QA", "family": "quality-ops", "summary": "s", "risk": "r",
+            "constitution": ["a", "b", "c"], "phases": {},
+            "seeds": ["legacy text", {"id": "name-tests-by-behavior", "text": "Name tests after behavior."}]}
+    jsonschema.validate(role, schemas.role_schema(TAX))
+    role["seeds"] = [{"id": "Bad Id", "text": "x"}]
+    assert list(jsonschema.Draft202012Validator(schemas.role_schema(TAX)).iter_errors(role))

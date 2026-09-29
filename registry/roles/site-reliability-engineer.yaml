@@ -83,6 +83,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Write the runbook link into the alert itself.
-- Page on symptoms users feel, not on every cause.
-- Record the timeline while the incident is running.
+- id: write-runbook-link-alert-itself
+  text: Write the runbook link into the alert itself.
+- id: page-symptoms-users-feel-cause
+  text: Page on symptoms users feel, not on every cause.
+- id: record-timeline-while-incident-running
+  text: Record the timeline while the incident is running.

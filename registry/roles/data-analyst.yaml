@@ -80,6 +80,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Write down the denominator of every rate.
-- Bar charts start at zero.
-- Compare with the official dashboard and state the difference.
+- id: write-down-denominator-rate
+  text: Write down the denominator of every rate.
+- id: bar-charts-start-zero
+  text: Bar charts start at zero.
+- id: compare-official-dashboard-state-difference
+  text: Compare with the official dashboard and state the difference.

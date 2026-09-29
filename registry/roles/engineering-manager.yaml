@@ -78,6 +78,9 @@ phases:
     alternatives:
     - open-skill/open-skill-learn
 seeds:
-- Lead every update with what changed for the reader.
-- Plan at no more than 80 percent of measured capacity.
-- Every retrospective action has one owner and a date.
+- id: lead-update-what-changed-reader
+  text: Lead every update with what changed for the reader.
+- id: plan-more-than-80-percent
+  text: Plan at no more than 80 percent of measured capacity.
+- id: retrospective-action-has-one-owner
+  text: Every retrospective action has one owner and a date.

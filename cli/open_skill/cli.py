@@ -218,6 +218,18 @@ def cmd_migrate(args):
     return 0
 
 
+def cmd_seeds(args):
+    reg = _registry(args)
+    roles = list(knowledge.load_profile().get("roles", {}))
+    if not roles:
+        print("no roles in your profile yet; run: open-skill init --role <role>")
+        return 1
+    seeds = {rid: r.get("seeds", []) for rid, r in reg.roles.items()}
+    actions = knowledge.sync_seeds(roles, seeds, dry_run=args.dry_run)
+    print("\n".join(actions) if actions else "starter knowledge is up to date")
+    return 0
+
+
 def _upstream_skills(src_dir: Path) -> dict[str, str]:
     found = {}
     for p in sorted(Path(src_dir).rglob("SKILL.md")):
@@ -318,6 +330,10 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("migrate", help="upgrade ~/.open-skill to the current data schema (backs up first)")
     s.add_argument("--dry-run", action="store_true", help="show what would change without changing anything")
     s.set_defaults(fn=cmd_migrate)
+    s = sub.add_parser("seeds", help="sync starter knowledge for your roles; your edits are never overwritten")
+    s.add_argument("action", choices=["sync"])
+    s.add_argument("--dry-run", action="store_true")
+    s.set_defaults(fn=cmd_seeds)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
     s.add_argument("action", choices=["draft", "check"])
     s.add_argument("--source", required=True)

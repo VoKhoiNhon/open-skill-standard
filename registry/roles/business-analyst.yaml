@@ -84,6 +84,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Write acceptance criteria as Given/When/Then.
-- List who signs off on each requirement.
-- Ask for a real example for every rule.
+- id: write-acceptance-criteria-given-then
+  text: Write acceptance criteria as Given/When/Then.
+- id: list-who-signs-off-requirement
+  text: List who signs off on each requirement.
+- id: ask-real-example-rule
+  text: Ask for a real example for every rule.

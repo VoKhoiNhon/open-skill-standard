@@ -81,6 +81,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Separate the system prompt from user and tool content.
-- Cap the number of agent iterations and tool calls.
-- Compare every prompt change against the same eval set.
+- id: separate-system-prompt-user-tool
+  text: Separate the system prompt from user and tool content.
+- id: cap-number-agent-iterations-tool
+  text: Cap the number of agent iterations and tool calls.
+- id: compare-prompt-change-against-same
+  text: Compare every prompt change against the same eval set.

@@ -83,6 +83,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Check behavior with airplane mode on before release.
-- Ask for a permission at the moment it is needed, with context.
-- Keep the minimum supported OS in the project README.
+- id: check-behavior-airplane-mode-release
+  text: Check behavior with airplane mode on before release.
+- id: ask-permission-moment-needed-context
+  text: Ask for a permission at the moment it is needed, with context.
+- id: keep-minimum-supported-os-project
+  text: Keep the minimum supported OS in the project README.

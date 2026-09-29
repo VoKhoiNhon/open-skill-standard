@@ -84,6 +84,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Write the non-goals before the goals.
-- Name the metric that would prove the feature failed.
-- Talk to five users before writing the spec.
+- id: write-non-goals-goals
+  text: Write the non-goals before the goals.
+- id: name-metric-would-prove-feature
+  text: Name the metric that would prove the feature failed.
+- id: talk-five-users-writing-spec
+  text: Talk to five users before writing the spec.

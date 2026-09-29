@@ -79,6 +79,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Review who can call an endpoint before reviewing what it does.
-- Rotate a leaked secret first, investigate second.
-- Add a regression test for every fixed vulnerability class.
+- id: review-who-can-call-endpoint
+  text: Review who can call an endpoint before reviewing what it does.
+- id: rotate-leaked-secret-first-investigate
+  text: Rotate a leaked secret first, investigate second.
+- id: add-regression-test-fixed-vulnerability
+  text: Add a regression test for every fixed vulnerability class.

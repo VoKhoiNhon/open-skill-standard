@@ -78,6 +78,9 @@ phases:
     - knowledge-work-data/data-context-extractor
     - open-skill/open-skill-learn
 seeds:
-- Announce platform changes to affected teams before rollout.
-- Distribute shared skills through an org overlay, not by copying files.
-- Report permissions from measurement (grants, SCIM), never from inference.
+- id: announce-platform-changes-affected-teams
+  text: Announce platform changes to affected teams before rollout.
+- id: distribute-shared-skills-through-org
+  text: Distribute shared skills through an org overlay, not by copying files.
+- id: report-permissions-measurement-grants-scim
+  text: Report permissions from measurement (grants, SCIM), never from inference.

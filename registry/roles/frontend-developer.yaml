@@ -86,6 +86,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Try the page with the keyboard only before calling it done.
-- Prefer native elements (button, input type=date, dialog) over custom widgets.
-- Read the docs for the installed library version before using an API.
+- id: try-page-keyboard-calling-done
+  text: Try the page with the keyboard only before calling it done.
+- id: prefer-native-elements-button-input
+  text: Prefer native elements (button, input type=date, dialog) over custom widgets.
+- id: read-docs-installed-library-version
+  text: Read the docs for the installed library version before using an API.

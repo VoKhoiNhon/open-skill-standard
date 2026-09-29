@@ -81,6 +81,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Pin action and image versions; float nothing in CI.
-- Keep deploy and rollback as the same command with a different version.
-- Fail the pipeline on a secret found in the diff.
+- id: pin-action-image-versions-float
+  text: Pin action and image versions; float nothing in CI.
+- id: keep-deploy-rollback-same-command
+  text: Keep deploy and rollback as the same command with a different version.
+- id: fail-pipeline-secret-found-diff
+  text: Fail the pipeline on a secret found in the diff.

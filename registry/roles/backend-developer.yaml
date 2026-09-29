@@ -84,6 +84,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Change the API contract, its clients and tests in the same change.
-- Write and test the down migration before the up migration ships.
-- Log the request id on every error path.
+- id: change-api-contract-its-clients
+  text: Change the API contract, its clients and tests in the same change.
+- id: write-test-down-migration-up
+  text: Write and test the down migration before the up migration ships.
+- id: log-request-id-error-path
+  text: Log the request id on every error path.

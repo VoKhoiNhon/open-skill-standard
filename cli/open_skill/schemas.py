@@ -105,7 +105,11 @@ def role_schema(tax: dict) -> dict:
                     "properties": {"primary": ids, "alternatives": ids, "note": {"type": "string"}},
                 },
             },
-            "seeds": _arr({"type": "string"}),
+            "seeds": _arr({"oneOf": [
+                {"type": "string"},
+                {"type": "object", "required": ["id", "text"], "additionalProperties": False,
+                 "properties": {"id": {"type": "string", "pattern": KEBAB}, "text": {"type": "string"}}},
+            ]}),
             "build_window": _arr({"enum": e["phases"]}, minItems=1),
             "handoff": {"type": "object", "additionalProperties": {"enum": e["roles"]}},
         },
