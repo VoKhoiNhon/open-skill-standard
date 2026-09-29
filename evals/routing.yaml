@@ -201,6 +201,8 @@ cases:
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
      first: knowledge-work-product-management/sprint-planning}
+  - {id: eng-manager-bmad, role: engineering-manager, task: "plan the next sprint", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-ticket], exclude: [bmad-method/bmad-agent-ux-designer]}
   - {id: product-manager, role: product-manager, task: "write a spec for team workspaces",
      include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
   - {id: business-analyst, role: business-analyst, task: "write requirements for the refund process",
@@ -210,6 +212,8 @@ cases:
      include: [knowledge-work-engineering/documentation]}
   - {id: scrum-master, role: scrum-master, task: "plan the sprint and run the retrospective",
      first: knowledge-work-product-management/sprint-planning}
+  - {id: scrum-master-bmad, role: scrum-master, task: "plan the sprint", files: [_bmad/config.toml],
+     phases: [plan], include: [bmad-method/bmad-ticket]}
   # Framework and model behavior
   - {id: native-spec-kit, role: backend-developer, task: "build a new billing system", files: [.specify/memory/constitution.md],
      first: spec-kit/specify, include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}

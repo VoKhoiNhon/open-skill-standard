@@ -99,7 +99,7 @@ skills:
     consumes: [prd, spec]
     produces: [tasks]
     requires: ["project:_bmad"]
-    task_size: [large]
+    task_size: [medium, large]
     triggers: [epic, story, ticket, backlog]
   - name: bmad-build
     description: Right-sized implementation - clarify, plan, implement, review and verify a change
