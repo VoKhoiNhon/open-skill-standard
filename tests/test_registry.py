@@ -105,6 +105,7 @@ def test_canonical_keyword_lists_are_english_and_other_languages_sit_in_locale_b
     tax = reg.taxonomy
     lists = {f"phase {p['id']}": p["keywords"] for p in tax["phases"]}
     lists |= {f"size {k}": v for k, v in tax["size_keywords"].items()}
+    lists["stopwords"] = tax["stopwords"]
     lists |= {f"skill {sid}": s.get("triggers", []) for sid, s in reg.skills.items()}
     stray = {where: [w for w in words if not w.isascii()] for where, words in lists.items()}
     assert not {k: v for k, v in stray.items() if v}, "move non-English words into the <field>_i18n block"

@@ -243,8 +243,8 @@ def test_keywords_in_a_script_without_spaces_match_inside_the_text():
 
 def test_accents_the_user_typed_still_tell_words_apart():
     tax = REG.taxonomy
-    assert route.task_size("rò rỉ bộ nhớ khi tải ảnh", tax, None) == "medium"  # nhớ (memory) is not nhỏ (small)
-    assert route._matched("thêm lời chào cho trang chủ", ["lỗi"]) == []  # lời (words) is not lỗi (error)
+    assert route.task_size("rò rỉ bộ nhớ khi tải ảnh", tax, None) == "medium"  # the word for memory is not the word for small
+    assert route._matched("thêm lời chào cho trang chủ", ["lỗi"]) == []  # the word for words is not the word for error
     assert route._matched("vang khi mo camera", ["văng"]) == ["văng"]  # typed without accents: fold
     assert route.task_size("doi ten ham get_user thanh load_user", tax, None) == "small"  # _ splits words
 

@@ -146,6 +146,8 @@ def taxonomy_schema(tax: dict) -> dict:
             "task_sizes": _arr({"type": "string"}),
             "size_keywords": sizes,
             "size_keywords_i18n": _i18n(sizes),
+            "stopwords": words,
+            "stopwords_i18n": _i18n(words),
             "role_families": {"type": "object", "additionalProperties": _arr({"type": "string", "pattern": KEBAB})},
             "native_markers": _arr({"type": "object", "required": ["framework", "paths"]}),
             "tool_markers": {"type": "object", "additionalProperties": _arr({"type": "string"})},

@@ -35,7 +35,7 @@ Implementations MUST reject documents whose phases, artifacts, roles or sizes ar
 
 ### 3.1 Locales
 
-English is the canonical language of the standard. A list of words that people type — phase `keywords`, `size_keywords` and adapter `triggers` — holds English only. Words in another language go in a block beside it named `<field>_i18n`, keyed by a BCP 47 language tag and holding what the field holds:
+English is the canonical language of the standard. A list of words that people type — phase `keywords`, `size_keywords`, `stopwords` (words search ignores) and adapter `triggers` — holds English only. Words in another language go in a block beside it named `<field>_i18n`, keyed by a BCP 47 language tag and holding what the field holds:
 
 ```yaml
 phases:
