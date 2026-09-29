@@ -201,3 +201,12 @@ def test_phase_without_any_signal_is_reported_as_a_guess(tmp_path):
     assert (r["target_phase"], r["phase_from"]) == ("build", "guessed")  # build stays the fallback
     assert route.route("add an export endpoint", p, REG, ALL)["phase_from"] == "keywords"
     assert route.route("add an export endpoint", p, REG, ALL, phase="build")["phase_from"] == "given"
+
+
+def test_phase_and_size_keywords_match_without_diacritics():
+    tax = REG.taxonomy
+    assert route.target_phase("xuat hoa don ra CSV bi loi", tax) == "operate"
+    assert route.target_phase("xuất hóa đơn ra CSV đang bị LỖI", tax) == "operate"
+    assert route.task_size("doi ten bien total", tax, None) == "small"
+    assert route.target_phase("the prefix is wrong in the reviewer list", tax) == "build"  # whole words only
+    assert route._matched("page the on call engineer", ["on-call", "call"]) == ["on-call", "call"]

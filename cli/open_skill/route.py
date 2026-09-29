@@ -16,12 +16,11 @@ KEEP_PRIORITY = ["build", "review", "verify", "plan", "specify", "operate", "res
 
 
 def _positions(text: str, keywords: list[str]) -> list[int]:
-    """Start offsets of keyword matches (whole words; phrases as substrings)."""
-    low = text.lower()
+    """Start offsets of whole-word and phrase keyword matches, folded as the index folds (case, accents, hyphens)."""
+    words = index.fold(text)
     out = []
     for k in keywords:
-        k = k.lower()
-        m = re.search(re.escape(k) if (" " in k or "-" in k) else rf"(?<!\w){re.escape(k)}(?!\w)", low)
+        m = re.search(rf"(?<!\S){re.escape(index.fold(k))}(?!\S)", words) if index.fold(k) else None
         if m:
             out.append(m.start())
     return out
