@@ -77,6 +77,14 @@ rule("conceal-from-user", "high",
      "asks the agent to hide what it does from the user", ANTHROPIC_SKILLS)
 
 
+OWASP_LLM06 = "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
+rule("disable-confirmation", "high",
+     r"\b(do not|don't|never|no need to|without)\s+(ask|wait|prompt|check)(ing)?\s+(the\s+user\s+)?(for\s+)?"
+     r"(permission|confirmation|approval|consent)|\bskip\s+(the\s+|all\s+|any\s+)?(confirmation|approval|permission)s?\b"
+     r"|\bauto-?approve\s+(all|every|any)\b|\b(the\s+user\s+has|you\s+have)\s+(already\s+)?(pre-?)?(approved|authori[sz]ed|consented)",
+     "tells the agent to act without the user's approval, or claims approval was already given", OWASP_LLM06)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
