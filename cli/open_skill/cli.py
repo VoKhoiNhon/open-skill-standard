@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import zipfile
 from pathlib import Path
 
 import yaml
@@ -792,3 +793,8 @@ def main(argv=None) -> int:
     except userdata.NewerDataError as e:
         print(f"open-skill: {e}", file=sys.stderr)
         return 3
+    except (FileNotFoundError, NotADirectoryError, IsADirectoryError, zipfile.BadZipFile) as e:
+        # A path the user gave does not exist or is not what the command needs: bad input, not a crash.
+        where = f": {e.filename}" if getattr(e, "filename", None) else ""
+        print(f"open-skill: {getattr(e, 'strerror', None) or e}{where}", file=sys.stderr)
+        return 2

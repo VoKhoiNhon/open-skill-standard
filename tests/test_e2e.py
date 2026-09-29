@@ -429,6 +429,22 @@ def test_adapter(cli):
     cli.run("adapter", "check", "--source", "ponytail", "--from", str(ok))
 
 
+# ---- bad input exits 2 with one line on stderr, never a traceback ----------------------------------------------
+
+def _clean_error(p: subprocess.CompletedProcess) -> str:
+    assert "Traceback" not in p.stderr and p.stderr.startswith("open-skill: "), p.stderr
+    return p.stderr
+
+
+def test_missing_or_corrupt_input_files(cli):
+    # Bug: these raised FileNotFoundError or BadZipFile with a traceback and exit 1.
+    missing = str(cli.tmp / "missing")
+    assert "missing.zip" in _clean_error(cli.run("restore", missing + ".zip", code=2))
+    (cli.tmp / "bad.zip").write_text("not a zip", encoding="utf-8")
+    assert "zip" in _clean_error(cli.run("restore", str(cli.tmp / "bad.zip"), code=2))
+    _clean_error(cli.run("eval", "routing", "--cases", missing + ".yaml", code=2))
+
+
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
 def _parser_surface() -> set[str]:

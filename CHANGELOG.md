@@ -21,6 +21,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- A missing or corrupt file given on the command line (`restore`, `eval --cases` and others) exits 2 with one line on stderr instead of a traceback.
 - `forget` accepts only note ids: an id such as `../../notes` used to delete `notes.md` outside `~/.open-skill/knowledge/`.
 - `upgrade` with nothing to do no longer makes a pre-upgrade backup and says "already up to date"; before, running it twice made `upgrade --rollback` restore the already-upgraded state.
 - `validate` reports malformed registry documents (a seed or skill without its id or name, `null` lists, a YAML syntax error, a top level that is a list) with the file and field instead of crashing, and catches what used to pass silently: a skill listed twice in one adapter, two files of one layer with the same id, model inheritance cycles, a detect rule naming an unknown agent, and a hand-off to a role without a pack. The duplicate seed error names the ids.
