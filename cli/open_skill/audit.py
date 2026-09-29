@@ -33,16 +33,23 @@ class Rule:
     message: str
     source: str
     whole: bool = False  # match across lines; the finding points at the line where the match starts
+    only: re.Pattern | None = None  # when set, the rule applies only to file paths this matches
 
 
 RULES: dict[str, Rule] = {}
 
 
-def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False) -> None:
+def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False,
+         only: str | None = None) -> None:
     """Register a rule; every rule cites the public guidance it comes from. Patterns ignore case."""
     assert severity in SEVERITIES and id not in RULES, id
     flags = re.IGNORECASE | (re.DOTALL if whole else 0)
-    RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole)
+    RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole,
+                     re.compile(only, re.IGNORECASE) if only else None)
+
+
+def _applies(r: Rule, file: str) -> bool:
+    return r.only is None or file == "<text>" or bool(r.only.search(file))
 
 
 def _excerpt(line: str, limit: int = 160) -> str:
@@ -53,12 +60,14 @@ def _excerpt(line: str, limit: int = 160) -> str:
 
 
 def audit_text(text: str, file: str = "<text>") -> list[Finding]:
+    """Findings for one file's text; rules limited to some files (only=) are skipped elsewhere, except for "<text>"."""
     out = []
+    rules = [r for r in RULES.values() if _applies(r, file)]
     for n, line in enumerate(text.split("\n"), 1):  # only \n, as editors and the whole-text rules count lines
-        for r in RULES.values():
+        for r in rules:
             if r.pattern and not r.whole and r.pattern.search(line):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
-    for r in RULES.values():
+    for r in rules:
         if r.pattern and r.whole:
             for m in r.pattern.finditer(text):
                 out.append(Finding(r.severity, r.id, file, text.count("\n", 0, m.start()) + 1, _excerpt(m.group()),
@@ -138,10 +147,12 @@ rule("hidden-unicode", "high", r"[\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\
 
 
 # Markdown hides HTML comments when rendered, so a reviewer reading the page never sees them; the agent does.
+# Keywords must stand alone: <!-- prettier-ignore --> and <!-- simplify-ignore-start --> are tool directives.
 rule("hidden-comment", "medium",
-     r"<!--(?:(?!-->).){0,2000}?\b(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
-     r"|assistant|you\s+(are|must|should)|curl|wget|base64)\b",
-     "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True)
+     r"<!--(?:(?!-->).){0,2000}?(?<![\w-])(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
+     r"|assistant|you\s+(are|must|should)|curl|wget|base64)(?![\w-])",
+     "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True,
+     only=r"\.(md|mdx|markdown|html?)$")
 
 
 rule("fake-authority", "high",
