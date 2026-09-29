@@ -40,7 +40,7 @@ Agent targets (`registry/agents/<id>.yaml`, SPEC §4.6) say where a coding agent
 
 Run `uv run open-skill eval routing` to see pass rates per role before and after your change. It also prints the score on `evals/routing-holdout.yaml`, requests that routing was never tuned on. Tune against `evals/routing.yaml` (which must stay at 100%), never against single holdout cases, and do not relabel a holdout case to match the router. Put the holdout score before and after in the pull request; CI only enforces a floor just below it (`HOLDOUT_ROUTING_FLOOR` in `tests/test_evals.py`), which you raise when the score goes up.
 
-Edit `registry/roles/<role-id>.yaml`: `risk`, 3–5 `constitution` principles, `signals`, per-phase `primary`/`alternatives`, generic `seeds`, and `build_window` if the role does not follow plan → build → verify → review. Add a case to `evals/routing.yaml` showing the behavior you expect. New role ids go into `spec/taxonomy.yaml` first.
+Edit `registry/roles/<role-id>.yaml`: `risk`, 3–5 `constitution` principles, `signals`, per-phase `primary`/`alternatives`, generic `seeds`, and `build_window` if the role does not follow plan → build → verify → review. Add a case to `evals/routing.yaml` showing the behavior you expect. A test keeps every role at 5 or more cases across 3 or more phases and every primary placed by some case, so a new primary needs a case that places it. New role ids go into `spec/taxonomy.yaml` first.
 
 Role packs and seeds must stay generic: no company, product or person names, and no internal data.
 
