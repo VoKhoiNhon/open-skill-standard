@@ -85,3 +85,10 @@ def test_validate_reports_agent_path_without_source(tmp_path):
         "detect: [{path: ~/.bad, source: https://example.org}]\n")
     errors = registry.validate(registry.load(root))
     assert any("agents/bad.yaml" in e and "source" in e for e in errors)
+
+
+def test_relocation_vars_are_cleared_for_tests():
+    from conftest import RELOCATION_VARS
+    reg = registry.load()
+    used = {r["var"] for a in reg.agents.values() for r in a.get("relocate", [])}
+    assert used <= set(RELOCATION_VARS), "add new relocation vars to tests/conftest.py"

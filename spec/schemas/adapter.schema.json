@@ -60,6 +60,11 @@
           },
           "invoke": {
             "type": "string"
+          },
+          "agent": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "agent id, default claude-code"
           }
         }
       }

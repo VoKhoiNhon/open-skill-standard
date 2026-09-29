@@ -1,0 +1,9 @@
+id: codex
+name: Codex
+docs: https://learn.chatgpt.com/docs/build-skills
+global:
+  - {path: "~/.agents/skills", source: "https://learn.chatgpt.com/docs/build-skills"}
+  - {path: "~/.codex/skills", source: "https://github.com/vercel-labs/skills/blob/main/src/agents.ts"}
+project: [{path: ".agents/skills", source: "https://learn.chatgpt.com/docs/build-skills"}]
+detect: [{path: "~/.codex", source: "https://github.com/vercel-labs/skills/blob/main/src/agents.ts"}]
+relocate: [{var: CODEX_HOME, replaces: "~/.codex", source: "https://github.com/vercel-labs/skills/blob/main/src/agents.ts"}]

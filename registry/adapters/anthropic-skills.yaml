@@ -8,7 +8,7 @@ detect:
   - {glob: "~/.claude/plugins/cache/*/document-skills/*/skills/{name}/SKILL.md", invoke: "document-skills:{name}"}
   - {glob: "~/.claude/plugins/cache/*/example-skills/*/skills/{name}/SKILL.md", invoke: "example-skills:{name}"}
   - {glob: "~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/*/*/skills/{name}/SKILL.md", invoke: "anthropic-skills:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, claude-desktop]
 skills:
   - name: skill-creator

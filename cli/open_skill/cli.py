@@ -54,12 +54,15 @@ def cmd_scan(args):
     if args.memory:
         print(f"imported {knowledge.import_agent_memory()} memory file(s)")
         return 0
-    items = scan.scan(reg, Path(args.project) if args.project else None)
+    if args.agent and args.agent not in reg.agents:
+        print(f"unknown agent {args.agent}; known: {', '.join(sorted(reg.agents))}", file=sys.stderr)
+        return 2
+    items = scan.scan(reg, Path(args.project) if args.project else None, agent=args.agent)
     if args.json:
         _print([i.__dict__ for i in items])
     else:
         for i in items:
-            print(f"{i.invoke:45} {i.id}{'  (inferred)' if i.inferred else ''}")
+            print(f"{i.invoke:45} {i.id:45} {','.join(i.agents)}{'  (inferred)' if i.inferred else ''}")
         print(f"{len(items)} skill(s)")
     return 0
 
@@ -446,6 +449,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--project")
     s.add_argument("--json", action="store_true")
     s.add_argument("--memory", action="store_true", help="import Claude Code memory files into knowledge")
+    s.add_argument("--agent", help="only skills this agent sees, by the names it invokes them (see registry/agents)")
     s.set_defaults(fn=cmd_scan)
     s = sub.add_parser("build", help="regenerate playbooks, schemas and dist/")
     s.add_argument("--root")

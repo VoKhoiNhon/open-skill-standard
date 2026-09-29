@@ -11,8 +11,8 @@ install:
 detect:
   - {glob: "~/.claude/plugins/cache/*/bmad-method/*/skills/{name}/SKILL.md", invoke: "bmad-method:{name}"}
   - {glob: "~/.claude/plugins/cache/*/bmad-toolbox/*/skills/{name}/SKILL.md", invoke: "bmad-toolbox:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
-  - {glob: "{project}/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex, cursor, copilot]
 skills:
   - name: bmad
