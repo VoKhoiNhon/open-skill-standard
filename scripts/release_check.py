@@ -44,7 +44,7 @@ def changelog_problems(text: str, v: str) -> list[str]:
 
 def problems(root: Path, v: str) -> list[str]:
     out = [f"version not bumped: {where} is {found}" for where, found in versions(root).items() if found != v]
-    return out + changelog_problems((root / "CHANGELOG.md").read_text(), v)
+    return out + changelog_problems((root / "CHANGELOG.md").read_text(encoding="utf-8"), v)
 
 
 def main() -> int:

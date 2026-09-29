@@ -31,7 +31,7 @@ def data_version(home: Path) -> int:
     home = Path(home)
     vf = home / VERSION_FILE
     if vf.is_file():
-        return int(vf.read_text().strip() or 0)
+        return int(vf.read_text(encoding="utf-8").strip() or 0)
     return 0 if any((home / m).exists() for m in _MARKERS) else SCHEMA_VERSION
 
 
