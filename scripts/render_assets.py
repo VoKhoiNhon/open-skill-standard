@@ -2,6 +2,7 @@
 
     uv run python scripts/render_assets.py           # write every generated SVG
     uv run python scripts/render_assets.py --check   # exit 1 when a generated SVG is missing or stale (CI)
+    uv run python scripts/render_assets.py --screenshots  # also the graph viewer PNGs (needs Chrome/Chromium/Edge)
 
 Diagrams come in a light and a -dark variant for <picture>. Output is deterministic: no timestamps, sorted data.
 Uses only the standard library and this repository's own package.
@@ -15,6 +16,7 @@ import subprocess
 import sys
 import shutil
 import tempfile
+import time
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -496,6 +498,63 @@ def lifecycle(reg) -> dict[str, str]:
     return themed("lifecycle", draw)
 
 
+# --- graph viewer screenshots: a manual step, since they need a browser (never run in CI or by --check) ---
+
+BROWSERS = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge",
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "/Applications/Chromium.app/Contents/MacOS/Chromium",
+            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"]
+
+
+def _browser() -> str | None:
+    for b in [os.environ.get("CHROME", ""), *BROWSERS]:
+        found = shutil.which(b) or (b if b and Path(b).is_file() else None)
+        if found:
+            return found
+    return None
+
+
+def _shoot(browser: str, page: Path, png: Path, profile: Path, size=(1280, 800)) -> None:
+    """Headless --screenshot; some builds keep running after writing the file, so stop the browser once it has."""
+    png.unlink(missing_ok=True)
+    proc = subprocess.Popen([browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
+                             "--force-device-scale-factor=1", f"--user-data-dir={profile}",
+                             f"--window-size={size[0]},{size[1]}", f"--screenshot={png}", page.as_uri()],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(600):
+        if proc.poll() is not None or (png.exists() and png.stat().st_size):
+            break
+        time.sleep(0.1)
+    time.sleep(0.5)
+    proc.kill()
+    proc.wait()
+    if not png.exists():
+        raise RuntimeError(f"{browser} wrote no screenshot")
+
+
+def screenshots(reg) -> list[str]:
+    """graph-viewer.png and graph-viewer-dark.png of `open-skill graph --format html` on the fixture machine."""
+    browser = _browser()
+    if not browser:
+        raise SystemExit("no Chrome, Chromium or Edge found; set CHROME to its executable")
+    written = []
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t)
+        env = _fixture_machine(tmp, reg)
+        run_cli(["graph", "--format", "html", "--out", str(tmp / "graph.html")], env, tmp / "project")
+        page = (tmp / "graph.html").read_text("utf-8")
+        query = "@media (prefers-color-scheme: dark)"
+        if query not in page:
+            raise SystemExit(f"the graph page no longer has '{query}'; update screenshots()")
+        # The page follows the OS theme, and headless browsers follow the OS: pin each theme instead.
+        for theme, media, name in (("light", "@media not all", "graph-viewer.png"),
+                                   ("dark", "@media all", "graph-viewer-dark.png")):
+            (tmp / f"graph-{theme}.html").write_text(page.replace(query, media), "utf-8")
+            _shoot(browser, tmp / f"graph-{theme}.html", ASSETS / name, tmp / "profile")
+            written.append(f"{name} ({(ASSETS / name).stat().st_size // 1024} KB)")
+    return written
+
+
 def render() -> dict[str, str]:
     reg = registry.load(ROOT)
     out = {}
@@ -510,6 +569,7 @@ def render() -> dict[str, str]:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="fail when a generated file is missing or stale")
+    ap.add_argument("--screenshots", action="store_true", help="also capture the graph viewer with a local browser")
     args = ap.parse_args(argv)
     stale = []
     for name, content in render().items():
@@ -527,6 +587,9 @@ def main(argv=None) -> int:
         return 1
     if args.check:
         print("assets: up to date")
+    if args.screenshots:
+        for w in screenshots(registry.load(ROOT)):
+            print(f"wrote {w}")
     return 0
 
 
