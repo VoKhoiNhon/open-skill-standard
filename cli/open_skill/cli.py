@@ -131,6 +131,10 @@ def cmd_doctor(args):
         print(f"  ! same skill name from several sources: {', '.join(v)}")
     if not (knowledge.home() / "profile.yaml").exists():
         print("  · no profile yet → open-skill init")
+    if userdata.pending(knowledge.home()):
+        print(f"  ! your data uses schema {userdata.data_version(knowledge.home())} → open-skill upgrade")
+    if knowledge.proposals():
+        print(f"  ! {len(knowledge.proposals())} seed update(s) to review → open-skill seeds diff")
     return 0
 
 

@@ -170,3 +170,9 @@ def test_status_reports_versions_and_pending_work(capsys, tmp_path):
     code, out = run(capsys, "status", "--json")
     info = json.loads(out)
     assert info["pending_migrations"] == 1 and info["cli_schema"] >= 1
+
+
+def test_doctor_points_to_upgrade_and_reviews(capsys, tmp_path):
+    (tmp_path / "h" / "knowledge").mkdir(parents=True)
+    code, out = run(capsys, "doctor")
+    assert "open-skill upgrade" in out
