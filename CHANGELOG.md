@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill scan` looks in the skill folders of every agent target and lists each skill once with the agents that see it; `scan --agent <id>` shows one agent's view under the names it invokes skills by. Detect rules may use `{skills}` and `{project_skills}` for every agent's folders, and may name an `agent` (SPEC §4.2).
 - `open-skill agents [--project DIR] [--json]` lists the known agents, which are installed on this machine, how many skills each sees and where an install for it goes; `doctor` shows the detected agents.
 - Routing evals for the engineering and quality-ops roles: bug, crash and incident reports, reviews, research, postmortems, Vietnamese phrasing, and spec-kit and BMad projects.
+- `open-skill search` filters: `--role`, `--phase`, `--source` and `--installed`, applied before `--limit`; without a query it lists every skill the filters keep.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
