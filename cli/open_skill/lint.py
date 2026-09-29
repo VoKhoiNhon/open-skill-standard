@@ -10,6 +10,7 @@ BEST = "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-p
 FABLE5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5"
 OPUS5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5"
 SONNET5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5"
+SPEC = "https://agentskills.io/specification"
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
 
 PATTERNS = [
@@ -29,7 +30,7 @@ PATTERNS = [
 ]
 REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|don'?t nitpick)")
 SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
-NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # no leading, trailing or double hyphens (Agent Skills spec)
 
 
 # Errors break skills on some agent or model; warnings are strong advice.
@@ -59,8 +60,10 @@ def lint_text(text: str, path: str = "<text>") -> list[Finding]:
     name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
     if not name:
         add("frontmatter-name", "name is missing", BEST)
-    elif len(name) > 64 or not NAME_RX.match(name) or "claude" in name or "anthropic" in name:
-        add("frontmatter-name", "name must be kebab-case, at most 64 chars, without 'claude' or 'anthropic'", BEST)
+    elif len(name) > 64 or not NAME_RX.match(name):
+        add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen", SPEC)
+    elif "claude" in name or "anthropic" in name:
+        add("frontmatter-name", "name must not contain 'claude' or 'anthropic'", BEST)
     if not desc:
         add("frontmatter-description", "description is missing", BEST)
     elif len(desc) > 1024 or "<" in desc or ">" in desc:

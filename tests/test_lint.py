@@ -47,3 +47,13 @@ def test_every_finding_cites_a_source():
 def test_findings_carry_severity():
     by_rule = {f.rule: f.severity for f in lint.lint_text(doc("Show your reasoning in the response. Double-check your answer."))}
     assert by_rule == {"reasoning-in-response": "error", "redundant-verification": "warning"}
+
+
+@pytest.mark.parametrize("name", ["-pdf", "pdf-", "pdf--processing", "PDF-Processing", "pdf_processing"])
+def test_spec_name_rules(name):
+    assert "frontmatter-name" in rules(doc("x", name=name))
+
+
+def test_spec_name_accepts_valid_names():
+    for name in ["pdf-processing", "data-analysis", "code-review", "a1"]:
+        assert "frontmatter-name" not in rules(doc("x", name=name))
