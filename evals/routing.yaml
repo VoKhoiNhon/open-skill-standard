@@ -317,3 +317,6 @@ cases:
   - {id: fs-spec-kit-tasks, role: fullstack-developer, task: "break the plan into tasks", phase: plan, files: [.specify/memory/constitution.md, specs/001-invites/plan.md], include: [spec-kit/tasks]}
   - {id: fe-taste, role: frontend-developer, task: "build a landing page that does not look templated", phase: build, include: [taste-skill/taste-skill]}
   - {id: game-bmad-brainstorm, role: game-developer, task: "brainstorm mechanics for a co-op puzzle level", phase: discover, files: [_bmad/config.toml], include: [bmad-method/bmad-brainstorming]}
+  - {id: sre-explore, role: site-reliability-engineer, task: "how does the retry logic in the job runner work", phase: research, files: [.codegraph/codegraph.db], include: [codegraph/explore]}
+  - {id: qa-affected, role: qa-engineer, task: "find the test files affected by my changed source files", phase: verify, files: [.codegraph/codegraph.db], include: [codegraph/affected]}
+  - {id: sec-code-review, role: security-engineer, task: "review this change for performance and correctness, N+1 queries and error handling gaps", phase: review, include: [knowledge-work-engineering/code-review]}
