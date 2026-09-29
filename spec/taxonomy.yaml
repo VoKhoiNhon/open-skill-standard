@@ -21,7 +21,12 @@ phases:
   - id: release
     keywords: [release, deploy, ship, publish, rollout, merge, phát hành, triển khai lên, deploy lên]
   - id: operate
-    keywords: [incident, outage, alert, monitor, "on-call", debug, error, failing, broken, crash, crashes, hangs, slow, cost, sự cố, lỗi, treo, văng, giám sát, chậm, chi phí]
+    # Symptoms count too: people report what they see, not that it is a bug. Not bare "regression" (a model type).
+    keywords: [incident, outage, alert, monitor, "on-call", debug, error, failing, broken, crash, crashes, hangs, slow, cost,
+               slower, regressed, "performance regression", timeout, "timed out", "times out", "stopped working",
+               "not working", "doesn't work", "returns nothing", "since yesterday",
+               sự cố, lỗi, treo, văng, giám sát, chậm, chi phí, "không chạy", "không hoạt động", "ngừng hoạt động",
+               "không trả về", "từ hôm qua"]
   - id: learn
     keywords: [retro, retrospective, postmortem, "lessons learned", remember, "note that", bài học, rút kinh nghiệm, ghi nhớ]
 
