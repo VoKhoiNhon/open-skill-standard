@@ -1,0 +1,16 @@
+id: cursor
+name: Cursor
+docs: https://cursor.com/docs/context/skills
+global:
+  - {path: "~/.cursor/skills", source: "https://cursor.com/docs/context/skills"}
+  - {path: "~/.agents/skills", source: "https://cursor.com/docs/context/skills"}
+  - {path: "~/.claude/skills", source: "https://cursor.com/docs/context/skills"}
+  - {path: "~/.codex/skills", source: "https://cursor.com/docs/context/skills"}
+project:
+  - {path: ".agents/skills", source: "https://cursor.com/docs/context/skills"}
+  - {path: ".cursor/skills", source: "https://cursor.com/docs/context/skills"}
+  - {path: ".claude/skills", source: "https://cursor.com/docs/context/skills"}
+  - {path: ".codex/skills", source: "https://cursor.com/docs/context/skills"}
+detect:
+  - {path: "~/.cursor", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L275"}
+notes: Invoked by typing / in Agent chat and searching for the skill name. Claude and Codex folders are read for compatibility.
