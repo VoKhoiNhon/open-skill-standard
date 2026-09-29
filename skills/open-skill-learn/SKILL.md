@@ -1,6 +1,6 @@
 ---
 name: open-skill-learn
-description: Saves the user's lessons, preferences, glossary terms and project facts into their local skill graph so future routing and work use them; also forgets or exports them. Use when the user says "remember", "from now on", "note that", "don't do X again", "ghi nhớ", "bài học", corrects how you worked, or when an incident or mistake teaches something worth keeping.
+description: Remembers what the user teaches - lessons, preferences, conventions, glossary terms and project facts - in their local knowledge so future work and routing use them; also forgets notes, exports them, and handles starter-knowledge updates after a release. Use when the user says "remember", "from now on", "note that", "always", "never again", "don't do X again", "forget", "ghi nhớ", "bài học", "từ giờ", when they correct how you worked, when an incident teaches something, or when they ask to export notes or review seed updates.
 ---
 
 # Open Skill Learn
