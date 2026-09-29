@@ -18,13 +18,13 @@ open-skill learn "<one fact>" --applies-to <scopes> --type lesson|preference|pit
 ```
 
 Scopes tell the router when the note applies; combine as needed, comma separated:
-`skill:<id>` (for example `skill:bmad-method/bmad-build`), `role:<role-id>`, `project:<absolute path>`, `phase:<phase>`, or `role:*` for everything.
+`skill:<id or invoke name>` (for example `skill:bmad-method/bmad-build`), `role:<role-id>`, `project:<path>` (`project:.` for the current project), `phase:<phase>`, or `role:*` for everything. Quote a scope with `*` (`'role:*'`) so the shell does not expand it. An unknown kind, role or phase is refused with the valid values.
 
 Saving the same text again updates the existing note instead of duplicating it. Don't save what the repository or chat history already records; a copy goes stale when the source changes. The CLI refuses text that looks like a secret, token, email or phone number; keep credentials and personal data out of notes entirely.
 
 ## Forget, review, move
 
-- `ls ~/.open-skill/knowledge/` lists notes; each is a plain Markdown file the user can edit.
+- `ls ~/.open-skill/knowledge/` lists notes (the `home` line of `open-skill status` shows the folder if it moved); each is a plain Markdown file the user can edit.
 - `open-skill forget <note-id>` deletes one; delete notes that turned out to be wrong.
 - `open-skill export <file.zip>` copies profile and notes to another machine (usage history stays local).
 - `open-skill scan --memory` imports Claude Code memory files as notes, read-only.
@@ -34,7 +34,7 @@ Saving the same text again updates the existing note instead of duplicating it. 
 Updating skills or the CLI never changes the notes folder. When the CLI reports that it upgraded the user's data, or `open-skill status` lists seed updates to review, tell the user in one line and offer:
 
 - `open-skill upgrade --dry-run`, then `open-skill upgrade` — back up, migrate, sync starter knowledge.
-- `open-skill seeds diff` — upstream rewrote a seed the user had edited; `seeds accept <id>` takes upstream's wording (after a backup), `seeds keep <id>` keeps theirs.
+- `open-skill seeds diff` — upstream rewrote a seed the user had edited; `open-skill seeds accept <id>` takes upstream's wording (after a backup), `open-skill seeds keep <id>` keeps theirs.
 - `open-skill upgrade --rollback` — undo the last upgrade.
 
 Let the user decide on seed updates; their edited wording is theirs.
