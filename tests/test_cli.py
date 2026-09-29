@@ -117,3 +117,11 @@ def test_migrate_command_dry_run_then_apply(capsys, tmp_path):
     code, out = run(capsys, "migrate")
     assert "updated k-a.md" in out and (tmp_path / "h" / "VERSION").exists()
     assert "up to date" in run(capsys, "migrate")[1]
+
+
+def test_playbook_renders_seed_objects_as_text():
+    from open_skill import generate, registry
+    reg = registry.load(FIX / "repo")
+    reg.roles["data-engineer"]["seeds"] = [{"id": "merge-key", "text": "Use MERGE on the key."}, "Legacy seed."]
+    text = generate.role_playbook(reg, "data-engineer")
+    assert "- Use MERGE on the key." in text and "- Legacy seed." in text and "merge-key" not in text

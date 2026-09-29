@@ -31,7 +31,7 @@ def role_playbook(reg, rid: str) -> str:
             prim += f"<br>*{entry['note']}*"
         lines.append(f"| {ph} | {prim} | {alt} |")
     if r.get("seeds"):
-        lines += ["", "## Starter knowledge", ""] + [f"- {s}" for s in r["seeds"]]
+        lines += ["", "## Starter knowledge", ""] + [f"- {s['text'] if isinstance(s, dict) else s}" for s in r["seeds"]]
     if r.get("signals"):
         lines += ["", "## Project signals", "", ", ".join(f"`{s}`" for s in r["signals"])]
     if r.get("handoff"):
