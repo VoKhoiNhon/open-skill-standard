@@ -110,3 +110,49 @@ def test_restore_rejects_path_traversal(tmp_path):
         userdata.restore(home, evil)
     assert not (tmp_path / "outside.txt").exists()
     assert (home / "profile.yaml").exists()
+
+
+def test_migrate_runs_steps_in_order_with_backup(tmp_path, monkeypatch):
+    home = _layer(tmp_path / "h")
+    calls = []
+    monkeypatch.setattr(userdata, "SCHEMA_VERSION", 2)
+    monkeypatch.setattr(userdata, "MIGRATIONS", {
+        0: ("first", lambda h, dry: calls.append((0, dry)) or ["did 0"]),
+        1: ("second", lambda h, dry: calls.append((1, dry)) or ["did 1"]),
+    })
+    actions = userdata.migrate(home)
+    assert calls == [(0, False), (1, False)]
+    assert actions[0].startswith("backed up to") and "v1 -> v2: second" in actions
+    assert userdata.data_version(home) == 2
+    assert userdata.migrate(home) == []
+
+
+def test_migrate_dry_run_changes_nothing(tmp_path, monkeypatch):
+    home = _layer(tmp_path / "h")
+    monkeypatch.setattr(userdata, "MIGRATIONS", {0: ("first", lambda h, dry: ["would do"] if dry else ["did"])})
+    actions = userdata.migrate(home, dry_run=True)
+    assert "  would do" in actions
+    assert userdata.data_version(home) == 0 and userdata.list_backups(home) == []
+
+
+def test_v0_to_v1_keeps_bodies_byte_for_byte(tmp_path):
+    import yaml
+    from open_skill import frontmatter
+    home = tmp_path / "h"
+    k = home / "knowledge"
+    k.mkdir(parents=True)
+    seed_body = "Use MERGE on the business key.\n\n  Keep   spacing  exactly.\n"
+    user_body = "My own note, edited by hand.\n"
+    (k / "k-seed.md").write_text("---\nid: k-seed\ntype: pitfall\nsource: seed\napplies_to: [role:data-engineer]\n---\n" + seed_body)
+    (k / "k-user.md").write_text("---\nid: k-user\ntype: lesson\nsource: user\napplies_to: ['role:*']\n---\n" + user_body)
+    (k / "broken.md").write_text("no frontmatter at all")
+    actions = userdata.migrate(home)
+    assert userdata.data_version(home) == 1
+    seed_meta, _ = frontmatter.parse((k / "k-seed.md").read_text())
+    assert seed_meta["schema"] == 1 and seed_meta["seed_hash"] == userdata.text_hash(seed_body)
+    assert (k / "k-seed.md").read_text().endswith(seed_body)
+    assert (k / "k-user.md").read_text().endswith(user_body)
+    assert "seed_hash" not in frontmatter.parse((k / "k-user.md").read_text())[0]
+    assert (k / "broken.md").read_text() == "no frontmatter at all"
+    assert any(a.startswith("backed up to") for a in actions)
+    assert userdata.migrate(home) == []

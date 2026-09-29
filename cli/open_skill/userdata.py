@@ -122,3 +122,73 @@ def restore(home: Path, archive: Path) -> Path | None:
         os.replace(entry, home / entry.name)
     staging.rmdir()
     return safety
+
+
+# version -> (summary, step). A step upgrades data from `version` to `version + 1` and returns what it
+# changed (or would change, when dry_run is true). Steps must be idempotent and must not alter user text.
+MIGRATIONS: dict = {}
+
+
+def pending(home: Path) -> list[int]:
+    return list(range(data_version(home), SCHEMA_VERSION))
+
+
+def migrate(home: Path, dry_run: bool = False) -> list[str]:
+    """Bring the user layer to SCHEMA_VERSION, backing it up first. Returns a description of each change."""
+    home = Path(home)
+    v = data_version(home)
+    if v > SCHEMA_VERSION:
+        raise NewerDataError(f"{home} uses data schema {v}; this open-skill understands up to {SCHEMA_VERSION}.")
+    steps = pending(home)
+    if not steps:
+        return []
+    actions: list[str] = []
+    if not dry_run:
+        saved = backup(home, f"pre-migrate-v{v}")
+        if saved:
+            actions.append(f"backed up to {saved}")
+    for step in steps:
+        summary, fn = MIGRATIONS[step]
+        actions.append(f"v{step} -> v{step + 1}: {summary}")
+        actions += [f"  {a}" for a in fn(home, dry_run)]
+        if not dry_run:
+            write_version(home, step + 1)
+    return actions
+
+
+def text_hash(text: str) -> str:
+    import hashlib
+    import re
+
+    return hashlib.sha1(re.sub(r"\s+", " ", text.strip().lower()).encode()).hexdigest()[:12]
+
+
+def _split_note(raw: str) -> tuple[str, str]:
+    """(frontmatter yaml, body) split textually so the body is preserved byte for byte."""
+    if raw.startswith("---\n"):
+        end = raw.find("\n---\n", 4)
+        if end != -1:
+            return raw[4:end], raw[end + 5 :]
+    return "", raw
+
+
+def _m0_to_1(home: Path, dry_run: bool) -> list[str]:
+    """Stamp notes with `schema: 1`; seed notes also record the hash of their text as `seed_hash`."""
+    import yaml
+
+    changed = []
+    for p in sorted((Path(home) / "knowledge").glob("*.md")):
+        fm, body = _split_note(p.read_text(encoding="utf-8"))
+        meta = yaml.safe_load(fm) if fm else None
+        if not isinstance(meta, dict) or meta.get("schema") == 1:
+            continue
+        meta["schema"] = 1
+        if meta.get("source") == "seed" and "seed_hash" not in meta:
+            meta["seed_hash"] = text_hash(body)
+        changed.append(f"{'would update' if dry_run else 'updated'} {p.name}")
+        if not dry_run:
+            atomic_write(p, "---\n" + yaml.safe_dump(meta, sort_keys=False, allow_unicode=True) + "---\n" + body)
+    return changed
+
+
+MIGRATIONS[0] = ("stamp notes with a schema version and record seed provenance", _m0_to_1)

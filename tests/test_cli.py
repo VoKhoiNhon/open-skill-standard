@@ -105,3 +105,15 @@ def test_restore_command(capsys, tmp_path):
     assert code == 0 and "previous state saved" in out
     texts = [p.read_text() for p in (tmp_path / "h" / "knowledge").glob("*.md")]
     assert any("First note" in t for t in texts) and not any("Second note" in t for t in texts)
+
+
+def test_migrate_command_dry_run_then_apply(capsys, tmp_path):
+    k = tmp_path / "h" / "knowledge"
+    k.mkdir(parents=True)
+    (k / "k-a.md").write_text("---\nid: k-a\ntype: lesson\nsource: user\napplies_to: ['role:*']\n---\nText\n")
+    code, out = run(capsys, "migrate", "--dry-run")
+    assert code == 0 and "dry run" in out and "would update k-a.md" in out
+    assert not (tmp_path / "h" / "VERSION").exists()
+    code, out = run(capsys, "migrate")
+    assert "updated k-a.md" in out and (tmp_path / "h" / "VERSION").exists()
+    assert "up to date" in run(capsys, "migrate")[1]
