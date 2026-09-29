@@ -5,7 +5,9 @@ description: Use before calling any software or data work done or ready to merge
 
 # Open Skill Standards
 
-Use this as a checklist, not as reading material. For each item, state pass, fail or not applicable, with the evidence (the command you ran and what it showed). Read the general section plus the principles of the role doing the work: `references/<role-id>.md`.
+Use this as a checklist, not as reading material. Read the general section plus the principles of the role doing the work: `references/<role-id>.md`.
+
+Report each failed item with its evidence (the command and what it showed) and each item nothing has verified yet; passes fit in one line, since a long list of passes hides the failures. Reuse test and build output you already have instead of running it again, and run a command only for an item nothing has checked.
 
 ## General
 
