@@ -158,6 +158,26 @@ def test_core_skills_trigger_proxy_holds_on_holdout():
         assert m["precision"] >= precision and m["recall"] >= recall, (skill, m)
 
 
+# The same per locale: requests in Vietnamese must keep triggering the core skills as descriptions change.
+# locale -> skill -> ((tune precision, tune recall), (holdout precision, holdout recall)).
+LOCALE_FLOORS = {"vi": {
+    "open-skill-intel": ((0.95, 0.30), (0.95, 0.0)),
+    "open-skill-learn": ((0.95, 0.45), (0.95, 0.45)),
+    "open-skill-router": ((0.95, 0.95), (0.95, 0.0)),
+    "open-skill-standards": ((0.95, 0.95), (0.95, 0.0)),
+}}
+
+
+def test_core_skills_trigger_proxy_holds_per_locale():
+    rep = _core_trigger_report()
+    for loc, floors in LOCALE_FLOORS.items():
+        for skill, parts in floors.items():
+            for part, (precision, recall) in zip(("train", "validation"), parts):
+                m = rep[skill]["locales"][loc][part]
+                assert m["tp"] + m["fn"] >= 2, (loc, skill, part, "slice too small")
+                assert m["precision"] >= precision and m["recall"] >= recall, (loc, skill, part, m)
+
+
 def test_invoked_skills_parses_stream_json():
     import json
     lines = [
