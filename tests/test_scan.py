@@ -1,0 +1,59 @@
+from pathlib import Path
+
+import pytest
+
+from open_skill import registry, scan
+
+FIX = Path(__file__).parent / "fixtures"
+
+
+@pytest.fixture
+def reg():
+    return registry.load(FIX / "repo")
+
+
+@pytest.fixture(autouse=True)
+def fake_home(monkeypatch):
+    monkeypatch.setenv("HOME", str(FIX / "home"))
+
+
+def by_invoke(items):
+    return {i.invoke: i for i in items}
+
+
+def test_plugin_rule_wins_over_later_rule(reg):
+    got = by_invoke(scan.scan(reg))
+    tdd = got["superpowers:test-driven-development"]
+    assert tdd.id == "superpowers/test-driven-development"
+    assert tdd.inferred is False
+    assert "test-driven-development" not in got  # same skill, first rule wins
+
+
+def test_unknown_upstream_skill_is_inferred(reg):
+    got = by_invoke(scan.scan(reg))
+    assert got["superpowers:brand-new-skill"].inferred is True
+    assert got["superpowers:brand-new-skill"].id == "superpowers/brand-new-skill"
+
+
+def test_skill_outside_any_adapter_is_harvested(reg):
+    got = by_invoke(scan.scan(reg))
+    mine = got["my-internal-skill"]
+    assert mine.id == "harvested/my-internal-skill"
+    assert mine.inferred is True
+    assert "warehouse" in mine.description
+    assert got["toolkit:lint-helper"].id == "harvested/lint-helper"
+
+
+def test_project_skills_need_project(reg):
+    assert "speckit-plan" not in by_invoke(scan.scan(reg))
+    got = by_invoke(scan.scan(reg, project=FIX / "project"))
+    assert got["speckit-plan"].id == "spec-kit/plan"
+    assert got["speckit-plan"].inferred is False
+
+
+def test_builtin_adapter_available_only_under_its_env(reg, monkeypatch):
+    monkeypatch.delenv("CLAUDECODE", raising=False)
+    assert "code-review" not in by_invoke(scan.scan(reg))
+    monkeypatch.setenv("CLAUDECODE", "1")
+    got = by_invoke(scan.scan(reg))
+    assert got["code-review"].id == "claude-code-builtin/code-review" and got["code-review"].inferred is False
