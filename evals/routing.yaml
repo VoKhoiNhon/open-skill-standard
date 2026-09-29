@@ -256,6 +256,10 @@ cases:
      phases: [review], include: [claude-code-builtin/code-review], exclude: [knowledge-work-design/design-critique]}
   - {id: tech-writer-review-bmad, role: technical-writer, task: "review the API docs for accuracy", files: [_bmad/config.toml],
      phases: [review], include: [bmad-method/bmad-review]}
+  - {id: tech-writer-vietnamese, role: technical-writer, task: "viết tài liệu hướng dẫn sử dụng API",
+     include: [knowledge-work-engineering/documentation]}
+  - {id: tech-writer-release-notes, role: technical-writer, task: "write the release notes for version 2",
+     include: [knowledge-work-engineering/documentation], exclude: [superpowers/subagent-driven-development]}
   - {id: scrum-master, role: scrum-master, task: "plan the sprint and run the retrospective",
      first: knowledge-work-product-management/sprint-planning}
   - {id: scrum-master-bmad, role: scrum-master, task: "plan the sprint", files: [_bmad/config.toml],
