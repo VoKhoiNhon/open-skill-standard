@@ -86,6 +86,8 @@ cases:
      phases: [review]}
   - {id: sre-vietnamese-incident, role: site-reliability-engineer, task: "hệ thống thanh toán bị sự cố, lỗi tăng cao",
      first: knowledge-work-engineering/incident-response}
+  - {id: sre-spec-kit, role: site-reliability-engineer, task: "add alerts for the payment API latency",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
   - {id: cloud-cost, role: cloud-engineer, task: "our cloud cost doubled this month",
