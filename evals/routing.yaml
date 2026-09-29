@@ -40,6 +40,8 @@ cases:
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: mobile-bmad, role: mobile-developer, task: "add a settings screen", files: [_bmad/config.toml],
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: mobile-react-native, role: mobile-developer, task: "add a swipeable list to the React Native feed screen",
+     include: [vercel-agent-skills/react-native-skills, claude-code-builtin/run]}
   - {id: embedded, role: embedded-engineer, task: "add a temperature sensor driver over I2C",
      include: [superpowers/test-driven-development]}
   - {id: embedded-spec-kit, role: embedded-engineer, task: "add a bootloader update over UART",
