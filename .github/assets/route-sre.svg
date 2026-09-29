@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="790" height="588" viewBox="0 0 790 588" role="img" aria-label="open-skill route --explain · site-reliability-engineer: open-skill route &quot;checkout requests time out since yesterday&quot; --role site-reliability-engineer --explain" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5">
-<rect x="0.5" y="0.5" width="789" height="587" rx="10" fill="#161b22" stroke="#30363d"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="790" height="516" viewBox="0 0 790 516" role="img" aria-label="open-skill route --explain · site-reliability-engineer: open-skill route &quot;checkout requests time out since yesterday&quot; --role site-reliability-engineer --explain" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5">
+<rect x="0.5" y="0.5" width="789" height="515" rx="10" fill="#161b22" stroke="#30363d"/>
 <circle cx="20" cy="18" r="5.5" fill="#ff5f57"/>
 <circle cx="38" cy="18" r="5.5" fill="#febc2e"/>
 <circle cx="56" cy="18" r="5.5" fill="#28c840"/>
@@ -28,10 +28,6 @@
 <text x="20" y="426" fill="#e3b341" textLength="60" lengthAdjust="spacingAndGlyphs">  claude</text>
 <text x="20" y="444" fill="#e3b341" textLength="697.5" lengthAdjust="spacingAndGlyphs">missing: addy-agent-skills/observability-and-instrumentation (not installed) → npx skills add</text>
 <text x="20" y="462" fill="#e3b341" textLength="187.5" lengthAdjust="spacingAndGlyphs">  addyosmani/agent-skills</text>
-<text x="20" y="480" fill="#8b949e" textLength="705" lengthAdjust="spacingAndGlyphs">model note: Act once you have enough information; when weighing options, give a recommendation</text>
-<text x="20" y="498" fill="#8b949e" textLength="165" lengthAdjust="spacingAndGlyphs">  instead of a survey.</text>
-<text x="20" y="516" fill="#8b949e" textLength="750" lengthAdjust="spacingAndGlyphs">model note: Keep changes to what the task asks for; mention other improvements at the end instead of</text>
-<text x="20" y="534" fill="#8b949e" textLength="105" lengthAdjust="spacingAndGlyphs">  making them.</text>
-<text x="20" y="552" fill="#8b949e" textLength="735" lengthAdjust="spacingAndGlyphs">model note: Before reporting progress, point to the tool result that shows it; say plainly what is</text>
-<text x="20" y="570" fill="#8b949e" textLength="112.5" lengthAdjust="spacingAndGlyphs">  not verified.</text>
+<text x="20" y="480" fill="#8b949e" textLength="750" lengthAdjust="spacingAndGlyphs">model note: Keep changes to what the task asks for; mention other improvements at the end instead of</text>
+<text x="20" y="498" fill="#8b949e" textLength="105" lengthAdjust="spacingAndGlyphs">  making them.</text>
 </svg>
