@@ -5,7 +5,7 @@ description: Saves what the user teaches - a lesson, preference, convention, glo
 
 # Open Skill Learn
 
-Current models do better work when they can read lessons from earlier sessions. This skill keeps those lessons as small local files that `open-skill route` attaches to future chains.
+A correction the user makes once should not have to be made again next week. This skill keeps such lessons as small local files that `open-skill route` attaches to future chains.
 
 `open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-skill`.
 
@@ -20,7 +20,7 @@ open-skill learn "<one fact>" --applies-to <scopes> --type lesson|preference|pit
 Scopes tell the router when the note applies; combine as needed, comma separated:
 `skill:<id>` (for example `skill:bmad-method/bmad-build`), `role:<role-id>`, `project:<absolute path>`, `phase:<phase>`, or `role:*` for everything.
 
-Saving the same text again updates the existing note instead of duplicating it. Don't save what the repository or chat history already records. The CLI refuses text that looks like a secret, token, email or phone number; keep credentials and personal data out of notes entirely.
+Saving the same text again updates the existing note instead of duplicating it. Don't save what the repository or chat history already records; a copy goes stale when the source changes. The CLI refuses text that looks like a secret, token, email or phone number; keep credentials and personal data out of notes entirely.
 
 ## Forget, review, move
 

@@ -18,7 +18,7 @@ Run, from the project root:
 open-skill route "<the user's request, in their words>" --project . --model <your model id> --agent <agent id> [--role <role>]
 ```
 
-`--agent` is the coding agent you are running in (`claude-code`, `codex`, `cursor`, `gemini-cli`, `github-copilot`, `opencode`, `goose`, `windsurf`, `amp`; `open-skill agents` lists them). The chain then holds only skills that agent can load, under the names it invokes them by; leave it out if you are unsure. Pass `--role` only when the user stated one; otherwise the CLI uses their saved profile or project signals. The JSON output has `chain` (ordered steps with `invoke`, `phase`, `why`, `effort`), `knowledge` (the user's lessons and preferences that apply), `missing` (useful skills that are not installed or need a project init), `advice`, and `model` (notes for the model you are running on).
+`--agent` is the coding agent you are running in (`claude-code`, `codex`, `cursor`, `gemini-cli`, `github-copilot`, `opencode`, `goose`, `windsurf`, `amp`; `open-skill agents` lists them). The chain then holds only skills that agent can load, under the names it invokes them by; leave it out if you are unsure. Pass `--model` only with the exact id your runtime gives you, not a guess; without it the CLI uses a generic profile. Pass `--role` only when the user stated one; otherwise the CLI uses their saved profile or project signals. The JSON output has `chain` (ordered steps with `invoke`, `phase`, `why`, `effort`), `knowledge` (the user's lessons and preferences that apply), `missing` (useful skills that are not installed or need a project init), `advice`, and `model` (notes for the model you are running on).
 
 ## 2. Check it against the real request
 
@@ -54,4 +54,4 @@ If `uv`/`uvx` is unavailable or the command fails, route by hand:
 1. Identify the role from the user or the project, then read `references/roles/<role>.md` (index: `references/roles/README.md`).
 2. Pick the phases the request needs: new or large work starts at specify or plan; a bug starts at operate; a question starts at research.
 3. For each phase, take the first primary skill that is installed; use an alternative only if no primary is.
-4. Announce and start as above. Skip step 4.
+4. Announce and start as above; there is no route to record feedback for.

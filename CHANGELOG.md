@@ -27,6 +27,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Adapter for [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (25 engineering lifecycle skills, MIT), watched by the adapter-drift workflow. SREs build alerts and tracing with `observability-and-instrumentation`, security engineers build fixes with `security-and-hardening`, and DBAs plan zero-downtime migrations with `deprecation-and-migration`.
 
 ### Changed
+- Core skill bodies tightened: open-skill-standards reports failures and unverified items and reuses existing test output; open-skill-intel stops at the first source that answers; open-skill-router passes `--model` only when the id is known and its manual path no longer points at itself; open-skill-learn states its reason without claims about models.
 - The open-skill-router, open-skill-standards and open-skill-learn descriptions say when to use them more plainly (the order of skills and work with several steps; checks before calling work done, ADRs and commit messages; notes scoped to a role, project or skill). Lexical proxy recall on tuning queries 0.60 → 0.70, 0.70 → 0.80 and 0.70 → 0.90; holdout scores unchanged except one learn false alarm fewer.
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
 - Releases are titled `vX.Y.Z — <theme>` automatically, from the first line of the CHANGELOG section (`scripts/changelog.py title`).

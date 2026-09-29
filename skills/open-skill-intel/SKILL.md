@@ -5,7 +5,7 @@ description: Finds facts before acting by asking the best source - how code work
 
 # Open Skill Intel
 
-Get the needed fact with the fewest calls before guessing. Each kind of question has a best source; guessing an API or crawling a whole repo with grep when a graph can answer are both slower and less reliable.
+Get the needed fact with the fewest calls instead of guessing. Each kind of question has a best source; guessing an API or crawling a whole repo with grep when a graph can answer are both slower and less reliable.
 
 | Question | Source | How |
 |---|---|---|
@@ -22,6 +22,6 @@ Get the needed fact with the fewest calls before guessing. Each kind of question
 | What the user prefers or learned before | Their knowledge | `ls ~/.open-skill/knowledge/`, or the `knowledge` field of `open-skill route` |
 | Which skill can do X | The skill graph | `open-skill search "<need>"`; `open-skill doctor` for what is installed or missing |
 
-Answer briefly with the source of each fact (file and line, table, URL). If the answer decides the next step, say what it is, or hand back to `open-skill-router`.
+Stop at the first source that answers; check a second one only when sources disagree or the fact is about to decide something hard to undo. Answer briefly with the source of each fact (file and line, table, URL). If the answer decides the next step, say what it is, or hand back to `open-skill-router`.
 
 `open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-skill`.
