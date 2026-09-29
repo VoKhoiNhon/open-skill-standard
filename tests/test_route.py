@@ -210,3 +210,11 @@ def test_phase_and_size_keywords_match_without_diacritics():
     assert route.task_size("doi ten bien total", tax, None) == "small"
     assert route.target_phase("the prefix is wrong in the reviewer list", tax) == "build"  # whole words only
     assert route._matched("page the on call engineer", ["on-call", "call"]) == ["on-call", "call"]
+
+
+def test_accents_the_user_typed_still_tell_words_apart():
+    tax = REG.taxonomy
+    assert route.task_size("rò rỉ bộ nhớ khi tải ảnh", tax, None) == "medium"  # nhớ (memory) is not nhỏ (small)
+    assert route._matched("thêm lời chào cho trang chủ", ["lỗi"]) == []  # lời (words) is not lỗi (error)
+    assert route._matched("vang khi mo camera", ["văng"]) == ["văng"]  # typed without accents: fold
+    assert route.task_size("doi ten ham get_user thanh load_user", tax, None) == "small"  # _ splits words
