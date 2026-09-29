@@ -121,6 +121,13 @@ rule("browser-data", "high",
      "https://attack.mitre.org/techniques/T1555/003/")
 
 
+# Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
+# byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
+# scripts use them; add them if hidden payloads start using those.
+rule("hidden-unicode", "high", r"[​‪-‮⁠-⁤⁦-⁩\U000e0000-\U000e007f]|(?<!^)﻿",
+     "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
