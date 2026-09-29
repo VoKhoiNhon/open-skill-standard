@@ -161,6 +161,15 @@ def _explain(r) -> str:
     lines = [f"route {r['route_id']}  role={r['role']}  size={r['size']}  target={r['target_phase']}",
              f"project native={r['project']['native']} artifacts={r['project']['artifacts']}",
              f"model profile={r['model']['profile']} ({r['model']['matched_by']}) effort={r['model']['effort']}"]
+    d = r.get("decisions")
+    if d:
+        ph, sz = d["phase"], d["size"]
+        lines.append(f"target {ph['target']} from phase keywords: {', '.join(ph['keywords'])}" if ph["keywords"]
+                     else f"target {ph['target']}: no phase keywords, the default")
+        lines.append({"given": f"size {sz['size']}: given",
+                      "keywords": f"size {sz['size']} from size keywords: {', '.join(sz['keywords'])}",
+                      "default": f"size {sz['size']}: no size keywords, the default"}[sz["from"]])
+        lines.append(f"phase window: {' → '.join(d['window'])} ({d['window_reason']})")
     if r["advice"]:
         lines.append(f"advice: {r['advice']}")
     for i, s in enumerate(r["chain"], 1):
@@ -203,7 +212,7 @@ def cmd_route(args):
     if args.why_not:
         return _why_not(args, reg, proj, installed)
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
-                    record=not args.no_record)
+                    record=not args.no_record, decisions=args.explain)
     _print(_explain(r) if args.explain else r, as_json=not args.explain)
     return 0
 
