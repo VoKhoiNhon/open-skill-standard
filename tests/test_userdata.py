@@ -78,3 +78,12 @@ def test_backup_names_sort_in_creation_order(tmp_path):
     home = _layer(tmp_path / "h")
     made = [userdata.backup(home, "auto") for _ in range(5)]
     assert sorted(made) == made and len(set(made)) == 5
+
+
+def test_prune_keeps_newest_of_one_label_only(tmp_path):
+    home = _layer(tmp_path / "h")
+    autos = [userdata.backup(home, "auto") for _ in range(4)]
+    manual = userdata.backup(home, "manual")
+    removed = userdata.prune_backups(home, "auto", keep=2)
+    assert removed == autos[:2]
+    assert set(userdata.list_backups(home)) == {autos[2], autos[3], manual}

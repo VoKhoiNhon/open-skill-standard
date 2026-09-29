@@ -78,3 +78,15 @@ def backup(home: Path, label: str = "manual") -> Path | None:
             z.write(p, p.relative_to(home).as_posix())
     return dest
 
+
+def list_backups(home: Path) -> list[Path]:
+    return sorted((Path(home) / BACKUP_DIR).glob("*.zip"))
+
+
+def prune_backups(home: Path, label: str, keep: int = 10) -> list[Path]:
+    """Delete all but the newest `keep` backups with this label; other labels (manual ones) are never touched."""
+    mine = [p for p in list_backups(home) if p.stem.split(".")[0].endswith(f"-{label}")]
+    doomed = mine[:-keep] if keep else mine
+    for p in doomed:
+        p.unlink()
+    return doomed
