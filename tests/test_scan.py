@@ -126,3 +126,16 @@ def test_agent_view_keeps_only_its_skills_with_its_names(reg):
     assert got["test-driven-development"].agent == "codex"
     assert "superpowers:test-driven-development" not in got  # plugin names are Claude Code only
     assert "my-internal-skill" not in got  # lives in ~/.claude/skills, which codex does not read
+
+
+def test_later_rule_of_same_adapter_does_not_reclaim_a_path(reg, tmp_path, monkeypatch):
+    # Upstream folder "react-best-practices" installs as "vendor-react-best-practices"; "vendor-cli" keeps its name.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    for folder in ("vendor-react-best-practices", "vendor-cli"):
+        (tmp_path / ".claude/skills" / folder).mkdir(parents=True)
+        (tmp_path / ".claude/skills" / folder / "SKILL.md").write_text(f"---\nname: {folder}\ndescription: d\n---\n")
+    reg.adapters["vendor"] = {"source": "vendor", "skills": [{"name": "react-best-practices"}, {"name": "vendor-cli"}],
+                              "detect": [{"glob": "~/.claude/skills/{name}/SKILL.md", "invoke": "{name}"},
+                                         {"glob": "~/.claude/skills/vendor-{name}/SKILL.md", "invoke": "vendor-{name}"}]}
+    ids = sorted(i.id for i in scan.scan(reg) if i.id.startswith("vendor/"))
+    assert ids == ["vendor/react-best-practices", "vendor/vendor-cli"]  # not also an inferred "vendor/cli"

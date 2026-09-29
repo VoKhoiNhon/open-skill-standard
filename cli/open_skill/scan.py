@@ -96,6 +96,7 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
     claimed: set[Path] = set()
     for src, adapter in reg.adapters.items():
         known = {s["name"] for s in adapter.get("skills", [])}
+        won: dict[Path, str] = {}  # path -> the skill id an earlier rule of this adapter found there
         for rule in adapter.get("detect", []):
             # A rule may claim skills the adapter does not list only if its path is specific
             # to this source (source name in the path, or a prefix like "speckit-{name}").
@@ -110,6 +111,8 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                     if name not in known and not specific:
                         continue
                     sid = f"{src}/{name}"
+                    if won.setdefault(path.resolve(), sid) != sid:
+                        continue  # an earlier rule of this adapter already won this path under another name
                     claimed.add(path.resolve())
                     inv = rule["invoke"].format(name=name)
                     # The first rule that finds a skill wins its path and, per agent, its invocation.
