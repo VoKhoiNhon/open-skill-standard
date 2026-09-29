@@ -197,6 +197,8 @@ cases:
      phases: [review]}
   - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
+  - {id: architect-bmad, role: software-architect, task: "design the checkout architecture", files: [_bmad/config.toml],
+     phases: [plan], include: [bmad-method/bmad-architecture]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
