@@ -515,3 +515,11 @@ def test_broad_allowed_tools_multiline_and_quoted(text):
 ])
 def test_broad_allowed_tools_multiline_scoped(text):
     assert "broad-allowed-tools" not in fired(text)
+
+
+@pytest.mark.parametrize("encoding", ["utf-16", "utf-16-le", "utf-16-be"])
+def test_utf16_text_is_audited_not_skipped_as_binary(toy_rule, tmp_path, encoding):
+    # PowerShell writes UTF-16 by default; its NUL bytes made the file look binary, so nothing in it was read.
+    bom = {"utf-16-le": b"\xff\xfe", "utf-16-be": b"\xfe\xff"}.get(encoding, b"")
+    (tmp_path / "notes.md").write_bytes(bom + "fine\ndanger\n".encode(encoding))
+    assert [(f.rule, f.line) for f in audit.audit_paths([tmp_path])] == [("toy", 2)]

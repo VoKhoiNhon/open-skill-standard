@@ -225,12 +225,13 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
         return []
     with path.open("rb") as fh:
         head = fh.read(8192)
-    if b"\0" in head:  # binary: images and fonts are normal, programs deserve a look
+    enc = "utf-16" if head[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8"  # PowerShell writes UTF-16 with a BOM
+    if enc == "utf-8" and b"\0" in head:  # binary: images and fonts are normal, programs deserve a look
         return [_flag("native-executable", path, head[:4].hex())] if head.startswith(NATIVE) else []
     if path.stat().st_size > MAX_TEXT_BYTES:
         return [_flag("unscanned-file", path, f"{path.stat().st_size} bytes")]
     data = path.read_bytes()
-    return audit_text(data.decode("utf-8", errors="replace"), str(path))
+    return audit_text(data.decode(enc, errors="replace"), str(path))
 
 
 def audit_paths(paths) -> list[Finding]:
