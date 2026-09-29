@@ -144,6 +144,20 @@ def test_disk_full_during_a_backup_leaves_no_half_written_archive(home, monkeypa
     assert userdata.list_backups(home) == [] and list((home / "backups").iterdir()) == []
 
 
+def test_disk_full_during_restore_leaves_the_home_as_it_was(home, monkeypatch):
+    import zipfile
+
+    knowledge.learn("Old.", ["role:*"])
+    archive = userdata.backup(home, "manual")
+    knowledge.learn("Newer.", ["role:*"])
+    before = {k: v for k, v in _snapshot(home).items() if not k.startswith("backups/")}
+    monkeypatch.setattr(zipfile.ZipFile, "extractall", _disk_full)
+    with pytest.raises(OSError):
+        userdata.restore(home, archive)
+    assert {k: v for k, v in _snapshot(home).items() if not k.startswith("backups/")} == before
+    assert not [p for p in home.iterdir() if p.name.startswith(".restore")]
+
+
 needs_symlinks = pytest.mark.skipif(sys.platform == "win32", reason="symlinks need developer mode on Windows")
 
 
@@ -194,3 +208,25 @@ def test_a_linked_home_backs_up_and_restores(tmp_path, monkeypatch):
     userdata.restore(tmp_path / "link", archive)
     assert [n["text"] for n in knowledge.load_knowledge()] == ["Old."]
     assert (tmp_path / "link").is_symlink()
+
+
+def test_a_failure_halfway_through_the_restore_swap_puts_the_old_state_back(home, monkeypatch):
+    knowledge.learn("Old.", ["role:*"])
+    archive = userdata.backup(home, "manual")
+    knowledge.learn("Newer.", ["role:*"])
+    (home / "profile.yaml").write_text("roles: {qa-engineer: 1.0}\n", encoding="utf-8")
+    before = {k: v for k, v in _snapshot(home).items() if not k.startswith("backups/")}
+    real, calls = os.replace, []
+
+    def flaky(src, dst):
+        calls.append(src)
+        if len(calls) == 6:  # 1 backup rename, 3 entries moved aside, then the second restored entry
+            _disk_full()
+        return real(src, dst)
+
+    monkeypatch.setattr(os, "replace", flaky)
+    with pytest.raises(OSError):
+        userdata.restore(home, archive)
+    monkeypatch.setattr(os, "replace", real)
+    assert {k: v for k, v in _snapshot(home).items() if not k.startswith("backups/")} == before
+    assert not [p for p in home.iterdir() if p.name.startswith(".restore")]

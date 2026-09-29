@@ -123,27 +123,45 @@ def _check_members(names: list[str]) -> None:
 
 
 def restore(home: Path, archive: Path) -> Path | None:
-    """Replace the user layer with an archive's content. The current state is backed up first; backups/ is kept."""
+    """Replace the user layer with an archive's content. The current state is backed up first; backups/ is kept.
+    The archive is unpacked beside the current state and swapped in by renames; on any failure the old state is
+    put back, so the home is never left half restored."""
     import shutil
     import zipfile
 
     home = Path(home)
+    home.mkdir(parents=True, exist_ok=True)  # staging must sit on the same drive as the home for renames
     with zipfile.ZipFile(archive) as z:
         _check_members(z.namelist())
-        links = [e for e in home.iterdir() if e.is_symlink()] if home.is_dir() else []
+        links = [e for e in home.iterdir() if e.is_symlink()]
         if links:  # replacing them would either break the user's link or delete files outside the home
             raise UnsafeBackupError(f"{links[0]} is a link to {os.path.realpath(links[0])}; restore never writes "
                                     f"through links. Replace it with a folder, or unzip {archive} there by hand")
         safety = backup(home, "before-restore")
-        staging = Path(tempfile.mkdtemp(dir=home if home.exists() else None, prefix=".restore-"))
-        z.extractall(staging)
-    home.mkdir(parents=True, exist_ok=True)
-    for entry in home.iterdir():
-        if entry.name not in (BACKUP_DIR, staging.name):
+        staging = Path(tempfile.mkdtemp(dir=home, prefix=".restore-"))
+        try:
+            z.extractall(staging)
+        except BaseException:
+            shutil.rmtree(staging, ignore_errors=True)
+            raise
+    old = Path(tempfile.mkdtemp(dir=home, prefix=".restore-old-"))
+    moved_in: list[Path] = []
+    try:
+        for entry in [e for e in home.iterdir() if e.name not in (BACKUP_DIR, staging.name, old.name)]:
+            os.replace(entry, old / entry.name)
+        for entry in list(staging.iterdir()):
+            os.replace(entry, home / entry.name)
+            moved_in.append(home / entry.name)
+    except BaseException:
+        for entry in moved_in:
             shutil.rmtree(entry) if entry.is_dir() else entry.unlink()
-    for entry in staging.iterdir():
-        os.replace(entry, home / entry.name)
-    staging.rmdir()
+        for entry in list(old.iterdir()):
+            os.replace(entry, home / entry.name)
+        old.rmdir()  # empty now; if it is not, it keeps what could not be moved back
+        raise
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    shutil.rmtree(old)  # the replaced state is in the safety backup
     return safety
 
 
