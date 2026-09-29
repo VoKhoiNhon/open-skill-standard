@@ -149,6 +149,25 @@ def cmd_install(args):
     return 0
 
 
+def cmd_remove(args):
+    agent = _agent_arg(_registry(args), args.agent)
+    if agent is None:
+        return 2
+    try:
+        dest = install.target(agent, args.skill, Path(args.project) if args.project else None)
+        removed, kept = install.remove(dest, dry_run=args.dry_run)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 2
+    except LookupError as e:
+        print(e, file=sys.stderr)
+        return 1
+    print(f"{'would remove' if args.dry_run else 'removed'} {len(removed)} item(s) from {dest}")
+    for k in kept:
+        print(f"  kept {k}: changed or added after install, or not created by open-skill")
+    return 0
+
+
 def cmd_build(args):
     reg = _registry(args)
     root = Path(args.root) if args.root else paths.data_root()
@@ -591,6 +610,12 @@ def build_parser() -> argparse.ArgumentParser:
     how.add_argument("--symlink", action="store_true", help="link to the source folder")
     s.add_argument("--dry-run", action="store_true", help="show what would happen without changing anything")
     s.set_defaults(fn=cmd_install)
+    s = sub.add_parser("remove", help="remove a skill open-skill installed; files you changed or added stay")
+    s.add_argument("skill")
+    s.add_argument("--agent", required=True)
+    s.add_argument("--project", help="the project it was installed in")
+    s.add_argument("--dry-run", action="store_true")
+    s.set_defaults(fn=cmd_remove)
     s = sub.add_parser("build", help="regenerate playbooks, schemas and dist/")
     s.add_argument("--root")
     s.add_argument("--check", action="store_true", help="exit 1 if generated files are stale")

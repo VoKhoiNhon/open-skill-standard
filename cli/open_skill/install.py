@@ -55,13 +55,21 @@ class Plan:
     reason: str = ""
 
 
+def target(agent: dict, name: str, project: Path | None = None) -> Path:
+    """The folder a skill named `name` gets for this agent: under its first project folder, else its first global one."""
+    if not NAME.match(name):
+        raise ValueError(f"skill name {name!r} must be lowercase letters, digits and single hyphens")
+    scope = "project" if project is not None else "global"
+    folders = agents.folders(agent, scope, project)
+    if not folders:
+        raise ValueError(f"{agent['id']} has no {scope} skill folder")
+    return folders[0] / name
+
+
 def plan(src: Source, agent: dict, project: Path | None = None, mode: str = "copy") -> Plan:
     """Where `src` goes for this agent: its first project folder with `project`, else its first global folder."""
     scope = "project" if project is not None else "global"
-    targets = agents.folders(agent, scope, project)
-    if not targets:
-        raise ValueError(f"{agent['id']} has no {scope} skill folder")
-    p = Plan(src, agent["id"], scope, targets[0] / src.name, mode)
+    p = Plan(src, agent["id"], scope, target(agent, src.name, project), mode)
     if os.path.lexists(p.dest):
         if _same(src.path, p.dest):
             p.action, p.reason = "unchanged", f"{p.dest} already holds this skill"
