@@ -6,6 +6,14 @@ summary: Spec-driven development - constitution, spec, plan, tasks, implement, c
 install:
   cli: "uv tool install specify-cli"
   project-init: "specify init --here --integration claude"
+  # The README says to replace the integration key with your agent's, from docs/reference/integrations.md.
+  project-init@codex: "specify init --here --integration codex"
+  project-init@cursor: "specify init --here --integration cursor-agent"
+  project-init@gemini-cli: "specify init --here --integration gemini"
+  project-init@github-copilot: "specify init --here --integration copilot"
+  project-init@opencode: "specify init --here --integration opencode"
+  project-init@goose: "specify init --here --integration goose"
+  project-init@amp: "specify init --here --integration amp"
   bug-extension: "specify extension add bug"
   assess-extension: "specify extension add assess"
 detect:

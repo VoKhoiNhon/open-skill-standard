@@ -63,7 +63,7 @@ JSON Schemas generated from the taxonomy live in `spec/schemas/` and are normati
 
 ### 4.1 Adapter (`registry/adapters/<source>.yaml`)
 
-An adapter MUST contain `source`, `upstream`, `license` and `skills`. It SHOULD contain `install` (commands copied verbatim from the upstream README) and `detect` rules. It MUST NOT contain upstream skill bodies.
+An adapter MUST contain `source`, `upstream`, `license` and `skills`. It SHOULD contain `install` (commands copied verbatim from the upstream README) and `detect` rules. An `install` key MAY end in `@<agent id>` for that agent's variant of the command; once a key has variants, the plain key is for Claude Code and an agent with no variant has none. It MUST NOT contain upstream skill bodies.
 
 Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words, in English), `kind` (skill, tool, or meta for a router, session bootstrap or metadata record, which a router MUST NOT place in a route), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers` (English), `triggers_i18n` (§3.1), `portability`.
 
