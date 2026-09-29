@@ -150,6 +150,9 @@ def _install_hint(skill: dict, agent: str | None = None) -> str:
                 return f"see {skill.get('upstream') or skill['source']} (no {k} for {agent})"
             return v
     if agent and agent != "claude-code":
+        mine = [v for k, v in every.items() if k.endswith(f"@{agent}")]
+        if mine:
+            return mine[0]
         other = [v for k, v in inst.items() if not k.startswith("claude")]
         if other:
             return other[0]

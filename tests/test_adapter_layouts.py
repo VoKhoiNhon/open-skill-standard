@@ -29,6 +29,7 @@ def found():
 
 CASES = [
     ("superpowers/brainstorming", "claude-code", "superpowers:brainstorming"),
+    ("superpowers/writing-plans", "gemini-cli", "writing-plans"),
     ("addy-agent-skills/spec-driven-development", "claude-code", "agent-skills:spec-driven-development"),
     ("anthropic-skills/xlsx", "claude-code", "document-skills:xlsx"),
     ("anthropic-skills/docx", "claude-code", "anthropic-skills:docx"),
