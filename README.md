@@ -148,6 +148,20 @@ Prompting advice changes between model generations; instructions that helped one
 
 `open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too. Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
 
+## Security audit
+
+Skills run with your agent's permissions, so review one before you trust it. `open-skill audit` helps with that review: it reads every file in a skill folder (SKILL.md, references, scripts, assets) and reports lines worth a human look. It never runs, changes or follows links out of the files it audits.
+
+```bash
+open-skill audit ./downloaded-skill        # one folder before you install it
+open-skill audit --installed               # everything installed, grouped by source
+open-skill audit --installed --format json # for other tools
+```
+
+It flags text that tries to override the user's or system's instructions, hide actions from the user, skip or fake approval, impersonate the system or an administrator, or reach for SSH keys, cloud credentials, `.env` files, browser profiles and password stores; invisible Unicode and HTML comments that address the agent; unscoped shell grants in `allowed-tools` and commands that run while a skill loads; links that leave the skill folder and bundled executables. Each finding shows the file, line, an escaped excerpt, why it matters and the public source of the rule (OWASP Top 10 for LLM Applications, MITRE ATT&CK, Anthropic and Claude Code documentation). The command exits 1 on high-severity findings; `--strict` also fails on medium and low. `open-skill doctor` shows a one-line summary.
+
+This is a heuristic reviewer, not a guarantee. A finding can be harmless in context, and a clean report only means no rule matched: a careful attacker can phrase things the rules do not catch. Still read skills from unknown sources yourself, and prefer skills you or your organization maintain.
+
 ## Learns you, locally
 
 `~/.open-skill/` holds your profile, one-fact-per-file notes and a usage log. Routes attach the notes that apply to the chosen skills, roles, project or phases, and your history nudges rankings (with a 90-day half-life). `learn` refuses text that looks like a secret or personal data; `forget` and `export` are one command each; nothing in this folder is ever published. `open-skill scan --memory` imports Claude Code memory files read-only.
@@ -176,6 +190,7 @@ open-skill doctor                   open-skill scan [--memory]
 open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
 open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
 open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
+open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 ```
 

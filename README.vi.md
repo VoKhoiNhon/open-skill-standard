@@ -115,6 +115,20 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 
 `open-skill lint` kiểm tra skill theo [đặc tả Agent Skills](https://agentskills.io/specification) (luật đặt tên và khớp thư mục, giới hạn các trường, file được tham chiếu) và theo hướng dẫn prompt hiện hành; plugin manifest cũng được kiểm tra. Chỉ lỗi mới làm lệnh thất bại; `--strict` coi cả cảnh báo là lỗi, `--format json` để dùng cho công cụ khác. `open-skill lint --installed` báo cáo sức khoẻ của mọi skill đã cài, nhóm theo nguồn.
 
+## Kiểm tra bảo mật
+
+Skill chạy với quyền của agent, nên hãy xem xét một skill trước khi tin nó. `open-skill audit` hỗ trợ việc đó: lệnh đọc mọi file trong thư mục skill (SKILL.md, references, scripts, assets) và báo những dòng cần người xem lại. Lệnh không bao giờ chạy, sửa, hay đi theo liên kết ra khỏi các file được kiểm tra.
+
+```bash
+open-skill audit ./skill-vua-tai            # một thư mục, trước khi cài
+open-skill audit --installed               # mọi skill đã cài, nhóm theo nguồn
+open-skill audit --installed --format json # cho công cụ khác
+```
+
+Lệnh đánh dấu câu chữ tìm cách ghi đè chỉ dẫn của người dùng hay của hệ thống, giấu hành động khỏi người dùng, bỏ qua hoặc giả mạo sự đồng ý, mạo danh hệ thống hay quản trị viên, hoặc nhắm tới khoá SSH, thông tin đăng nhập cloud, file `.env`, dữ liệu trình duyệt và kho mật khẩu; ký tự Unicode vô hình và chú thích HTML nói với agent; quyền shell không giới hạn trong `allowed-tools` và lệnh chạy ngay khi skill được nạp; liên kết trỏ ra ngoài thư mục skill và file thực thi đi kèm. Mỗi phát hiện ghi file, dòng, đoạn trích đã được escape, lý do, và nguồn công khai của luật (OWASP Top 10 cho ứng dụng LLM, MITRE ATT&CK, tài liệu của Anthropic và Claude Code). Lệnh trả mã 1 khi có phát hiện mức high; `--strict` coi cả medium và low là lỗi. `open-skill doctor` hiện một dòng tóm tắt.
+
+Đây là công cụ rà soát theo heuristic, không phải lời bảo đảm. Một phát hiện có thể vô hại trong ngữ cảnh của nó, và báo cáo sạch chỉ có nghĩa là không luật nào khớp: kẻ tấn công cẩn thận có thể viết theo cách các luật không bắt được. Vẫn hãy tự đọc skill từ nguồn lạ, và ưu tiên skill do bạn hoặc tổ chức của bạn duy trì.
+
 ## Hiểu bạn, ngay trên máy bạn
 
 - **Dữ liệu cá nhân nằm trong `~/.open-skill/`:** hồ sơ, ghi chú (mỗi file một ý) và lịch sử dùng.

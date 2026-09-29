@@ -12,3 +12,8 @@ Please report security issues privately through GitHub's **Report a vulnerabilit
 - `open-skill learn` refuses text that looks like credentials, tokens, emails or phone numbers unless forced.
 - The router never runs project initialization or install commands; it only prints them.
 - Skill content from third-party projects is not redistributed; install upstream skills from their own sources and review them before use, since skills run with the agent's permissions.
+- `open-skill audit` helps with that review. It reads skill files as text only: it never runs them, never changes them and never follows a link out of the audited folder. Excerpts are escaped so hidden characters and terminal control codes show up instead of acting. It is heuristic: findings need a human look, and a clean report does not mean a skill is safe.
+
+## Audit rules
+
+A false alarm, or a missing rule for a pattern already public, can go in a normal issue with the cited source. A way to hide clearly malicious content from `open-skill audit` counts as a security issue: report it privately as above.
