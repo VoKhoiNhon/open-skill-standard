@@ -166,11 +166,11 @@ def validate(reg: Registry) -> list[str]:
             if target not in reg.roles:
                 errors.append(f"role {rid}: {when} hands off to {target}, which has no role pack")
         seeds = _list(r.get("seeds"))
-        ids = [s["id"] for s in seeds if isinstance(s, dict) and "id" in s]
+        ids = [s["id"] for s in seeds if isinstance(s, dict) and isinstance(s.get("id"), str)]
         if any(isinstance(s, str) for s in seeds):
             errors.append(f"role {rid}: every seed needs an id so it can be updated without touching user edits")
         if len(ids) != len(set(ids)):
-            errors.append(f"role {rid}: duplicate seed ids")
+            errors.append(f"role {rid}: duplicate seed ids: {', '.join(sorted({i for i in ids if ids.count(i) > 1}))}")
     for mid, m in reg.models.items():
         parent = m.get("inherits")
         if parent and parent not in reg.models:

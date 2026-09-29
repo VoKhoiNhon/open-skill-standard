@@ -168,10 +168,11 @@ VALIDATION_CASES = [
     ("dangling role alternative", DE, ["phases", "build", "alternatives"], ["x/y"], None, "build.alternatives references unknown skill x/y"),
     ("unknown parent model", "models/claude-opus-5.yaml", ["inherits"], "claude-nope", None, "inherits unknown profile claude-nope"),
     ("seed without id is a string", DE, ["seeds"], ["no id here"], None, "every seed needs an id"),
-    ("duplicate seed ids", DE, ["seeds"], [{"id": "a", "text": "x"}, {"id": "a", "text": "y"}], None, "duplicate seed ids"),
+    ("duplicate seed ids", DE, ["seeds"], [{"id": "a", "text": "x"}, {"id": "a", "text": "y"}], None, "duplicate seed ids: a"),
     # These crashed validate with a traceback instead of reporting an error:
     ("seed object without id", DE, ["seeds"], [{"text": "x"}], None, "seeds/0"),
     ("seeds is null", DE, ["seeds"], None, None, "seeds"),
+    ("seed id is a list", DE, ["seeds"], [{"id": ["a"], "text": "x"}], None, "seeds/0"),
     ("adapter skill without name", SP, ["skills", 0], {"phases": ["plan"]}, None, "'name' is a required property"),
     ("adapter skill is a string", SP, ["skills", 0], "brainstorming", None, "is not of type 'object'"),
     ("adapter skills is null", SP, ["skills"], None, None, "skills"),
