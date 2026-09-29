@@ -50,7 +50,7 @@ class Finding:
     severity: str = "error"
 
 
-def lint_text(text: str, path: str = "<text>") -> list[Finding]:
+def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
     out: list[Finding] = []
     meta, body = frontmatter.parse(text)
 
@@ -64,6 +64,8 @@ def lint_text(text: str, path: str = "<text>") -> list[Finding]:
         add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen", SPEC)
     elif "claude" in name or "anthropic" in name:
         add("frontmatter-name", "name must not contain 'claude' or 'anthropic'", BEST)
+    if name and folder and name != folder:
+        add("name-matches-folder", f"name '{name}' must match its folder '{folder}'", SPEC)
     if not desc:
         add("frontmatter-description", "description is missing", BEST)
     elif len(desc) > 1024 or "<" in desc or ">" in desc:
@@ -81,7 +83,9 @@ def lint_text(text: str, path: str = "<text>") -> list[Finding]:
 
 
 def lint_file(path: Path) -> list[Finding]:
-    return lint_text(Path(path).read_text(errors="replace"), str(path))
+    path = Path(path)
+    folder = path.parent.name if path.name == "SKILL.md" else None
+    return lint_text(path.read_text(errors="replace"), str(path), folder)
 
 
 def lint_paths(paths) -> list[Finding]:

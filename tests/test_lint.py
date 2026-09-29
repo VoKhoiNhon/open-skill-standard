@@ -57,3 +57,12 @@ def test_spec_name_rules(name):
 def test_spec_name_accepts_valid_names():
     for name in ["pdf-processing", "data-analysis", "code-review", "a1"]:
         assert "frontmatter-name" not in rules(doc("x", name=name))
+
+
+def test_name_must_match_folder(tmp_path):
+    d = tmp_path / "pdf-tools"
+    d.mkdir()
+    (d / "SKILL.md").write_text(doc("x", name="pdf-processing"))
+    assert [f.rule for f in lint.lint_file(d / "SKILL.md")] == ["name-matches-folder"]
+    (d / "SKILL.md").write_text(doc("x", name="pdf-tools"))
+    assert lint.lint_file(d / "SKILL.md") == []
