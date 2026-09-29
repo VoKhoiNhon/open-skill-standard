@@ -54,4 +54,4 @@ If `uv`/`uvx` is unavailable or the command fails, route by hand:
 1. Identify the role from the user or the project, then read `references/roles/<role>.md` (index: `references/roles/README.md`).
 2. Pick the phases the request needs: new or large work starts at specify or plan; a bug starts at operate; a question starts at research.
 3. For each phase, take the first primary skill that is installed; use an alternative only if no primary is.
-4. Announce and start as above. Skip step 4.
+4. Announce and start as above; there is no route to record feedback for.
