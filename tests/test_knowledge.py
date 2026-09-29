@@ -181,3 +181,10 @@ def test_sync_dry_run_writes_nothing(home):
     actions = knowledge.sync_seeds(["data-engineer"], SEEDS_V1, dry_run=True)
     assert actions == ["would add data-engineer/merge", "would add data-engineer/nulls"]
     assert not (home / "knowledge").exists() or not list((home / "knowledge").glob("*.md"))
+
+
+def test_sync_is_quiet_about_edits_when_upstream_did_not_change(home):
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
+    p.write_text(p.read_text().replace("Check nulls on keys.", "Check nulls on keys, always."))
+    assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1) == []

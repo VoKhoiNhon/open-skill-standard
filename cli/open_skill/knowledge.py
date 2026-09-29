@@ -264,7 +264,7 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
                 if not dry_run:
                     m["seed_hash"] = userdata.text_hash(text)
                     _save(p, m, text + "\n")
-            else:
+            elif m.get("seed_hash") != userdata.text_hash(text):  # upstream changed and the user edited: report it
                 actions.append(f"kept your edit of {sid}")
         shipped_ids = {f"{role}/{s['id']}" for s in shipped if s["id"]}
         for p, m, b in notes:
