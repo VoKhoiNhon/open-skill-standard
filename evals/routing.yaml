@@ -14,6 +14,15 @@ cases:
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: backend, role: backend-developer, task: "add a REST endpoint to export invoices as CSV",
      include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
+  - {id: backend-incident, role: backend-developer, task: "the export endpoint is failing with a 500 error",
+     first: superpowers/systematic-debugging, include: [superpowers/test-driven-development],
+     exclude: [superpowers/writing-plans]}
+  - {id: backend-review-migration, role: backend-developer, task: "review the migration that splits the users table",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: backend-research, role: backend-developer, task: "research message queues to compare for order events",
+     phases: [research], exclude: [superpowers/subagent-driven-development]}
+  - {id: backend-vietnamese, role: backend-developer, task: "thêm API xuất hóa đơn ra CSV",
+     include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
      include: [superpowers/subagent-driven-development, anthropic-skills/webapp-testing], exclude: [taste-skill/taste-skill]}
   - {id: mobile, role: mobile-developer, task: "add offline sync to the notes screen", include: [claude-code-builtin/run]}
