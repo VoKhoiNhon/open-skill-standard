@@ -215,6 +215,10 @@ cases:
      first: knowledge-work-product-management/sprint-planning}
   - {id: eng-manager-bmad, role: engineering-manager, task: "plan the next sprint", files: [_bmad/config.toml],
      include: [bmad-method/bmad-ticket], exclude: [bmad-method/bmad-agent-ux-designer]}
+  - {id: eng-manager-roadmap, role: engineering-manager, task: "write the quarterly roadmap update",
+     include: [knowledge-work-product-management/roadmap-update, knowledge-work-product-management/stakeholder-update]}
+  - {id: eng-manager-vietnamese, role: engineering-manager, task: "lên kế hoạch sprint tới",
+     first: knowledge-work-product-management/sprint-planning}
   - {id: product-manager, role: product-manager, task: "write a spec for team workspaces",
      include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
   - {id: product-manager-bmad, role: product-manager, task: "write a PRD for team workspaces", files: [_bmad/config.toml],
