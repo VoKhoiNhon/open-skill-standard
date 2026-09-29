@@ -43,3 +43,11 @@ def test_graph_json_and_mermaid():
     installed = {n["id"]: n.get("installed") for n in g["nodes"] if n["kind"] == "skill"}
     assert installed["harvested/warehouse-audit"] is True
     assert index.graph_mermaid(reg).startswith("graph LR")
+
+
+def test_graph_json_describes_skills_and_roles():
+    reg, inst = setup()
+    nodes = {n["id"]: n for n in index.graph_json(reg, inst)["nodes"]}
+    assert nodes["superpowers/writing-plans"]["description"].startswith("Write a detailed implementation plan")
+    assert nodes["harvested/warehouse-audit"]["description"] == "Audit warehouse tables for duplicate keys"
+    assert nodes["role:data-analyst"]["name"] == "Data Analyst"

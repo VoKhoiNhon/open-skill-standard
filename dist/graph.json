@@ -124,7 +124,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Guided learning content"
   },
   {
    "id": "anthropic-skills/algorithmic-art",
@@ -133,7 +134,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generative art with p5.js"
   },
   {
    "id": "anthropic-skills/brand-guidelines",
@@ -142,7 +144,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Apply a brand's colors and typography"
   },
   {
    "id": "anthropic-skills/canvas-design",
@@ -151,7 +154,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Visual art in PNG and PDF"
   },
   {
    "id": "anthropic-skills/claude-api",
@@ -161,7 +165,8 @@
     "research",
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Reference for the Claude API and Anthropic SDKs - models, pricing, tool use, caching"
   },
   {
    "id": "anthropic-skills/discernment-nudge",
@@ -170,7 +175,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Prompts for careful judgment"
   },
   {
    "id": "anthropic-skills/doc-coauthoring",
@@ -180,7 +186,8 @@
     "specify",
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Structured workflow for co-writing documentation"
   },
   {
    "id": "anthropic-skills/docx",
@@ -189,7 +196,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create and edit Word documents"
   },
   {
    "id": "anthropic-skills/frontend-design",
@@ -198,7 +206,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Distinctive, intentional visual design for new or reshaped UI"
   },
   {
    "id": "anthropic-skills/internal-comms",
@@ -207,7 +216,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Write internal communications in house formats"
   },
   {
    "id": "anthropic-skills/mcp-builder",
@@ -216,7 +226,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Build high-quality MCP servers"
   },
   {
    "id": "anthropic-skills/pdf",
@@ -225,7 +236,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Read, create, merge and fill PDF files"
   },
   {
    "id": "anthropic-skills/pptx",
@@ -234,7 +246,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create and edit slide decks"
   },
   {
    "id": "anthropic-skills/skill-creator",
@@ -244,7 +257,8 @@
     "build",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create, evaluate and improve skills, including description tuning"
   },
   {
    "id": "anthropic-skills/slack-gif-creator",
@@ -253,7 +267,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Animated GIFs sized for chat"
   },
   {
    "id": "anthropic-skills/theme-factory",
@@ -262,7 +277,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Apply a visual theme to artifacts"
   },
   {
    "id": "anthropic-skills/web-artifacts-builder",
@@ -271,7 +287,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Multi-component HTML artifacts with modern frontend tooling"
   },
   {
    "id": "anthropic-skills/webapp-testing",
@@ -280,7 +297,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Drive and test local web apps with Playwright"
   },
   {
    "id": "anthropic-skills/xlsx",
@@ -290,7 +308,8 @@
     "release",
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create, clean and analyze spreadsheets"
   },
   {
    "id": "bmad-method/bmad",
@@ -299,7 +318,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "BMad hub - setup, status, and which skill to run next"
   },
   {
    "id": "bmad-method/bmad-advanced-elicitation",
@@ -309,7 +329,8 @@
     "verify",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Make the model critique and refine its own output - pre-mortem, red team, socratic, first principles"
   },
   {
    "id": "bmad-method/bmad-agent-analyst",
@@ -319,7 +340,8 @@
     "research",
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Business analyst persona for research and requirements"
   },
   {
    "id": "bmad-method/bmad-agent-architect",
@@ -328,7 +350,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Architect persona for technical design"
   },
   {
    "id": "bmad-method/bmad-agent-dev",
@@ -337,7 +360,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Developer persona that implements stories"
   },
   {
    "id": "bmad-method/bmad-agent-pm",
@@ -346,7 +370,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Product manager persona for PRDs and discovery"
   },
   {
    "id": "bmad-method/bmad-agent-ux-designer",
@@ -355,7 +380,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "UX designer persona"
   },
   {
    "id": "bmad-method/bmad-architecture",
@@ -364,7 +390,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Record the architecture decisions that keep separately built parts consistent"
   },
   {
    "id": "bmad-method/bmad-brainstorming",
@@ -373,7 +400,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Divergent brainstorming session with 60+ creative techniques"
   },
   {
    "id": "bmad-method/bmad-build",
@@ -382,7 +410,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Right-sized implementation - clarify, plan, implement, review and verify a change"
   },
   {
    "id": "bmad-method/bmad-build-auto",
@@ -391,7 +420,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "One unattended iteration of a development loop"
   },
   {
    "id": "bmad-method/bmad-code-review",
@@ -400,7 +430,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Several independent reviewers in parallel, then triage"
   },
   {
    "id": "bmad-method/bmad-correct-course",
@@ -410,7 +441,8 @@
     "plan",
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Assess the impact of a significant change mid-sprint and propose a course correction"
   },
   {
    "id": "bmad-method/bmad-customize",
@@ -419,7 +451,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Author overrides for installed BMad skills"
   },
   {
    "id": "bmad-method/bmad-deep-recon",
@@ -428,7 +461,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Decision research - market, domain, technical, competitive, academic, with cited sources"
   },
   {
    "id": "bmad-method/bmad-forge-idea",
@@ -437,7 +471,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Pressure-test a half-formed idea with personas until it can be acted on or dropped"
   },
   {
    "id": "bmad-method/bmad-party-mode",
@@ -447,7 +482,8 @@
     "discover",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Roundtable discussion between several agent personas or custom personas"
   },
   {
    "id": "bmad-method/bmad-prd",
@@ -456,7 +492,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create, update or validate a PRD"
   },
   {
    "id": "bmad-method/bmad-prfaq",
@@ -466,7 +503,8 @@
     "discover",
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Working-backwards press release and FAQ to test a product concept"
   },
   {
    "id": "bmad-method/bmad-product-brief",
@@ -475,7 +513,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create, update or validate a product brief"
   },
   {
    "id": "bmad-method/bmad-project-context",
@@ -485,7 +524,8 @@
     "learn",
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Set up and audit a repository's AGENTS.md instructions and pitfalls"
   },
   {
    "id": "bmad-method/bmad-qa-generate-e2e-tests",
@@ -494,7 +534,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generate API and end-to-end tests for implemented features"
   },
   {
    "id": "bmad-method/bmad-retrospective",
@@ -503,7 +544,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Evidence-based retrospective of a finished epic"
   },
   {
    "id": "bmad-method/bmad-review",
@@ -512,7 +554,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Review lenses - adversarial, edge cases, verification gaps, structure, prose"
   },
   {
    "id": "bmad-method/bmad-spec",
@@ -521,7 +564,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Condense ideas, briefs or transcripts into a short kernel spec"
   },
   {
    "id": "bmad-method/bmad-ticket",
@@ -530,7 +574,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Slice initiatives into epics and stories and run the board"
   },
   {
    "id": "bmad-method/bmad-ux",
@@ -539,7 +584,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Capture the UX vision in DESIGN.md and EXPERIENCE.md"
   },
   {
    "id": "bmad-method/bmad-walkthrough",
@@ -549,7 +595,8 @@
     "review",
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Guide a human through a commit, PR, file or directory"
   },
   {
    "id": "bmad-method/bmod-core-tools",
@@ -558,7 +605,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Module metadata record, never invoked directly"
   },
   {
    "id": "bmad-method/bmod-method",
@@ -567,7 +615,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Module metadata record, never invoked directly"
   },
   {
    "id": "claude-code-builtin/claude-api",
@@ -577,7 +626,8 @@
     "research",
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Claude API and SDK reference - models, pricing, tool use, caching, migration"
   },
   {
    "id": "claude-code-builtin/code-review",
@@ -586,7 +636,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Review the current diff or a PR for correctness bugs"
   },
   {
    "id": "claude-code-builtin/fewer-permission-prompts",
@@ -595,7 +646,8 @@
    "phases": [
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Build a read-only allowlist from past sessions"
   },
   {
    "id": "claude-code-builtin/init",
@@ -604,7 +656,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create a CLAUDE.md describing the codebase"
   },
   {
    "id": "claude-code-builtin/loop",
@@ -613,7 +666,8 @@
    "phases": [
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Run a prompt or command on a recurring interval"
   },
   {
    "id": "claude-code-builtin/run",
@@ -622,7 +676,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Launch and drive the project's app to see a change working"
   },
   {
    "id": "claude-code-builtin/schedule",
@@ -631,7 +686,8 @@
    "phases": [
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Scheduled cloud agents on a cron"
   },
   {
    "id": "claude-code-builtin/security-review",
@@ -640,7 +696,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Security review of pending changes"
   },
   {
    "id": "claude-code-builtin/simplify",
@@ -649,7 +706,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Clean up changed code for reuse, simplicity and efficiency"
   },
   {
    "id": "claude-code-builtin/update-config",
@@ -659,7 +717,8 @@
     "build",
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Configure Claude Code settings, hooks and permissions"
   },
   {
    "id": "codegraph/affected",
@@ -668,7 +727,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Test files affected by changed source files (codegraph affected)"
   },
   {
    "id": "codegraph/explore",
@@ -678,7 +738,8 @@
     "research",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Answer how code works, trace flows and read symbols with call paths (MCP codegraph_explore)"
   },
   {
    "id": "codegraph/impact",
@@ -688,7 +749,8 @@
     "plan",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Blast radius of changing a symbol (codegraph impact)"
   },
   {
    "id": "context7/context7-cli",
@@ -697,7 +759,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Use the ctx7 CLI for docs and skill management"
   },
   {
    "id": "context7/context7-docs",
@@ -706,7 +769,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Documentation lookup skill for other agents"
   },
   {
    "id": "context7/context7-mcp",
@@ -716,7 +780,8 @@
     "research",
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Fetch current library and API documentation before writing code against it"
   },
   {
    "id": "context7/find-docs",
@@ -725,7 +790,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Look up documentation for a library"
   },
   {
    "id": "knowledge-work-data/analyze",
@@ -734,7 +800,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Answer data questions from quick lookups to full analyses"
   },
   {
    "id": "knowledge-work-data/build-dashboard",
@@ -743,7 +810,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Interactive HTML dashboard with KPI cards, charts and filters"
   },
   {
    "id": "knowledge-work-data/create-viz",
@@ -752,7 +820,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Publication-quality charts with Python"
   },
   {
    "id": "knowledge-work-data/data-context-extractor",
@@ -762,7 +831,8 @@
     "learn",
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Build a company-specific data knowledge skill from analysts' tribal knowledge"
   },
   {
    "id": "knowledge-work-data/data-visualization",
@@ -771,7 +841,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Choose chart types and apply visualization design principles"
   },
   {
    "id": "knowledge-work-data/explore-data",
@@ -781,7 +852,8 @@
     "verify",
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Profile a dataset - shape, nulls, distributions, duplicates, quality issues"
   },
   {
    "id": "knowledge-work-data/sql-queries",
@@ -791,7 +863,8 @@
     "build",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Correct, performant SQL across warehouse dialects; optimize and translate"
   },
   {
    "id": "knowledge-work-data/statistical-analysis",
@@ -801,7 +874,8 @@
     "build",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Descriptive statistics, trends, outliers and hypothesis tests"
   },
   {
    "id": "knowledge-work-data/validate-data",
@@ -810,7 +884,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "QA an analysis or dataset before sharing - methodology, accuracy, bias"
   },
   {
    "id": "knowledge-work-data/write-query",
@@ -819,7 +894,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Translate a data need into optimized SQL for your dialect"
   },
   {
    "id": "knowledge-work-design/accessibility-review",
@@ -829,7 +905,8 @@
     "review",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "WCAG 2.1 AA accessibility audit of a design or page"
   },
   {
    "id": "knowledge-work-design/design-critique",
@@ -838,7 +915,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Structured feedback on usability, hierarchy and consistency"
   },
   {
    "id": "knowledge-work-design/design-handoff",
@@ -847,7 +925,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Developer handoff specs from a design"
   },
   {
    "id": "knowledge-work-design/design-system",
@@ -857,7 +936,8 @@
     "plan",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Audit, document or extend a design system"
   },
   {
    "id": "knowledge-work-design/research-synthesis",
@@ -866,7 +946,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Synthesize research into themes, insights and recommendations"
   },
   {
    "id": "knowledge-work-design/user-research",
@@ -875,7 +956,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Plan and run user research - interview guides, usability tests"
   },
   {
    "id": "knowledge-work-design/ux-copy",
@@ -884,7 +966,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Microcopy, error messages, empty states and calls to action"
   },
   {
    "id": "knowledge-work-engineering/architecture",
@@ -893,7 +976,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create or evaluate an architecture decision record"
   },
   {
    "id": "knowledge-work-engineering/code-review",
@@ -902,7 +986,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Review changes for security, performance and correctness"
   },
   {
    "id": "knowledge-work-engineering/debug",
@@ -911,7 +996,8 @@
    "phases": [
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Structured debugging - reproduce, isolate, diagnose, fix"
   },
   {
    "id": "knowledge-work-engineering/deploy-checklist",
@@ -920,7 +1006,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Pre-deployment verification for releases, migrations and flags"
   },
   {
    "id": "knowledge-work-engineering/documentation",
@@ -929,7 +1016,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Write and maintain technical documentation and READMEs"
   },
   {
    "id": "knowledge-work-engineering/incident-response",
@@ -939,7 +1027,8 @@
     "operate",
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Triage, communicate and write the postmortem for an incident"
   },
   {
    "id": "knowledge-work-engineering/standup",
@@ -948,7 +1037,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Standup update from recent activity"
   },
   {
    "id": "knowledge-work-engineering/system-design",
@@ -957,7 +1047,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Design systems, services and architectures"
   },
   {
    "id": "knowledge-work-engineering/tech-debt",
@@ -967,7 +1058,8 @@
     "review",
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Identify, categorize and prioritize technical debt"
   },
   {
    "id": "knowledge-work-engineering/testing-strategy",
@@ -977,7 +1069,8 @@
     "plan",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Design test strategies and test plans"
   },
   {
    "id": "knowledge-work-product-management/competitive-brief",
@@ -986,7 +1079,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Competitive analysis for a feature area or competitors"
   },
   {
    "id": "knowledge-work-product-management/metrics-review",
@@ -996,7 +1090,8 @@
     "verify",
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Review product metrics with trends and actionable insights"
   },
   {
    "id": "knowledge-work-product-management/product-brainstorming",
@@ -1005,7 +1100,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Explore problem spaces and challenge assumptions as a thinking partner"
   },
   {
    "id": "knowledge-work-product-management/roadmap-update",
@@ -1014,7 +1110,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create, update or reprioritize the roadmap"
   },
   {
    "id": "knowledge-work-product-management/sprint-planning",
@@ -1023,7 +1120,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Scope work, estimate capacity and draft a sprint plan"
   },
   {
    "id": "knowledge-work-product-management/stakeholder-update",
@@ -1032,7 +1130,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Status update tailored to audience and cadence"
   },
   {
    "id": "knowledge-work-product-management/synthesize-research",
@@ -1041,7 +1140,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Turn interviews, surveys and feedback into structured insights"
   },
   {
    "id": "knowledge-work-product-management/write-spec",
@@ -1050,7 +1150,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Feature spec or PRD from a problem statement or idea"
   },
   {
    "id": "open-skill/open-skill-intel",
@@ -1059,7 +1160,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Route a question to the best information source before acting"
   },
   {
    "id": "open-skill/open-skill-learn",
@@ -1068,7 +1170,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Remember lessons and preferences so future routes use them"
   },
   {
    "id": "open-skill/open-skill-router",
@@ -1077,7 +1180,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Pick and order the right installed skills for a task in any project and role"
   },
   {
    "id": "open-skill/open-skill-standards",
@@ -1087,7 +1191,8 @@
     "verify",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Definition-of-done checklists, general and per role"
   },
   {
    "id": "ponytail/ponytail",
@@ -1096,7 +1201,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Take the laziest solution that works - stdlib and native features before new code or dependencies"
   },
   {
    "id": "ponytail/ponytail-audit",
@@ -1105,7 +1211,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Whole-repository over-engineering audit"
   },
   {
    "id": "ponytail/ponytail-debt",
@@ -1114,7 +1221,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Ledger of deliberate shortcuts marked for later"
   },
   {
    "id": "ponytail/ponytail-gain",
@@ -1123,7 +1231,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Scoreboard of measured savings"
   },
   {
    "id": "ponytail/ponytail-help",
@@ -1132,7 +1241,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Quick reference for ponytail modes"
   },
   {
    "id": "ponytail/ponytail-review",
@@ -1141,7 +1251,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Review a diff only for over-engineering and what to delete"
   },
   {
    "id": "spec-kit/analyze",
@@ -1151,7 +1262,8 @@
     "verify",
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Cross-check spec, plan and tasks for consistency before implementing"
   },
   {
    "id": "spec-kit/assess-decide",
@@ -1160,7 +1272,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Record a go, needs-clarification or kill decision"
   },
   {
    "id": "spec-kit/assess-define",
@@ -1169,7 +1282,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Define the problem and success criteria of an assessed idea"
   },
   {
    "id": "spec-kit/assess-intake",
@@ -1178,7 +1292,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Start an evidence-based go/kill assessment of an idea (assess extension)"
   },
   {
    "id": "spec-kit/assess-research",
@@ -1187,7 +1302,8 @@
    "phases": [
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Gather evidence for an idea assessment"
   },
   {
    "id": "spec-kit/assess-shape",
@@ -1196,7 +1312,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Shape candidate solutions for an assessed idea"
   },
   {
    "id": "spec-kit/bug-assess",
@@ -1205,7 +1322,8 @@
    "phases": [
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Assess a bug's root cause before fixing (bug extension)"
   },
   {
    "id": "spec-kit/bug-fix",
@@ -1214,7 +1332,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Fix the assessed cause of a bug (bug extension)"
   },
   {
    "id": "spec-kit/bug-test",
@@ -1223,7 +1342,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Verify the original symptom is gone (bug extension)"
   },
   {
    "id": "spec-kit/checklist",
@@ -1233,7 +1353,8 @@
     "plan",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generate a requirements-quality checklist for the feature"
   },
   {
    "id": "spec-kit/clarify",
@@ -1242,7 +1363,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Ask up to five targeted questions and encode the answers into the spec"
   },
   {
    "id": "spec-kit/constitution",
@@ -1251,7 +1373,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create or update the project's governing principles"
   },
   {
    "id": "spec-kit/converge",
@@ -1260,7 +1383,8 @@
    "phases": [
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Compare the codebase against spec, plan and tasks and append unbuilt work"
   },
   {
    "id": "spec-kit/implement",
@@ -1269,7 +1393,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Execute tasks.md"
   },
   {
    "id": "spec-kit/plan",
@@ -1278,7 +1403,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Create the technical plan and design artifacts from the spec"
   },
   {
    "id": "spec-kit/specify",
@@ -1287,7 +1413,8 @@
    "phases": [
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Write the feature specification - what and why, not how"
   },
   {
    "id": "spec-kit/tasks",
@@ -1296,7 +1423,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generate a dependency-ordered tasks.md from the plan"
   },
   {
    "id": "spec-kit/taskstoissues",
@@ -1306,7 +1434,8 @@
     "plan",
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Turn tasks into dependency-ordered GitHub issues"
   },
   {
    "id": "superpowers/brainstorming",
@@ -1316,7 +1445,8 @@
     "discover",
     "specify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Converge an idea into an approved design through one-question-at-a-time dialogue before building"
   },
   {
    "id": "superpowers/diagnosing-superpowers",
@@ -1325,7 +1455,8 @@
    "phases": [
     "learn"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Explain why a superpowers session went wrong"
   },
   {
    "id": "superpowers/dispatching-parallel-agents",
@@ -1335,7 +1466,8 @@
     "build",
     "research"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Split two or more independent tasks across parallel agents"
   },
   {
    "id": "superpowers/executing-plans",
@@ -1344,7 +1476,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Execute a written plan inline with review checkpoints"
   },
   {
    "id": "superpowers/finishing-a-development-branch",
@@ -1353,7 +1486,8 @@
    "phases": [
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Decide how to integrate finished, tested work - merge, pull request or cleanup"
   },
   {
    "id": "superpowers/receiving-code-review",
@@ -1362,7 +1496,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Evaluate review feedback technically before acting on it"
   },
   {
    "id": "superpowers/requesting-code-review",
@@ -1371,7 +1506,8 @@
    "phases": [
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Ask for a review of finished work before merging"
   },
   {
    "id": "superpowers/subagent-driven-development",
@@ -1380,7 +1516,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Execute a plan task by task with fresh subagents and review between tasks"
   },
   {
    "id": "superpowers/systematic-debugging",
@@ -1389,7 +1526,8 @@
    "phases": [
     "operate"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Find the root cause of a bug, failing test or unexpected behavior before proposing a fix"
   },
   {
    "id": "superpowers/test-driven-development",
@@ -1399,7 +1537,8 @@
     "build",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Write the failing test first, then the minimal code, for any feature or bug fix"
   },
   {
    "id": "superpowers/using-git-worktrees",
@@ -1408,7 +1547,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Isolate feature work in a git worktree"
   },
   {
    "id": "superpowers/using-superpowers",
@@ -1417,7 +1557,8 @@
    "phases": [
     "discover"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Session bootstrap that makes the agent check for relevant skills"
   },
   {
    "id": "superpowers/verification-before-completion",
@@ -1427,7 +1568,8 @@
     "verify",
     "release"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Run the real checks and read their output before claiming work is done"
   },
   {
    "id": "superpowers/writing-plans",
@@ -1436,7 +1578,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Turn a spec into a bite-sized, test-first implementation plan"
   },
   {
    "id": "superpowers/writing-skills",
@@ -1446,7 +1589,8 @@
     "build",
     "verify"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Author and test Agent Skills so they measurably change agent behavior"
   },
   {
    "id": "taste-skill/brandkit",
@@ -1455,7 +1599,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Brand guideline boards and logo systems"
   },
   {
    "id": "taste-skill/brutalist-skill",
@@ -1464,7 +1609,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Swiss-print and terminal-inspired brutalist interfaces"
   },
   {
    "id": "taste-skill/gpt-tasteskill",
@@ -1473,7 +1619,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Editorial layouts with advanced scroll animation"
   },
   {
    "id": "taste-skill/image-to-code-skill",
@@ -1482,7 +1629,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generate design images first, then implement the site to match"
   },
   {
    "id": "taste-skill/imagegen-frontend-mobile",
@@ -1491,7 +1639,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generate mobile app screen concepts"
   },
   {
    "id": "taste-skill/imagegen-frontend-web",
@@ -1500,7 +1649,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Generate per-section website design reference images"
   },
   {
    "id": "taste-skill/minimalist-skill",
@@ -1509,7 +1659,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Clean editorial interfaces with a warm monochrome palette"
   },
   {
    "id": "taste-skill/output-skill",
@@ -1518,7 +1669,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Enforce complete, untruncated code output"
   },
   {
    "id": "taste-skill/redesign-skill",
@@ -1528,7 +1680,8 @@
     "build",
     "review"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Upgrade an existing site or app to premium visual quality"
   },
   {
    "id": "taste-skill/soft-skill",
@@ -1537,7 +1690,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "High-end agency visual design system"
   },
   {
    "id": "taste-skill/stitch-skill",
@@ -1546,7 +1700,8 @@
    "phases": [
     "plan"
    ],
-   "installed": false
+   "installed": false,
+   "description": "DESIGN.md generation for a design tool"
   },
   {
    "id": "taste-skill/taste-skill",
@@ -1555,7 +1710,8 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Frontend that does not look templated - landing pages, portfolios, redesigns"
   },
   {
    "id": "taste-skill/taste-skill-v1",
@@ -1564,146 +1720,175 @@
    "phases": [
     "build"
    ],
-   "installed": false
+   "installed": false,
+   "description": "Original v1 taste skill kept for compatibility"
   },
   {
    "id": "role:ai-engineer",
    "kind": "role",
+   "name": "AI Engineer",
    "family": "data-ai"
   },
   {
    "id": "role:analytics-engineer",
    "kind": "role",
+   "name": "Analytics Engineer",
    "family": "data-ai"
   },
   {
    "id": "role:backend-developer",
    "kind": "role",
+   "name": "Backend Developer",
    "family": "engineering"
   },
   {
    "id": "role:business-analyst",
    "kind": "role",
+   "name": "Business Analyst",
    "family": "product-delivery"
   },
   {
    "id": "role:cloud-engineer",
    "kind": "role",
+   "name": "Cloud Engineer",
    "family": "quality-ops"
   },
   {
    "id": "role:data-ai-platform-engineer",
    "kind": "role",
+   "name": "Data / AI Platform Engineer",
    "family": "data-ai"
   },
   {
    "id": "role:data-analyst",
    "kind": "role",
+   "name": "Data Analyst",
    "family": "data-ai"
   },
   {
    "id": "role:data-engineer",
    "kind": "role",
+   "name": "Data Engineer",
    "family": "data-ai"
   },
   {
    "id": "role:data-scientist",
    "kind": "role",
+   "name": "Data Scientist",
    "family": "data-ai"
   },
   {
    "id": "role:database-administrator",
    "kind": "role",
+   "name": "Database Administrator",
    "family": "quality-ops"
   },
   {
    "id": "role:devops-engineer",
    "kind": "role",
+   "name": "DevOps Engineer",
    "family": "quality-ops"
   },
   {
    "id": "role:embedded-engineer",
    "kind": "role",
+   "name": "Embedded Engineer",
    "family": "engineering"
   },
   {
    "id": "role:engineering-manager",
    "kind": "role",
+   "name": "Engineering Manager",
    "family": "architecture-leadership"
   },
   {
    "id": "role:frontend-developer",
    "kind": "role",
+   "name": "Frontend Developer",
    "family": "engineering"
   },
   {
    "id": "role:fullstack-developer",
    "kind": "role",
+   "name": "Full-stack Developer",
    "family": "engineering"
   },
   {
    "id": "role:game-developer",
    "kind": "role",
+   "name": "Game Developer",
    "family": "engineering"
   },
   {
    "id": "role:ml-engineer",
    "kind": "role",
+   "name": "ML Engineer / MLOps",
    "family": "data-ai"
   },
   {
    "id": "role:mobile-developer",
    "kind": "role",
+   "name": "Mobile Developer",
    "family": "engineering"
   },
   {
    "id": "role:product-manager",
    "kind": "role",
+   "name": "Product Manager",
    "family": "product-delivery"
   },
   {
    "id": "role:qa-engineer",
    "kind": "role",
+   "name": "QA / Test Engineer",
    "family": "quality-ops"
   },
   {
    "id": "role:scrum-master",
    "kind": "role",
+   "name": "Scrum Master / Agile Coach",
    "family": "product-delivery"
   },
   {
    "id": "role:security-engineer",
    "kind": "role",
+   "name": "Security Engineer",
    "family": "quality-ops"
   },
   {
    "id": "role:site-reliability-engineer",
    "kind": "role",
+   "name": "Site Reliability Engineer",
    "family": "quality-ops"
   },
   {
    "id": "role:software-architect",
    "kind": "role",
+   "name": "Software Architect",
    "family": "architecture-leadership"
   },
   {
    "id": "role:system-administrator",
    "kind": "role",
+   "name": "System Administrator",
    "family": "quality-ops"
   },
   {
    "id": "role:tech-lead",
    "kind": "role",
+   "name": "Tech Lead",
    "family": "architecture-leadership"
   },
   {
    "id": "role:technical-writer",
    "kind": "role",
+   "name": "Technical Writer",
    "family": "product-delivery"
   },
   {
    "id": "role:ux-designer",
    "kind": "role",
+   "name": "UX Designer",
    "family": "product-delivery"
   }
  ],

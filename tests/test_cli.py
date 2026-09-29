@@ -80,6 +80,16 @@ def test_validate_scan_doctor_graph(capsys):
     assert out.startswith("graph LR")
 
 
+def test_graph_html_writes_one_file(capsys, tmp_path):
+    dest = tmp_path / "graph.html"
+    code, out = run(capsys, "graph", "--format", "html", "--out", str(dest))
+    assert code == 0 and str(dest) in out
+    html = dest.read_text()
+    assert html.startswith("<!doctype html>") and "superpowers/writing-plans" in html
+    code, out = run(capsys, "graph", "--format", "json", "--out", str(tmp_path / "g.json"))
+    assert json.loads((tmp_path / "g.json").read_text())["nodes"]
+
+
 def test_newer_user_data_gives_clear_error(capsys, tmp_path):
     from open_skill import userdata
     userdata.write_version(tmp_path / "h", userdata.SCHEMA_VERSION + 1)
