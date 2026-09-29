@@ -105,3 +105,9 @@ def test_missing_references_are_errors(tmp_path):
     found = [(f.rule, f.message) for f in lint.lint_file(d / "SKILL.md")]
     assert [r for r, _ in found] == ["missing-reference", "missing-reference"]
     assert "references/gone.md" in found[0][1] and "scripts/run.py" in found[1][1]
+
+
+def test_long_body_warns_on_tokens():
+    found = lint.lint_text(doc("word " * 4200))
+    assert ("body-tokens", "warning") in [(f.rule, f.severity) for f in found]
+    assert "body-tokens" not in rules(doc("word " * 100))

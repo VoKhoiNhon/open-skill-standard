@@ -87,6 +87,8 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
         add("field-allowed-tools", "allowed-tools should be one space-separated string", SPEC)
     if "license" in meta and not isinstance(meta["license"], str):
         add("field-license", "license should be a short string or the name of a bundled license file", SPEC)
+    if len(body) / 4 > 5000:  # rough token estimate; the spec recommends under 5000 tokens for instructions
+        add("body-tokens", f"instructions are about {len(body) // 4} tokens; keep SKILL.md under ~5000 and move detail to references/", SPEC)
     if text.count("\n") + 1 > 500:
         add("length", "SKILL.md over 500 lines; move detail into reference files", BEST)
     for rule, rx, msg, src in PATTERNS:
