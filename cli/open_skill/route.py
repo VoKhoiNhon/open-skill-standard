@@ -35,6 +35,10 @@ def _terms(text: str) -> set[str]:
     return {t for t in TOKEN.findall(text.lower()) if len(t) > 1 and t not in index.STOP}
 
 
+def _matched(text: str, keywords: list[str]) -> list[str]:
+    return [k for k in keywords if _positions(text, [k])]
+
+
 def _phase_order(tax) -> list[str]:
     return [p["id"] for p in tax["phases"]]
 
@@ -112,12 +116,14 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     proj = project.inspect(Path(project_path), tax, reg.roles)
     prof = knowledge.load_profile()
     mix = _role_mix(role, prof, proj)
-    size = task_size(task, tax, size)
+    given_size, size = size, task_size(task, tax, size)
     target = target_phase(task, tax)
     lead = max(mix, key=mix.get)
     window = phase_window(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"))
     weights = knowledge.personal_weights()
     phase_kw = {p["id"]: p["keywords"] for p in tax["phases"]}
+    size_kw = tax.get("size_keywords", {}).get(size, [])
+    size_from = "given" if given_size else ("keywords" if _matched(task, size_kw) else "default")
     task_terms = _terms(task)
 
     conn = index.build_index(reg, installed)
@@ -277,7 +283,10 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                   "traits": prof_m.get("traits", {})},
     }
     if decisions:
-        result["decisions"] = {"window": window, "candidates": trace}
+        result["decisions"] = {
+            "phase": {"target": target, "keywords": _matched(task, phase_kw.get(target, []))},
+            "size": {"size": size, "from": size_from, "keywords": _matched(task, size_kw) if size_from == "keywords" else []},
+            "window": window, "candidates": trace}
     if record:
         knowledge.record({"type": "proposed", "route_id": rid, "task": task,
                           "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
