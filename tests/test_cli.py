@@ -57,6 +57,14 @@ def test_search_filters_by_role_phase_and_source(capsys):
         assert run(capsys, "search", "plan", *bad)[0] == 2
 
 
+def test_search_installed_only(capsys):
+    code, out = run(capsys, "search", "plan spec test data", "--installed")
+    assert code == 0
+    assert [line.split()[1] for line in out.splitlines()] == ["superpowers/test-driven-development"]
+    code, out = run(capsys, "search", "lint", "--installed", "--source", "harvested")
+    assert [line.split()[1] for line in out.splitlines()] == ["harvested/lint-helper"]
+
+
 def test_feedback_appends_event(capsys, tmp_path):
     code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
     assert code == 0

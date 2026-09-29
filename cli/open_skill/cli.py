@@ -116,7 +116,8 @@ def cmd_search(args):
             print(f"unknown {opt}: {v} (one of: {', '.join(sorted(values))})", file=sys.stderr)
             return 2
     hits = index.search(index.build_index(reg, installed), args.query, limit=len(reg.skills) + len(installed))
-    hits = [(sid, score) for sid, score in hits if index.matches(reg, sid, args.role, args.phase, args.source)]
+    hits = [(sid, score) for sid, score in hits
+            if index.matches(reg, sid, args.role, args.phase, args.source) and (sid in have or not args.installed)]
     for sid, score in hits[:args.limit]:
         print(f"{score:7.2f}  {sid}{'' if sid in have else '  (not installed)'}")
     return 0
@@ -502,6 +503,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--role", help="only skills this role's pack lists or whose manifest names it")
     s.add_argument("--phase", help="only skills that act in this phase")
     s.add_argument("--source", help="only skills from this adapter source (or 'harvested')")
+    s.add_argument("--installed", action="store_true", help="only skills installed on this machine")
     s.set_defaults(fn=cmd_search)
     s = sub.add_parser("route", help="choose and order skills for a task")
     s.add_argument("task")
