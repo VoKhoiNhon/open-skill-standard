@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- `open-skill route --phase <id>` takes the target phase from the caller (an agent that read the conversation) and skips keyword detection; unknown ids exit 2. The JSON output gains `phase_from` (`given`, `keywords` or `guessed`), and `--explain` shows a phase picked without any signal as `phase: build (guessed, no signal)`. Build stays the fallback. Routing eval cases may set `phase`.
 - `open-skill graph --format html --out graph.html` writes one self-contained page (no network) with skills by phase, artifacts and roles, filters by role, phase, source and installed state, search, keyboard use and a dark theme; `--out` works for every format. Graph JSON nodes now carry skill descriptions and role names.
 - `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, nothing is left under `[Unreleased]`, the new section is the newest, dated and moves the version forward, and the compare links are updated. CI runs it on `release/*` pull requests.
 - Trigger sets grow to 32 queries per core skill, with multilingual phrasing and closer near misses; the 12 new ones per skill are marked `holdout: true` and kept out of tuning.
