@@ -69,7 +69,7 @@ skills:
     phases: [specify]
     produces: [prd]
     requires: ["project:_bmad"]
-    task_size: [large]
+    task_size: [medium, large]
     triggers: [prd, requirements]
   - name: bmad-spec
     description: Condense ideas, briefs or transcripts into a short kernel spec

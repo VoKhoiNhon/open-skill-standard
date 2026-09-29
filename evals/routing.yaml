@@ -207,6 +207,8 @@ cases:
      include: [bmad-method/bmad-ticket], exclude: [bmad-method/bmad-agent-ux-designer]}
   - {id: product-manager, role: product-manager, task: "write a spec for team workspaces",
      include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
+  - {id: product-manager-bmad, role: product-manager, task: "write a PRD for team workspaces", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
   - {id: business-analyst, role: business-analyst, task: "write requirements for the refund process",
      include: [knowledge-work-product-management/write-spec]}
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
