@@ -131,3 +131,10 @@ def test_init_with_the_real_registry_seeds(capsys, tmp_path):
     code = cli.main(["init", "--role", "data-engineer"])
     assert code == 0
     assert list((tmp_path / "h" / "knowledge").glob("*.md"))
+
+
+def test_seeds_sync_command(capsys, tmp_path):
+    assert run(capsys, "seeds", "sync")[0] == 1  # no profile yet
+    run(capsys, "init", "--role", "data-engineer")
+    code, out = run(capsys, "seeds", "sync", "--dry-run")
+    assert code == 0 and "up to date" in out
