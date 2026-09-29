@@ -75,10 +75,14 @@ edges: [produces, consumes, precedes, alternative-to, conflicts-with, requires, 
 
 task_sizes: [small, medium, large]
 
-# Keywords that hint at task size (used when --size is not given).
+# Keywords that hint at task size (used when --size is not given); other languages in size_keywords_i18n.
 size_keywords:
-  large: [app, application, system, platform, product, "new project", "from scratch", greenfield, mvp, ứng dụng, hệ thống, nền tảng, dự án mới, từ đầu]
-  small: [typo, rename, "one-line", "one line", small, tiny, quick, minor, bump, lỗi chính tả, đổi tên, nhỏ, nhanh]
+  large: [app, application, system, platform, product, "new project", "from scratch", greenfield, mvp]
+  small: [typo, rename, "one-line", "one line", small, tiny, quick, minor, bump]
+size_keywords_i18n:
+  vi:
+    large: [ứng dụng, hệ thống, nền tảng, dự án mới, từ đầu]
+    small: [lỗi chính tả, đổi tên, nhỏ, nhanh]
 
 role_families:
   engineering: [frontend-developer, backend-developer, fullstack-developer, mobile-developer, embedded-engineer, game-developer]
