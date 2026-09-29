@@ -43,3 +43,17 @@ def run_case(case: dict, reg, installed) -> list[str]:
     if "last_phase" in case and (not r["chain"] or r["chain"][-1]["phase"] != case["last_phase"]):
         fails.append(f"last phase should be {case['last_phase']}: {shown}")
     return fails
+
+
+def routing_report(cases: list[dict], reg, installed) -> dict:
+    """Pass/fail per case and per role, for people tuning role packs and adapters."""
+    results, by_role = [], {}
+    for case in cases:
+        fails = run_case(case, reg, installed)
+        results.append({"id": case["id"], "role": case.get("role"), "passed": not fails, "failures": fails})
+        row = by_role.setdefault(case.get("role") or "-", {"cases": 0, "passed": 0})
+        row["cases"] += 1
+        row["passed"] += not fails
+    passed = sum(r["passed"] for r in results)
+    return {"cases": len(results), "passed": passed, "pass_rate": round(passed / max(len(results), 1), 3),
+            "by_role": dict(sorted(by_role.items())), "results": results}
