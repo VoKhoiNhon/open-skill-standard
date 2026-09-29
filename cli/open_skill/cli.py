@@ -553,6 +553,9 @@ def cmd_eval(args):
         return _eval_triggers(args, reg)
     cases = evals.load_routing_cases(Path(args.cases) if args.cases else None)
     rep = evals.routing_report(cases, reg, evals.all_installed(reg))
+    if not args.cases:  # the bundled holdout is reported apart and never gates the exit code (CI keeps a floor)
+        rep["holdout"] = evals.routing_report(evals.load_routing_cases(name="routing-holdout.yaml"), reg,
+                                              evals.all_installed(reg))
     if args.format == "json":
         _print(rep)
     else:
@@ -561,7 +564,11 @@ def cmd_eval(args):
         for r in rep["results"]:
             for f in r["failures"]:
                 print(f"FAIL {r['id']}: {f}")
-        print(f"{rep['passed']}/{rep['cases']} passed ({rep['pass_rate']:.0%})")
+        print(f"in-sample: {rep['passed']}/{rep['cases']} passed ({rep['pass_rate']:.0%})")
+        if "holdout" in rep:
+            h = rep["holdout"]
+            print(f"holdout (never tuned on): {h['passed']}/{h['cases']} passed ({h['pass_rate']:.0%}); "
+                  "failures only in --format json, do not tune against them one by one")
     return 0 if rep["passed"] == rep["cases"] else 1
 
 

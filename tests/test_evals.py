@@ -188,3 +188,32 @@ def test_case_can_give_the_phase_an_agent_would_pass():
     case = {"role": "backend-developer", "task": "customers say invoice export returns nothing since yesterday",
             "first": "superpowers/systematic-debugging"}
     assert evals.run_case({**case, "phase": "operate"}, REG, ALL) == []
+
+
+def test_first_phase_and_include_any_assertions():
+    case = {"role": "backend-developer", "task": "the export endpoint is failing with a 500 error"}
+    assert evals.run_case({**case, "first_phase": "operate",
+                           "include_any": ["superpowers/systematic-debugging", "nope/nope"]}, REG, ALL) == []
+    fails = evals.run_case({**case, "first_phase": "plan", "include_any": ["nope/a", "nope/b"]}, REG, ALL)
+    assert any("first phase should be plan" in f for f in fails) and any("one of nope/a, nope/b" in f for f in fails)
+
+
+HOLDOUT_PATH = ROOT / "evals" / "routing-holdout.yaml"
+
+
+def test_routing_holdout_is_separate_from_the_tuned_cases():
+    holdout = evals.load_routing_cases(HOLDOUT_PATH)
+    assert len(holdout) >= 40 and "DO NOT TUNE" in HOLDOUT_PATH.read_text()
+    assert len({c["id"] for c in holdout}) == len(holdout)
+    assert not {c["id"] for c in holdout} & {c["id"] for c in CASES}
+    assert not {(c["role"], c["task"]) for c in holdout} & {(c.get("role"), c["task"]) for c in CASES}
+
+
+# The held-out routing cases gate only on a floor just below the measured pass rate: a routing change that loses
+# held-out cases fails, but no single case must pass. Raise the floor when the score goes up; never lower it silently.
+HOLDOUT_ROUTING_FLOOR = 0.42  # measured 23/52 = 0.442
+
+
+def test_routing_holdout_meets_floor():
+    rep = evals.routing_report(evals.load_routing_cases(HOLDOUT_PATH), REG, ALL)
+    assert rep["pass_rate"] >= HOLDOUT_ROUTING_FLOOR, f"holdout {rep['passed']}/{rep['cases']}"

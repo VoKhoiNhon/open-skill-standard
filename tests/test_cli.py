@@ -291,6 +291,19 @@ def test_eval_routing_command(capsys):
     assert code == 0 and "passed (100%)" in out and "data-engineer" in out
 
 
+def test_eval_routing_reports_in_sample_and_holdout_apart(capsys, tmp_path):
+    assert cli.main(["eval", "routing"]) == 0
+    out = capsys.readouterr().out
+    assert "in-sample:" in out and "holdout (never tuned on):" in out
+    assert "FAIL" not in out.split("in-sample:")[1]  # holdout failures are not listed, so nobody tunes against them
+    assert cli.main(["eval", "routing", "--format", "json"]) == 0
+    rep = json.loads(capsys.readouterr().out)
+    assert rep["pass_rate"] == 1.0 and rep["holdout"]["cases"] >= 40
+    (tmp_path / "c.yaml").write_text("cases:\n  - {id: x, role: qa-engineer, task: fix typo in README}\n")
+    assert cli.main(["eval", "routing", "--cases", str(tmp_path / "c.yaml"), "--format", "json"]) == 0
+    assert "holdout" not in json.loads(capsys.readouterr().out)
+
+
 def test_eval_triggers_command(capsys):
     code = cli.main(["eval", "triggers"])
     out = capsys.readouterr().out

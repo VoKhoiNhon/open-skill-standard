@@ -14,8 +14,9 @@ def all_installed(reg) -> list[Installed]:
     return [Installed(sid, sid.split("/", 1)[1], "/eval", s.get("description", ""), False) for sid, s in reg.skills.items()]
 
 
-def load_routing_cases(path: Path | None = None) -> list[dict]:
-    path = Path(path) if path else paths.data_root() / "evals" / "routing.yaml"
+def load_routing_cases(path: Path | None = None, name: str = "routing.yaml") -> list[dict]:
+    """Bundled cases by file name: routing.yaml (tuned on) or routing-holdout.yaml (never tuned on)."""
+    path = Path(path) if path else paths.data_root() / "evals" / name
     return yaml.safe_load(path.read_text())["cases"]
 
 
@@ -34,6 +35,10 @@ def run_case(case: dict, reg, installed) -> list[str]:
     fails += [f"{sid} unexpectedly in {shown}" for sid in case.get("exclude", []) if sid in ids]
     if "first" in case and (not ids or ids[0] != case["first"]):
         fails.append(f"first step should be {case['first']}: {shown}")
+    if "include_any" in case and not set(case["include_any"]) & set(ids):
+        fails.append(f"one of {', '.join(case['include_any'])} should be in {shown}")
+    if "first_phase" in case and (not r["chain"] or r["chain"][0]["phase"] != case["first_phase"]):
+        fails.append(f"first phase should be {case['first_phase']}: {shown}")
     if "phases" in case and [s["phase"] for s in r["chain"]] != case["phases"]:
         fails.append(f"phases should be {case['phases']}: {shown}")
     if "advice" in case and r["advice"] != case["advice"]:
