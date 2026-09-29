@@ -157,10 +157,13 @@ def migrate(home: Path, dry_run: bool = False) -> list[str]:
 
 
 def text_hash(text: str) -> str:
+    """Hash of a note's text ignoring case, runs of whitespace and Unicode normalization (an editor that saves NFD
+    does not make an untouched note look edited). Unchanged for NFC text, so stored hashes stay valid."""
     import hashlib
     import re
+    import unicodedata
 
-    return hashlib.sha1(re.sub(r"\s+", " ", text.strip().lower()).encode()).hexdigest()[:12]
+    return hashlib.sha1(re.sub(r"\s+", " ", unicodedata.normalize("NFC", text).strip().lower()).encode()).hexdigest()[:12]
 
 
 def _split_note(raw: str) -> tuple[str, str]:

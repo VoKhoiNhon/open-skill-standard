@@ -274,3 +274,44 @@ def test_bug_dry_run_said_it_saved_upstream_wording_and_kept_retired_seeds(home)
         "(open-skill seeds diff data-engineer/nulls)",
         "would keep data-engineer/merge: no longer shipped upstream"]
     assert knowledge.proposals() == {}
+
+
+# Seeds as a Vietnamese-speaking user may have them from an early install, and the English wording that replaces them.
+SEEDS_VI = {"data-engineer": [{"id": "merge", "text": "Dùng MERGE theo khoá nghiệp vụ thay vì INSERT."},
+                              {"id": "nulls", "text": "Kiểm tra null và trùng lặp trên khoá sau mỗi lần nạp."}]}
+SEEDS_EN = {"data-engineer": [{"id": "merge", "text": "Use MERGE on the business key instead of a blind INSERT."},
+                              {"id": "nulls", "text": "Check nulls and duplicates on primary and business keys after every load."}]}
+
+
+def test_upgrade_from_vietnamese_seeds_keeps_the_users_edit_and_the_ids(home):
+    from open_skill import upgrade
+    knowledge.init({"roles": {"data-engineer": 1.0}}, seeds=SEEDS_VI)
+    before = {n["seed_id"]: n["id"] for n in knowledge.load_knowledge()}
+    edited = next(p for p in (home / "knowledge").glob("*.md") if "trùng lặp" in p.read_text())
+    mine = edited.read_text().replace("sau mỗi lần nạp.", "sau mỗi lần nạp, kể cả bảng tạm (quy tắc của tôi).")
+    edited.write_text(mine)
+
+    actions = upgrade.upgrade(SEEDS_EN)
+
+    assert edited.read_text() == mine  # the edited note is untouched, byte for byte
+    assert any(a.startswith("kept your edit of data-engineer/nulls") for a in actions)
+    assert knowledge.proposals()["data-engineer/nulls"] == SEEDS_EN["data-engineer"][1]["text"]
+    assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]  # never edited: follows upstream
+    assert {n["seed_id"]: n["id"] for n in knowledge.load_knowledge()} == before  # same ids, same notes, no duplicates
+    again = [a for a in upgrade.upgrade(SEEDS_EN) if not a.startswith("backed up")]
+    assert edited.read_text() == mine and len(knowledge.load_knowledge()) == 2  # the next upgrade still keeps it
+    assert all(a.startswith("kept your edit of data-engineer/nulls") for a in again)  # only the review reminder
+
+
+def test_bug_untouched_seed_resaved_in_nfd_counted_as_a_user_edit(home):
+    """Bug: an editor that saves decomposed Unicode (NFD) made an untouched Vietnamese seed look edited, so it
+    never followed upstream wording again."""
+    import unicodedata
+    from open_skill import upgrade
+    seeds = {"data-engineer": [SEEDS_VI["data-engineer"][0]]}
+    knowledge.init({"roles": {"data-engineer": 1.0}}, seeds=seeds)
+    p = next((home / "knowledge").glob("*.md"))
+    p.write_text(unicodedata.normalize("NFD", p.read_text()))
+    actions = upgrade.upgrade({"data-engineer": [SEEDS_EN["data-engineer"][0]]})
+    assert "updated data-engineer/merge (you had not edited it)" in actions
+    assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]
