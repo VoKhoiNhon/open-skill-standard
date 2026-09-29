@@ -29,3 +29,17 @@ def test_upgrade_dry_run_touches_nothing(home):
     actions = upgrade.upgrade(SEEDS, dry_run=True)
     assert "would add qa-engineer/flaky" in actions
     assert sorted(p.name for p in home.rglob("*")) == before
+
+
+def test_rollback_restores_state_before_upgrade(home):
+    (home / "knowledge").mkdir(parents=True)
+    (home / "profile.yaml").write_text("roles: {qa-engineer: 1.0}\n")
+    upgrade.upgrade(SEEDS)
+    assert any("flaky" in n["text"] for n in knowledge.load_knowledge())
+    msg = upgrade.rollback()
+    assert msg.startswith("restored") and not any("flaky" in n["text"] for n in knowledge.load_knowledge())
+
+
+def test_rollback_without_backup(home):
+    with pytest.raises(FileNotFoundError):
+        upgrade.rollback()
