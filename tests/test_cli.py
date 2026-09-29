@@ -81,7 +81,8 @@ def test_route_explain_shows_why_this_window(capsys, tmp_path):
     assert "size medium: no size keywords, the default" in out
     assert "phase window: plan → build → verify → review (medium build task: starts at plan" in out
     code, out = run(capsys, "route", "the orders thing", *base[1:], "--size", "small")
-    assert "target build: no phase keywords, the default" in out and "size small: given" in out
+    assert "phase: build (guessed, no signal); pass --phase if you know it" in out and "size small: given" in out
+    assert "target=build (guessed)" in out
     code, out = run(capsys, "route", "fix a typo", *base[1:])
     assert "size small from size keywords: typo" in out
 

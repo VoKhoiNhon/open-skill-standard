@@ -217,7 +217,8 @@ def cmd_search(args):
 
 
 def _explain(r) -> str:
-    lines = [f"route {r['route_id']}  role={r['role']}  size={r['size']}  target={r['target_phase']}",
+    guess = " (guessed)" if r["phase_from"] == "guessed" else ""
+    lines = [f"route {r['route_id']}  role={r['role']}  size={r['size']}  target={r['target_phase']}{guess}",
              f"project native={r['project']['native']} artifacts={r['project']['artifacts']}",
              f"model profile={r['model']['profile']} ({r['model']['matched_by']}) effort={r['model']['effort']}"]
     d = r.get("decisions")
@@ -225,7 +226,7 @@ def _explain(r) -> str:
         ph, sz = d["phase"], d["size"]
         lines.append({"given": f"target {ph['target']}: given by the caller",
                       "keywords": f"target {ph['target']} from phase keywords: {', '.join(ph['keywords'])}",
-                      "guessed": f"target {ph['target']}: no phase keywords, the default"}[ph["from"]])
+                      "guessed": f"phase: {ph['target']} (guessed, no signal); pass --phase if you know it"}[ph["from"]])
         lines.append({"given": f"size {sz['size']}: given",
                       "keywords": f"size {sz['size']} from size keywords: {', '.join(sz['keywords'])}",
                       "default": f"size {sz['size']}: no size keywords, the default"}[sz["from"]])
