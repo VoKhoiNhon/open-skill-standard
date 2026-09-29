@@ -13,6 +13,8 @@ cases:
      first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
   - {id: embedded, role: embedded-engineer, task: "add a temperature sensor driver over I2C",
      include: [superpowers/test-driven-development]}
+  - {id: embedded-spec-kit, role: embedded-engineer, task: "add a bootloader update over UART",
+     files: [.specify/memory/constitution.md], include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: game, role: game-developer, task: "add a double jump to the player controller", include: [claude-code-builtin/run]}
   - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
      include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
