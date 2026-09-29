@@ -1,11 +1,12 @@
 """Evaluation of routing (deterministic) and of skill triggering (lexical proxy or a real agent)."""
 
+import re
 import tempfile
 from pathlib import Path
 
 import yaml
 
-from . import paths, route
+from . import paths, route, schemas
 from .scan import Installed
 
 
@@ -71,7 +72,7 @@ def routing_report(cases: list[dict], reg, installed) -> dict:
 
 
 def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
-    """skill name -> [{"q": query, "trigger": bool, "holdout": bool (optional)}, ...]"""
+    """skill name -> [{"q": query, "trigger": bool, "holdout": bool, "locale": tag (optional, default en)}, ...]"""
     folder = Path(folder) if folder else paths.data_root() / "evals" / "triggers"
     out = {}
     for p in sorted(folder.glob("*.yaml")):
@@ -81,6 +82,8 @@ def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
             raise ValueError(f"{p}: every query needs a string 'q' and a boolean 'trigger'")
         if not all(isinstance(q.get("holdout", False), bool) for q in queries):
             raise ValueError(f"{p}: 'holdout' must be true or false")
+        if not all(q.get("locale", "en") == "en" or re.fullmatch(schemas.LOCALE, str(q["locale"])) for q in queries):
+            raise ValueError(f"{p}: 'locale' must be a language tag such as vi or pt-BR")
         out[doc["skill"]] = queries
     return out
 
@@ -95,6 +98,11 @@ def skill_descriptions(reg, skills_dir: Path | None = None) -> dict[str, str]:
         if meta.get("name"):
             out[meta["name"]] = str(meta.get("description", ""))
     return out
+
+
+def locale_triggers(reg) -> dict[str, dict[str, list[str]]]:
+    """skill name -> the registry's triggers_i18n: how people ask for the skill in each language (SPEC §3.1)."""
+    return {sid.split("/", 1)[1]: s["triggers_i18n"] for sid, s in reg.skills.items() if s.get("triggers_i18n")}
 
 
 def lexical_triggers(query: str, descriptions: dict[str, str], top_k: int = 3, ratio: float = 0.5) -> list[str]:
@@ -154,15 +162,29 @@ def suggest_terms(labels: list[dict], fired: list[bool], description: str, min_c
             "false_alarms": sorted(alarms.items(), key=lambda x: (-x[1], x[0]))}
 
 
-def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str], suggest: bool = False) -> dict[str, dict]:
-    """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report;
-    with `suggest`, also suggest_terms() for the train queries."""
-    report = {}
+def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str], suggest: bool = False,
+                           locale_words: dict[str, dict[str, list[str]]] | None = None) -> dict[str, dict]:
+    """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report, plus
+    `locales`: the same split per non-English locale; with `suggest`, also suggest_terms() for the train queries.
+    `locale_words` (locale_triggers()) is what the proxy reads besides the description for non-English queries."""
+    report, words = {}, locale_words or {}
+
+    def seen(loc: str) -> dict[str, str]:
+        # A model reads an English description and understands a request in any language; the proxy cannot
+        # translate, so for a query in another locale it also reads each skill's words for that locale.
+        return {n: " ".join([d, *words.get(n, {}).get(loc, [])]) for n, d in descriptions.items()}
+
     for skill, queries in sets.items():
         train, val = split_queries(queries)
-        fired = {q["q"]: skill in lexical_triggers(q["q"], descriptions) for q in queries}
+        fired = {q["q"]: skill in lexical_triggers(q["q"], seen(q["locale"]) if q.get("locale", "en") != "en" else descriptions)
+                 for q in queries}
         report[skill] = {part: trigger_metrics(qs, [fired[q["q"]] for q in qs])
                          for part, qs in (("train", train), ("validation", val))}
+        report[skill]["locales"] = {  # the same metrics on the queries of each language other than English
+            loc: {part: trigger_metrics(mine, [fired[q["q"]] for q in mine])
+                  for part, qs in (("train", train), ("validation", val))
+                  for mine in [[q for q in qs if q.get("locale") == loc]]}
+            for loc in sorted({q["locale"] for q in queries if q.get("locale", "en") != "en"})}
         if suggest:
             report[skill]["suggest"] = suggest_terms(train, [fired[q["q"]] for q in train], descriptions.get(skill, ""))
     return report

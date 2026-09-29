@@ -4,12 +4,12 @@ queries:
   - {q: "is this change good enough to merge? check it against our standards", trigger: true}
   - {q: "what are the best practices for idempotent data loads and backfills", trigger: true}
   - {q: "set up a spec-kit constitution with principles for a data engineering team", trigger: true}
-  - {q: "quy chuẩn code cho team backend là gì, checklist trước khi merge", trigger: true}
+  - {q: "quy chuẩn code cho team backend là gì, checklist trước khi merge", trigger: true, locale: vi}
   - {q: "do we need an ADR for switching from Postgres to DynamoDB? what should it contain", trigger: true}
   - {q: "checklist for a data contract between our team and the analytics team", trigger: true}
   - {q: "what's the definition of done for an ML model release", trigger: true}
   - {q: "review my commit messages and tests against conventional standards before the PR", trigger: true}
-  - {q: "đã đủ chuẩn chưa? kiểm tra giúp pipeline này theo best practice", trigger: true}
+  - {q: "đã đủ chuẩn chưa? kiểm tra giúp pipeline này theo best practice", trigger: true, locale: vi}
   - {q: "which skill should I use to start this project", trigger: false}
   - {q: "who calls the calculate_total function", trigger: false}
   - {q: "remember that our release day is Thursday", trigger: false}
@@ -19,17 +19,21 @@ queries:
   - {q: "look up the React 19 useActionState API", trigger: false}
   - {q: "make a slide deck summarizing Q3 results", trigger: false}
   - {q: "brainstorm names for our new internal tool", trigger: false}
-  - {q: "sửa lỗi chính tả trong file hướng dẫn", trigger: false}
+  - {q: "sửa lỗi chính tả trong file hướng dẫn", trigger: false, locale: vi}
+  - {q: "checklist definition of done cho pipeline dữ liệu gồm những gì?", trigger: true, locale: vi}
+  - {q: "code này đã sẵn sàng merge chưa, rà soát theo tiêu chuẩn giúp mình", trigger: true, locale: vi}
   # Held out: never read these while tuning the description; they only show whether a change generalizes.
   - {q: "sanity check this Terraform module before I merge: anything missing like state locking or tagging?", trigger: true, holdout: true}
   - {q: "I think the backfill job is finished; anything I should check before telling the team it's done?", trigger: true, holdout: true}
-  - {q: "¿qué debería incluir nuestra checklist de revisión para cambios en APIs públicas?", trigger: true, holdout: true}
+  - {q: "¿qué debería incluir nuestra checklist de revisión para cambios en APIs públicas?", trigger: true, holdout: true, locale: es}
   - {q: "we built an eval harness for the RAG bot; what does good enough look like before we ship it?", trigger: true, holdout: true}
-  - {q: "PR này đã đủ điều kiện merge chưa? xem giúp test với commit message", trigger: true, holdout: true}
+  - {q: "PR này đã đủ điều kiện merge chưa? xem giúp test với commit message", trigger: true, holdout: true, locale: vi}
   - {q: "what principles should go into our spec-kit constitution for a mobile team?", trigger: true, holdout: true}
   - {q: "write a Terraform module for an S3 bucket with versioning", trigger: false, holdout: true}
   - {q: "fix the failing test in tests/test_orders.py", trigger: false, holdout: true}
   - {q: "summarize what this PR changes for the release notes", trigger: false, holdout: true}
   - {q: "which skill should I use to review this pipeline", trigger: false, holdout: true}
   - {q: "remember that our definition of done includes a changelog entry", trigger: false, holdout: true}
-  - {q: "genera un informe de ventas del último trimestre por región", trigger: false, holdout: true}
+  - {q: "genera un informe de ventas del último trimestre por región", trigger: false, holdout: true, locale: es}
+  - {q: "tiêu chuẩn về commit message và test của team trước khi phát hành là gì?", trigger: true, holdout: true, locale: vi}
+  - {q: "viết tài liệu hướng dẫn cài đặt cho README", trigger: false, holdout: true, locale: vi}

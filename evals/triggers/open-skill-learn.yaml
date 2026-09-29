@@ -4,8 +4,8 @@ queries:
   - {q: "from now on, write SQL keywords in uppercase", trigger: true}
   - {q: "note that the orders table must always be filtered by partition date", trigger: true}
   - {q: "don't use INSERT for backfills again, we got duplicates last time", trigger: true}
-  - {q: "ghi nhớ: team mình release vào thứ năm hằng tuần", trigger: true}
-  - {q: "bài học hôm nay: phải kiểm tra null trên khoá trước khi merge dữ liệu", trigger: true}
+  - {q: "ghi nhớ: team mình release vào thứ năm hằng tuần", trigger: true, locale: vi}
+  - {q: "bài học hôm nay: phải kiểm tra null trên khoá trước khi merge dữ liệu", trigger: true, locale: vi}
   - {q: "forget the note about using Docker for local tests", trigger: true}
   - {q: "save this lesson for the data engineer role: reconcile row counts after every load", trigger: true}
   - {q: "export my notes so I can move them to my new laptop", trigger: true}
@@ -19,17 +19,21 @@ queries:
   - {q: "add a cache to the API client", trigger: false}
   - {q: "look up the pandas merge documentation", trigger: false}
   - {q: "run the tests and fix what fails", trigger: false}
-  - {q: "phân tích vì sao doanh thu tuần này giảm", trigger: false}
+  - {q: "phân tích vì sao doanh thu tuần này giảm", trigger: false, locale: vi}
+  - {q: "nhớ giúp mình: không deploy vào thứ sáu", trigger: true, locale: vi}
+  - {q: "tu gio luon dung uv thay cho pip nhe", trigger: true, locale: vi}
   # Held out: never read these while tuning the description; they only show whether a change generalizes.
   - {q: "ugh, you used npm again. this repo uses pnpm, keep that in mind next time", trigger: true, holdout: true}
-  - {q: "a partir de ahora, escribe los mensajes de commit en inglés aunque te hable en español", trigger: true, holdout: true}
+  - {q: "a partir de ahora, escribe los mensajes de commit en inglés aunque te hable en español", trigger: true, holdout: true, locale: es}
   - {q: "add to my glossary: GMV means gross merchandise value before refunds", trigger: true, holdout: true}
   - {q: "that note about no deploys on Friday is outdated, delete it", trigger: true, holdout: true}
-  - {q: "từ giờ trở đi, luôn chạy dbt test sau khi sửa model nhé", trigger: true, holdout: true}
+  - {q: "từ giờ trở đi, luôn chạy dbt test sau khi sửa model nhé", trigger: true, holdout: true, locale: vi}
   - {q: "yesterday's outage came from an unbounded backfill; keep that lesson so it never happens again", trigger: true, holdout: true}
   - {q: "remind me at 5pm to send the weekly report", trigger: false, holdout: true}
   - {q: "what do my saved notes say about the orders table", trigger: false, holdout: true}
   - {q: "write a lessons-learned section for the incident postmortem in postmortems/2026-09-db.md", trigger: false, holdout: true}
   - {q: "forget that last change, revert config.py to how it was", trigger: false, holdout: true}
-  - {q: "cập nhật CHANGELOG cho bản release mới", trigger: false, holdout: true}
+  - {q: "cập nhật CHANGELOG cho bản release mới", trigger: false, holdout: true, locale: vi}
   - {q: "never use global state in this function, rewrite it with a parameter", trigger: false, holdout: true}
+  - {q: "lần sau đừng dùng INSERT cho backfill nữa, nhớ lấy bài học này", trigger: true, holdout: true, locale: vi}
+  - {q: "xoá file config cũ trong thư mục này", trigger: false, holdout: true, locale: vi}

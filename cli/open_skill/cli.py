@@ -554,7 +554,8 @@ def _eval_triggers(args, reg):
             t, v = r["train"], r["validation"]
             print(f"{skill:28} train P {t['precision']:.2f} R {t['recall']:.2f} | validation P {v['precision']:.2f} R {v['recall']:.2f}")
         return 0
-    rep = evals.trigger_report_lexical(sets, evals.skill_descriptions(reg), suggest=args.suggest)
+    rep = evals.trigger_report_lexical(sets, evals.skill_descriptions(reg), suggest=args.suggest,
+                                       locale_words=evals.locale_triggers(reg))
     if args.format == "json":
         _print(rep)
         return 0
@@ -562,6 +563,11 @@ def _eval_triggers(args, reg):
     for skill, r in rep.items():
         m, h = r["train"], r["validation"]
         print(f"{skill:28} tune P {m['precision']:.2f} R {m['recall']:.2f} | holdout P {h['precision']:.2f} R {h['recall']:.2f}")
+        for loc, sl in r["locales"].items():
+            t, v = sl["train"], sl["validation"]
+            n = lambda x: x["tp"] + x["fp"] + x["fn"] + x["tn"]
+            print(f"  {loc + ' slice':26} tune P {t['precision']:.2f} R {t['recall']:.2f} ({n(t)}) | "
+                  f"holdout P {v['precision']:.2f} R {v['recall']:.2f} ({n(v)})")
         for q in m["missed"]:
             print(f"    missed: {q}")
         for q in m["false_alarms"]:

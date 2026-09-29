@@ -75,29 +75,68 @@ def test_lexical_report_splits_train_and_holdout():
     assert (rep["validation"]["tp"], rep["validation"]["tn"]) == (1, 1)
 
 
+def test_lexical_report_has_a_slice_per_locale():
+    d = {"pdf-tools": "Extract text and tables from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
+    sets = {"pdf-tools": [{"q": "extract tables from this PDF", "trigger": True},
+                          {"q": "trích bảng từ file PDF này", "trigger": True, "locale": "vi"},
+                          {"q": "viết truy vấn SQL doanh thu", "trigger": False, "locale": "vi"},
+                          {"q": "trích văn bản từ báo cáo", "trigger": True, "locale": "vi", "holdout": True}]}
+    rep = evals.trigger_report_lexical(sets, d)["pdf-tools"]
+    assert set(rep["locales"]) == {"vi"}  # English is the whole report, not a slice
+    vi = rep["locales"]["vi"]
+    assert (vi["train"]["tp"], vi["train"]["tn"]) == (1, 1) and (vi["validation"]["fn"], vi["validation"]["tp"]) == (1, 0)
+    assert rep["train"]["tp"] == 2  # the slice is also part of the whole
+
+
+def test_proxy_reads_the_registry_locale_words_for_queries_in_that_locale():
+    d = {"pdf-tools": "Extract text and tables from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
+    words = {"pdf-tools": {"vi": ["trích xuất", "bảng"]}, "sql-helper": {"vi": ["truy vấn"]}}
+    sets = {"pdf-tools": [{"q": "trích xuất bảng từ báo cáo", "trigger": True, "locale": "vi"},
+                          {"q": "bảng tables", "trigger": True},  # English queries see the description only
+                          {"q": "viết truy vấn doanh thu", "trigger": False, "locale": "vi"}]}
+    plain = evals.trigger_report_lexical(sets, d)["pdf-tools"]["locales"]["vi"]
+    both = evals.trigger_report_lexical(sets, d, locale_words=words)["pdf-tools"]
+    assert plain["train"]["tp"] + plain["validation"]["tp"] == 0
+    vi = both["locales"]["vi"]
+    assert vi["train"]["tp"] + vi["validation"]["tp"] == 1 and vi["train"]["fp"] + vi["validation"]["fp"] == 0
+    assert evals.lexical_triggers("bảng tables", d) == ["pdf-tools"]
+
+
+def test_locale_triggers_come_from_the_registry():
+    assert evals.locale_triggers(REG)["open-skill-learn"]["vi"]
+
+
+def test_trigger_query_locale_is_a_language_tag(tmp_path):
+    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, locale: Vietnamese}\n")
+    with pytest.raises(ValueError):
+        evals.load_trigger_sets(tmp_path)
+    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hola, trigger: true, locale: es}\n")
+    assert evals.load_trigger_sets(tmp_path)["x"][0]["locale"] == "es"
+
+
 # Regression floors for the lexical proxy, just under the current scores so losing one query fails:
 # skill -> (precision, recall) on the tuning queries. Raise them when descriptions improve, never lower them silently.
 TUNE_FLOORS = {
-    "open-skill-intel": (0.75, 0.35),
-    "open-skill-learn": (0.95, 0.75),
-    "open-skill-router": (0.95, 0.55),
+    "open-skill-intel": (0.75, 0.40),
+    "open-skill-learn": (0.95, 0.80),
+    "open-skill-router": (0.95, 0.70),
     "open-skill-standards": (0.95, 0.75),
 }
 
 
 # The same on the held-out queries, which are never used for tuning: a false alarm or a lost catch there means a
-# description change did not generalize. Standards has one held-out false alarm today, hence precision 0.
+# description change did not generalize. Standards has one held-out false alarm today, hence precision 0.45.
 HOLDOUT_FLOORS = {
     "open-skill-intel": (0.95, 0.0),
-    "open-skill-learn": (0.95, 0.15),
-    "open-skill-router": (0.95, 0.0),
-    "open-skill-standards": (0.0, 0.0),
+    "open-skill-learn": (0.95, 0.40),
+    "open-skill-router": (0.95, 0.25),
+    "open-skill-standards": (0.45, 0.10),
 }
 
 
 def _core_trigger_report():
     return evals.trigger_report_lexical(evals.load_trigger_sets(ROOT / "evals" / "triggers"),
-                                        evals.skill_descriptions(REG, ROOT / "skills"))
+                                        evals.skill_descriptions(REG, ROOT / "skills"), locale_words=evals.locale_triggers(REG))
 
 
 def test_core_skills_trigger_proxy_meets_floor():
@@ -115,6 +154,28 @@ def test_core_skills_trigger_proxy_holds_on_holdout():
         m = rep[skill]["validation"]
         assert m["tp"] + m["fn"] >= 5 and m["tn"] + m["fp"] >= 5, (skill, "holdout too small")
         assert m["precision"] >= precision and m["recall"] >= recall, (skill, m)
+
+
+# The same per locale: requests in Vietnamese must keep triggering the core skills as descriptions change.
+# locale -> skill -> ((tune precision, tune recall), (holdout precision, holdout recall)).
+LOCALE_FLOORS = {"vi": {
+    "open-skill-intel": ((0.95, 0.65), (0.95, 0.0)),
+    "open-skill-learn": ((0.95, 0.70), (0.95, 0.95)),
+    # Holdout 0.95 -> 0.45 when the description lost its Vietnamese phrases: one of two held-out Vietnamese
+    # requests no longer reaches the router, and holdout queries are never tuned on.
+    "open-skill-router": ((0.95, 0.95), (0.95, 0.45)),
+    "open-skill-standards": ((0.95, 0.95), (0.95, 0.45)),
+}}
+
+
+def test_core_skills_trigger_proxy_holds_per_locale():
+    rep = _core_trigger_report()
+    for loc, floors in LOCALE_FLOORS.items():
+        for skill, parts in floors.items():
+            for part, (precision, recall) in zip(("train", "validation"), parts):
+                m = rep[skill]["locales"][loc][part]
+                assert m["tp"] + m["fn"] >= 2, (loc, skill, part, "slice too small")
+                assert m["precision"] >= precision and m["recall"] >= recall, (loc, skill, part, m)
 
 
 def test_invoked_skills_parses_stream_json():

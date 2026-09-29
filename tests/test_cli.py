@@ -342,6 +342,15 @@ def test_eval_triggers_lists_only_tuning_failures(capsys, tmp_path):
     assert "missed: zzz tuning miss" in out and "zzz holdout miss" not in out
 
 
+def test_eval_triggers_prints_a_slice_per_locale(capsys, tmp_path):
+    (tmp_path / "s.yaml").write_text("skill: open-skill-learn\nqueries:\n"
+                                     "  - {q: remember that we use uv, trigger: true, holdout: false}\n"
+                                     "  - {q: recuerda que usamos uv, trigger: true, holdout: false, locale: es}\n")
+    assert cli.main(["eval", "triggers", "--cases", str(tmp_path)]) == 0
+    out = capsys.readouterr().out
+    assert "  es slice" in out and "(1) | holdout" in out and "vi slice" not in out
+
+
 def test_eval_triggers_suggest(capsys, tmp_path):
     (tmp_path / "s.yaml").write_text("skill: open-skill-learn\nqueries:\n"
                                      "  - {q: qqq wibble one, trigger: true, holdout: false}\n"
