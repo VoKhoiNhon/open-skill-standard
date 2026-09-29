@@ -21,7 +21,7 @@ phases:
   - id: release
     keywords: [release, deploy, ship, publish, rollout, merge, phát hành, triển khai lên, deploy lên]
   - id: operate
-    keywords: [incident, outage, alert, monitor, "on-call", debug, error, failing, broken, crash, crashes, hangs, slow, cost, sự cố, lỗi, giám sát, chậm, chi phí]
+    keywords: [incident, outage, alert, monitor, "on-call", debug, error, failing, broken, crash, crashes, hangs, slow, cost, sự cố, lỗi, treo, văng, giám sát, chậm, chi phí]
   - id: learn
     keywords: [retro, retrospective, postmortem, "lessons learned", remember, "note that", bài học, rút kinh nghiệm, ghi nhớ]
 
