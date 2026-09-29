@@ -80,6 +80,10 @@ cases:
      include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: sre-incident, role: site-reliability-engineer, task: "the API has an outage and error rate is spiking",
      first: knowledge-work-engineering/incident-response}
+  - {id: sre-postmortem, role: site-reliability-engineer, task: "run the postmortem for yesterday's outage",
+     phases: [learn], include: [knowledge-work-engineering/incident-response]}
+  - {id: sre-review-runbook, role: site-reliability-engineer, task: "review the runbook for the database failover",
+     phases: [review]}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
   - {id: security, role: security-engineer, task: "review the login flow for security issues",
