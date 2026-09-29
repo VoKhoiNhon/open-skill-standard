@@ -47,6 +47,7 @@ phases:
     - superpowers/subagent-driven-development
     - spec-kit/implement
     - superpowers/test-driven-development
+    - addy-agent-skills/observability-and-instrumentation
     alternatives:
     - bmad-method/bmad-build
     - superpowers/executing-plans

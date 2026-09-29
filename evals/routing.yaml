@@ -88,6 +88,12 @@ cases:
      first: knowledge-work-engineering/incident-response}
   - {id: sre-spec-kit, role: site-reliability-engineer, task: "add alerts for the payment API latency",
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
+  - {id: sre-observability, role: site-reliability-engineer, task: "add alerts and tracing for the payment API latency",
+     include: [addy-agent-skills/observability-and-instrumentation], exclude: [superpowers/subagent-driven-development]}
+  - {id: sre-vietnamese-observability, role: site-reliability-engineer, task: "thêm cảnh báo và giám sát độ trễ API thanh toán",
+     include: [addy-agent-skills/observability-and-instrumentation]}
+  - {id: sre-build-generic, role: site-reliability-engineer, task: "add a retry queue for failed payments",
+     include: [superpowers/subagent-driven-development]}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
   - {id: cloud-cost, role: cloud-engineer, task: "our cloud cost doubled this month",

@@ -103,11 +103,11 @@ skills:
     task_size: [medium, large]
     triggers: [performance, slow, latency, "web vitals", profiling, "n+1"]
   - name: observability-and-instrumentation
-    description: Add the logs, metrics, traces and alerts that make production behavior diagnosable
+    description: Logs, metrics, traces and alerts that make production behavior diagnosable
     phases: [build, operate]
     roles: {site-reliability-engineer: 0.6, devops-engineer: 0.5, backend-developer: 0.4, ml-engineer: 0.4}
     task_size: [medium, large]
-    triggers: [logging, metrics, tracing, alerting, observability]
+    triggers: [logging, metrics, tracing, alerting, observability, giám sát, cảnh báo]
   - name: code-simplification
     description: Refactor for clarity without changing behavior
     phases: [review, build]
