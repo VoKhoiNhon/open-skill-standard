@@ -1,0 +1,32 @@
+[project]
+name = "open-skill-standard"
+version = "0.1.0"
+description = "Open, agent-agnostic standard and router for Agent Skills across IT roles"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Võ Khôi Nhơn" }]
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6", "jsonschema>=4"]
+
+[project.scripts]
+open-skill = "open_skill.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/VoKhoiNhon/open-skill-standard"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+dev-mode-dirs = ["cli"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["cli/open_skill"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["cli"]
