@@ -47,7 +47,6 @@ phases:
   build:
     primary:
     - knowledge-work-data/statistical-analysis
-    - knowledge-work-data/explore-data
     - superpowers/test-driven-development
     alternatives:
     - knowledge-work-data/analyze

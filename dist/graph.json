@@ -4874,11 +4874,6 @@
   },
   {
    "from": "role:product-manager",
-   "to": "knowledge-work-data/analyze",
-   "type": "recommends"
-  },
-  {
-   "from": "role:product-manager",
    "to": "claude-code-builtin/code-review",
    "type": "recommends"
   },
@@ -4934,17 +4929,12 @@
   },
   {
    "from": "role:qa-engineer",
-   "to": "bmad-method/bmad-qa-generate-e2e-tests",
+   "to": "superpowers/test-driven-development",
    "type": "recommends"
   },
   {
    "from": "role:qa-engineer",
    "to": "anthropic-skills/webapp-testing",
-   "type": "recommends"
-  },
-  {
-   "from": "role:qa-engineer",
-   "to": "superpowers/test-driven-development",
    "type": "recommends"
   },
   {
