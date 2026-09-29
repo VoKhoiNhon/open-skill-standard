@@ -32,6 +32,17 @@ def test_route_json_and_explain(capsys, tmp_path):
     assert "score=" in out and out.startswith("route r-")
 
 
+def test_route_why_not(capsys, tmp_path):
+    (tmp_path / "p").mkdir()
+    base = ("route", "add an export endpoint", "--project", str(tmp_path / "p"), "--role", "data-engineer")
+    code, out = run(capsys, *base, "--why-not", "spec-kit/plan")
+    assert code == 0 and "spec-kit/plan is not in the chain" in out and "not installed → specify init" in out
+    code, out = run(capsys, *base, "--why-not", "superpowers:test-driven-development")
+    assert code == 0 and "is in the chain" in out
+    assert run(capsys, *base, "--why-not", "nobody/nothing")[0] == 2
+    assert not (tmp_path / "h" / "events.jsonl").exists()
+
+
 def test_feedback_appends_event(capsys, tmp_path):
     code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
     assert code == 0
