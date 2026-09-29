@@ -1,7 +1,7 @@
 source: open-skill
 upstream: https://github.com/VoKhoiNhon/open-skill-standard
 license: MIT
-tested_version: 0.1.0
+tested_version: 0.2.0
 summary: Core skills of the Open Skill Standard - router, standards, intel, learn.
 install:
   claude-plugin: "/plugin marketplace add VoKhoiNhon/open-skill-standard && /plugin install open-skill@open-skill-standard"

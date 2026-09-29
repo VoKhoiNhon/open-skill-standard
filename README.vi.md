@@ -32,7 +32,7 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 /plugin install open-skill@open-skill-standard
 
 # 2. Khai báo vai trò; lệnh này cũng nạp tri thức khởi đầu (seed) cho vai trò đó
-uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard open-skill init --role data-engineer=0.7 --role data-analyst=0.3
+uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.2.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
 
 # 3. Trong agent, ở bất kỳ project nào
 /open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
@@ -82,6 +82,19 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
   - `forget` và `export` chỉ cần một lệnh.
   - Không bao giờ có dữ liệu nào trong thư mục này được public.
 - **Dùng lại memory của Claude:** `open-skill scan --memory` import memory của Claude Code ở chế độ chỉ đọc.
+
+### Cập nhật không bao giờ đụng vào ghi chú của bạn
+
+Khi kéo bản mới (cập nhật plugin, `npx skills update`, bản `uvx` mới), chỉ có skill và registry được thay; dữ liệu của bạn nằm ở `~/.open-skill/`, ngoài mọi thư mục skill. Sau khi kéo bản mới, chạy:
+
+```bash
+open-skill upgrade --dry-run   # xem trước những gì sẽ đổi
+open-skill upgrade             # backup, nâng schema dữ liệu, đồng bộ tri thức khởi đầu
+```
+
+- Seed bạn chưa sửa sẽ theo nội dung mới; seed bạn đã sửa được giữ nguyên, còn nội dung mới nằm chờ trong `seed-updates/` để bạn dùng `open-skill seeds diff | accept | keep`.
+- Seed bạn đã xoá không bao giờ bị tạo lại; seed upstream bỏ đi vẫn được giữ và chỉ báo một lần.
+- CLI cũ từ chối ghi vào dữ liệu do bản mới tạo. `open-skill upgrade --rollback`, `backup` và `restore` giúp hoàn tác mọi thứ.
 
 **Skill nội bộ của công ty** được đặt trong một **overlay L1**: một repo riêng có cùng cấu trúc, nạp qua `--overlay`. Bạn không cần fork repo này và cũng không phải đưa gì nội bộ lên public.
 

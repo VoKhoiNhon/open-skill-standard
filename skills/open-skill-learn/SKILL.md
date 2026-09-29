@@ -7,7 +7,7 @@ description: Saves the user's lessons, preferences, glossary terms and project f
 
 Current models do better work when they can read lessons from earlier sessions. This skill keeps those lessons as small local files that `open-skill route` attaches to future chains.
 
-`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard open-skill`.
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.2.0 open-skill`.
 
 ## Save
 
@@ -28,6 +28,16 @@ Saving the same text again updates the existing note instead of duplicating it. 
 - `open-skill forget <note-id>` deletes one; delete notes that turned out to be wrong.
 - `open-skill export <file.zip>` copies profile and notes to another machine (usage history stays local).
 - `open-skill scan --memory` imports Claude Code memory files as notes, read-only.
+
+## After an update
+
+Updating skills or the CLI never changes the notes folder. When the CLI reports that it upgraded the user's data, or `open-skill status` lists seed updates to review, tell the user in one line and offer:
+
+- `open-skill upgrade --dry-run`, then `open-skill upgrade` — back up, migrate, sync starter knowledge.
+- `open-skill seeds diff` — upstream rewrote a seed the user had edited; `seeds accept <id>` takes upstream's wording (after a backup), `seeds keep <id>` keeps theirs.
+- `open-skill upgrade --rollback` — undo the last upgrade.
+
+Let the user decide on seed updates; their edited wording is theirs.
 
 ## First use
 

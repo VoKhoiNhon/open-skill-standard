@@ -32,7 +32,7 @@ Open Skill Standard adds the missing layer: metadata about **which role a skill 
 /plugin install open-skill@open-skill-standard
 
 # 2. Tell it your role(s); this also seeds starter knowledge for them
-uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard open-skill init --role data-engineer=0.7 --role data-analyst=0.3
+uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.2.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
 
 # 3. In your agent, inside any project
 /open-skill-router add a pipeline that loads orders into the warehouse
@@ -103,6 +103,19 @@ Prompting advice changes between model generations; instructions that helped one
 ## Learns you, locally
 
 `~/.open-skill/` holds your profile, one-fact-per-file notes and a usage log. Routes attach the notes that apply to the chosen skills, roles, project or phases, and your history nudges rankings (with a 90-day half-life). `learn` refuses text that looks like a secret or personal data; `forget` and `export` are one command each; nothing in this folder is ever published. `open-skill scan --memory` imports Claude Code memory files read-only.
+
+### Upgrading never touches your notes
+
+Pulling a new release (plugin update, `npx skills update`, a new `uvx` version) replaces skills and the registry only; your data lives in `~/.open-skill/`, outside every skill folder. After pulling, run:
+
+```bash
+open-skill upgrade --dry-run   # see what would change
+open-skill upgrade             # back up, migrate the data schema, sync starter knowledge
+```
+
+- Seeds you never edited follow the new wording; seeds you edited are kept, and the new wording waits in `seed-updates/` for `open-skill seeds diff | accept | keep`.
+- Seeds you forgot are never re-created; seeds dropped upstream stay and are reported once.
+- An older CLI refuses to write data created by a newer one. `open-skill upgrade --rollback`, `backup` and `restore` undo anything.
 
 Organizations can add private skills and house rules as an **L1 overlay** (a separate repository with the same layout) via `--overlay` or `overlays:` in the profile, without forking this repository.
 
