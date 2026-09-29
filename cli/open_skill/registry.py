@@ -20,6 +20,7 @@ class Registry:
     models: dict[str, dict] = field(default_factory=dict)
     agents: dict[str, dict] = field(default_factory=dict)  # coding agents and the folders they load skills from
     files: dict[str, str] = field(default_factory=dict)  # "<kind>:<id>" -> file path, for error messages
+    problems: list[str] = field(default_factory=list)  # found while loading; validate reports them
 
 
 def _list(v) -> list:
@@ -69,6 +70,9 @@ def load(root: Path | None = None, overlays=()) -> Registry:
             base = reg.adapters.setdefault(src, {"source": src, "skills": []})
             by_name = {s["name"]: s for s in base.get("skills", []) if _named(s)}
             broken = [s for s in base.get("skills", []) if not _named(s)]
+            names = [s["name"] for s in _list(doc.get("skills")) if _named(s)]
+            for n in sorted({n for n in names if names.count(n) > 1}):  # overlays merge by name; one file must not
+                reg.problems.append(f"{p}: defines skill {n} twice; the entries would be merged silently")
             for s in _list(doc.get("skills")):
                 if _named(s):
                     by_name.setdefault(s["name"], {}).update(s)
@@ -113,7 +117,7 @@ def _schema_errors(doc: dict, schema: dict, where: str) -> list[str]:
 def validate(reg: Registry) -> list[str]:
     """Schema checks per document plus cross-reference checks. Empty list means valid."""
     sch = schemas.all_schemas(reg.taxonomy)
-    errors: list[str] = _schema_errors(reg.taxonomy, sch["taxonomy"], "spec/taxonomy.yaml")
+    errors: list[str] = reg.problems + _schema_errors(reg.taxonomy, sch["taxonomy"], "spec/taxonomy.yaml")
     for src, a in reg.adapters.items():
         errors += _schema_errors(a, sch["adapter"], reg.files.get(f"adapter:{src}", src))
     for rid, r in reg.roles.items():

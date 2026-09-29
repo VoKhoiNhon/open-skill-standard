@@ -176,6 +176,7 @@ VALIDATION_CASES = [
     ("adapter skill is a string", SP, ["skills", 0], "brainstorming", None, "is not of type 'object'"),
     ("adapter skills is null", SP, ["skills"], None, None, "skills"),
     # These passed silently:
+    ("duplicate skill in one file", SP, ["skills", 1, "name"], "brainstorming", None, "defines skill brainstorming twice"),
 ]
 
 
