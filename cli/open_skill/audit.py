@@ -91,7 +91,7 @@ rule("override-instructions", "high",
      rf"\b{NOT}(ignore|disregard|forget|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
      r"all|any|system|user'?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
      r"|\boverride\s+(the\s+|any\s+|all\s+)?(user'?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
-     r"|\b(new|updated|real) system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
+     r"|\b(your|the following is (your|the)|this is (your|the)|here is (your|the))\s+(new|updated|real)\s+system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
      "tries to override the user's or the system's instructions", OWASP_LLM01, unless=MENTIONED + "|" + FORBIDDEN)
 
 
