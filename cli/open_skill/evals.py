@@ -34,6 +34,10 @@ def run_case(case: dict, reg, installed) -> list[str]:
     fails += [f"{sid} unexpectedly in {shown}" for sid in case.get("exclude", []) if sid in ids]
     if "first" in case and (not ids or ids[0] != case["first"]):
         fails.append(f"first step should be {case['first']}: {shown}")
+    if "include_any" in case and not set(case["include_any"]) & set(ids):
+        fails.append(f"one of {', '.join(case['include_any'])} should be in {shown}")
+    if "first_phase" in case and (not r["chain"] or r["chain"][0]["phase"] != case["first_phase"]):
+        fails.append(f"first phase should be {case['first_phase']}: {shown}")
     if "phases" in case and [s["phase"] for s in r["chain"]] != case["phases"]:
         fails.append(f"phases should be {case['phases']}: {shown}")
     if "advice" in case and r["advice"] != case["advice"]:
