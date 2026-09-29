@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- Releases are titled `vX.Y.Z — <theme>` automatically, from the first line of the CHANGELOG section (`scripts/changelog.py title`).
+
 ## [0.5.0] - 2026-09-29
 
 Evaluation: measure how well tasks route to skills and how reliably skills trigger.
