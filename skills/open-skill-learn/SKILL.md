@@ -29,6 +29,16 @@ Saving the same text again updates the existing note instead of duplicating it. 
 - `open-skill export <file.zip>` copies profile and notes to another machine (usage history stays local).
 - `open-skill scan --memory` imports Claude Code memory files as notes, read-only.
 
+## After an update
+
+Updating skills or the CLI never changes the notes folder. When the CLI reports that it upgraded the user's data, or `open-skill status` lists seed updates to review, tell the user in one line and offer:
+
+- `open-skill upgrade --dry-run`, then `open-skill upgrade` — back up, migrate, sync starter knowledge.
+- `open-skill seeds diff` — upstream rewrote a seed the user had edited; `seeds accept <id>` takes upstream's wording (after a backup), `seeds keep <id>` keeps theirs.
+- `open-skill upgrade --rollback` — undo the last upgrade.
+
+Let the user decide on seed updates; their edited wording is theirs.
+
 ## First use
 
 If `~/.open-skill/profile.yaml` does not exist, suggest `open-skill init --role <role>[=weight]`; it saves the user's roles and seeds starter notes for them.
