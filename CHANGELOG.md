@@ -22,6 +22,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill remove <skill> --agent <id> [--project DIR] [--dry-run]` removes only what `install` recorded: files still exactly as installed (never through a link), then folders left empty; files you changed or added stay. `open-skill update [--agent <id>] [--dry-run]` reinstalls installed core skills at the CLI's version and skips any install you changed.
 - Routing evals for the architecture, leadership and product roles: reviews, research, retrospectives, roadmaps, PRDs and user stories, Vietnamese phrasing, and spec-kit and BMad projects. Every role now has at least three cases.
 - `eval triggers --suggest`: words and phrases common to missed tuning queries and absent from the description, and description words that cause false alarms.
+- `route --agent <id>` and `search --agent <id>` use only the skills that agent sees, under the names it invokes them by (plugin names such as `superpowers:test-driven-development` are Claude Code only). Missing-skill hints fit the agent: `open-skill install … --agent <id>` for core skills, and a non-plugin install command outside Claude Code when the adapter has one. The router skill passes `--agent`.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.

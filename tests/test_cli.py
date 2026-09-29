@@ -384,3 +384,24 @@ def test_update_command(capsys, tmp_path, monkeypatch):
     code, out = run(capsys, "update", "--agent", "codex", "--dry-run")
     assert code == 0 and out.startswith("up to date: open-skill-learn for codex")
     assert run(capsys, "update", "--agent", "nope")[0] == 2
+
+
+def test_route_agent_uses_names_valid_for_that_agent(capsys, tmp_path):
+    (tmp_path / "p").mkdir()
+    base = ["route", "fix the bug in the parser with tests", "--project", str(tmp_path / "p"), "--no-record"]
+    r = json.loads(run(capsys, *base)[1])
+    assert [s["invoke"] for s in r["chain"]] == ["superpowers:test-driven-development"] and r["agent"] is None
+    r = json.loads(run(capsys, *base, "--agent", "codex")[1])
+    assert [s["invoke"] for s in r["chain"]] == ["test-driven-development"] and r["agent"] == "codex"
+    r = json.loads(run(capsys, *base, "--agent", "demo-agent")[1])
+    assert r["chain"] == []  # demo-agent sees none of these skills
+    assert run(capsys, *base, "--agent", "nope")[0] == 2
+
+
+def test_search_agent_counts_only_that_agents_skills_as_installed(capsys):
+    code, out = run(capsys, "search", "--installed", "--source", "superpowers", "--agent", "codex")
+    assert code == 0 and "superpowers/test-driven-development" in out
+    code, out = run(capsys, "search", "--installed", "--source", "harvested", "--agent", "codex")
+    assert "harvested/my-internal-skill" not in out  # only in ~/.claude/skills
+    assert "harvested/my-internal-skill" in run(capsys, "search", "--installed", "--source", "harvested")[1]
+    assert run(capsys, "search", "x", "--agent", "nope")[0] == 2
