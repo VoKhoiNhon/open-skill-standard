@@ -30,6 +30,11 @@ PATTERNS = [
 ]
 REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|don'?t nitpick)")
 SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
+SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
+# Extensions some agents read (Claude Code documents these); everything else is probably a typo.
+AGENT_FIELDS = {"when_to_use", "argument-hint", "disable-model-invocation", "user-invocable", "model", "effort",
+                "context", "agent", "hooks", "paths", "version"}
+CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
 NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # no leading, trailing or double hyphens (Agent Skills spec)
 
 
@@ -71,6 +76,8 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
         add("frontmatter-description", "description is missing", BEST)
     elif len(desc) > 1024 or "<" in desc or ">" in desc:
         add("frontmatter-description", "description must be at most 1024 chars with no angle brackets", BEST)
+    for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS):
+        add("unknown-field", f"'{key}' is not an Agent Skills field; agents will ignore it (put custom data under metadata)", SPEC)
     if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):
         add("field-compatibility", "compatibility must be a string of 1-500 characters", SPEC)
     md = meta.get("metadata")

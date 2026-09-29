@@ -87,3 +87,9 @@ def test_optional_field_rules(extra, rule):
 def test_valid_optional_fields_pass():
     extra = "license: Apache-2.0\ncompatibility: Requires git and uv\nmetadata:\n  author: example-org\n  version: \"1.0\"\nallowed-tools: Bash(git:*) Read"
     assert rules(fm(extra)) == []
+
+
+def test_unknown_fields_warn_but_agent_extensions_do_not():
+    found = lint.lint_text(fm("descripton: typo\nwhen_to_use: when asked\nargument-hint: '[file]'"))
+    assert [(f.rule, f.severity) for f in found] == [("unknown-field", "warning")]
+    assert "descripton" in found[0].message
