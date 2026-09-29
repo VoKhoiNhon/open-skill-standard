@@ -12,5 +12,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv sync
-      - name: Unit tests
+      - name: Unit tests and routing evals
         run: uv run pytest -q
+      - name: Registry schemas and references
+        run: uv run open-skill validate
+      - name: Lint skills (model-neutral prompting rules)
+        run: uv run open-skill lint skills/
+      - name: Generated files are up to date
+        run: uv run open-skill build --check
+      - name: Privacy guard
+        run: uv run python scripts/privacy_guard.py

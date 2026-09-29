@@ -1,0 +1,37 @@
+name: adapter-drift
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {source: superpowers, repo: obra/superpowers, dir: skills}
+          - {source: bmad-method, repo: bmad-code-org/BMAD-METHOD, dir: skills}
+          - {source: anthropic-skills, repo: anthropics/skills, dir: skills}
+          - {source: knowledge-work-data, repo: anthropics/knowledge-work-plugins, dir: data}
+          - {source: knowledge-work-engineering, repo: anthropics/knowledge-work-plugins, dir: engineering}
+          - {source: knowledge-work-product-management, repo: anthropics/knowledge-work-plugins, dir: product-management}
+          - {source: knowledge-work-design, repo: anthropics/knowledge-work-plugins, dir: design}
+          - {source: ponytail, repo: DietrichGebert/ponytail, dir: skills}
+          - {source: taste-skill, repo: leonxlnx/taste-skill, dir: skills}
+          - {source: context7, repo: upstash/context7, dir: "."}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: git clone --depth 1 https://github.com/${{ matrix.repo }} upstream
+      - id: diff
+        run: uv run open-skill adapter check --source ${{ matrix.source }} --from upstream/${{ matrix.dir }} | tee drift.txt
+      - if: failure() && steps.diff.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "Adapter drift: ${{ matrix.source }}" \
+            --body "$(printf 'Upstream %s changed its skills:\n\n```\n%s\n```\nUpdate registry/adapters/%s.yaml.' '${{ matrix.repo }}' "$(cat drift.txt)" '${{ matrix.source }}')"

@@ -1,0 +1,22 @@
+name: model-watch
+on:
+  schedule:
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - id: watch
+        run: uv run python scripts/model_watch.py | tee report.txt
+      - if: failure() && steps.watch.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "Model profiles need an update" \
+            --body "$(printf 'Anthropic prompting guidance lists models without a profile:\n\n```\n%s\n```\nAdd registry/models/<id>.yaml from the model-specific guide.' "$(cat report.txt)")"
