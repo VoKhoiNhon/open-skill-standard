@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="684" viewBox="0 0 960 684" role="img" aria-label="User data safety: an upgrade backs up, migrates and syncs starter notes; seeds you never edited are updated, edited seeds are kept with a proposal in seed-updates, dismissed seeds are never re-created, retired seeds are reported once, your own notes are never touched, with a dry run and a rollback">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-size:13px;fill:#1f2328}.m{fill:#59636e}.b{font-weight:600}.s{font-size:11.5px}.h{font-size:15px;font-weight:600}.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;font-size:12px}.box{fill:#f6f8fa;stroke:#d1d9e0;stroke-width:1}.dash{fill:none;stroke:#d1d9e0;stroke-width:1;stroke-dasharray:4 3}.edge{fill:none;stroke:#59636e;stroke-width:1.4}.blue{fill:#ddf4ff;stroke:#0969da;stroke-width:1.2}.t-blue{fill:#0969da}.e-blue{fill:none;stroke:#0969da}#arrow-blue path{fill:#0969da}.green{fill:#dafbe1;stroke:#1a7f37;stroke-width:1.2}.t-green{fill:#1a7f37}.e-green{fill:none;stroke:#1a7f37}#arrow-green path{fill:#1a7f37}.orange{fill:#fff1e5;stroke:#bc4c00;stroke-width:1.2}.t-orange{fill:#bc4c00}.e-orange{fill:none;stroke:#bc4c00}#arrow-orange path{fill:#bc4c00}.purple{fill:#fbefff;stroke:#8250df;stroke-width:1.2}.t-purple{fill:#8250df}.e-purple{fill:none;stroke:#8250df}#arrow-purple path{fill:#8250df}.red{fill:#ffebe9;stroke:#cf222e;stroke-width:1.2}.t-red{fill:#cf222e}.e-red{fill:none;stroke:#cf222e}#arrow-red path{fill:#cf222e}#arrow path{fill:#59636e}</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<rect x="20" y="20" width="212" height="86" rx="6" class="box"/>
+<text x="32" y="42" class="b">New release pulled</text>
+<text x="32" y="62" class="m s">plugin update, npx skills</text>
+<text x="32" y="79" class="m s">update or a new uvx version</text>
+<rect x="256" y="20" width="212" height="86" rx="6" class="blue"/>
+<text x="268" y="42" class="b">1  Back up</text>
+<text x="268" y="62" class="m s">backups/&lt;UTC time&gt;-</text>
+<text x="268" y="79" class="m s">pre-upgrade.zip</text>
+<path d="M229 63L255 63" class="edge" marker-end="url(#arrow)"/>
+<rect x="492" y="20" width="212" height="86" rx="6" class="blue"/>
+<text x="504" y="42" class="b">2  Migrate the schema</text>
+<text x="504" y="62" class="m s">versioned steps; note text</text>
+<text x="504" y="79" class="m s">stays byte-identical</text>
+<path d="M465 63L491 63" class="edge" marker-end="url(#arrow)"/>
+<rect x="728" y="20" width="212" height="86" rx="6" class="blue"/>
+<text x="740" y="42" class="b">3  Sync starter notes</text>
+<text x="740" y="62" class="m s">seeds of your roles,</text>
+<text x="740" y="79" class="m s">compared by text hash</text>
+<path d="M701 63L727 63" class="edge" marker-end="url(#arrow)"/>
+<path d="M832 106L832 136L420 136L420 150" class="edge" marker-end="url(#arrow)"/>
+<text x="40" y="170" class="h">Your note</text>
+<text x="380" y="170" class="h">What upgrade does</text>
+<rect x="40" y="186" width="290" height="50" rx="6" class="blue"/>
+<text x="54" y="207" class="b">Seed you never edited</text>
+<text x="54" y="225" class="m s">hash still matches the one installed</text>
+<path d="M332 211L378 211" class="edge" marker-end="url(#arrow)"/>
+<rect x="380" y="186" width="560" height="50" rx="6" class="box"/>
+<text x="394" y="207" class="b">Updated to the new wording</text>
+<text x="394" y="225" class="m s">reported as: updated &lt;seed&gt; (you had not edited it)</text>
+<rect x="40" y="248" width="290" height="50" rx="6" class="green"/>
+<text x="54" y="269" class="b">Seed you edited</text>
+<text x="54" y="287" class="m s">hash differs from the one installed</text>
+<path d="M332 273L378 273" class="edge" marker-end="url(#arrow)"/>
+<rect x="380" y="248" width="560" height="50" rx="6" class="box"/>
+<text x="394" y="269" class="b">Kept exactly as you wrote it</text>
+<text x="394" y="287" class="m s">upstream's new wording, if any, waits in seed-updates/ for seeds diff | accept | keep</text>
+<rect x="40" y="310" width="290" height="50" rx="6" class="red"/>
+<text x="54" y="331" class="b">Seed you dismissed</text>
+<text x="54" y="349" class="m s">open-skill forget &lt;id&gt;</text>
+<path d="M332 335L378 335" class="edge" marker-end="url(#arrow)"/>
+<rect x="380" y="310" width="560" height="50" rx="6" class="box"/>
+<text x="394" y="331" class="b">Never re-created</text>
+<text x="394" y="349" class="m s">its id is kept in seeds-dismissed.txt</text>
+<rect x="40" y="372" width="290" height="50" rx="6" class="orange"/>
+<text x="54" y="393" class="b">Seed retired upstream</text>
+<text x="54" y="411" class="m s">no longer in the role pack</text>
+<path d="M332 397L378 397" class="edge" marker-end="url(#arrow)"/>
+<rect x="380" y="372" width="560" height="50" rx="6" class="box"/>
+<text x="394" y="393" class="b">Kept, reported once</text>
+<text x="394" y="411" class="m s">kept &lt;seed&gt;: no longer shipped upstream, then marked retired</text>
+<rect x="40" y="434" width="290" height="50" rx="6" class="blue"/>
+<text x="54" y="455" class="b">New seed for your role</text>
+<text x="54" y="473" class="m s">added in this release</text>
+<path d="M332 459L378 459" class="edge" marker-end="url(#arrow)"/>
+<rect x="380" y="434" width="560" height="50" rx="6" class="box"/>
+<text x="394" y="455" class="b">Added</text>
+<text x="394" y="473" class="m s">as a note with source: seed</text>
+<rect x="40" y="496" width="290" height="50" rx="6" class="green"/>
+<text x="54" y="517" class="b">Your own notes</text>
+<text x="54" y="535" class="m s">open-skill learn, memory imports</text>
+<path d="M332 521L378 521" class="edge" marker-end="url(#arrow)"/>
+<rect x="380" y="496" width="560" height="50" rx="6" class="box"/>
+<text x="394" y="517" class="b">Never touched</text>
+<text x="394" y="535" class="m s">only migrations change metadata, never the text</text>
+<rect x="20" y="570" width="452" height="78" rx="6" class="box"/>
+<text x="32" y="592" class="b">open-skill upgrade --dry-run</text>
+<text x="32" y="612" class="m s">lists every change as “would …” and writes nothing,</text>
+<text x="32" y="629" class="m s">not even the backup</text>
+<rect x="488" y="570" width="452" height="78" rx="6" class="box"/>
+<text x="500" y="592" class="b">open-skill upgrade --rollback</text>
+<text x="500" y="612" class="m s">restores the newest pre-upgrade backup; the state it replaces</text>
+<text x="500" y="629" class="m s">is zipped first, so a rollback can be undone too</text>
+<text x="20" y="676" class="m s">An older CLI refuses to write data a newer one created (SPEC §5.1).</text>
+<text x="944" y="676" class="m s" text-anchor="end">as implemented in knowledge.sync_seeds, userdata.py and upgrade.py · scripts/render_assets.py</text>
+</svg>

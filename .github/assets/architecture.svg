@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="556" viewBox="0 0 960 556" role="img" aria-label="Architecture: the public registry and organization overlays feed scan and a SQLite FTS5 index, the router uses them with your project and your local ~/.open-skill layer, and the coding agent runs the chain">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-size:13px;fill:#1f2328}.m{fill:#59636e}.b{font-weight:600}.s{font-size:11.5px}.h{font-size:15px;font-weight:600}.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;font-size:12px}.box{fill:#f6f8fa;stroke:#d1d9e0;stroke-width:1}.dash{fill:none;stroke:#d1d9e0;stroke-width:1;stroke-dasharray:4 3}.edge{fill:none;stroke:#59636e;stroke-width:1.4}.blue{fill:#ddf4ff;stroke:#0969da;stroke-width:1.2}.t-blue{fill:#0969da}.e-blue{fill:none;stroke:#0969da}#arrow-blue path{fill:#0969da}.green{fill:#dafbe1;stroke:#1a7f37;stroke-width:1.2}.t-green{fill:#1a7f37}.e-green{fill:none;stroke:#1a7f37}#arrow-green path{fill:#1a7f37}.orange{fill:#fff1e5;stroke:#bc4c00;stroke-width:1.2}.t-orange{fill:#bc4c00}.e-orange{fill:none;stroke:#bc4c00}#arrow-orange path{fill:#bc4c00}.purple{fill:#fbefff;stroke:#8250df;stroke-width:1.2}.t-purple{fill:#8250df}.e-purple{fill:none;stroke:#8250df}#arrow-purple path{fill:#8250df}.red{fill:#ffebe9;stroke:#cf222e;stroke-width:1.2}.t-red{fill:#cf222e}.e-red{fill:none;stroke:#cf222e}#arrow-red path{fill:#cf222e}#arrow path{fill:#59636e}</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<rect x="20" y="40" width="300" height="164" rx="6" class="purple"/>
+<text x="32" y="62" class="b">L0 · public registry (this repository)</text>
+<text x="32" y="82" class="mono">registry/adapters/</text>
+<text x="178" y="82" class="m s">16 sources, 191 skills</text>
+<text x="32" y="99" class="mono">registry/roles/</text>
+<text x="178" y="99" class="m s">28 role packs</text>
+<text x="32" y="116" class="mono">registry/agents/</text>
+<text x="178" y="116" class="m s">9 coding agents</text>
+<text x="32" y="133" class="mono">registry/models/</text>
+<text x="178" y="133" class="m s">9 model profiles</text>
+<text x="32" y="150" class="mono">spec/taxonomy.yaml</text>
+<text x="178" y="150" class="m s">phases, artifacts, sizes</text>
+<rect x="360" y="40" width="230" height="124" rx="6" class="box"/>
+<text x="372" y="62" class="b">L1 · organization overlays</text>
+<text x="372" y="82" class="m s">private skills, house rules</text>
+<text x="372" y="99" class="m s">--overlay DIR or overlays:</text>
+<text x="372" y="116" class="m s">in profile.yaml; same layout</text>
+<text x="372" y="133" class="m s">as registry/</text>
+<rect x="630" y="40" width="310" height="164" rx="6" class="green"/>
+<text x="642" y="62" class="b">L2 · ~/.open-skill, never published</text>
+<text x="642" y="82" class="mono">profile.yaml</text>
+<text x="760" y="82" class="m s">roles and weights</text>
+<text x="642" y="99" class="mono">knowledge/</text>
+<text x="760" y="99" class="m s">one note per file</text>
+<text x="642" y="116" class="mono">events.jsonl</text>
+<text x="760" y="116" class="m s">routes and what ran</text>
+<text x="642" y="133" class="mono">installed.json</text>
+<text x="760" y="133" class="m s">what install wrote</text>
+<text x="642" y="150" class="mono">backups/</text>
+<text x="760" y="150" class="m s">zips made before upgrades</text>
+<path d="M360 100L322 100" class="edge" marker-end="url(#arrow)"/>
+<text x="341" y="92" class="m s" text-anchor="middle">wins</text>
+<text x="475" y="186" class="m s" text-anchor="middle">later layers override earlier ones by id</text>
+<rect x="20" y="290" width="170" height="104" rx="6" class="box"/>
+<text x="32" y="312" class="b">Agent skill folders</text>
+<text x="32" y="332" class="m s">user and project folders</text>
+<text x="32" y="349" class="m s">of 9 agents, plus</text>
+<text x="32" y="366" class="m s">Claude plugin caches</text>
+<rect x="215" y="290" width="165" height="104" rx="6" class="blue"/>
+<text x="227" y="312" class="b">scan</text>
+<text x="227" y="332" class="m s">one entry per skill,</text>
+<text x="227" y="349" class="m s">with the name each</text>
+<text x="227" y="366" class="m s">agent invokes it by</text>
+<rect x="405" y="290" width="165" height="104" rx="6" class="blue"/>
+<text x="417" y="312" class="b">index</text>
+<text x="417" y="332" class="m s">SQLite FTS5 (BM25)</text>
+<text x="417" y="349" class="m s">over registry and</text>
+<text x="417" y="366" class="m s">installed skills</text>
+<rect x="595" y="290" width="165" height="104" rx="6" class="blue"/>
+<text x="607" y="312" class="b">route</text>
+<text x="607" y="332" class="m s">phase, window, scores</text>
+<text x="607" y="349" class="m s">and rules → an ordered</text>
+<text x="607" y="366" class="m s">chain with reasons</text>
+<rect x="785" y="290" width="155" height="104" rx="6" class="orange"/>
+<text x="797" y="312" class="b">Coding agent</text>
+<text x="797" y="332" class="m s">announces the chain,</text>
+<text x="797" y="349" class="m s">runs step 1</text>
+<rect x="20" y="436" width="170" height="84" rx="6" class="box"/>
+<text x="32" y="458" class="b">open-skill install</text>
+<text x="32" y="478" class="m s">copies or links a skill,</text>
+<text x="32" y="495" class="m s">never overwrites one</text>
+<rect x="560" y="436" width="240" height="84" rx="6" class="box"/>
+<text x="572" y="458" class="b">Your project</text>
+<text x="572" y="478" class="m s">.specify/ or _bmad/, artifacts,</text>
+<text x="572" y="495" class="m s">role signals (paths, not contents)</text>
+<path d="M190 342L214 342" class="edge" marker-end="url(#arrow)"/>
+<path d="M380 342L404 342" class="edge" marker-end="url(#arrow)"/>
+<path d="M570 342L594 342" class="edge" marker-end="url(#arrow)"/>
+<path d="M760 342L784 342" class="edge" marker-end="url(#arrow)"/>
+<path d="M105 436L105 396" class="edge" marker-end="url(#arrow)"/>
+<path d="M120 204L120 250L297 250L297 288" class="edge" marker-end="url(#arrow)"/>
+<path d="M220 204L220 236L487 236L487 288" class="edge" marker-end="url(#arrow)"/>
+<text x="304" y="270" class="m s">detect rules</text>
+<text x="494" y="270" class="m s">skill metadata</text>
+<path d="M625 206L625 288" class="e-green" marker-end="url(#arrow-green)"/>
+<path d="M745 290L745 208" class="e-green" marker-end="url(#arrow-green)"/>
+<text x="633" y="256" class="m s">roles, notes,</text>
+<text x="633" y="271" class="m s">your weights</text>
+<text x="753" y="256" class="m s">records each</text>
+<text x="753" y="271" class="m s">route</text>
+<path d="M680 436L680 396" class="edge" marker-end="url(#arrow)"/>
+<text x="200" y="488" class="m s">records files and hashes in installed.json</text>
+<text x="944" y="546" class="m s" text-anchor="end">generated from the registry · scripts/render_assets.py</text>
+</svg>
