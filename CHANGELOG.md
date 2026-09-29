@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-29
+
+Evaluation: measure how well tasks route to skills and how reliably skills trigger.
+
+### Added
+- `open-skill eval routing`: the routing eval runner now lives in the package (`cli/open_skill/evals.py`) and reports results per role.
+- Trigger eval sets for the four core skills in `evals/triggers/`, one labeled file per skill.
+- `open-skill eval triggers`: a lexical trigger proxy with precision and recall, and CI regression floors so descriptions cannot silently get worse.
+- `open-skill eval triggers --agent claude --runs N`: runs each query through Claude Code, detects skill invocations in its stream-json output, counts a query as triggering at a 0.5 trigger rate, and scores a stable 60/40 train/test split.
+- Evals ship in the wheel, so both commands work from an installed package.
+
+### Changed
+- The open-skill-intel and open-skill-learn descriptions name the questions people actually ask, corrections, forgetting and exports (proxy recall 0.30 → 0.40 and 0.50 → 0.70).
+- CI actions updated: checkout v7, setup-uv v7, upload-artifact v7, download-artifact v8.
+
 ## [0.4.0] - 2026-09-29
 
 Release engineering.
@@ -54,7 +69,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.1.0...v0.2.0
