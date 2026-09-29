@@ -8,7 +8,7 @@ jobs:
   conventional:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Title follows Conventional Commits
         env:
           TITLE: ${{ github.event.pull_request.title }}
