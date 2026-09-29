@@ -445,6 +445,15 @@ def test_missing_or_corrupt_input_files(cli):
     _clean_error(cli.run("eval", "routing", "--cases", missing + ".yaml", code=2))
 
 
+
+def test_missing_folders_are_bad_input_not_empty_results(cli):
+    # Bug: a missing --from made `adapter check` report every skill as dropped upstream (exit 1), and a missing
+    # trigger folder made `eval triggers` pass with an empty report.
+    missing = str(cli.tmp / "missing")
+    assert "missing" in _clean_error(cli.run("adapter", "check", "--source", "ponytail", "--from", missing, code=2))
+    _clean_error(cli.run("adapter", "draft", "--source", "x", "--from", missing, code=2))
+    _clean_error(cli.run("eval", "triggers", "--cases", missing, code=2))
+
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
 def _parser_surface() -> set[str]:
