@@ -108,8 +108,24 @@ def cmd_search(args):
     reg = _registry(args)
     installed = scan.scan(reg, Path(args.project) if args.project else None)
     have = {i.id for i in installed}
-    for sid, score in index.search(index.build_index(reg, installed), args.query, args.limit):
-        print(f"{score:7.2f}  {sid}{'' if sid in have else '  (not installed)'}")
+    known = {"role": set(reg.roles), "phase": {p["id"] for p in reg.taxonomy["phases"]},
+             "source": set(reg.adapters) | {i.id.split("/")[0] for i in installed}}
+    for opt, values in known.items():
+        v = getattr(args, opt)
+        if v and v not in values:
+            print(f"unknown {opt}: {v} (one of: {', '.join(sorted(values))})", file=sys.stderr)
+            return 2
+    if args.query:
+        hits = index.search(index.build_index(reg, installed), args.query, limit=len(reg.skills) + len(installed))
+    elif args.role or args.phase or args.source or args.installed:
+        hits = [(sid, None) for sid in sorted(set(reg.skills) | have)]
+    else:
+        print("give a query or at least one filter", file=sys.stderr)
+        return 2
+    hits = [(sid, score) for sid, score in hits
+            if index.matches(reg, sid, args.role, args.phase, args.source) and (sid in have or not args.installed)]
+    for sid, score in hits[:args.limit]:
+        print(f"{'-' if score is None else f'{score:.2f}':>7}  {sid}{'' if sid in have else '  (not installed)'}")
     return 0
 
 
@@ -487,9 +503,13 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--check", action="store_true", help="exit 1 if generated files are stale")
     s.set_defaults(fn=cmd_build)
     s = sub.add_parser("search", help="full-text search over skills")
-    s.add_argument("query")
+    s.add_argument("query", nargs="?", help="words to search for; leave out to list every skill the filters keep")
     s.add_argument("--limit", type=int, default=10)
     s.add_argument("--project")
+    s.add_argument("--role", help="only skills this role's pack lists or whose manifest names it")
+    s.add_argument("--phase", help="only skills that act in this phase")
+    s.add_argument("--source", help="only skills from this adapter source (or 'harvested')")
+    s.add_argument("--installed", action="store_true", help="only skills installed on this machine")
     s.set_defaults(fn=cmd_search)
     s = sub.add_parser("route", help="choose and order skills for a task")
     s.add_argument("task")

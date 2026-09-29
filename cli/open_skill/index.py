@@ -41,6 +41,21 @@ def search(conn: sqlite3.Connection, query: str, limit: int = 10) -> list[tuple[
     return [(sid, -score + 1e-9) for sid, score in rows]  # bm25 is lower-is-better and negative
 
 
+def matches(reg, sid: str, role: str | None = None, phase: str | None = None, source: str | None = None) -> bool:
+    """Filter used by search: the role pack lists the skill or its manifest names the role; phase; source."""
+    s = reg.skills.get(sid) or {}
+    if source and sid.split("/")[0] != source:
+        return False
+    if phase and phase not in s.get("phases", []):
+        return False
+    if role:
+        pack = (reg.roles.get(role) or {}).get("phases") or {}
+        listed = any(sid in (e or {}).get(k, []) for e in pack.values() for k in ("primary", "alternatives"))
+        if not listed and role not in (s.get("roles") or {}):
+            return False
+    return True
+
+
 def graph_json(reg, installed=()) -> dict:
     inst = {i.id for i in installed}
     nodes, edges = [], []

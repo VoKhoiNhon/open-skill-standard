@@ -43,6 +43,36 @@ def test_route_why_not(capsys, tmp_path):
     assert not (tmp_path / "h" / "events.jsonl").exists()
 
 
+def test_search_filters_by_role_phase_and_source(capsys):
+    code, out = run(capsys, "search", "plan spec test data", "--phase", "plan")
+    assert code == 0
+    assert {line.split()[1] for line in out.splitlines()} == {"spec-kit/plan", "superpowers/writing-plans", "superpowers/brainstorming"}
+    code, out = run(capsys, "search", "plan spec test data", "--phase", "plan", "--source", "spec-kit")
+    assert [line.split()[1] for line in out.splitlines()] == ["spec-kit/plan"]
+    code, out = run(capsys, "search", "plan spec test data", "--role", "data-analyst")
+    assert [line.split()[1] for line in out.splitlines()] == ["knowledge-work-data/validate-data"]
+    code, out = run(capsys, "search", "plan", "--limit", "1", "--phase", "plan")
+    assert len(out.splitlines()) == 1
+    for bad in (("--role", "astronaut"), ("--phase", "dreaming"), ("--source", "nowhere")):
+        assert run(capsys, "search", "plan", *bad)[0] == 2
+
+
+def test_search_installed_only(capsys):
+    code, out = run(capsys, "search", "plan spec test data", "--installed")
+    assert code == 0
+    assert [line.split()[1] for line in out.splitlines()] == ["superpowers/test-driven-development"]
+    code, out = run(capsys, "search", "lint", "--installed", "--source", "harvested")
+    assert [line.split()[1] for line in out.splitlines()] == ["harvested/lint-helper"]
+
+
+def test_search_without_query_lists_filtered_skills(capsys):
+    code, out = run(capsys, "search", "--source", "spec-kit")
+    assert code == 0
+    assert [line.split()[1] for line in out.splitlines()] == ["spec-kit/implement", "spec-kit/plan", "spec-kit/specify"]
+    assert all(line.split()[0] == "-" for line in out.splitlines())
+    assert run(capsys, "search")[0] == 2
+
+
 def test_feedback_appends_event(capsys, tmp_path):
     code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
     assert code == 0

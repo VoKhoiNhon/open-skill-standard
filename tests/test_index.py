@@ -51,3 +51,18 @@ def test_graph_json_describes_skills_and_roles():
     assert nodes["superpowers/writing-plans"]["description"].startswith("Write a detailed implementation plan")
     assert nodes["harvested/warehouse-audit"]["description"] == "Audit warehouse tables for duplicate keys"
     assert nodes["role:data-analyst"]["name"] == "Data Analyst"
+
+
+def test_skill_filters_by_role_phase_and_source():
+    reg, inst = setup()
+    ids = list(reg.skills) + ["harvested/warehouse-audit"]
+    keep = lambda **kw: {s for s in ids if index.matches(reg, s, **kw)}  # noqa: E731
+    assert keep(phase="verify") == {"knowledge-work-data/validate-data", "superpowers/test-driven-development"}
+    assert keep(source="spec-kit") == {"spec-kit/specify", "spec-kit/plan", "spec-kit/implement"}
+    assert keep(source="harvested") == {"harvested/warehouse-audit"}
+    # a role keeps skills its role pack lists (primary or alternative) and skills whose manifest names the role
+    analyst = keep(role="data-analyst")
+    assert analyst == {"knowledge-work-data/validate-data"}
+    assert "spec-kit/plan" in keep(role="data-engineer") and "superpowers/brainstorming" not in keep(role="data-engineer")
+    assert keep(role="data-engineer", phase="plan", source="superpowers") == {"superpowers/writing-plans"}
+    assert keep() == set(ids)
