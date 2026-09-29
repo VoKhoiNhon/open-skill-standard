@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Open Skill Standard model profile",
+  "type": "object",
+  "required": [
+    "id",
+    "match",
+    "source",
+    "verified"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "match": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "family": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inherits": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verified": {
+      "type": [
+        "string",
+        "boolean"
+      ]
+    },
+    "traits": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "boolean",
+          "string"
+        ]
+      }
+    },
+    "effort": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ]
+      },
+      "additionalProperties": {
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ]
+      }
+    },
+    "chain": {
+      "type": "object",
+      "properties": {
+        "max_steps": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "addenda": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "avoid": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

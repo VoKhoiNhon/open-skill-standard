@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Open Skill Standard role pack",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "family",
+    "summary",
+    "risk",
+    "constitution",
+    "phases"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "enum": [
+        "frontend-developer",
+        "backend-developer",
+        "fullstack-developer",
+        "mobile-developer",
+        "embedded-engineer",
+        "game-developer",
+        "qa-engineer",
+        "devops-engineer",
+        "site-reliability-engineer",
+        "cloud-engineer",
+        "security-engineer",
+        "database-administrator",
+        "system-administrator",
+        "data-engineer",
+        "analytics-engineer",
+        "data-analyst",
+        "data-scientist",
+        "ml-engineer",
+        "ai-engineer",
+        "data-ai-platform-engineer",
+        "software-architect",
+        "tech-lead",
+        "engineering-manager",
+        "product-manager",
+        "business-analyst",
+        "ux-designer",
+        "technical-writer",
+        "scrum-master"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "family": {
+      "enum": [
+        "engineering",
+        "quality-ops",
+        "data-ai",
+        "architecture-leadership",
+        "product-delivery"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "risk": {
+      "type": "string"
+    },
+    "constitution": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "phases": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "discover",
+          "research",
+          "specify",
+          "plan",
+          "build",
+          "verify",
+          "review",
+          "release",
+          "operate",
+          "learn"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "primary"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "primary": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+/[a-z0-9:_-]+$"
+            }
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+/[a-z0-9:_-]+$"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "seeds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "build_window": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "discover",
+          "research",
+          "specify",
+          "plan",
+          "build",
+          "verify",
+          "review",
+          "release",
+          "operate",
+          "learn"
+        ]
+      },
+      "minItems": 1
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": [
+          "frontend-developer",
+          "backend-developer",
+          "fullstack-developer",
+          "mobile-developer",
+          "embedded-engineer",
+          "game-developer",
+          "qa-engineer",
+          "devops-engineer",
+          "site-reliability-engineer",
+          "cloud-engineer",
+          "security-engineer",
+          "database-administrator",
+          "system-administrator",
+          "data-engineer",
+          "analytics-engineer",
+          "data-analyst",
+          "data-scientist",
+          "ml-engineer",
+          "ai-engineer",
+          "data-ai-platform-engineer",
+          "software-architect",
+          "tech-lead",
+          "engineering-manager",
+          "product-manager",
+          "business-analyst",
+          "ux-designer",
+          "technical-writer",
+          "scrum-master"
+        ]
+      }
+    }
+  }
+}

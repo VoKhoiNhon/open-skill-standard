@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Open Skill Standard knowledge node",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "applies_to",
+    "source",
+    "created"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "const": "knowledge"
+    },
+    "type": {
+      "enum": [
+        "preference",
+        "lesson",
+        "glossary",
+        "project-fact",
+        "pitfall"
+      ]
+    },
+    "applies_to": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(skill|role|project|phase):.+$"
+      }
+    },
+    "source": {
+      "enum": [
+        "user",
+        "seed",
+        "agent-memory",
+        "org"
+      ]
+    },
+    "created": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    }
+  }
+}
