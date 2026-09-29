@@ -25,6 +25,8 @@ cases:
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: backend-research, role: backend-developer, task: "research message queues to compare for order events",
      phases: [research], exclude: [superpowers/subagent-driven-development]}
+  - {id: backend-claude-api, role: backend-developer, task: "add a Claude API call with prompt caching to the summarizer",
+     include_any: [anthropic-skills/claude-api, claude-code-builtin/claude-api]}
   - {id: backend-vietnamese, role: backend-developer, task: "thêm API xuất hóa đơn ra CSV",
      include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
