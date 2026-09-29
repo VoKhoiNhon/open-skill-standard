@@ -24,4 +24,4 @@ Get the needed fact with the fewest calls before guessing. Each kind of question
 
 Answer briefly with the source of each fact (file and line, table, URL). If the answer decides the next step, say what it is, or hand back to `open-skill-router`.
 
-`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.3.0 open-skill`.
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.4.0 open-skill`.

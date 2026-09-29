@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-29
+
+Release engineering.
+
+### Added
+- `release` workflow on version tags: verifies the tag matches the package version, builds wheel and sdist, creates the GitHub release from this changelog when missing, and attaches the artifacts.
+- Optional PyPI publishing through Trusted Publishing (OIDC), enabled by the `PUBLISH_TO_PYPI` repository variable.
+- Checks: Conventional Commits pull request titles, one version everywhere, wheel contents, and an installed-wheel smoke test outside the repository.
+- CI on Python 3.11–3.14 and macOS; Dependabot for actions and Python packages.
+- `RELEASING.md`, and scripts `bump_version.py`, `check_versions.py`, `changelog.py`, `check_pr_title.py`, `check_wheel.py`.
+
 ## [0.3.0] - 2026-09-29
 
 Conformance with the Agent Skills specification, and skill health.
@@ -43,7 +54,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/VoKhoiNhon/open-skill-standard/releases/tag/v0.1.0
