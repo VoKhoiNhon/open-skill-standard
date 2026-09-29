@@ -17,7 +17,7 @@ jobs:
       - name: Registry schemas and references
         run: uv run open-skill validate
       - name: Lint skills (model-neutral prompting rules)
-        run: uv run open-skill lint skills/
+        run: uv run open-skill lint skills/ .claude-plugin/
       - name: Generated files are up to date
         run: uv run open-skill build --check
       - name: Privacy guard
