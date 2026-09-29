@@ -62,17 +62,73 @@ cases:
   - {id: game-vietnamese, role: game-developer, task: "thêm chế độ chơi nhiều người", include: [claude-code-builtin/run]}
   - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
      include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
+  - {id: qa-flaky, role: qa-engineer, task: "debug the flaky checkout tests",
+     first: superpowers/systematic-debugging, include: [anthropic-skills/webapp-testing]}
+  - {id: qa-vietnamese, role: qa-engineer, task: "viết test tự động cho luồng đăng ký",
+     include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
+  - {id: qa-bmad, role: qa-engineer, task: "add tests for the refund feature", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-qa-generate-e2e-tests]}
   - {id: devops, role: devops-engineer, task: "add a CI pipeline that builds and deploys the container",
      include: [superpowers/subagent-driven-development]}
+  - {id: devops-debug, role: devops-engineer, task: "debug why the container fails its health checks",
+     first: superpowers/systematic-debugging}
+  - {id: devops-review-ci, role: devops-engineer, task: "review the pull request that changes the CI workflow",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: devops-vietnamese, role: devops-engineer, task: "thêm pipeline CI build và deploy container",
+     include: [superpowers/subagent-driven-development]}
+  - {id: devops-spec-kit, role: devops-engineer, task: "add a staging environment", files: [.specify/memory/constitution.md],
+     include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: sre-incident, role: site-reliability-engineer, task: "the API has an outage and error rate is spiking",
      first: knowledge-work-engineering/incident-response}
+  - {id: sre-postmortem, role: site-reliability-engineer, task: "run the postmortem for yesterday's outage",
+     phases: [learn], include: [knowledge-work-engineering/incident-response]}
+  - {id: sre-review-runbook, role: site-reliability-engineer, task: "review the runbook for the database failover",
+     phases: [review]}
+  - {id: sre-vietnamese-incident, role: site-reliability-engineer, task: "hệ thống thanh toán bị sự cố, lỗi tăng cao",
+     first: knowledge-work-engineering/incident-response}
+  - {id: sre-spec-kit, role: site-reliability-engineer, task: "add alerts for the payment API latency",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
+  - {id: cloud-cost, role: cloud-engineer, task: "our cloud cost doubled this month",
+     first: superpowers/systematic-debugging, exclude: [superpowers/writing-plans]}
+  - {id: cloud-review-terraform, role: cloud-engineer, task: "review the terraform plan for the VPC change",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: cloud-vietnamese, role: cloud-engineer, task: "thêm cụm kubernetes bằng terraform",
+     include: [knowledge-work-engineering/architecture, claude-code-builtin/security-review]}
+  - {id: cloud-bmad, role: cloud-engineer, task: "add a private bucket", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: cloud-spec-kit, role: cloud-engineer, task: "add a private network for the reporting database",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: security, role: security-engineer, task: "review the login flow for security issues",
      phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: security-leak, role: security-engineer, task: "a secret was leaked in the repo, handle the incident",
+     first: knowledge-work-engineering/incident-response}
+  - {id: security-research, role: security-engineer, task: "research SAST tools to compare for the monorepo",
+     phases: [research]}
+  - {id: security-vietnamese-review, role: security-engineer, task: "rà soát bảo mật luồng đăng nhập",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: security-spec-kit, role: security-engineer, task: "add CSRF protection to the forms",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement, claude-code-builtin/security-review]}
   - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
      include: [knowledge-work-data/sql-queries]}
+  - {id: dba-slow, role: database-administrator, task: "the orders database is slow since yesterday",
+     first: superpowers/systematic-debugging, include: [knowledge-work-data/sql-queries]}
+  - {id: dba-review-migration, role: database-administrator, task: "review the migration that adds a column to orders",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: dba-vietnamese, role: database-administrator, task: "thêm index cho truy vấn đơn hàng chậm",
+     include: [knowledge-work-data/write-query]}
+  - {id: dba-upgrade-plan, role: database-administrator, task: "plan the upgrade to the new database major version",
+     phases: [plan], exclude: [superpowers/subagent-driven-development]}
   - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
+     include: [superpowers/subagent-driven-development]}
+  - {id: sysadmin-spec-kit, role: system-administrator, task: "add log rotation to the web servers",
+     files: [.specify/memory/constitution.md], include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
+  - {id: sysadmin-failing-job, role: system-administrator, task: "the nightly backup job is failing",
+     first: superpowers/systematic-debugging, exclude: [superpowers/writing-plans]}
+  - {id: sysadmin-review-script, role: system-administrator, task: "review the backup script before it goes to cron",
+     phases: [review]}
+  - {id: sysadmin-vietnamese, role: system-administrator, task: "tự động sao lưu máy chủ hàng đêm",
      include: [superpowers/subagent-driven-development]}
   - {id: data-engineer, role: data-engineer, task: "add a pipeline that loads orders into the warehouse",
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}

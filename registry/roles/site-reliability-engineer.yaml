@@ -41,6 +41,7 @@ phases:
     - superpowers/writing-plans
     alternatives:
     - knowledge-work-engineering/architecture
+    - spec-kit/plan
   build:
     primary:
     - superpowers/subagent-driven-development

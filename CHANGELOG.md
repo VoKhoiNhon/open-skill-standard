@@ -13,6 +13,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Agent targets in `registry/agents/`: Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot (CLI, coding agent, VS Code), OpenCode, Goose, Windsurf and Amp, with their global and project skill folders, how to detect each one and the documentation URL behind every path (SPEC §4.6).
 - `open-skill scan` looks in the skill folders of every agent target and lists each skill once with the agents that see it; `scan --agent <id>` shows one agent's view under the names it invokes skills by. Detect rules may use `{skills}` and `{project_skills}` for every agent's folders, and may name an `agent` (SPEC §4.2).
 - `open-skill agents [--project DIR] [--json]` lists the known agents, which are installed on this machine, how many skills each sees and where an install for it goes; `doctor` shows the detected agents.
+- Routing evals for the engineering and quality-ops roles: bug, crash and incident reports, reviews, research, postmortems, Vietnamese phrasing, and spec-kit and BMad projects.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
@@ -21,6 +22,8 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 - Crash and hang reports, in English and Vietnamese ("crashes", "hangs", "bị treo", "văng"), start with debugging instead of a planned build.
 - Embedded builds in spec-kit projects use `spec-kit/implement` instead of subagent-driven development.
+- In spec-kit projects, cloud, security and SRE work plans with `spec-kit/plan`, and sysadmin work builds with `spec-kit/implement`.
+- The Vietnamese "sự cố" (incident) leads to incident response rather than debugging.
 
 ## [0.5.0] - 2026-09-29
 

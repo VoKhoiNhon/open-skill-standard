@@ -50,6 +50,7 @@ phases:
     - ponytail/ponytail
     alternatives:
     - bmad-method/bmad-build
+    - spec-kit/implement
   verify:
     primary:
     - superpowers/test-driven-development

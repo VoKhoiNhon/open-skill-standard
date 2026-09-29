@@ -52,7 +52,7 @@ skills:
     phases: [operate]
     produces: [runbook]
     task_size: [small, medium, large]
-    triggers: [bug, debug, "root cause", failing, lỗi, sự cố]
+    triggers: [bug, debug, "root cause", failing, lỗi]
   - name: verification-before-completion
     description: Run the real checks and read their output before claiming work is done
     phases: [verify, release]
