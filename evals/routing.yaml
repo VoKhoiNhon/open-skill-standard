@@ -4,6 +4,14 @@
 cases:
   - {id: frontend, role: frontend-developer, task: "build a settings page with a dark mode toggle",
      include: [anthropic-skills/frontend-design], exclude: [superpowers/test-driven-development]}
+  - {id: frontend-bug, role: frontend-developer, task: "the date picker is broken on Safari",
+     first: superpowers/systematic-debugging, include: [anthropic-skills/webapp-testing]}
+  - {id: frontend-a11y-review, role: frontend-developer, task: "audit the signup form for accessibility",
+     phases: [review], include: [knowledge-work-design/accessibility-review]}
+  - {id: frontend-vietnamese, role: frontend-developer, task: "thêm trang cài đặt tài khoản",
+     include: [anthropic-skills/webapp-testing], exclude: [superpowers/test-driven-development]}
+  - {id: frontend-bmad, role: frontend-developer, task: "add a search page", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: backend, role: backend-developer, task: "add a REST endpoint to export invoices as CSV",
      include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
