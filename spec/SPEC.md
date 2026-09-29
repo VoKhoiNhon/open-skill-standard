@@ -12,6 +12,7 @@ This standard describes Agent Skills (folders containing a `SKILL.md`) by the ro
 
 - **Skill** — an Agent Skill an agent can invoke by name.
 - **Tool** — an MCP server or CLI a skill chain can use (for example, a code graph).
+- **Agent target** — a registry document naming one coding agent and the folders it loads skills from.
 - **Adapter** — a registry document that describes the skills of one upstream source as metadata, without copying their content.
 - **Role pack** — a registry document describing one IT role: its characteristic risk, principles, project signals, phase-to-skill mapping and starter knowledge.
 - **Model profile** — a registry document with prompting notes and limits for one model or model family.
@@ -63,6 +64,12 @@ A model profile MUST contain `id`, `match` (globs), `source` and `verified` (a d
 ### 4.5 Knowledge node
 
 Knowledge nodes are Markdown files with frontmatter `id`, `type`, `applies_to` (entries `skill:`, `role:`, `project:`, `phase:`, with `role:*` meaning all), `source` (user, seed, agent-memory, org) and `created`.
+
+### 4.6 Agent target (`registry/agents/<id>.yaml`)
+
+An agent target describes one coding agent that loads Agent Skills. It MUST contain `id`, `name`, `docs`, `global` (user-level skill folders) and `detect` (paths whose existence shows the agent is installed), and MAY contain `project` (skill folders relative to the project root), `relocate` and `notes`. The first folder of `global` and of `project` is where skills are installed for that agent; the others are folders it also reads.
+
+Every path entry MUST carry a `source`: the URL of the official documentation, or of the upstream source line, that states the path. `global` and `detect` paths start with `~/` or `/`; `project` paths are relative and MUST NOT leave the project. A `relocate` entry `{var, replaces, source}` means that when the environment variable `var` is set and not empty, its value replaces the path prefix `replaces` (for example `CODEX_HOME` for `~/.codex`).
 
 ## 5. Layers
 
