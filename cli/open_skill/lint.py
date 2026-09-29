@@ -99,10 +99,29 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
     return out
 
 
+LINK = re.compile(r"\]\(([^)\s]+)\)|`((?:references|scripts|assets)/[^`\s]+)`")
+
+
+def missing_references(body: str, base: Path) -> list[str]:
+    """Relative files a skill points to that do not exist (URLs, anchors and <placeholders> are skipped)."""
+    out = []
+    for m in LINK.finditer(body):
+        ref = (m.group(1) or m.group(2)).split("#")[0]
+        if not ref or re.match(r"^[a-z]+:", ref) or ref.startswith(("/", "~")) or re.search(r"[<>{}*]", ref):
+            continue
+        if not (base / ref).exists():
+            out.append(ref)
+    return sorted(set(out))
+
+
 def lint_file(path: Path) -> list[Finding]:
     path = Path(path)
     folder = path.parent.name if path.name == "SKILL.md" else None
-    return lint_text(path.read_text(errors="replace"), str(path), folder)
+    text = path.read_text(errors="replace")
+    out = lint_text(text, str(path), folder)
+    for ref in missing_references(frontmatter.parse(text)[1], path.parent):
+        out.append(Finding(str(path), "missing-reference", f"references '{ref}', which does not exist", SPEC))
+    return out
 
 
 def lint_paths(paths) -> list[Finding]:

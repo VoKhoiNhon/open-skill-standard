@@ -93,3 +93,15 @@ def test_unknown_fields_warn_but_agent_extensions_do_not():
     found = lint.lint_text(fm("descripton: typo\nwhen_to_use: when asked\nargument-hint: '[file]'"))
     assert [(f.rule, f.severity) for f in found] == [("unknown-field", "warning")]
     assert "descripton" in found[0].message
+
+
+def test_missing_references_are_errors(tmp_path):
+    d = tmp_path / "good-skill"
+    (d / "references").mkdir(parents=True)
+    (d / "references" / "guide.md").write_text("ok")
+    body = ("See [the guide](references/guide.md), [gone](references/gone.md), `scripts/run.py`, "
+            "[web](https://x.org/a), [anchor](#top), `references/roles/<role>.md`.")
+    (d / "SKILL.md").write_text(doc(body))
+    found = [(f.rule, f.message) for f in lint.lint_file(d / "SKILL.md")]
+    assert [r for r, _ in found] == ["missing-reference", "missing-reference"]
+    assert "references/gone.md" in found[0][1] and "scripts/run.py" in found[1][1]
