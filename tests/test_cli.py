@@ -118,6 +118,7 @@ def test_validate_scan_doctor_graph(capsys):
     code, out = run(capsys, "doctor")
     assert "superpowers" in out and "no profile yet" in out
     assert "agents: claude-code (" in out and "codex (" in out and "demo-agent" not in out
+    assert "open-skill install open-skill-router --agent codex" in out
     code, out = run(capsys, "graph")
     assert out.startswith("graph LR")
 

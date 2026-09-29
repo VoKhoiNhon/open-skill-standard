@@ -233,6 +233,9 @@ def cmd_doctor(args):
     found = [a for a in reg.agents.values() if agents.detected(a)]
     seen = ", ".join(f"{a['id']} ({sum(a['id'] in i.agents for i in installed)} skills)" for a in found)
     print(f"  agents: {seen or 'none detected'} → open-skill agents")
+    for a in found:
+        if not any(i.id == "open-skill/open-skill-router" and a["id"] in i.agents for i in installed):
+            print(f"  · {a['id']} does not see the open-skill router → open-skill install open-skill-router --agent {a['id']}")
     for src, a in sorted(reg.adapters.items()):
         n = by_src.get(src, 0)
         hint = "" if n else f"  → {next(iter((a.get('install') or {}).values()), 'see ' + a.get('upstream', ''))}"
