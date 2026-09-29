@@ -454,6 +454,12 @@ def test_missing_folders_are_bad_input_not_empty_results(cli):
     _clean_error(cli.run("adapter", "draft", "--source", "x", "--from", missing, code=2))
     _clean_error(cli.run("eval", "triggers", "--cases", missing, code=2))
 
+
+def test_empty_note_is_refused(cli):
+    # Bug: `learn ""` crashed with IndexError while building the summary line.
+    assert "empty" in cli.run("learn", "  ", "--applies-to", "role:*", code=2).stderr
+    assert not (cli.home / "knowledge").exists()
+
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
 def _parser_surface() -> set[str]:

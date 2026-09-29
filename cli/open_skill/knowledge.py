@@ -70,6 +70,8 @@ class SensitiveText(ValueError):
 
 def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool = False, source: str = "user") -> str:
     """Store one fact per file; the same text updates the existing node instead of duplicating it."""
+    if not text.strip():
+        raise ValueError("refusing to store an empty note")
     _prepare()
     reason = looks_sensitive(text)
     if reason and not force:
