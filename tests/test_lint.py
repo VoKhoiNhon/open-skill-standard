@@ -258,3 +258,13 @@ def test_description_angle_brackets_are_their_own_rule():
     assert list(found) == ["description-angle-brackets"]
     assert "quick_validate" in found["description-angle-brackets"].source
     assert rules(doc("x", desc="a" * 1024)) == [] and rules(doc("x", desc="a" * 1025)) == ["frontmatter-description"]
+
+
+@pytest.mark.parametrize("lines,fires", [(500, False), (501, True)])
+@pytest.mark.parametrize("eol", ["\n", "\r\n"])
+def test_length_counts_lines_not_newlines(lines, fires, eol):
+    # A 500-line file ends with a newline, which used to count as line 501.
+    head = HEAD.format(name="good-skill", desc="Does a thing.").replace("\n", eol)
+    text = head + eol.join(["x"] * (lines - 4)) + eol
+    assert len(text.splitlines()) == lines
+    assert ("length" in rules(text)) is fires
