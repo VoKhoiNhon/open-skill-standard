@@ -161,3 +161,12 @@ def test_upgrade_command_and_rollback(capsys, tmp_path):
     assert code == 0 and "backed up to" in out
     code, out = run(capsys, "upgrade", "--rollback")
     assert code == 0 and out.startswith("restored")
+
+
+def test_status_reports_versions_and_pending_work(capsys, tmp_path):
+    (tmp_path / "h" / "knowledge").mkdir(parents=True)
+    code, out = run(capsys, "status")
+    assert code == 0 and "data_schema              0" in out and "open-skill upgrade" in out
+    code, out = run(capsys, "status", "--json")
+    info = json.loads(out)
+    assert info["pending_migrations"] == 1 and info["cli_schema"] >= 1
