@@ -3,6 +3,7 @@
 Usage: python scripts/check_wheel.py dist/<wheel>.whl  (run from a checkout: every tracked data file must be inside)
 """
 
+import os
 import subprocess
 import sys
 import zipfile
@@ -13,7 +14,8 @@ DATA = ("registry", "spec", "skills", "evals")  # force-included under open_skil
 
 
 def required(root: Path) -> list[str]:
-    files = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True).stdout
+    env = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE")}
+    files = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True, env=env).stdout
     out = []
     for f in filter(None, files.split("\0")):
         if f.startswith("cli/open_skill/") and f.endswith(".py"):

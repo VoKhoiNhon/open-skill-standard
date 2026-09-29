@@ -50,9 +50,15 @@ def check(files: list[str]) -> list[str]:
     return problems
 
 
+def git_env() -> dict:
+    """The environment without GIT_DIR and friends, so git works on the folder it is run in (cwd)."""
+    return {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE")}
+
+
 def tracked(root: Path) -> list[str]:
     """Tracked paths relative to root; -z keeps spaces and non-ASCII names exactly as they are."""
-    out = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True).stdout
+    out = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True,
+                         env=git_env()).stdout
     return [f for f in out.split("\0") if f]
 
 
