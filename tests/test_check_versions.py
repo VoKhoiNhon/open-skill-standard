@@ -29,3 +29,15 @@ def test_disagreement_is_reported(tmp_path, capsys):
     p.write_text(p.read_text().replace('"version": "', '"version": "9', 1))
     assert cv.main(str(tmp_path)) == 1
     assert "versions disagree" in capsys.readouterr().out
+
+
+cl = load("changelog")
+
+
+def test_changelog_section_extraction():
+    text = (ROOT / "CHANGELOG.md").read_text()
+    body = cl.section(text, "0.2.0")
+    assert "Safe upgrades" in body and "## [" not in body
+    import pytest
+    with pytest.raises(KeyError):
+        cl.section(text, "9.9.9")
