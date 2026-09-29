@@ -86,3 +86,22 @@ def test_newer_user_data_gives_clear_error(capsys, tmp_path):
     code = cli.main(["--registry", str(FIX / "repo"), "learn", "x", "--applies-to", "role:*"])
     assert code == 3
     assert "Upgrade open-skill" in capsys.readouterr().err
+
+
+def test_backup_command_and_list(capsys, tmp_path):
+    run(capsys, "learn", "Keep backfills bounded", "--applies-to", "role:data-engineer")
+    code, out = run(capsys, "backup")
+    made = Path(out.strip())
+    assert code == 0 and made.exists() and made.parent.name == "backups"
+    code, out = run(capsys, "backup", "--list")
+    assert str(made) in out
+
+
+def test_restore_command(capsys, tmp_path):
+    run(capsys, "learn", "First note", "--applies-to", "role:*")
+    snap = run(capsys, "backup")[1].strip()
+    run(capsys, "learn", "Second note", "--applies-to", "role:*")
+    code, out = run(capsys, "restore", snap)
+    assert code == 0 and "previous state saved" in out
+    texts = [p.read_text() for p in (tmp_path / "h" / "knowledge").glob("*.md")]
+    assert any("First note" in t for t in texts) and not any("Second note" in t for t in texts)

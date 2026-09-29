@@ -54,3 +54,71 @@ def ensure_writable(home: Path) -> None:
         )
     if not (home / VERSION_FILE).exists() and v == SCHEMA_VERSION:
         write_version(home)
+
+
+BACKUP_DIR = "backups"
+
+
+def backup(home: Path, label: str = "manual") -> Path | None:
+    """Zip the whole user layer (except older backups) to backups/<UTC time>-<label>.zip. None if nothing to save."""
+    import datetime as dt
+    import zipfile
+
+    home = Path(home)
+    files = [p for p in sorted(home.rglob("*")) if p.is_file() and BACKUP_DIR not in p.relative_to(home).parts]
+    if not files:
+        return None
+    (home / BACKUP_DIR).mkdir(parents=True, exist_ok=True)
+    while True:  # microsecond UTC stamps sort in creation order; loop only on a same-microsecond clash
+        dest = home / BACKUP_DIR / f"{dt.datetime.now(dt.timezone.utc):%Y%m%dT%H%M%S%fZ}-{label}.zip"
+        if not dest.exists():
+            break
+    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
+        for p in files:
+            z.write(p, p.relative_to(home).as_posix())
+    return dest
+
+
+def list_backups(home: Path) -> list[Path]:
+    return sorted((Path(home) / BACKUP_DIR).glob("*.zip"))
+
+
+def prune_backups(home: Path, label: str, keep: int = 10) -> list[Path]:
+    """Delete all but the newest `keep` backups with this label; other labels (manual ones) are never touched."""
+    mine = [p for p in list_backups(home) if p.stem.split(".")[0].endswith(f"-{label}")]
+    doomed = mine[:-keep] if keep else mine
+    for p in doomed:
+        p.unlink()
+    return doomed
+
+
+class UnsafeBackupError(ValueError):
+    """A backup archive contains paths that would escape the user layer."""
+
+
+def _check_members(names: list[str]) -> None:
+    for n in names:
+        parts = Path(n).parts
+        if Path(n).is_absolute() or ".." in parts or (parts and parts[0] == BACKUP_DIR):
+            raise UnsafeBackupError(f"refusing to restore unsafe path: {n}")
+
+
+def restore(home: Path, archive: Path) -> Path | None:
+    """Replace the user layer with an archive's content. The current state is backed up first; backups/ is kept."""
+    import shutil
+    import zipfile
+
+    home = Path(home)
+    with zipfile.ZipFile(archive) as z:
+        _check_members(z.namelist())
+        safety = backup(home, "before-restore")
+        staging = Path(tempfile.mkdtemp(dir=home if home.exists() else None, prefix=".restore-"))
+        z.extractall(staging)
+    home.mkdir(parents=True, exist_ok=True)
+    for entry in home.iterdir():
+        if entry.name not in (BACKUP_DIR, staging.name):
+            shutil.rmtree(entry) if entry.is_dir() else entry.unlink()
+    for entry in staging.iterdir():
+        os.replace(entry, home / entry.name)
+    staging.rmdir()
+    return safety

@@ -187,6 +187,27 @@ def cmd_export(args):
     return 0
 
 
+def cmd_backup(args):
+    home = knowledge.home()
+    if args.list:
+        for b in userdata.list_backups(home):
+            print(b)
+        return 0
+    dest = userdata.backup(home, "manual")
+    print(dest or f"nothing to back up in {home}")
+    return 0
+
+
+def cmd_restore(args):
+    try:
+        safety = userdata.restore(knowledge.home(), Path(args.archive))
+    except userdata.UnsafeBackupError as e:
+        print(e, file=sys.stderr)
+        return 2
+    print(f"restored {args.archive}" + (f"; previous state saved to {safety}" if safety else ""))
+    return 0
+
+
 def _upstream_skills(src_dir: Path) -> dict[str, str]:
     found = {}
     for p in sorted(Path(src_dir).rglob("SKILL.md")):
@@ -278,6 +299,12 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("export", help="zip profile + knowledge (no events)")
     s.add_argument("dest")
     s.set_defaults(fn=cmd_export)
+    s = sub.add_parser("backup", help="zip ~/.open-skill into its backups/ folder")
+    s.add_argument("--list", action="store_true", help="list existing backups")
+    s.set_defaults(fn=cmd_backup)
+    s = sub.add_parser("restore", help="replace ~/.open-skill with a backup (the current state is backed up first)")
+    s.add_argument("archive")
+    s.set_defaults(fn=cmd_restore)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
     s.add_argument("action", choices=["draft", "check"])
     s.add_argument("--source", required=True)
