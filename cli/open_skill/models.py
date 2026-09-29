@@ -25,6 +25,11 @@ def _merge(base: dict, child: dict) -> dict:
     return out
 
 
+def _version(model_id: str) -> tuple[int, ...]:
+    """(5, 5) for claude-opus-5-5 or claude-opus-5-5-20260901; date stamps are not version numbers."""
+    return tuple(int(n) for n in re.findall(r"(?<=-)\d+", model_id) if len(n) < 8)
+
+
 def _chain(pid: str, profiles: dict) -> list[str]:
     chain, cur = [], pid
     while cur:
@@ -48,8 +53,10 @@ def _pick(model_id: str | None, profiles: dict) -> tuple[str, str]:
         return max(hits)[1], "exact"
     m = FAMILY.match(mid)
     fam = [p["id"] for p in specific if m and p.get("family") == m.group(1)]
-    if fam:
-        return max(fam), "family"  # newest profile id of the same family
+    if fam:  # the newest profile not newer than the model, else the family's oldest
+        want = _version(mid)
+        older = [p for p in fam if _version(p) <= want]
+        return (max(older, key=_version) if older else min(fam, key=_version)), "family"
     return "generic", "default"
 
 

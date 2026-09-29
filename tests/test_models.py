@@ -43,6 +43,15 @@ def test_unknown_future_model_falls_back_to_family():
     assert p["matched_by"] == "family"
 
 
+def test_bug_an_older_model_falls_back_to_the_nearest_profile_not_the_newest():
+    # claude-opus-4-7 got claude-opus-5-5's recalibrated effort names; ids also compared as strings ("5-10" < "5-5").
+    assert models.resolve("claude-opus-4-7", PROFILES)["id"] == "claude-opus-5"
+    profiles = {**PROFILES, "claude-opus-5-10": {"id": "claude-opus-5-10", "match": ["claude-opus-5-10*"],
+                                                  "family": "opus", "inherits": "claude-opus-5-5"}}
+    assert models.resolve("claude-opus-6", profiles)["id"] == "claude-opus-5-10"
+    assert models.resolve("claude-opus-5-7", profiles)["id"] == "claude-opus-5-5"
+
+
 def test_unknown_or_missing_model_is_generic():
     assert models.resolve(None, PROFILES)["id"] == "generic"
     assert models.resolve("gpt-x", PROFILES)["id"] == "generic"
