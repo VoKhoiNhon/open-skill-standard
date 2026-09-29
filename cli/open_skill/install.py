@@ -124,3 +124,35 @@ def apply(p: Plan) -> None:
            "source": str(p.source.path), "kind": p.source.kind, "mode": p.mode, "version": __version__,
            "files": {} if p.mode == "symlink" else _files(p.dest), "installed": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
     _save([r for r in manifest() if r["dest"] != rec["dest"]] + [rec])
+
+
+def record_for(dest: Path) -> dict | None:
+    return next((r for r in manifest() if r["dest"] == str(dest)), None)
+
+
+def _ours(dest: Path, rel: str, sha: str) -> bool:
+    """A recorded file still exactly as installed, reached without passing through any link."""
+    path = dest / rel
+    return (not dest.is_symlink() and path.is_file() and path.resolve() == dest.resolve() / rel
+            and _hash(path) == sha)
+
+
+def remove(dest: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
+    """Delete what open-skill installed at `dest`: only recorded files whose content is unchanged, then folders
+    left empty. Returns (removed, kept). Files the user changed or added stay. LookupError if not ours."""
+    rec = record_for(dest)
+    if rec is None:
+        raise LookupError(f"{dest} was not installed by open-skill; nothing removed")
+    removed = [rel for rel, sha in rec["files"].items() if _ours(dest, rel, sha)]
+    kept = sorted(set(_files(dest)) - set(removed)) if dest.is_dir() else []
+    if dry_run:
+        return removed, kept
+    for rel in removed:
+        (dest / rel).unlink()
+    for d in sorted((p for p in dest.rglob("*") if p.is_dir() and not p.is_symlink()), key=lambda p: -len(p.parts)):
+        if not any(d.iterdir()):
+            d.rmdir()
+    if dest.is_dir() and not any(dest.iterdir()):
+        dest.rmdir()
+    _save([r for r in manifest() if r["dest"] != str(dest)])
+    return removed, kept

@@ -122,3 +122,62 @@ def test_symlink_install_links_to_the_source(reg, tmp_path):
     [rec] = install.manifest()
     assert rec["mode"] == "symlink" and rec["files"] == {}
     assert install.plan(src, reg.agents["gemini-cli"], mode="symlink").action == "unchanged"
+
+
+def _installed(reg, tmp_path, name="my-skill", agent="codex", **kw):
+    src = install.resolve_source(str(skill(tmp_path / "src" / name, name)))
+    (src.path / "notes.md").write_text("n\n")
+    p = install.plan(src, reg.agents[agent], **kw)
+    install.apply(p)
+    return p
+
+
+def test_remove_deletes_only_recorded_unchanged_files(reg, tmp_path):
+    p = _installed(reg, tmp_path)
+    (p.dest / "notes.md").write_text("my edit\n")  # the user changed a file
+    (p.dest / "mine.txt").write_text("not from open-skill\n")  # and added one
+    removed, kept = install.remove(p.dest)
+    assert removed == ["SKILL.md"]
+    assert set(kept) == {"notes.md", "mine.txt"}
+    assert (p.dest / "notes.md").read_text() == "my edit\n" and (p.dest / "mine.txt").exists()
+    assert install.manifest() == []
+
+
+def test_remove_clears_empty_folders(reg, tmp_path):
+    src = install.resolve_source(str(skill(tmp_path / "src/deep", "deep")))
+    (src.path / "sub/inner").mkdir(parents=True)
+    (src.path / "sub/inner/x.md").write_text("x\n")
+    p = install.plan(src, reg.agents["codex"])
+    install.apply(p)
+    removed, kept = install.remove(p.dest)
+    assert set(removed) == {"SKILL.md", "sub/inner/x.md"} and kept == []
+    assert not p.dest.exists() and p.dest.parent.is_dir()  # the agent's folder itself is kept
+
+
+def test_remove_refuses_what_open_skill_did_not_install(reg, tmp_path):
+    theirs = skill(tmp_path / "home/.agents/skills/open-skill-router", "open-skill-router")
+    with pytest.raises(LookupError):
+        install.remove(theirs)
+    assert (theirs / "SKILL.md").exists()
+
+
+def test_remove_dry_run_changes_nothing(reg, tmp_path):
+    p = _installed(reg, tmp_path)
+    removed, _ = install.remove(p.dest, dry_run=True)
+    assert removed and (p.dest / "SKILL.md").exists() and len(install.manifest()) == 1
+
+
+def test_remove_never_follows_a_link_out_of_the_skill(reg, tmp_path):
+    src = install.resolve_source(str(skill(tmp_path / "src/linked", "linked")))
+    (src.path / "sub").mkdir()
+    (src.path / "sub/x.md").write_text("x\n")
+    p = install.plan(src, reg.agents["codex"])
+    install.apply(p)
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (elsewhere / "x.md").write_text("x\n")  # same content as the recorded file
+    import shutil
+    shutil.rmtree(p.dest / "sub")
+    (p.dest / "sub").symlink_to(elsewhere, target_is_directory=True)
+    removed, _ = install.remove(p.dest)
+    assert "sub/x.md" not in removed and (elsewhere / "x.md").exists()
