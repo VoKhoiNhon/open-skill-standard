@@ -51,6 +51,8 @@ phases:
     - superpowers/test-driven-development
     alternatives:
     - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - bmad-method/bmad-build
   verify:
     primary:
     - knowledge-work-data/validate-data

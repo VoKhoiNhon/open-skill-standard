@@ -53,6 +53,7 @@ phases:
     alternatives:
     - superpowers/dispatching-parallel-agents
     - spec-kit/implement
+    - bmad-method/bmad-build
   verify:
     primary:
     - anthropic-skills/skill-creator

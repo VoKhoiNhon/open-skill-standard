@@ -132,19 +132,69 @@ cases:
      include: [superpowers/subagent-driven-development]}
   - {id: data-engineer, role: data-engineer, task: "add a pipeline that loads orders into the warehouse",
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
+  - {id: data-engineer-debug, role: data-engineer, task: "debug the duplicate keys in the nightly orders load",
+     first: superpowers/systematic-debugging, exclude: [knowledge-work-data/create-viz]}
+  - {id: data-engineer-review-dag, role: data-engineer, task: "review the pull request that changes the orders DAG",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: data-engineer-reconcile, role: data-engineer, task: "reconcile the orders table with the source system",
+     phases: [verify], include: [knowledge-work-data/explore-data]}
+  - {id: data-engineer-spec-kit, role: data-engineer, task: "add a customer dimension",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: analytics-engineer, role: analytics-engineer, task: "add a revenue model with tests",
      include: [knowledge-work-data/write-query]}
+  - {id: analytics-engineer-spec-kit, role: analytics-engineer, task: "add a revenue model with tests",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
+  - {id: analytics-engineer-bmad, role: analytics-engineer, task: "add a revenue model with tests",
+     files: [_bmad/config.toml], include: [bmad-method/bmad-build]}
+  - {id: analytics-engineer-broken, role: analytics-engineer, task: "the revenue model is broken after the source change",
+     first: superpowers/systematic-debugging, include: [knowledge-work-data/write-query]}
+  - {id: analytics-engineer-review, role: analytics-engineer, task: "review the dbt pull request for the finance models",
+     phases: [review]}
+  - {id: analytics-engineer-vietnamese, role: analytics-engineer, task: "thêm mô hình doanh thu theo cửa hàng",
+     include: [knowledge-work-data/write-query, knowledge-work-data/explore-data]}
   - {id: data-analyst, role: data-analyst, task: "why did weekly revenue drop in the north region",
      phases: [build, verify, release], first: knowledge-work-data/analyze, include: [knowledge-work-data/validate-data],
      exclude: [superpowers/writing-plans]}
+  - {id: data-analyst-broken-report, role: data-analyst, task: "the weekly sales report is broken since Monday",
+     first: superpowers/systematic-debugging, include: [knowledge-work-data/validate-data]}
+  - {id: data-analyst-dashboard, role: data-analyst, task: "build a dashboard of weekly sales by region",
+     include: [knowledge-work-data/build-dashboard, knowledge-work-data/validate-data], exclude: [superpowers/writing-plans]}
+  - {id: data-analyst-vietnamese-check, role: data-analyst, task: "kiểm tra số liệu doanh thu tuần trước",
+     phases: [verify], include: [knowledge-work-data/validate-data]}
   - {id: data-scientist, role: data-scientist, task: "build a churn prediction model",
+     include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
+  - {id: data-scientist-validate, role: data-scientist, task: "validate the churn model before launch",
+     phases: [verify], include: [knowledge-work-data/validate-data]}
+  - {id: data-scientist-research, role: data-scientist, task: "research uplift modeling approaches to compare",
+     phases: [research], exclude: [superpowers/subagent-driven-development]}
+  - {id: data-scientist-vietnamese, role: data-scientist, task: "xây mô hình dự báo nhu cầu",
      include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
   - {id: ml-engineer, role: ml-engineer, task: "deploy the churn model with drift monitoring",
      include: [knowledge-work-engineering/deploy-checklist]}
+  - {id: ml-latency, role: ml-engineer, task: "the model latency is slow in production",
+     first: superpowers/systematic-debugging}
+  - {id: ml-review, role: ml-engineer, task: "review the training pipeline pull request",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: ml-vietnamese-drift, role: ml-engineer, task: "thêm giám sát drift cho mô hình",
+     include: [knowledge-work-data/validate-data]}
   - {id: ai-engineer, role: ai-engineer, task: "build a RAG chatbot over our docs with evals",
      include: [superpowers/subagent-driven-development]}
+  - {id: ai-engineer-bmad, role: ai-engineer, task: "add a summarization endpoint", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: ai-engineer-debug, role: ai-engineer, task: "debug why the agent keeps calling the wrong tool",
+     first: superpowers/systematic-debugging}
+  - {id: ai-engineer-review, role: ai-engineer, task: "review the pull request for the agent tools",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: ai-engineer-vietnamese, role: ai-engineer, task: "thêm đánh giá cho chatbot RAG",
+     include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: platform, role: data-ai-platform-engineer, task: "roll out a shared skill pack to all teams",
      include: [anthropic-skills/skill-creator]}
+  - {id: platform-spec-kit, role: data-ai-platform-engineer, task: "add a skill for SQL review",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
+  - {id: platform-broken, role: data-ai-platform-engineer, task: "the shared skill pack is broken after the upgrade",
+     first: superpowers/systematic-debugging}
+  - {id: platform-vietnamese-review, role: data-ai-platform-engineer, task: "rà soát bộ skill dùng chung trước khi phát hành",
+     phases: [review]}
   - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",

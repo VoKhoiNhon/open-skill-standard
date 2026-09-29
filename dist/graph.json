@@ -3160,11 +3160,6 @@
   },
   {
    "from": "role:data-ai-platform-engineer",
-   "to": "claude-code-builtin/schedule",
-   "type": "recommends"
-  },
-  {
-   "from": "role:data-ai-platform-engineer",
    "to": "knowledge-work-data/data-context-extractor",
    "type": "recommends"
   },
@@ -3255,7 +3250,7 @@
   },
   {
    "from": "role:data-analyst",
-   "to": "claude-code-builtin/schedule",
+   "to": "superpowers/systematic-debugging",
    "type": "recommends"
   },
   {
@@ -4161,11 +4156,6 @@
   {
    "from": "role:ml-engineer",
    "to": "superpowers/systematic-debugging",
-   "type": "recommends"
-  },
-  {
-   "from": "role:ml-engineer",
-   "to": "claude-code-builtin/schedule",
    "type": "recommends"
   },
   {

@@ -73,6 +73,8 @@ phases:
     - anthropic-skills/docx
   operate:
     primary:
+    - superpowers/systematic-debugging
+    alternatives:
     - claude-code-builtin/schedule
   learn:
     primary:

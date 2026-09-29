@@ -73,9 +73,9 @@ phases:
   operate:
     primary:
     - superpowers/systematic-debugging
-    - claude-code-builtin/schedule
     alternatives:
     - knowledge-work-engineering/incident-response
+    - claude-code-builtin/schedule
   learn:
     primary:
     - open-skill/open-skill-learn
