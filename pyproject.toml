@@ -47,6 +47,7 @@ packages = ["cli/open_skill"]
 "registry" = "open_skill/_data/registry"
 "spec" = "open_skill/_data/spec"
 "skills" = "open_skill/_data/skills"
+"evals" = "open_skill/_data/evals"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
