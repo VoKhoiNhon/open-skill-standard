@@ -21,9 +21,14 @@ phases:
     keywords_i18n:
       vi: [kế hoạch, thiết kế, kiến trúc, chia việc]
   - id: build
-    keywords: [build, implement, create, add, develop, code, write, feature, pipeline, endpoint, migrate, refactor, fix, integrate]
+    keywords: [build, implement, create, add, develop, code, write, update, feature, pipeline, endpoint, migrate, refactor, fix, integrate]
     keywords_i18n:
-      vi: [xây, làm, thêm, viết, triển khai, tính năng, sửa]
+      vi: [xây, làm, thêm, viết, cập nhật, triển khai, tính năng, sửa]
+    # Generic verbs count as hits but never break a tie: "write a postmortem" is learn, "write an ADR" is plan.
+    # They still beat verify, because tests are code you write ("viết test tự động").
+    generic: [write, update]
+    generic_i18n:
+      vi: [viết, cập nhật]
   - id: verify
     keywords: [test, tests, verify, validate, qa, "e2e", check, reconcile, profiling]
     keywords_i18n:
@@ -44,6 +49,12 @@ phases:
     keywords_i18n:
       vi: [sự cố, lỗi, treo, văng, giám sát, chậm, chi phí, "không chạy", "không hoạt động", "ngừng hoạt động",
            "không trả về", "từ hôm qua"]
+    # Symptoms say something is wrong now, so they win keyword ties against build and release nouns
+    # ("the deploy pipeline is failing"). Topic words do not: alert, monitor, cost, and error and lỗi,
+    # which just as often name a topic ("add error handling", "lỗi chính tả" is a typo).
+    symptoms: [debug, failing, broken, crash, crashes, hangs]
+    symptoms_i18n:
+      vi: [treo, văng]
   - id: learn
     keywords: [retro, retrospective, postmortem, "lessons learned", remember, "note that"]
     keywords_i18n:

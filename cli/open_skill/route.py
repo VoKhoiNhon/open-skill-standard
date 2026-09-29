@@ -68,14 +68,31 @@ def _phase_order(tax) -> list[str]:
 
 
 def target_phase(task: str, tax: dict) -> str:
-    """Phase with the most keyword hits; ties go to the phase mentioned first ("add a model with tests" is build)."""
-    best, key = "build", None
+    """Phase with the most keyword hits. Ties go to the phase mentioned first ("add a model with tests" is build),
+    not counting generic verbs ("write a postmortem" is learn); a symptom beats build and release ("the deploy
+    pipeline is failing" is operate)."""
+    tied, top = {}, 0
     for p in tax["phases"]:
-        pos = _positions(task, registry.localized(p, "keywords"))
-        if pos:
-            k = (-len(pos), min(pos))
-            if key is None or k < key:
-                best, key = p["id"], k
+        n = _hits(task, registry.localized(p, "keywords"))
+        if n > top:
+            tied, top = {}, n
+        if n and n == top:
+            tied[p["id"]] = p
+
+    def first(pid: str, generic: bool = True) -> int:
+        p = tied[pid]
+        kw = registry.localized(p, "keywords")
+        if not generic:
+            kw = [k for k in kw if k not in registry.localized(p, "generic")]
+        return min(_positions(task, kw), default=len(task))
+
+    if not tied:
+        return "build"
+    best = min(tied, key=lambda pid: (first(pid, generic=False), first(pid)))
+    if best == "verify" and "build" in tied and first("build") < first("verify"):
+        best = "build"  # "write tests": tests are code you write
+    if best in ("build", "release"):
+        best = next((pid for pid, p in tied.items() if _hits(task, registry.localized(p, "symptoms"))), best)
     return best
 
 

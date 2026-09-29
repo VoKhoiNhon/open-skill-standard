@@ -331,3 +331,20 @@ def test_bug_a_note_scoped_to_a_skills_invoke_name_is_attached(tmp_path):
     knowledge.learn("Plans list the rollback step", [f"skill:{step['invoke']}"])
     r = route.route("write the plan for the feature", proj(tmp_path, "x.py"), REG, ALL, role="data-engineer", size="medium")
     assert any("rollback" in k["text"] for k in r["knowledge"])
+
+
+@pytest.mark.parametrize("task, phase", [
+    ("write a postmortem for yesterday's outage", "learn"),
+    ("write a data contract for the orders table", "specify"),
+    ("write an ADR for moving to a message queue", "plan"),
+    ("the deploy pipeline is failing", "operate"),
+    ("the release build is broken on main", "operate"),
+    ("add a revenue model with tests", "build"),
+    ("add alerts for the payment API latency", "build"),
+    ("viết test tự động cho luồng đăng ký", "build"),
+    ("add error handling to the checkout API", "build"),
+    ("sửa lỗi chính tả trong trang đăng nhập", "build"),
+])
+def test_target_phase_ties_follow_intent_not_generic_verbs(task, phase):
+    tax = registry.load_taxonomy(Path(__file__).parents[1])
+    assert route.target_phase(task, tax) == phase
