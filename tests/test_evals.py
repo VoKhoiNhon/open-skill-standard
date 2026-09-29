@@ -75,6 +75,27 @@ def test_lexical_report_splits_train_and_holdout():
     assert (rep["validation"]["tp"], rep["validation"]["tn"]) == (1, 1)
 
 
+def test_lexical_report_has_a_slice_per_locale():
+    d = {"pdf-tools": "Extract text and tables from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
+    sets = {"pdf-tools": [{"q": "extract tables from this PDF", "trigger": True},
+                          {"q": "trích bảng từ file PDF này", "trigger": True, "locale": "vi"},
+                          {"q": "viết truy vấn SQL doanh thu", "trigger": False, "locale": "vi"},
+                          {"q": "trích văn bản từ báo cáo", "trigger": True, "locale": "vi", "holdout": True}]}
+    rep = evals.trigger_report_lexical(sets, d)["pdf-tools"]
+    assert set(rep["locales"]) == {"vi"}  # English is the whole report, not a slice
+    vi = rep["locales"]["vi"]
+    assert (vi["train"]["tp"], vi["train"]["tn"]) == (1, 1) and (vi["validation"]["fn"], vi["validation"]["tp"]) == (1, 0)
+    assert rep["train"]["tp"] == 2  # the slice is also part of the whole
+
+
+def test_trigger_query_locale_is_a_language_tag(tmp_path):
+    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, locale: Vietnamese}\n")
+    with pytest.raises(ValueError):
+        evals.load_trigger_sets(tmp_path)
+    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hola, trigger: true, locale: es}\n")
+    assert evals.load_trigger_sets(tmp_path)["x"][0]["locale"] == "es"
+
+
 # Regression floors for the lexical proxy, just under the current scores so losing one query fails:
 # skill -> (precision, recall) on the tuning queries. Raise them when descriptions improve, never lower them silently.
 TUNE_FLOORS = {
