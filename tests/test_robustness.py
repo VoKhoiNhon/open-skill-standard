@@ -142,3 +142,35 @@ def test_disk_full_during_a_backup_leaves_no_half_written_archive(home, monkeypa
     with pytest.raises(OSError):
         userdata.backup(home, "pre-upgrade")
     assert userdata.list_backups(home) == [] and list((home / "backups").iterdir()) == []
+
+
+needs_symlinks = pytest.mark.skipif(sys.platform == "win32", reason="symlinks need developer mode on Windows")
+
+
+@needs_symlinks
+def test_backup_includes_notes_behind_a_linked_folder(home, tmp_path):
+    # rglob does not follow links, so a knowledge/ folder linked to a synced drive was left out of every backup,
+    # including the one taken before a migration.
+    import zipfile
+
+    elsewhere = tmp_path / "synced notes"
+    elsewhere.mkdir()
+    home.mkdir()
+    (home / "knowledge").symlink_to(elsewhere, target_is_directory=True)
+    nid = knowledge.learn("Keep me.", ["role:*"])
+    names = zipfile.ZipFile(userdata.backup(home, "manual")).namelist()
+    assert f"knowledge/{nid}.md" in names
+
+
+@needs_symlinks
+def test_a_linked_home_backs_up_and_restores(tmp_path, monkeypatch):
+    real = tmp_path / "real home"
+    real.mkdir()
+    (tmp_path / "link").symlink_to(real, target_is_directory=True)
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "link"))
+    knowledge.learn("Old.", ["role:*"])
+    archive = userdata.backup(tmp_path / "link", "manual")
+    knowledge.learn("Newer.", ["role:*"])
+    userdata.restore(tmp_path / "link", archive)
+    assert [n["text"] for n in knowledge.load_knowledge()] == ["Old."]
+    assert (tmp_path / "link").is_symlink()

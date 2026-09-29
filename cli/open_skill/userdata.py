@@ -59,13 +59,26 @@ def ensure_writable(home: Path) -> None:
 BACKUP_DIR = "backups"
 
 
+def _files(home: Path) -> list[Path]:
+    """Every file in the user layer, following linked folders (a notes folder on a synced drive) once each."""
+    out, seen = [], set()
+    for d, dirs, names in os.walk(home, followlinks=True):
+        real = os.path.realpath(d)
+        if real in seen:
+            dirs[:] = []
+            continue
+        seen.add(real)
+        out += [Path(d) / n for n in names if (Path(d) / n).is_file()]
+    return sorted(out)
+
+
 def backup(home: Path, label: str = "manual") -> Path | None:
     """Zip the whole user layer (except older backups) to backups/<UTC time>-<label>.zip. None if nothing to save."""
     import datetime as dt
     import zipfile
 
     home = Path(home)
-    files = [p for p in sorted(home.rglob("*")) if p.is_file() and BACKUP_DIR not in p.relative_to(home).parts]
+    files = [p for p in _files(home) if BACKUP_DIR not in p.relative_to(home).parts]
     if not files:
         return None
     (home / BACKUP_DIR).mkdir(parents=True, exist_ok=True)
