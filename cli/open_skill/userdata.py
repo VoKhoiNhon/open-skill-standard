@@ -130,6 +130,10 @@ def restore(home: Path, archive: Path) -> Path | None:
     home = Path(home)
     with zipfile.ZipFile(archive) as z:
         _check_members(z.namelist())
+        links = [e for e in home.iterdir() if e.is_symlink()] if home.is_dir() else []
+        if links:  # replacing them would either break the user's link or delete files outside the home
+            raise UnsafeBackupError(f"{links[0]} is a link to {os.path.realpath(links[0])}; restore never writes "
+                                    f"through links. Replace it with a folder, or unzip {archive} there by hand")
         safety = backup(home, "before-restore")
         staging = Path(tempfile.mkdtemp(dir=home if home.exists() else None, prefix=".restore-"))
         z.extractall(staging)

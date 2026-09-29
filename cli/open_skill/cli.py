@@ -525,6 +525,9 @@ def cmd_upgrade(args):
         except FileNotFoundError as e:
             print(e, file=sys.stderr)
             return 1
+        except userdata.UnsafeBackupError as e:
+            print(e, file=sys.stderr)
+            return 2
         return 0
     reg = _registry(args)
     seeds = {rid: r.get("seeds", []) for rid, r in reg.roles.items()}

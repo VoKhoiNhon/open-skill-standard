@@ -163,6 +163,26 @@ def test_backup_includes_notes_behind_a_linked_folder(home, tmp_path):
 
 
 @needs_symlinks
+def test_restore_refuses_to_write_through_a_linked_folder(home, tmp_path, capsys):
+    # restore() called shutil.rmtree on the link, which raises, after it had already deleted other entries.
+    elsewhere = tmp_path / "synced notes"
+    elsewhere.mkdir()
+    home.mkdir()
+    (home / "knowledge").symlink_to(elsewhere, target_is_directory=True)
+    knowledge.learn("Old.", ["role:*"])
+    archive = userdata.backup(home, "manual")
+    knowledge.learn("Newer.", ["role:*"])
+    before = _snapshot(home)
+    assert cli.main(["restore", str(archive)]) == 2
+    assert "link" in capsys.readouterr().err
+    (home / "backups" / archive.name).rename(home / "backups" / archive.name.replace("-manual", "-pre-upgrade"))
+    assert cli.main(["upgrade", "--rollback"]) == 2
+    assert "link" in capsys.readouterr().err
+    before = _snapshot(home)
+    assert _snapshot(home) == before and len(list(elsewhere.glob("*.md"))) == 2
+
+
+@needs_symlinks
 def test_a_linked_home_backs_up_and_restores(tmp_path, monkeypatch):
     real = tmp_path / "real home"
     real.mkdir()
