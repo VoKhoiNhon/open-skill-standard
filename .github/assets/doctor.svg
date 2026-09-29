@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="790" height="606" viewBox="0 0 790 606" role="img" aria-label="open-skill doctor: open-skill doctor" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5">
+<rect x="0.5" y="0.5" width="789" height="605" rx="10" fill="#161b22" stroke="#30363d"/>
+<circle cx="20" cy="18" r="5.5" fill="#ff5f57"/>
+<circle cx="38" cy="18" r="5.5" fill="#febc2e"/>
+<circle cx="56" cy="18" r="5.5" fill="#28c840"/>
+<text x="395" y="22.5" text-anchor="middle" fill="#8b949e" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif" font-size="12">open-skill doctor</text>
+<text x="20" y="48" fill="#e6edf3" font-weight="600" textLength="142.5" lengthAdjust="spacingAndGlyphs"><tspan fill="#3fb950">$</tspan> open-skill doctor</text>
+<text x="20" y="66" fill="#c9d1d9" textLength="427.5" lengthAdjust="spacingAndGlyphs">open-skill X.Y.Z  registry=&lt;checkout&gt;  home=~/.open-skill</text>
+<text x="20" y="84" fill="#c9d1d9" textLength="397.5" lengthAdjust="spacingAndGlyphs">  agents: claude-code (78 skills) → open-skill agents</text>
+<text x="20" y="102" fill="#e3b341" textLength="727.5" lengthAdjust="spacingAndGlyphs">  · addy-agent-skills        0 installed / 25 described  → npx skills add addyosmani/agent-skills</text>
+<text x="20" y="120" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ anthropic-skills        19 installed / 19 described</text>
+<text x="20" y="138" fill="#e3b341" textLength="742.5" lengthAdjust="spacingAndGlyphs">  · bmad-method              0 installed / 30 described  → npx skills add bmad-code-org/BMAD-METHOD</text>
+<text x="20" y="156" fill="#e3b341" textLength="45" lengthAdjust="spacingAndGlyphs">    -g</text>
+<text x="20" y="174" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ claude-code-builtin     10 installed / 10 described</text>
+<text x="20" y="192" fill="#e3b341" textLength="697.5" lengthAdjust="spacingAndGlyphs">  · codegraph                0 installed / 3 described  → npm i -g @colbymchenry/codegraph &amp;&amp;</text>
+<text x="20" y="210" fill="#e3b341" textLength="157.5" lengthAdjust="spacingAndGlyphs">    codegraph install</text>
+<text x="20" y="228" fill="#c9d1d9" textLength="405" lengthAdjust="spacingAndGlyphs">  ✓ context7                 4 installed / 4 described</text>
+<text x="20" y="246" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ knowledge-work-data     10 installed / 10 described</text>
+<text x="20" y="264" fill="#e3b341" textLength="652.5" lengthAdjust="spacingAndGlyphs">  · knowledge-work-design    0 installed / 7 described  → claude plugin marketplace add</text>
+<text x="20" y="282" fill="#e3b341" textLength="690" lengthAdjust="spacingAndGlyphs">    anthropics/knowledge-work-plugins &amp;&amp; claude plugin install design@knowledge-work-plugins</text>
+<text x="20" y="300" fill="#c9d1d9" textLength="442.5" lengthAdjust="spacingAndGlyphs">  ✓ knowledge-work-engineering  10 installed / 10 described</text>
+<text x="20" y="318" fill="#e3b341" textLength="735" lengthAdjust="spacingAndGlyphs">  · knowledge-work-product-management   0 installed / 8 described  → claude plugin marketplace add</text>
+<text x="20" y="336" fill="#e3b341" textLength="465" lengthAdjust="spacingAndGlyphs">    anthropics/knowledge-work-plugins &amp;&amp; claude plugin install</text>
+<text x="20" y="354" fill="#e3b341" textLength="337.5" lengthAdjust="spacingAndGlyphs">    product-management@knowledge-work-plugins</text>
+<text x="20" y="372" fill="#c9d1d9" textLength="405" lengthAdjust="spacingAndGlyphs">  ✓ open-skill               4 installed / 4 described</text>
+<text x="20" y="390" fill="#c9d1d9" textLength="405" lengthAdjust="spacingAndGlyphs">  ✓ ponytail                 6 installed / 6 described</text>
+<text x="20" y="408" fill="#e3b341" textLength="645" lengthAdjust="spacingAndGlyphs">  · spec-kit                 0 installed / 18 described  → uv tool install specify-cli</text>
+<text x="20" y="426" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ superpowers             15 installed / 15 described</text>
+<text x="20" y="444" fill="#e3b341" textLength="547.5" lengthAdjust="spacingAndGlyphs">  · taste-skill              0 installed / 13 described  → npx skills add</text>
+<text x="20" y="462" fill="#e3b341" textLength="322.5" lengthAdjust="spacingAndGlyphs">    https://github.com/Leonxlnx/taste-skill</text>
+<text x="20" y="480" fill="#e3b341" textLength="727.5" lengthAdjust="spacingAndGlyphs">  · vercel-agent-skills      0 installed / 9 described  → npx skills add vercel-labs/agent-skills</text>
+<text x="20" y="498" fill="#c9d1d9" textLength="210" lengthAdjust="spacingAndGlyphs">  harvested (no manifest): 0</text>
+<text x="20" y="516" fill="#c9d1d9" textLength="705" lengthAdjust="spacingAndGlyphs">  skill health: 1 error(s), 0 warning(s) across installed skills → open-skill lint --installed</text>
+<text x="20" y="534" fill="#c9d1d9" textLength="630" lengthAdjust="spacingAndGlyphs">  security audit (heuristic): 0 high, 0 medium, 0 low → open-skill audit --installed</text>
+<text x="20" y="552" fill="#e3b341" textLength="600" lengthAdjust="spacingAndGlyphs">  ! same skill name from several sources: claude-api, document-skills:claude-api</text>
+<text x="20" y="570" fill="#e3b341" textLength="585" lengthAdjust="spacingAndGlyphs">  ! same skill name from several sources: code-review, engineering:code-review</text>
+<text x="20" y="588" fill="#e3b341" textLength="270" lengthAdjust="spacingAndGlyphs">  · no profile yet → open-skill init</text>
+</svg>
