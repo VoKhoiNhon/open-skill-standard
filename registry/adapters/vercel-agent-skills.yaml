@@ -1,0 +1,71 @@
+source: vercel-agent-skills
+upstream: https://github.com/vercel-labs/agent-skills
+license: MIT
+summary: React, Next.js and React Native guidance, UI and writing guideline reviews, and Vercel deployment and cost tuning.
+install:
+  skills-cli: "npx skills add vercel-labs/agent-skills"
+detect:
+  # The skills CLI names installed folders after each skill's frontmatter name; four of them add a "vercel-" prefix.
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/vercel-{name}/SKILL.md", invoke: "vercel-{name}"}
+  - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project_skills}/vercel-{name}/SKILL.md", invoke: "vercel-{name}"}
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: react-best-practices
+    description: Prioritized React and Next.js performance rules - request waterfalls, bundle size, server work, re-renders
+    phases: [build, review]
+    roles: {frontend-developer: 0.6, fullstack-developer: 0.5}
+    task_size: [small, medium, large]
+    triggers: [react, next.js, nextjs, bundle, waterfall, re-render]
+  - name: composition-patterns
+    description: React composition patterns for component libraries - compound components, context providers, fewer boolean props
+    phases: [build, review]
+    roles: {frontend-developer: 0.5, fullstack-developer: 0.4}
+    task_size: [small, medium, large]
+    triggers: ["compound components", "render props", "component library", "boolean props"]
+  - name: react-view-transitions
+    description: Page and element animations with the React View Transition API, including Next.js route changes
+    phases: [build]
+    roles: {frontend-developer: 0.5, fullstack-developer: 0.3}
+    task_size: [small, medium]
+    triggers: ["view transition", "page transition", "route animation", "shared element"]
+  - name: react-native-skills
+    description: React Native and Expo performance rules - lists, animations, native modules
+    phases: [build, review]
+    roles: {mobile-developer: 0.6, frontend-developer: 0.3}
+    task_size: [small, medium, large]
+    triggers: ["react native", expo, flatlist, reanimated]
+  - name: web-design-guidelines
+    description: Check UI code against a published web interface checklist (accessibility, focus, forms, performance); fetches the rules at run time
+    phases: [review]
+    roles: {frontend-developer: 0.6, ux-designer: 0.5, fullstack-developer: 0.4}
+    alternatives: [knowledge-work-design/accessibility-review, knowledge-work-design/design-critique]
+    task_size: [small, medium]
+    triggers: ["review my ui", "web interface guidelines", "audit design", "review ux"]
+  - name: writing-guidelines
+    description: Check docs and prose against a published writing handbook (voice, tone, style); fetches the rules at run time
+    phases: [review]
+    roles: {technical-writer: 0.6, product-manager: 0.3}
+    task_size: [small, medium]
+    triggers: ["voice and tone", "writing style", prose, "style guide"]
+  - name: deploy-to-vercel
+    description: Deploy an app to Vercel and return the preview or production URL
+    phases: [release]
+    roles: {frontend-developer: 0.5, fullstack-developer: 0.5, devops-engineer: 0.3}
+    task_size: [small, medium]
+    triggers: [vercel, "preview deployment", "deploy my app", "push this live"]
+  - name: vercel-cli-with-tokens
+    description: Drive the Vercel CLI with an access token instead of an interactive login - deploys, env vars, domains
+    phases: [release, operate]
+    roles: {devops-engineer: 0.5, cloud-engineer: 0.4}
+    requires: ["tool:vercel"]
+    task_size: [small, medium]
+    triggers: [vercel, "vercel token", "vercel env", "environment variables"]
+  - name: vercel-optimize
+    description: Metric-first cost and performance review of a deployed Vercel project, ending in ranked, file-grounded recommendations
+    phases: [operate]
+    roles: {devops-engineer: 0.5, cloud-engineer: 0.5, frontend-developer: 0.4, site-reliability-engineer: 0.4}
+    requires: ["tool:vercel"]
+    task_size: [medium, large]
+    triggers: [vercel, "vercel bill", "function invocations", "build minutes", "slow routes", caching]

@@ -273,6 +273,8 @@ cases:
      include: [knowledge-work-engineering/documentation]}
   - {id: tech-writer-release-notes, role: technical-writer, task: "write the release notes for version 2",
      include: [knowledge-work-engineering/documentation], exclude: [superpowers/subagent-driven-development]}
+  - {id: tech-writer-style, role: technical-writer, task: "review the getting started guide for voice and tone",
+     phases: [review], include: [vercel-agent-skills/writing-guidelines]}
   - {id: scrum-master, role: scrum-master, task: "plan the sprint and run the retrospective",
      first: knowledge-work-product-management/sprint-planning}
   - {id: scrum-master-bmad, role: scrum-master, task: "plan the sprint", files: [_bmad/config.toml],
