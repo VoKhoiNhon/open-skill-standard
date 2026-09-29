@@ -108,7 +108,16 @@ def cmd_search(args):
     reg = _registry(args)
     installed = scan.scan(reg, Path(args.project) if args.project else None)
     have = {i.id for i in installed}
-    for sid, score in index.search(index.build_index(reg, installed), args.query, args.limit):
+    known = {"role": set(reg.roles), "phase": {p["id"] for p in reg.taxonomy["phases"]},
+             "source": set(reg.adapters) | {i.id.split("/")[0] for i in installed}}
+    for opt, values in known.items():
+        v = getattr(args, opt)
+        if v and v not in values:
+            print(f"unknown {opt}: {v} (one of: {', '.join(sorted(values))})", file=sys.stderr)
+            return 2
+    hits = index.search(index.build_index(reg, installed), args.query, limit=len(reg.skills) + len(installed))
+    hits = [(sid, score) for sid, score in hits if index.matches(reg, sid, args.role, args.phase, args.source)]
+    for sid, score in hits[:args.limit]:
         print(f"{score:7.2f}  {sid}{'' if sid in have else '  (not installed)'}")
     return 0
 
@@ -490,6 +499,9 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("query")
     s.add_argument("--limit", type=int, default=10)
     s.add_argument("--project")
+    s.add_argument("--role", help="only skills this role's pack lists or whose manifest names it")
+    s.add_argument("--phase", help="only skills that act in this phase")
+    s.add_argument("--source", help="only skills from this adapter source (or 'harvested')")
     s.set_defaults(fn=cmd_search)
     s = sub.add_parser("route", help="choose and order skills for a task")
     s.add_argument("task")

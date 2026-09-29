@@ -43,6 +43,20 @@ def test_route_why_not(capsys, tmp_path):
     assert not (tmp_path / "h" / "events.jsonl").exists()
 
 
+def test_search_filters_by_role_phase_and_source(capsys):
+    code, out = run(capsys, "search", "plan spec test data", "--phase", "plan")
+    assert code == 0
+    assert {line.split()[1] for line in out.splitlines()} == {"spec-kit/plan", "superpowers/writing-plans", "superpowers/brainstorming"}
+    code, out = run(capsys, "search", "plan spec test data", "--phase", "plan", "--source", "spec-kit")
+    assert [line.split()[1] for line in out.splitlines()] == ["spec-kit/plan"]
+    code, out = run(capsys, "search", "plan spec test data", "--role", "data-analyst")
+    assert [line.split()[1] for line in out.splitlines()] == ["knowledge-work-data/validate-data"]
+    code, out = run(capsys, "search", "plan", "--limit", "1", "--phase", "plan")
+    assert len(out.splitlines()) == 1
+    for bad in (("--role", "astronaut"), ("--phase", "dreaming"), ("--source", "nowhere")):
+        assert run(capsys, "search", "plan", *bad)[0] == 2
+
+
 def test_feedback_appends_event(capsys, tmp_path):
     code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
     assert code == 0
