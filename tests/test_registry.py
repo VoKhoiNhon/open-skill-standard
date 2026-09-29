@@ -110,3 +110,24 @@ def test_canonical_keyword_lists_are_english_and_other_languages_sit_in_locale_b
     stray = {where: [w for w in words if not w.isascii()] for where, words in lists.items()}
     assert not {k: v for k, v in stray.items() if v}, "move non-English words into the <field>_i18n block"
     assert any(p.get("keywords_i18n", {}).get("vi") for p in tax["phases"])  # Vietnamese stays supported
+
+
+def _shipped_seeds(reg) -> dict[str, str]:
+    from open_skill import userdata
+    return {f"{rid}/{s['id']}": userdata.text_hash(s["text"]) for rid, r in reg.roles.items() for s in r.get("seeds", [])}
+
+
+def _renamed(released: dict, current: dict) -> dict[str, str]:
+    by_hash = {h: sid for sid, h in current.items()}
+    return {old: by_hash[h] for old, hashes in released.items() if old not in current for h in hashes if h in by_hash}
+
+
+def test_released_seed_ids_are_never_renamed():
+    """A released seed id may be retired, never renamed: when an id is gone, no seed may ship one of its wordings."""
+    released = yaml.safe_load((FIX / "released-seeds.yaml").read_text())
+    reg = registry.load()
+    assert not _renamed(released, _shipped_seeds(reg)), "retire the old id and add a new seed instead (SPEC §5.1)"
+    seed = reg.roles["data-engineer"]["seeds"][0]
+    old, seed["id"] = seed["id"], "renamed-" + seed["id"]
+    assert _renamed(released, _shipped_seeds(reg)) == {f"data-engineer/{old}": f"data-engineer/renamed-{old}"}
+
