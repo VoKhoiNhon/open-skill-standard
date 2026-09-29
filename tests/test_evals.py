@@ -127,3 +127,17 @@ def test_agent_report_uses_rates_and_threshold():
     assert rep["s"]["rates"] == {"yes": 1.0, "no": 0.0, "flaky": 1 / 3}
     both = rep["s"]["train"]["tp"] + rep["s"]["validation"]["tp"]
     assert both == 1
+
+
+def test_suggest_terms_finds_shared_words_of_missed_positives():
+    labels = [{"q": "rotate the api keys for staging", "trigger": True},
+              {"q": "rotate api keys before the audit", "trigger": True},
+              {"q": "rotate the logo image", "trigger": False},
+              {"q": "store secrets in the vault", "trigger": True},
+              {"q": "list vault audit logs", "trigger": False}]
+    fired = [False, False, False, True, True]
+    s = evals.suggest_terms(labels, fired, "Store secrets in a vault. Use for secrets and vault questions.")
+    assert s["add"][:2] == [("api", 2), ("api keys", 2)]  # shared by both misses, absent from the description
+    assert "rotate" not in dict(s["add"])  # also in a near miss, so adding it would cause false alarms
+    assert "audit" not in dict(s["add"])
+    assert s["false_alarms"] == [("vault", 1)]  # the description word that matched the near miss
