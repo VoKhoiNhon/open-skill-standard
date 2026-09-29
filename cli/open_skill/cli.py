@@ -325,8 +325,26 @@ def cmd_status(args):
     return 0
 
 
+def _eval_triggers(args, reg):
+    sets = evals.load_trigger_sets(Path(args.cases) if args.cases else None)
+    rep = evals.trigger_report_lexical(sets, evals.skill_descriptions(reg))
+    if args.format == "json":
+        _print(rep)
+        return 0
+    print("lexical proxy of description-based triggering (not a model run)")
+    for skill, m in rep.items():
+        print(f"{skill:28} precision {m['precision']:.2f}  recall {m['recall']:.2f}")
+        for q in m["missed"]:
+            print(f"    missed: {q}")
+        for q in m["false_alarms"]:
+            print(f"    false alarm: {q}")
+    return 0
+
+
 def cmd_eval(args):
     reg = _registry(args)
+    if args.kind == "triggers":
+        return _eval_triggers(args, reg)
     cases = evals.load_routing_cases(Path(args.cases) if args.cases else None)
     rep = evals.routing_report(cases, reg, evals.all_installed(reg))
     if args.format == "json":
@@ -457,8 +475,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_status)
     s = sub.add_parser("eval", help="measure routing quality against labeled cases")
-    s.add_argument("kind", choices=["routing"])
-    s.add_argument("--cases", help="YAML file with cases (default: the bundled evals/routing.yaml)")
+    s.add_argument("kind", choices=["routing", "triggers"])
+    s.add_argument("--cases", help="routing: a YAML file of cases; triggers: a folder of trigger sets (default: bundled)")
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.set_defaults(fn=cmd_eval)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
