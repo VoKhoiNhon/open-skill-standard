@@ -291,3 +291,12 @@ def test_bug_a_correction_recorded_by_invoke_name_raises_that_skill(tmp_path):
     decisions = route.route("write the plan for the feature", p, REG, ALL, role="fullstack-developer", size="medium",
                             decisions=True)["decisions"]
     assert any(d["id"] == other.id and "your history +" in d.get("why", "") for d in decisions["candidates"])
+
+
+def test_bug_a_note_scoped_to_a_skills_invoke_name_is_attached(tmp_path):
+    # The chain shows agents `invoke` names; a note saved as skill:<invoke> never matched (only skill:<id> did).
+    r = route.route("write the plan for the feature", proj(tmp_path, "x.py"), REG, ALL, role="data-engineer", size="medium")
+    step = next(s for s in r["chain"] if s["invoke"] != s["id"])
+    knowledge.learn("Plans list the rollback step", [f"skill:{step['invoke']}"])
+    r = route.route("write the plan for the feature", proj(tmp_path, "x.py"), REG, ALL, role="data-engineer", size="medium")
+    assert any("rollback" in k["text"] for k in r["knowledge"])

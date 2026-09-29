@@ -309,7 +309,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         s["effort"] = effort
 
     proj_key = f"project:{proj['path']}"
-    wanted = {f"skill:{s['id']}" for s in chain} | {f"role:{r}" for r in mix} | {"role:*", proj_key}
+    wanted = {f"skill:{s[k]}" for s in chain for k in ("id", "invoke")} | {f"role:{r}" for r in mix} | {"role:*", proj_key}
     wanted |= {f"phase:{p}" for p in window}
     nodes = [k for k in knowledge.load_knowledge() if wanted & set(k.get("applies_to", []))]
     nodes.sort(key=lambda k: str(k.get("created", "")), reverse=True)  # newest first...
