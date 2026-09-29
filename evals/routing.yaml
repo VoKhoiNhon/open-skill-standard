@@ -112,6 +112,14 @@ cases:
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement, claude-code-builtin/security-review]}
   - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
      include: [knowledge-work-data/sql-queries]}
+  - {id: dba-slow, role: database-administrator, task: "the orders database is slow since yesterday",
+     first: superpowers/systematic-debugging, include: [knowledge-work-data/sql-queries]}
+  - {id: dba-review-migration, role: database-administrator, task: "review the migration that adds a column to orders",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: dba-vietnamese, role: database-administrator, task: "thêm index cho truy vấn đơn hàng chậm",
+     include: [knowledge-work-data/write-query]}
+  - {id: dba-upgrade-plan, role: database-administrator, task: "plan the upgrade to the new database major version",
+     phases: [plan], exclude: [superpowers/subagent-driven-development]}
   - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
      include: [superpowers/subagent-driven-development]}
   - {id: sysadmin-spec-kit, role: system-administrator, task: "add log rotation to the web servers",
