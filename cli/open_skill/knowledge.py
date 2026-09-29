@@ -87,7 +87,12 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
     return nid
 
 
+NODE_ID = re.compile(r"[A-Za-z0-9][\w.-]*")  # a file name inside knowledge/, never a path
+
+
 def forget(node_id: str) -> bool:
+    if not NODE_ID.fullmatch(node_id):
+        return False
     _prepare()
     path = _kdir() / f"{node_id}.md"
     if not path.exists():

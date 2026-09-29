@@ -324,3 +324,13 @@ def test_reading_a_fresh_home_creates_nothing_so_it_is_not_mistaken_for_legacy_d
     knowledge.export(tmp_path / "out.zip")
     assert not (home / "knowledge").exists()
     assert userdata.pending(home) == []
+
+
+def test_forget_never_deletes_files_outside_the_notes_folder(home, tmp_path):
+    # Bug: forget() joined the id onto knowledge/ unchecked, so `forget ../../x` deleted x.md anywhere on disk.
+    victim = tmp_path / "x.md"
+    victim.write_text("---\nid: x\n---\nnot a note\n")
+    knowledge.learn("Keep this.", ["role:*"])
+    for bad in ("../../x", str(victim.with_suffix("")), "", ".", "sub/x"):
+        assert knowledge.forget(bad) is False
+    assert victim.exists() and len(knowledge.load_knowledge()) == 1
