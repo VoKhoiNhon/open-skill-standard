@@ -68,11 +68,30 @@ def _files(root: Path):
         yield from (Path(d, x) for x in sorted(names + [x for x in dirs if os.path.islink(os.path.join(d, x))]))
 
 
-def audit_file(path: Path) -> list[Finding]:
+CWE_LINK = "https://cwe.mitre.org/data/definitions/59.html"
+rule("link-outside-skill", "high", None,
+     "a symbolic link points outside the skill folder; following it could read or run files the skill does not ship",
+     CWE_LINK)
+
+
+def _flag(rule_id: str, path: Path, excerpt: str) -> Finding:
+    r = RULES[rule_id]
+    return Finding(r.severity, r.id, str(path), 0, _excerpt(excerpt), r.source, r.message)
+
+
+def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
+    root = root or path.parent
+    if path.is_symlink():  # never read through a link; a link inside the skill is audited at its target
+        target = Path(os.path.realpath(path))
+        inside = target.is_relative_to(Path(os.path.realpath(root)))
+        return [] if inside else [_flag("link-outside-skill", path, f"-> {os.readlink(path)}")]
     return audit_text(path.read_text(errors="replace"), str(path))
 
 
 def audit_paths(paths) -> list[Finding]:
     """Audit skill folders or single files; findings sorted most severe first."""
-    out = [f for p in map(Path, paths) for file in _files(p) for f in audit_file(file)]
+    out = []
+    for p in paths:
+        p = Path(os.path.realpath(p))  # a path the user names (often an installed link) is audited at its target
+        out += [f for file in _files(p) for f in audit_file(file, p if p.is_dir() else p.parent)]
     return sorted(out, key=lambda f: (SEVERITIES.index(f.severity), f.file, f.line))

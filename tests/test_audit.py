@@ -41,3 +41,29 @@ def test_audit_paths_walks_every_file_and_sorts_by_severity(toy_rule, monkeypatc
 def test_audit_paths_accepts_a_single_file(toy_rule, tmp_path):
     (tmp_path / "SKILL.md").write_text("danger\n")
     assert [f.line for f in audit.audit_paths([tmp_path / "SKILL.md"])] == [1]
+
+
+def test_link_leaving_the_skill_is_reported_and_never_read(toy_rule, tmp_path):
+    outside = tmp_path / "outside.txt"
+    outside.write_text("danger\n")
+    skill = tmp_path / "skill"
+    skill.mkdir()
+    (skill / "notes.md").symlink_to(outside)
+    (skill / "linked-dir").symlink_to(tmp_path)
+    found = audit.audit_paths([skill])
+    assert sorted(f.file for f in found if f.rule == "link-outside-skill") == [str(skill / "linked-dir"), str(skill / "notes.md")]
+    assert "toy" not in {f.rule for f in found}
+
+
+def test_link_inside_the_skill_is_fine(toy_rule, tmp_path):
+    (tmp_path / "a.md").write_text("ok\n")
+    (tmp_path / "b.md").symlink_to(tmp_path / "a.md")
+    assert audit.audit_paths([tmp_path]) == []
+
+
+def test_a_linked_skill_folder_given_by_the_user_is_audited_at_its_target(toy_rule, tmp_path):
+    real = tmp_path / "real"
+    real.mkdir()
+    (real / "SKILL.md").write_text("danger\n")
+    (tmp_path / "installed").symlink_to(real)
+    assert [f.rule for f in audit.audit_paths([tmp_path / "installed"])] == ["toy"]
