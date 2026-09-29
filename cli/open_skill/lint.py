@@ -2,6 +2,7 @@
 
 import re
 import unicodedata
+from urllib.parse import unquote
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -94,7 +95,9 @@ for _id, _sev, _rx, _msg, _src in PATTERNS:
 rule("review-filtering", "warning", "a review skill does not tell the model to report only severe findings", SONNET5)
 rule("shouting", "warning", "no more than five lines outside code blocks use capitalized MUST, NEVER, ALWAYS, CRITICAL or IMPORTANT",
      PRACTICES + "#tool-usage")
-rule("missing-reference", "error", "every relative file the body links to or names exists", SPEC)
+rule("missing-reference", "error", "every relative file the body links to outside code exists", SPEC + "#file-references")
+rule("missing-mention", "warning", "every references/, scripts/ or assets/ path the body names in inline code exists",
+     SPEC + "#file-references")
 rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
 rule("marketplace-field", "error", "marketplace.json has `name`, `owner` and `plugins`", MARKETPLACE_DOCS)
 rule("marketplace-plugin", "error", "every marketplace plugin entry has `name` and `source`", MARKETPLACE_DOCS)
@@ -198,19 +201,34 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
     return out
 
 
-LINK = re.compile(r"\]\(([^)\s]+)\)|`((?:references|scripts|assets)/[^`\s]+)`")
+LINK = re.compile(r"\]\((?:<([^>\n]+)>|([^)\s]+))")
+MENTION = re.compile(r"`((?:references|scripts|assets)/[^`\s]+)`")
+CODE_SPAN = re.compile(r"(`+)(?!`).+?(?<!`)\1")
 
 
-def missing_references(body: str, base: Path) -> list[str]:
-    """Relative files a skill points to that do not exist (URLs, anchors and <placeholders> are skipped)."""
+def _absent(refs, base: Path) -> list[str]:
+    """Relative file paths among refs that do not exist under base; URLs, anchors and placeholders are skipped."""
     out = []
-    for m in LINK.finditer(body):
-        ref = (m.group(1) or m.group(2)).split("#")[0]
-        if not ref or re.match(r"^[a-z]+:", ref) or ref.startswith(("/", "~")) or re.search(r"[<>{}*]", ref):
+    for ref in refs:
+        ref = unquote(ref.split("#")[0])
+        if not ref or re.match(r"^[a-z]+:", ref) or ref.startswith(("/", "~")) or re.search(r"[<>{}*\[\]$]", ref):
+            continue
+        if "/" not in ref and "." not in ref:  # a bare word such as (URL) or (link) is a template placeholder
             continue
         if not (base / ref).exists():
             out.append(ref)
     return sorted(set(out))
+
+
+def missing_references(body: str, base: Path) -> list[str]:
+    """Files the body links to, outside code, that do not exist."""
+    text = CODE_SPAN.sub("", prose(body))
+    return _absent((m.group(1) or m.group(2) for m in LINK.finditer(text)), base)
+
+
+def missing_mentions(body: str, base: Path) -> list[str]:
+    """references/, scripts/ or assets/ paths named in inline code, outside code blocks, that do not exist."""
+    return _absent((m.group(1) for m in MENTION.finditer(prose(body))), base)
 
 
 def lint_file(path: Path) -> list[Finding]:
@@ -218,8 +236,11 @@ def lint_file(path: Path) -> list[Finding]:
     folder = path.parent.name if path.name == "SKILL.md" else None
     text = path.read_text(errors="replace")
     out = lint_text(text, str(path), folder)
-    for ref in missing_references(frontmatter.parse(text)[1], path.parent):
-        out.append(_finding(path, "missing-reference", f"references '{ref}', which does not exist"))
+    body = frontmatter.parse(text)[1]
+    for ref in missing_references(body, path.parent):
+        out.append(_finding(path, "missing-reference", f"links to '{ref}', which does not exist"))
+    for ref in missing_mentions(body, path.parent):
+        out.append(_finding(path, "missing-mention", f"names '{ref}', which does not exist; link it if the skill ships it"))
     return out
 
 

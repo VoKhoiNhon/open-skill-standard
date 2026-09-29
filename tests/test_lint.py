@@ -103,7 +103,7 @@ def test_missing_references_are_errors(tmp_path):
             "[web](https://x.org/a), [anchor](#top), `references/roles/<role>.md`.")
     (d / "SKILL.md").write_text(doc(body))
     found = [(f.rule, f.message) for f in lint.lint_file(d / "SKILL.md")]
-    assert [r for r, _ in found] == ["missing-reference", "missing-reference"]
+    assert [r for r, _ in found] == ["missing-reference", "missing-mention"]
     assert "references/gone.md" in found[0][1] and "scripts/run.py" in found[1][1]
 
 
@@ -336,3 +336,33 @@ def test_review_filtering_phrasings(body):
 
 def test_review_filtering_needs_a_review_skill_not_a_preview_one():
     assert "review-filtering" not in rules(doc("Be conservative with memory.", name="image-preview", desc="Preview images."))
+
+
+@pytest.mark.parametrize("body,expected", [
+    ("[guide](references/guide.md)", []),
+    ("[gone](references/gone.md)", ["missing-reference"]),
+    ("[gone](./references/gone.md#part)", ["missing-reference"]),
+    ("Do not write `[text](url)` in Slack.", []),                    # a link inside inline code is an example
+    ("Write links as `[text](references/x.md)`.", []),
+    ("```markdown\nSee [the reference](references/REFERENCE.md).\n```", []),
+    ("~~~\n[x](references/gone.md)\n~~~", []),
+    ("> Also helpful: [Title](URL) and [name](link).", []),          # template placeholders, not files
+    ("[my notes](references/my%20notes.md)", []),                     # URL-encoded space
+    ("[my notes](<references/my notes.md>)", []),                     # CommonMark angle-bracket destination
+    ("[missing](<references/no such.md>)", ["missing-reference"]),
+    ('[guide](references/guide.md "The guide")', []),
+    ("Write `references/[domain].md` for each domain.", []),         # a placeholder the skill fills in
+    ("Check `references/examples/` first.", ["missing-mention"]),     # named in code, not linked: a warning
+    ("[mail](mailto:a@example.org) [top](#top) [web](https://x.org/a.md) [abs](/etc/x.md)", []),
+    ("[日本語](references/ガイド.md)", []),
+    ("[tiếng việt](references/hướng-dẫn.md)", []),
+])
+def test_missing_reference_cases(tmp_path, body, expected):
+    d = tmp_path / "good-skill"
+    (d / "references").mkdir(parents=True)
+    for name in ("guide.md", "my notes.md", "ガイド.md", "hướng-dẫn.md"):
+        (d / "references" / name).write_text("ok")
+    (d / "SKILL.md").write_text(doc(body))
+    found = lint.lint_file(d / "SKILL.md")
+    assert [f.rule for f in found] == expected
+    assert all(f.severity == lint.RULES[f.rule].severity for f in found)
