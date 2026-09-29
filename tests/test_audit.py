@@ -78,3 +78,9 @@ def test_bundled_native_executable_is_flagged(toy_rule, tmp_path, head):
 def test_other_binary_assets_are_skipped(toy_rule, tmp_path):
     (tmp_path / "logo.png").write_bytes(b"\x89PNG\r\n\x1a\n\0\0danger")
     assert audit.audit_paths([tmp_path]) == []
+
+
+def test_oversized_text_is_reported_as_unscanned(toy_rule, tmp_path, monkeypatch):
+    monkeypatch.setattr(audit, "MAX_TEXT_BYTES", 100)
+    (tmp_path / "big.md").write_text("x" * 200 + "\ndanger\n")
+    assert [(f.rule, f.severity) for f in audit.audit_paths([tmp_path])] == [("unscanned-file", "low")]

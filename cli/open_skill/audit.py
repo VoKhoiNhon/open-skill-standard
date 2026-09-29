@@ -79,6 +79,8 @@ rule("native-executable", "medium", None,
      ANTHROPIC_SKILLS)
 NATIVE = (b"\x7fELF", b"\xfe\xed\xfa\xce", b"\xfe\xed\xfa\xcf", b"\xce\xfa\xed\xfe", b"\xcf\xfa\xed\xfe",
           b"\xca\xfe\xba\xbe", b"MZ")  # ELF, Mach-O (32/64-bit, both byte orders, universal), Windows PE
+MAX_TEXT_BYTES = 5_000_000
+rule("unscanned-file", "low", None, "text file too large to audit; review it by hand", ANTHROPIC_SKILLS)
 
 
 def _flag(rule_id: str, path: Path, excerpt: str) -> Finding:
@@ -92,9 +94,13 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
         target = Path(os.path.realpath(path))
         inside = target.is_relative_to(Path(os.path.realpath(root)))
         return [] if inside else [_flag("link-outside-skill", path, f"-> {os.readlink(path)}")]
+    with path.open("rb") as fh:
+        head = fh.read(8192)
+    if b"\0" in head:  # binary: images and fonts are normal, programs deserve a look
+        return [_flag("native-executable", path, head[:4].hex())] if head.startswith(NATIVE) else []
+    if path.stat().st_size > MAX_TEXT_BYTES:
+        return [_flag("unscanned-file", path, f"{path.stat().st_size} bytes")]
     data = path.read_bytes()
-    if b"\0" in data[:8192]:  # binary: images and fonts are normal, programs deserve a look
-        return [_flag("native-executable", path, data[:4].hex())] if data.startswith(NATIVE) else []
     return audit_text(data.decode("utf-8", errors="replace"), str(path))
 
 
