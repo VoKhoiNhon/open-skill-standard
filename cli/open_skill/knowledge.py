@@ -65,12 +65,16 @@ def _write(meta: dict, text: str) -> None:
     userdata.atomic_write(_kdir() / f"{meta['id']}.md", body)
 
 
+class SensitiveText(ValueError):
+    """learn() refused text that looks like a secret or personal data; force=True stores it anyway."""
+
+
 def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool = False, source: str = "user") -> str:
     """Store one fact per file; the same text updates the existing node instead of duplicating it."""
     _prepare()
     reason = looks_sensitive(text)
     if reason and not force:
-        raise ValueError(f"refusing to store text that looks like {reason}; pass force=True to override")
+        raise SensitiveText(f"refusing to store text that looks like {reason}")
     nid = _node_id(text)
     path = _kdir() / f"{nid}.md"
     if path.exists():
@@ -136,9 +140,14 @@ def _events() -> list[dict]:
     return [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
 
 
-def personal_weights(now: float | None = None) -> dict[str, float]:
-    """+1 for skills proposed and run (or run unproposed), -1 for proposed but skipped; halved every 90 days."""
-    now = now or time.time()
+def route_recorded(route_id: str) -> bool:
+    return any(e.get("type") == "proposed" and e.get("route_id") == route_id for e in _events())
+
+
+def personal_weights(now: float | None = None, names: dict[str, str] | None = None) -> dict[str, float]:
+    """+1 for skills proposed and run (or run unproposed), -1 for proposed but skipped; halved every 90 days.
+    `names` maps invoke names to skill ids, so a skill run instead of the proposed one is credited to its id."""
+    now, names = now or time.time(), names or {}
     events = _events()
     proposed = {e["route_id"]: e.get("chain", []) for e in events if e.get("type") == "proposed"}
     weights: dict[str, float] = {}
@@ -147,8 +156,8 @@ def personal_weights(now: float | None = None) -> dict[str, float]:
             continue
         decay = 0.5 ** ((now - e.get("ts", now)) / 86400 / HALF_LIFE_DAYS)
         chain = proposed[e["route_id"]]
-        by_invoke = {step["invoke"]: step["id"] for step in chain}
-        ran = {by_invoke.get(inv, f"invoke:{inv}") for inv in e.get("ran", [])}
+        by_invoke = {**{step["id"]: step["id"] for step in chain}, **{step["invoke"]: step["id"] for step in chain}}
+        ran = {by_invoke.get(inv) or names.get(inv) or f"invoke:{inv}" for inv in e.get("ran", [])}
         good = 1.0 if e.get("outcome", "ok") == "ok" else 0.5
         for sid in ran:
             weights[sid] = weights.get(sid, 0.0) + good * decay

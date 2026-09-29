@@ -36,14 +36,14 @@ open-skill route "<the user's request, in their words>" --phase <phase> --size <
 
 Pass `--phase` and `--size` when the conversation makes them clear; leave either out when you are unsure, and the CLI falls back to keyword detection. If the output says `"phase_from": "guessed"`, no keyword matched and the phase is a default: check it against the request and route again with `--phase` if it is wrong.
 
-`--agent` is the coding agent you are running in (`claude-code`, `codex`, `cursor`, `gemini-cli`, `github-copilot`, `opencode`, `goose`, `windsurf`, `amp`; `open-skill agents` lists them). The chain then holds only skills that agent can load, under the names it invokes them by; leave it out if you are unsure. Pass `--model` only with the exact id your runtime gives you, not a guess; without it the CLI uses a generic profile. Pass `--role` only when the user stated one; otherwise the CLI uses their saved profile or project signals. The JSON output has `chain` (ordered steps with `invoke`, `phase`, `why`, `effort`), `knowledge` (the user's lessons and preferences that apply), `missing` (useful skills that are not installed or need a project init), `advice`, and `model` (notes for the model you are running on).
+`--agent` is the coding agent you are running in (`claude-code`, `codex`, `cursor`, `gemini-cli`, `github-copilot`, `opencode`, `goose`, `windsurf`, `amp`; `open-skill agents` lists them). The chain then holds only skills that agent can load, under the names it invokes them by; leave it out if you are unsure. Pass `--model` only with the exact id your runtime gives you, not a guess; without it the CLI uses a generic profile. Pass `--role` only when the user stated one, as a role id from `references/roles/README.md` (`frontend-developer`, not `frontend`); otherwise the CLI uses their saved profile or project signals. The JSON output has `route_id` (for step 4), `chain` (ordered steps with `invoke`, `phase`, `why`, `effort`), `knowledge` (the user's lessons and preferences that apply), `missing` (useful skills that are not installed or need a project init), `advice`, and `model` (notes for the model you are running on).
 
 ## 2. Check it against the real request
 
 The CLI ranks by your phase and size, the role, text relevance and project state; you read the request itself. Drop a step that clearly does not serve the request, or add one the user asked for. Keep one build workflow: spec-kit, BMad and superpowers build steps never appear together, and the project's own framework (`.specify/` or `_bmad/`) wins.
 
 If `advice` is `do directly`, skip the chain and just do the task.
-If a step has `ask`, the top two options are close: ask the user one question with those two options.
+If a step has `ask`, it lists the two skill ids whose scores are close: ask the user one question with those two options.
 
 ## 3. Announce in one line, then start
 
@@ -51,7 +51,7 @@ Tell the user the chain in one line, plus any `knowledge` item that changes how 
 
 > Chain: speckit-plan → speckit-implement → data:validate-data → code-review. Applying your note: backfill in bounded batches.
 
-Then invoke the first skill with the Skill tool. For `missing` items, mention the install or init command in one line; running project init commands (`specify init`, `bmad setup`, `codegraph init`) is the user's decision.
+Then load and follow the first skill the way your agent runs skills (in Claude Code, the Skill tool). For `missing` items, mention the install or init command in one line; running project init commands (`specify init`, `bmad setup`, `codegraph init`) is the user's decision.
 
 Apply the `model.addenda` lines for the rest of the session; they are prompting notes measured for the model you are running on.
 
@@ -70,6 +70,6 @@ If the user corrected the route ("use superpowers here, not spec-kit"), that cor
 If `uv`/`uvx` is unavailable or the command fails, route by hand:
 
 1. Identify the role from the user or the project, then read `references/roles/<role>.md` (index: `references/roles/README.md`).
-2. Start at the phase you classified in step 1 and add the phases it needs: large new work starts at specify, medium at plan, both then build, verify and review; operate is followed by build and verify; release comes after verify.
+2. Start at the phase you classified in step 1 and add the phases it needs. For build work: a small change is done directly; if the playbook says "Build tasks for this role walk ...", use those phases; otherwise large work starts at specify and medium at plan, then build, verify and review, skipping ahead past a spec, plan or tasks file the project already has. A large plan without a spec starts at specify; operate is followed by build and verify; release comes after verify; every other phase stands alone.
 3. For each phase, take the first primary skill that is installed; use an alternative only if no primary is.
 4. Announce and start as above; there is no route to record feedback for.

@@ -89,7 +89,7 @@ def test_route_explain_shows_why_this_window(capsys, tmp_path):
 
 def test_route_explain_lists_runner_ups_with_scores(capsys, tmp_path, monkeypatch):
     from open_skill import registry, route as route_mod, scan
-    reg = registry.load(FIX / "repo")
+    reg = registry.load()  # the bundled registry has the fullstack-developer pack
     everything = [scan.Installed(sid, sid, "/x", s.get("description", ""), False) for sid, s in reg.skills.items()]
     monkeypatch.setattr(scan, "scan", lambda *a, **k: everything)
     (tmp_path / "p").mkdir()
@@ -98,18 +98,30 @@ def test_route_explain_lists_runner_ups_with_scores(capsys, tmp_path, monkeypatc
     plan = next(s for s in r["chain"] if s["phase"] == "plan")
     losers = sorted((d for d in r["decisions"]["candidates"] if d["phase"] == "plan" and d["outcome"] == "lower-score"),
                     key=lambda d: -d["score"])
-    code, out = run(capsys, "route", "add an export endpoint", "--project", str(tmp_path / "p"),
-                    "--role", "fullstack-developer", "--explain", "--no-record")
+    cli.main(["route", "add an export endpoint", "--project", str(tmp_path / "p"),
+              "--role", "fullstack-developer", "--explain", "--no-record"])
+    out = capsys.readouterr().out
     step = out.split(f"[plan] {plan['invoke']}")[1].splitlines()
     close = lambda d: " (close call)" if d["id"] == plan.get("runner_up") else ""  # noqa: E731
     assert step[1].strip() == "runner-ups: " + ", ".join(f"{d['id']} {d['score']}{close(d)}" for d in losers[:3])
 
 
 def test_feedback_appends_event(capsys, tmp_path):
-    code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
+    (tmp_path / "p").mkdir()
+    code, out = run(capsys, "route", "add an export endpoint", "--project", str(tmp_path / "p"))
+    rid = json.loads(out)["route_id"]
+    code, _ = run(capsys, "feedback", rid, "--ran", "a,b", "--outcome", "ok")
     assert code == 0
-    line = (tmp_path / "h" / "events.jsonl").read_text().strip()
+    line = (tmp_path / "h" / "events.jsonl").read_text().splitlines()[-1]
     assert json.loads(line)["ran"] == ["a", "b"]
+
+
+def test_bug_feedback_for_a_route_never_recorded_says_so(capsys, tmp_path):
+    # It printed "recorded" and exited 0, though weights ignore feedback without a proposed route
+    # (a mistyped id, or a route run with --no-record).
+    code = cli.main(["--registry", str(FIX / "repo"), "feedback", "r-typo", "--ran", "a"])
+    assert code == 1 and "no route r-typo" in capsys.readouterr().err
+    assert not (tmp_path / "h" / "events.jsonl").exists()
 
 
 def test_build_then_check(capsys, tmp_path):
@@ -210,6 +222,17 @@ def test_playbook_renders_seed_objects_as_text():
     reg.roles["data-engineer"]["seeds"] = [{"id": "merge-key", "text": "Use MERGE on the key."}, "Legacy seed."]
     text = generate.role_playbook(reg, "data-engineer")
     assert "- Use MERGE on the key." in text and "- Legacy seed." in text and "merge-key" not in text
+
+
+def test_bug_playbooks_state_the_roles_build_window():
+    # The router skill's manual path reads the playbook, which never said that, e.g., a product manager's
+    # build request walks discover → research → specify → plan instead of plan → build → verify → review.
+    from open_skill import generate, registry
+    reg = registry.load()
+    windows = {rid: r["build_window"] for rid, r in reg.roles.items() if r.get("build_window")}
+    assert windows
+    for rid, window in windows.items():
+        assert "Build tasks for this role walk " + " → ".join(window) in generate.role_playbook(reg, rid), rid
 
 
 def test_init_with_the_real_registry_seeds(capsys, tmp_path):
@@ -429,3 +452,40 @@ def test_route_phase_flag(capsys, tmp_path):
     code, out = run(capsys, *base, "--phase", "operate", "--explain")
     assert "target operate: given by the caller" in out
     assert run(capsys, *base, "--phase", "deploy")[0] == 2
+
+
+def test_bug_route_rejects_an_unknown_role(capsys, tmp_path):
+    # `--role frontend` routed with no role pack at all and exit 0; search already refused unknown roles.
+    (tmp_path / "p").mkdir()
+    code = cli.main(["--registry", str(FIX / "repo"), "route", "add an export endpoint", "--project",
+                     str(tmp_path / "p"), "--role", "frontend", "--no-record"])
+    err = capsys.readouterr().err
+    assert code == 2 and "unknown role: frontend" in err and "data-engineer" in err
+
+
+@pytest.mark.parametrize("scope,why", [("roles:data-engineer", "unknown scope kind"),
+                                       ("role:frontend", "unknown role"),
+                                       ("phase:testing", "unknown phase"),
+                                       ("data-engineer", "unknown scope kind")])
+def test_bug_learn_rejects_scopes_no_route_can_match(capsys, tmp_path, scope, why):
+    # These were saved, and the note then never applied to any route.
+    code = cli.main(["--registry", str(FIX / "repo"), "learn", "Prefer MERGE", "--applies-to", scope])
+    assert code == 2 and why in capsys.readouterr().err
+    assert not (tmp_path / "h" / "knowledge").exists() or not list((tmp_path / "h" / "knowledge").glob("*.md"))
+
+
+def test_bug_learn_resolves_project_scopes_like_route_does(capsys, tmp_path, monkeypatch):
+    # route matches project:<resolved path>; a relative or symlinked path never matched.
+    (tmp_path / "real").mkdir()
+    (tmp_path / "link").symlink_to(tmp_path / "real")
+    monkeypatch.chdir(tmp_path)
+    code, out = run(capsys, "learn", "Deploys go through staging first", "--applies-to", "project:link,role:*")
+    note = (tmp_path / "h" / "knowledge" / f"{out.strip()}.md").read_text()
+    assert code == 0 and f"project:{(tmp_path / 'real').resolve()}" in note and "role:*" in note
+
+
+def test_bug_learn_refusal_names_the_cli_flag(capsys):
+    # The CLI told users to "pass force=True", a Python argument, instead of --force.
+    code = cli.main(["--registry", str(FIX / "repo"), "learn", "mail a.b@example.com", "--applies-to", "role:*"])
+    err = capsys.readouterr().err
+    assert code == 2 and "--force" in err and "force=True" not in err

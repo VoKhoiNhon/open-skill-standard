@@ -23,3 +23,10 @@ def test_router_skill_lists_the_taxonomy_phases_the_agent_passes():
     assert "--phase" in skill and "--size" in skill
     listed = set(re.findall(r"`([a-z]+)` \(", skill))
     assert {p["id"] for p in registry.load().taxonomy["phases"]} <= listed, "list every phase id in the router skill"
+
+
+def test_router_manual_path_follows_the_playbooks_build_window():
+    # The manual fallback walked plan → build → verify → review for every role; eleven roles set a build_window.
+    skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text()
+    manual = skill.split("## Without the CLI")[1]
+    assert "Build tasks for this role walk" in manual and "done directly" in manual

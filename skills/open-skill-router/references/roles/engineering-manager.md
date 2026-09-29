@@ -15,6 +15,8 @@ Runs a team: planning, capacity, communication, growth and delivery health.
 
 ## Skills by phase
 
+Build tasks for this role walk plan → release → learn, instead of plan → build → verify → review.
+
 | Phase | Primary | Alternatives |
 |---|---|---|
 | discover | `superpowers/brainstorming` — Converge an idea into an approved design through one-question-at-a-time dialogue before building<br>`bmad-method/bmad-forge-idea` — Pressure-test a half-formed idea with personas until it can be acted on or dropped | `bmad-method/bmad-brainstorming`<br>`knowledge-work-product-management/product-brainstorming` |

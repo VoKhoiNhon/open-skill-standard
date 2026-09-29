@@ -277,3 +277,26 @@ def test_a_strong_text_match_is_not_held_back_by_a_missing_role_prior():
     assert route.fit(route.UNLISTED, 6.5) < no_text_primary  # a typical best match does not beat the role
     assert route.fit(0.6, 10) < no_text_primary
     assert route.fit(route.PRIMARY, 5) == pytest.approx(2 * (1 + 3 * 5 / 9))  # the role-weighted fit is unchanged
+
+
+def test_bug_a_correction_recorded_by_invoke_name_raises_that_skill(tmp_path):
+    # feedback --ran takes invoke names; a skill run instead of the proposed one must count for its id.
+    p = proj(tmp_path, "app.py")
+    base = route.route("write the plan for the feature", p, REG, ALL, role="fullstack-developer", size="medium")
+    first = base["chain"][0]
+    other = next(i for i in ALL if i.id in ("superpowers/writing-plans", "superpowers/brainstorming") and i.id != first["id"])
+    for i in range(3):
+        knowledge.record({"type": "proposed", "route_id": f"r{i}", "chain": [{"id": first["id"], "invoke": first["invoke"]}]})
+        knowledge.record({"type": "feedback", "route_id": f"r{i}", "ran": [other.invoke], "outcome": "ok"})
+    decisions = route.route("write the plan for the feature", p, REG, ALL, role="fullstack-developer", size="medium",
+                            decisions=True)["decisions"]
+    assert any(d["id"] == other.id and "your history +" in d.get("why", "") for d in decisions["candidates"])
+
+
+def test_bug_a_note_scoped_to_a_skills_invoke_name_is_attached(tmp_path):
+    # The chain shows agents `invoke` names; a note saved as skill:<invoke> never matched (only skill:<id> did).
+    r = route.route("write the plan for the feature", proj(tmp_path, "x.py"), REG, ALL, role="data-engineer", size="medium")
+    step = next(s for s in r["chain"] if s["invoke"] != s["id"])
+    knowledge.learn("Plans list the rollback step", [f"skill:{step['invoke']}"])
+    r = route.route("write the plan for the feature", proj(tmp_path, "x.py"), REG, ALL, role="data-engineer", size="medium")
+    assert any("rollback" in k["text"] for k in r["knowledge"])

@@ -165,7 +165,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     given_phase, target = phase, phase or target_phase(task, tax)
     lead = max(mix, key=mix.get)
     window, window_why = window_and_reason(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"), lead)
-    weights = knowledge.personal_weights()
+    weights = knowledge.personal_weights(names={i.invoke: i.id for i in installed} | {i.id: i.id for i in installed})
     phase_kw = {p["id"]: registry.localized(p, "keywords") for p in tax["phases"]}
     size_kw = (registry.localized(tax, "size_keywords") or {}).get(size, [])
     phase_words = [] if given_phase else _matched(task, phase_kw.get(target, []))
@@ -309,7 +309,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         s["effort"] = effort
 
     proj_key = f"project:{proj['path']}"
-    wanted = {f"skill:{s['id']}" for s in chain} | {f"role:{r}" for r in mix} | {"role:*", proj_key}
+    wanted = {f"skill:{s[k]}" for s in chain for k in ("id", "invoke")} | {f"role:{r}" for r in mix} | {"role:*", proj_key}
     wanted |= {f"phase:{p}" for p in window}
     nodes = [k for k in knowledge.load_knowledge() if wanted & set(k.get("applies_to", []))]
     nodes.sort(key=lambda k: str(k.get("created", "")), reverse=True)  # newest first...

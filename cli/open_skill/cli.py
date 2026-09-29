@@ -279,6 +279,9 @@ def cmd_route(args):
     if args.phase and args.phase not in phases:
         print(f"unknown phase: {args.phase} (one of: {', '.join(phases)})", file=sys.stderr)
         return 2
+    if args.role and args.role not in reg.roles:
+        print(f"unknown role: {args.role} (one of: {', '.join(sorted(reg.roles))})", file=sys.stderr)
+        return 2
     proj = Path(args.project or ".")
     installed = scan.scan(reg, proj, agent=args.agent)
     if args.why_not:
@@ -368,9 +371,28 @@ def cmd_init(args):
     return 0
 
 
+def _scopes(reg, raw: str) -> list[str]:
+    """applies_to entries a route can match: known kinds, role and phase ids; project paths resolved like route's."""
+    phases = [p["id"] for p in reg.taxonomy["phases"]]
+    out = []
+    for scope in (x.strip() for x in raw.split(",") if x.strip()):
+        kind, _, val = scope.partition(":")
+        if kind not in ("skill", "role", "project", "phase") or not val:
+            raise ValueError(f"unknown scope kind in {scope!r}; use skill:<id>, role:<id>, role:*, project:<path>, phase:<id>")
+        if kind == "role" and val != "*" and val not in reg.roles:
+            raise ValueError(f"unknown role: {val} (one of: {', '.join(sorted(reg.roles))}, or *)")
+        if kind == "phase" and val not in phases:
+            raise ValueError(f"unknown phase: {val} (one of: {', '.join(phases)})")
+        out.append(f"project:{Path(val).expanduser().resolve()}" if kind == "project" else scope)
+    return out
+
+
 def cmd_learn(args):
     try:
-        nid = knowledge.learn(args.text, args.applies_to.split(","), type_=args.type, force=args.force)
+        nid = knowledge.learn(args.text, _scopes(_registry(args), args.applies_to), type_=args.type, force=args.force)
+    except knowledge.SensitiveText as e:
+        print(f"{e}; if it is not, run again with --force", file=sys.stderr)
+        return 2
     except ValueError as e:
         print(e, file=sys.stderr)
         return 2
@@ -385,6 +407,10 @@ def cmd_forget(args):
 
 
 def cmd_feedback(args):
+    if not knowledge.route_recorded(args.route_id):
+        print(f"no route {args.route_id} was recorded (mistyped, or routed with --no-record); nothing to learn from",
+              file=sys.stderr)
+        return 1
     knowledge.record({"type": "feedback", "route_id": args.route_id, "ran": [x for x in args.ran.split(",") if x],
                       "outcome": args.outcome, "note": args.note})
     print("recorded")

@@ -229,3 +229,18 @@ def test_keep_mine_silences_that_upstream_wording(home):
     assert knowledge.proposals() == {} and knowledge.sync_seeds(["data-engineer"], v2) == []
     v3 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on all keys."}]}
     assert any("kept your edit" in a for a in knowledge.sync_seeds(["data-engineer"], v3))
+
+
+def test_bug_a_skill_run_instead_of_the_proposed_one_is_credited_to_its_id(home):
+    # The router skill says to record corrections ("use superpowers here, not spec-kit") with feedback;
+    # the skill that ran was stored as "invoke:<name>", a key routing never reads.
+    knowledge.record({"type": "proposed", "route_id": "r1", "chain": [{"id": "spec-kit/plan", "invoke": "speckit-plan"}]})
+    knowledge.record({"type": "feedback", "route_id": "r1", "ran": ["superpowers:writing-plans"], "outcome": "ok"})
+    w = knowledge.personal_weights(names={"superpowers:writing-plans": "superpowers/writing-plans"})
+    assert w["superpowers/writing-plans"] > 0 and w["spec-kit/plan"] < 0
+
+
+def test_bug_feedback_naming_a_proposed_step_by_its_id_counts_as_run(home):
+    knowledge.record({"type": "proposed", "route_id": "r1", "chain": [{"id": "s/a", "invoke": "a"}]})
+    knowledge.record({"type": "feedback", "route_id": "r1", "ran": ["s/a"], "outcome": "ok"})
+    assert knowledge.personal_weights()["s/a"] > 0

@@ -13,6 +13,13 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- Role playbooks state the role's `build_window` ("Build tasks for this role walk discover → research → specify → plan"), so the router skill's manual path follows the same phases as the CLI for the 11 roles that have one.
+- `learn` refusing text that looks like a secret or personal data names the `--force` flag instead of the Python argument `force=True`.
+- A note scoped to a skill by the name the agent invokes it by (`skill:superpowers:writing-plans`, as the chain shows it) is attached to routes, not only one scoped by skill id.
+- `learn --applies-to` rejects scopes no route can match (an unknown kind, role id or phase id) instead of saving a note that never applies, and resolves `project:` paths the way `route` does, so `project:.` or a symlinked path matches.
+- `route --role` with an unknown role id (such as `frontend` for `frontend-developer`) exits 2 and lists the role ids, like `search` and `init` already did, instead of routing without any role pack.
+- `feedback` for a route id that was never recorded (mistyped, or routed with `--no-record`) exits 1 and says so, instead of printing `recorded` for feedback that routing ignores.
+- `feedback --ran` credits a skill run instead of the proposed one to that skill, so a correction such as "use superpowers here, not spec-kit" raises it in later routes; it used to be stored under a key routing never read. A proposed step named by its id also counts as run.
 - Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", không chạy, ngừng hoạt động, từ hôm qua and more). Routing holdout: 23/52 → 36/52.
 
 ## [0.6.0] - 2026-09-29
