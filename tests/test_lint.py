@@ -27,7 +27,7 @@ def test_clean_skill_has_no_findings():
     (doc("Show your reasoning in the response before answering."), "reasoning-in-response"),
     (doc("Double-check your answer before replying."), "redundant-verification"),
     (doc("Run this on claude-opus-5 for best results."), "hardcoded-model"),
-    (doc("Set temperature: 0.2 for stability."), "legacy-params"),
+    (doc("Set temperature: 0.2 for stability."), "sampling-params"),
     (doc("Only report high-severity issues.", name="code-review-pass", desc="Review code"), "review-filtering"),
     (doc("MUST a\nMUST b\nNEVER c\nALWAYS d\nCRITICAL e\nIMPORTANT f\n"), "shouting"),
 ])
@@ -290,3 +290,24 @@ def test_shouting_ignores_code_blocks():
 def test_shouting_cites_the_guidance_that_says_to_dial_it_back():
     (f,) = [f for f in lint.lint_text(doc("MUST a\nMUST b\nNEVER c\nALWAYS d\nCRITICAL e\nIMPORTANT f\n"))]
     assert f.source.startswith(lint.PRACTICES)
+
+
+@pytest.mark.parametrize("body,rule", [
+    ('{"model": "x", "temperature": 0.7}', "sampling-params"),   # JSON quotes the key
+    ("client.messages.create(top_p=0.9)", "sampling-params"),
+    ("Set top_k: 40", "sampling-params"),
+    ("temperature = 1", "sampling-params"),
+    ('thinking: {type: "enabled", budget_tokens: 8000}', "legacy-params"),
+    ("Prefill the assistant turn with an open brace.", "legacy-params"),
+])
+def test_removed_api_parameters(body, rule):
+    assert rule in rules(doc(body))
+
+
+@pytest.mark.parametrize("body", [
+    "The sensor table has columns id, temperature: float, humidity: float.",
+    "Report the temperature in Celsius.",
+    "top_p is not accepted on current models; describe the variety you want instead.",
+])
+def test_sampling_params_ignore_mentions_without_a_value(body):
+    assert "sampling-params" not in rules(doc(body))

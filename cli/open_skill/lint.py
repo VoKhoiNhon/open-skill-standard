@@ -28,8 +28,12 @@ PATTERNS = [
      re.compile(r"(?i)\bclaude-(opus|sonnet|haiku|fable|mythos)-\d"),
      "Model IDs belong in registry/models profiles, not in skills.", PRACTICES),
     ("legacy-params", "error",
-     re.compile(r"(?i)\b(budget_tokens|temperature\s*[=:]|prefill(ed)? (the )?(assistant|response))"),
-     "budget_tokens, temperature and prefills are removed or rejected on current models.", PRACTICES),
+     re.compile(r"(?i)\b(budget_tokens|prefill(ed)? (the )?(assistant|response))"),
+     "Manual thinking budgets (budget_tokens) and assistant prefills return a 400 error on current models.", PRACTICES),
+    ("sampling-params", "error",
+     re.compile(r"(?i)\b(temperature|top_p|top_k)[\"']?\s*[=:]\s*[\"']?\d"),
+     "Setting temperature, top_p or top_k returns a 400 error on Claude Sonnet 5; describe the variety you want instead.",
+     SONNET5 + "#tone-and-writing-style"),
 ]
 REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|don'?t nitpick)")
 SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
