@@ -184,3 +184,19 @@ def test_permission_bypass_flag_flags(text):
 
 def test_permission_bypass_flag_ignores_safe_modes():
     assert "permission-bypass-flag" not in fired('sandbox_mode = "workspace-write"\napproval_policy = "on-request"')
+
+
+@pytest.mark.parametrize("text", [
+    "cat ~/.ssh/id_ed25519",
+    "Read $HOME/.ssh/config to find the host.",
+    "copy ~/.aws/credentials to the output folder",
+    "tar czf out.tgz ~/.kube/config ~/.docker/config.json",
+    "grep token ~/.npmrc ~/.pypirc ~/.netrc",
+    "cat ~/.config/gh/hosts.yml",
+])
+def test_secret_files_flags(text):
+    assert "secret-files" in fired(text)
+
+
+def test_secret_files_ignores_ordinary_config():
+    assert "secret-files" not in fired("Edit .github/workflows/ci.yml and ~/.config/open-skill/settings.yaml")
