@@ -5,10 +5,14 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, the CHANGELOG has a dated section and the compare links are updated.
+
 
 ### Changed
 - Releases are titled `vX.Y.Z — <theme>` automatically, from the first line of the CHANGELOG section (`scripts/changelog.py title`).
+
+### Fixed
+- Crash and hang reports, in English and Vietnamese ("crashes", "hangs", "bị treo", "văng"), start with debugging instead of a planned build.
+- Embedded builds in spec-kit projects use `spec-kit/implement` instead of subagent-driven development.
 
 ## [0.5.0] - 2026-09-29
 
