@@ -4,9 +4,19 @@ license: "per-skill (see upstream)"
 summary: Anthropic's public skills - documents, skill authoring, MCP servers, web testing, frontend design.
 install:
   claude-plugin: "/plugin marketplace add anthropics/skills && /plugin install document-skills@anthropic-agent-skills && /plugin install example-skills@anthropic-agent-skills"
+# Every plugin in the upstream marketplace.json has source "./", so each plugin's cache folder holds all the
+# repo's skills; `names` keeps each rule to the skills its plugin lists.
 detect:
-  - {glob: "~/.claude/plugins/cache/*/document-skills/*/skills/{name}/SKILL.md", invoke: "document-skills:{name}"}
-  - {glob: "~/.claude/plugins/cache/*/example-skills/*/skills/{name}/SKILL.md", invoke: "example-skills:{name}"}
+  - {glob: "~/.claude/plugins/cache/*/document-skills/*/skills/{name}/SKILL.md", invoke: "document-skills:{name}",
+     names: [xlsx, docx, pptx, pdf]}
+  - {glob: "~/.claude/plugins/cache/*/example-skills/*/skills/{name}/SKILL.md", invoke: "example-skills:{name}",
+     names: [algorithmic-art, brand-guidelines, canvas-design, doc-coauthoring, frontend-design, internal-comms,
+             mcp-builder, skill-creator, slack-gif-creator, theme-factory, web-artifacts-builder, webapp-testing]}
+  - {glob: "~/.claude/plugins/cache/*/claude-api/*/skills/{name}/SKILL.md", invoke: "claude-api:{name}", names: [claude-api]}
+  - {glob: "~/.claude/plugins/cache/*/academy-guide/*/skills/{name}/SKILL.md", invoke: "academy-guide:{name}",
+     names: [academy-guide]}
+  - {glob: "~/.claude/plugins/cache/*/discernment-nudge/*/skills/{name}/SKILL.md", invoke: "discernment-nudge:{name}",
+     names: [discernment-nudge]}
   - {glob: "~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/*/*/skills/{name}/SKILL.md", invoke: "anthropic-skills:{name}"}
   - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, claude-desktop]

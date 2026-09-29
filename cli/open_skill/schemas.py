@@ -79,7 +79,9 @@ def adapter_schema(tax: dict) -> dict:
                     "required": ["glob", "invoke"],
                     "additionalProperties": False,
                     "properties": {"glob": {"type": "string"}, "invoke": {"type": "string"},
-                                   "agent": {"type": "string", "pattern": KEBAB, "description": "agent id, default claude-code"}},
+                                   "agent": {"type": "string", "pattern": KEBAB, "description": "agent id, default claude-code"},
+                                   "names": _arr({"type": "string"}, minItems=1,
+                                                 description="the only skill names this rule claims")},
                 }
             ),
             "portability": _arr({"type": "string"}),

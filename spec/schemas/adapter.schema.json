@@ -65,6 +65,14 @@
             "type": "string",
             "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
             "description": "agent id, default claude-code"
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "the only skill names this rule claims"
           }
         }
       }

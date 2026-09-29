@@ -108,7 +108,7 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                     if not m:
                         continue
                     name = m.group("name")
-                    if name not in known and not specific:
+                    if name not in rule.get("names", [name]) or (name not in known and not specific):
                         continue
                     sid = f"{src}/{name}"
                     if won.setdefault(path.resolve(), sid) != sid:

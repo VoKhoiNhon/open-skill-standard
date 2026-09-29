@@ -57,5 +57,13 @@ def test_adapter_finds_its_skill_in_the_real_layout(found, sid, agent, invoke):
     assert found[sid].agents.get(agent) == invoke and not found[sid].inferred
 
 
+def test_bug_each_anthropic_plugin_claims_only_its_own_skills(found):
+    # anthropics/skills lists five plugins that all have source "./", so every plugin's cache folder holds all
+    # nineteen skills; the document-skills rule claimed frontend-design as document-skills:frontend-design.
+    assert found["anthropic-skills/frontend-design"].agents["claude-code"] == "example-skills:frontend-design"
+    assert found["anthropic-skills/claude-api"].agents["claude-code"] == "claude-api:claude-api"
+    assert found["anthropic-skills/xlsx"].agents["claude-code"] == "document-skills:xlsx"
+
+
 def test_every_adapter_with_detect_rules_has_a_layout_case():
     assert {src for src, a in REG.adapters.items() if a.get("detect")} <= {sid.split("/")[0] for sid, _, _ in CASES}
