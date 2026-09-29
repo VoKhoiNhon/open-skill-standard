@@ -12,6 +12,8 @@ cases:
      include: [anthropic-skills/webapp-testing], exclude: [superpowers/test-driven-development]}
   - {id: frontend-bmad, role: frontend-developer, task: "add a search page", files: [_bmad/config.toml],
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: frontend-vercel-deploy, role: frontend-developer, task: "deploy the marketing site to Vercel",
+     phases: [verify, release], include: [vercel-agent-skills/deploy-to-vercel]}
   - {id: backend, role: backend-developer, task: "add a REST endpoint to export invoices as CSV",
      include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: backend-incident, role: backend-developer, task: "the export endpoint is failing with a 500 error",

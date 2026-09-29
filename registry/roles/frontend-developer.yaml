@@ -74,6 +74,7 @@ phases:
     - superpowers/finishing-a-development-branch
     alternatives:
     - knowledge-work-engineering/deploy-checklist
+    - vercel-agent-skills/deploy-to-vercel
   operate:
     primary:
     - superpowers/systematic-debugging
