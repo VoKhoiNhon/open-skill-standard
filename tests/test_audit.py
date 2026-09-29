@@ -357,3 +357,14 @@ def test_audit_installed_groups_skill_folders_by_source(tmp_path):
                  Installed("src2/x", "x", "builtin:ENV", "", False)]
     groups = audit.audit_installed(installed)
     assert list(groups) == ["src1"] and [f.rule for f in groups["src1"]] == ["shell-at-load", "shell-at-load"]
+
+
+@pytest.mark.parametrize("sep", [" ", "\x0c", "\x1c", "\x85", "\r"])
+def test_line_numbers_count_newlines_only(toy_rule, sep):
+    # splitlines() also breaks on these, so findings after them pointed one line too far.
+    (f,) = [f for f in audit.audit_text(f"a{sep}b\ndanger\n") if f.rule == "toy"]
+    assert f.line == 2
+
+
+def test_crlf_lines_keep_their_numbers(toy_rule):
+    assert [f.line for f in audit.audit_text("ok\r\nok\r\ndanger\r\n") if f.rule == "toy"] == [3]

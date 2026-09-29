@@ -54,7 +54,7 @@ def _excerpt(line: str, limit: int = 160) -> str:
 
 def audit_text(text: str, file: str = "<text>") -> list[Finding]:
     out = []
-    for n, line in enumerate(text.splitlines(), 1):
+    for n, line in enumerate(text.split("\n"), 1):  # only \n, as editors and the whole-text rules count lines
         for r in RULES.values():
             if r.pattern and not r.whole and r.pattern.search(line):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
