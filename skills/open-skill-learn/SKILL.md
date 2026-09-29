@@ -7,7 +7,7 @@ description: Saves what the user teaches - a lesson, preference, convention, glo
 
 A correction the user makes once should not have to be made again next week. This skill keeps such lessons as small local files that `open-skill route` attaches to future chains.
 
-`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.6.0 open-skill`.
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.0 open-skill`.
 
 ## Save
 

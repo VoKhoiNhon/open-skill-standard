@@ -4,11 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-29
+
+English-first and audited: the whole repository is written for an international audience with Vietnamese as a locale, every lint, audit and registry rule was checked against its source and real public skills, the core skills, adapters and role packs were reviewed against the CLI and upstream, every command is tested end to end, and the README is illustrated with generated diagrams and real terminal captures.
+
+![How routing works](https://raw.githubusercontent.com/VoKhoiNhon/open-skill-standard/v0.7.0/.github/assets/routing.svg)
+
 ### Added
-- README images in `.github/assets/`, light and dark: the architecture, the routing pipeline (numbers read from `route.py`), the lifecycle graph (generated from the taxonomy and adapters) and what an upgrade does to your notes, plus terminal captures of `route --explain` for a backend developer, a data engineer and an SRE, `doctor`, `audit` and `upgrade --dry-run`, run on a fixture machine with no local paths. `scripts/render_assets.py` regenerates them and CI fails when they are stale; the privacy guard now reads SVG text and rejects local home paths.
 - Role coverage in the tuned routing evals: every role has at least 5 cases across at least 3 target phases, and every role pack primary is placed by some case (`tests/test_role_coverage.py`); 31 new cases close the gaps.
 - `open-skill validate` rejects a role pack entry whose skill does not act in that phase, since the router never places it there.
-- README images in `.github/assets/`, light and dark: the architecture, the routing pipeline (numbers read from `route.py`), the lifecycle graph (generated from the taxonomy and adapters) and what an upgrade does to your notes. `scripts/render_assets.py` regenerates them and CI fails when they are stale; the privacy guard now reads SVG text and rejects local home paths.
 - README images in `.github/assets/`, light and dark: the architecture, the routing pipeline (numbers read from `route.py`), the lifecycle graph (generated from the taxonomy and adapters) and what an upgrade does to your notes, plus terminal captures of `route --explain` for a backend developer, a data engineer and an SRE, `doctor`, `audit` and `upgrade --dry-run`, run on a fixture machine with no local paths. Graph viewer screenshots in light and dark come from `render_assets.py --screenshots`, a manual step with a local Chromium. `scripts/render_assets.py` regenerates them and CI fails when they are stale; the privacy guard now reads SVG text and rejects local home paths.
 - `evals/routing-holdout.yaml`: 52 held-out routing cases (paraphrased and messy requests across 23 roles, English and Vietnamese with and without accents) that routing is never tuned on. `eval routing` reports in-sample and holdout scores apart (baseline 23/52); only in-sample failures change the exit code, and CI keeps the holdout above a floor. Routing cases gain `first_phase` and `include_any` assertions.
 
@@ -185,7 +189,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.3.0...v0.4.0
