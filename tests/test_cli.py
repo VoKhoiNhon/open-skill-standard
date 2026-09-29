@@ -78,3 +78,11 @@ def test_validate_scan_doctor_graph(capsys):
     assert "superpowers" in out and "no profile yet" in out
     code, out = run(capsys, "graph")
     assert out.startswith("graph LR")
+
+
+def test_newer_user_data_gives_clear_error(capsys, tmp_path):
+    from open_skill import userdata
+    userdata.write_version(tmp_path / "h", userdata.SCHEMA_VERSION + 1)
+    code = cli.main(["--registry", str(FIX / "repo"), "learn", "x", "--applies-to", "role:*"])
+    assert code == 3
+    assert "Upgrade open-skill" in capsys.readouterr().err

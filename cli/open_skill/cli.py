@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan
+from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, userdata
 
 
 def _registry(args):
@@ -288,4 +288,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
-    return args.fn(args)
+    try:
+        return args.fn(args)
+    except userdata.NewerDataError as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 3

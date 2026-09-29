@@ -102,3 +102,17 @@ def test_knowledge_file_has_valid_frontmatter(home):
 
 def test_load_profile_missing_is_empty(home):
     assert knowledge.load_profile() == {}
+
+
+def test_writes_refused_when_data_is_newer(home):
+    from open_skill import userdata
+    userdata.write_version(home, userdata.SCHEMA_VERSION + 1)
+    with pytest.raises(userdata.NewerDataError):
+        knowledge.learn("anything", ["role:*"])
+    with pytest.raises(userdata.NewerDataError):
+        knowledge.record({"type": "proposed", "route_id": "r", "chain": []})
+
+
+def test_first_write_stamps_version(home):
+    knowledge.learn("a lesson", ["role:*"])
+    assert (home / "VERSION").exists()
