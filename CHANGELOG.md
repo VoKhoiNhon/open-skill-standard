@@ -41,6 +41,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Problem reports for data analysts, ML engineers and platform engineers start with debugging instead of proposing a scheduled agent.
 - `bmad-ticket`, `bmad-architecture` and `bmad-prd` handle medium tasks, so BMad projects plan sprints, architecture and PRDs with BMad instead of an unrelated BMad persona or a generic skill.
 - Technical writers review docs with code review instead of design critique outside BMad projects.
+- A later detect rule of the same adapter no longer claims a path an earlier rule already found, so a prefix rule such as `{skills}/vendor-{name}` does not add a duplicate inferred skill.
 
 ## [0.5.0] - 2026-09-29
 
