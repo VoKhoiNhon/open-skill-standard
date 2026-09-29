@@ -85,6 +85,16 @@ TUNE_FLOORS = {
 }
 
 
+# The same on the held-out queries, which are never used for tuning: a false alarm or a lost catch there means a
+# description change did not generalize. Standards has one held-out false alarm today, hence precision 0.
+HOLDOUT_FLOORS = {
+    "open-skill-intel": (0.95, 0.0),
+    "open-skill-learn": (0.95, 0.15),
+    "open-skill-router": (0.95, 0.0),
+    "open-skill-standards": (0.0, 0.0),
+}
+
+
 def _core_trigger_report():
     return evals.trigger_report_lexical(evals.load_trigger_sets(ROOT / "evals" / "triggers"),
                                         evals.skill_descriptions(REG, ROOT / "skills"))
@@ -95,6 +105,15 @@ def test_core_skills_trigger_proxy_meets_floor():
     assert set(rep) == set(TUNE_FLOORS)
     for skill, (precision, recall) in TUNE_FLOORS.items():
         m = rep[skill]["train"]
+        assert m["precision"] >= precision and m["recall"] >= recall, (skill, m)
+
+
+def test_core_skills_trigger_proxy_holds_on_holdout():
+    rep = _core_trigger_report()
+    assert set(rep) == set(HOLDOUT_FLOORS)
+    for skill, (precision, recall) in HOLDOUT_FLOORS.items():
+        m = rep[skill]["validation"]
+        assert m["tp"] + m["fn"] >= 5 and m["tn"] + m["fp"] >= 5, (skill, "holdout too small")
         assert m["precision"] >= precision and m["recall"] >= recall, (skill, m)
 
 
