@@ -518,7 +518,7 @@ def _eval_triggers(args, reg):
             t, v = r["train"], r["validation"]
             print(f"{skill:28} train P {t['precision']:.2f} R {t['recall']:.2f} | validation P {v['precision']:.2f} R {v['recall']:.2f}")
         return 0
-    rep = evals.trigger_report_lexical(sets, evals.skill_descriptions(reg))
+    rep = evals.trigger_report_lexical(sets, evals.skill_descriptions(reg), suggest=args.suggest)
     if args.format == "json":
         _print(rep)
         return 0
@@ -530,6 +530,10 @@ def _eval_triggers(args, reg):
             print(f"    missed: {q}")
         for q in m["false_alarms"]:
             print(f"    false alarm: {q}")
+        if args.suggest:
+            fmt = lambda terms: ", ".join(f"{t} ({n})" for t, n in terms) or "-"
+            print(f"    consider the concept behind: {fmt(r['suggest']['add'])}")
+            print(f"    description words in false alarms: {fmt(r['suggest']['false_alarms'])}")
     return 0
 
 
@@ -709,6 +713,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.add_argument("--agent", choices=["claude"], help="triggers: run queries through a real agent instead of the proxy")
     s.add_argument("--runs", type=int, default=3, help="triggers with --agent: runs per query")
+    s.add_argument("--suggest", action="store_true",
+                   help="triggers (proxy): terms shared by missed tuning queries, and description words behind false alarms")
     s.set_defaults(fn=cmd_eval)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
     s.add_argument("action", choices=["draft", "check"])

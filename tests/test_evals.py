@@ -141,3 +141,13 @@ def test_suggest_terms_finds_shared_words_of_missed_positives():
     assert "rotate" not in dict(s["add"])  # also in a near miss, so adding it would cause false alarms
     assert "audit" not in dict(s["add"])
     assert s["false_alarms"] == [("vault", 1)]  # the description word that matched the near miss
+
+
+def test_lexical_report_suggestions_use_tuning_queries_only():
+    d = {"pdf-tools": "Extract text from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
+    sets = {"pdf-tools": [{"q": "merge scanned invoices", "trigger": True}, {"q": "merge scanned receipts", "trigger": True},
+                          {"q": "split scanned contracts", "trigger": True, "holdout": True},
+                          {"q": "split scanned forms", "trigger": True, "holdout": True}]}
+    rep = evals.trigger_report_lexical(sets, d, suggest=True)["pdf-tools"]
+    assert rep["suggest"]["add"] == [("merge", 2), ("merge scanned", 2), ("scanned", 2)]
+    assert "suggest" not in evals.trigger_report_lexical(sets, d)["pdf-tools"]
