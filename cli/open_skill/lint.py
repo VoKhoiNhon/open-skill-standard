@@ -20,7 +20,8 @@ PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engine
 
 PATTERNS = [
     ("reasoning-in-response", "error",
-     re.compile(r"(?i)(show|write out|reproduce|explain|include|output) (all |your |the )?(reasoning|thinking|chain[- ]of[- ]thought)"
+     re.compile(r"(?i)(?<!not )(?<!n't )(?<!n’t )(?<!never )"
+                r"(show|write out|reproduce|explain|include|output) (all |your |the )?(reasoning|thinking|chain[- ]of[- ]thought)"
                 r"( process)?( in| into)? (the |your )?(response|answer|reply|output)|think step[- ]by[- ]step (in|and write)"),
      "Asking the model to reproduce its reasoning in the reply can be declined as reasoning_extraction.", FABLE5),
     ("redundant-verification", "warning",

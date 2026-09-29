@@ -446,3 +446,26 @@ def test_marketplace_manifest_cases(tmp_path, manifest, expected):
     found = lint.lint_marketplace(write_json(tmp_path, "marketplace.json", manifest))
     assert [f.rule for f in found] == expected
     assert all(f.source == lint.RULES[f.rule].source for f in found)
+
+
+@pytest.mark.parametrize("body,fires", [
+    ("Show your reasoning in the response.", True),
+    ("Include your chain-of-thought in the answer.", True),
+    ("Think step by step and write it out for the user.", True),
+    ("Do not include your reasoning in the response.", False),   # the advice the rule asks for
+    ("Don’t show your thinking in the reply; give the result.", False),
+    ("Explain the trade-offs in the response.", False),
+])
+def test_reasoning_in_response(body, fires):
+    assert ("reasoning-in-response" in rules(doc(body))) is fires
+
+
+@pytest.mark.parametrize("body,fires", [
+    ("Double-check your answer before replying.", True),
+    ("Re-verify before responding.", True),
+    ("Verify your work again at the end.", True),
+    ("Run the tests to verify the change.", False),
+    ("Check the answer against the spec.", False),
+])
+def test_redundant_verification(body, fires):
+    assert ("redundant-verification" in rules(doc(body))) is fires
