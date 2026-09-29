@@ -23,7 +23,7 @@ Writes and maintains documentation that lets people use and change a system.
 | plan | `superpowers/writing-plans` — Turn a spec into a bite-sized, test-first implementation plan<br>`spec-kit/plan` — Create the technical plan and design artifacts from the spec<br>`spec-kit/tasks` — Generate a dependency-ordered tasks.md from the plan | `bmad-method/bmad-ticket`<br>`knowledge-work-engineering/system-design` |
 | build | `knowledge-work-design/ux-copy` — Microcopy, error messages, empty states and calls to action | — |
 | verify | `superpowers/test-driven-development` — Write the failing test first, then the minimal code, for any feature or bug fix<br>`superpowers/verification-before-completion` — Run the real checks and read their output before claiming work is done | `codegraph/affected`<br>`spec-kit/converge` |
-| review | `bmad-method/bmad-review` — Review lenses - adversarial, edge cases, verification gaps, structure, prose | `knowledge-work-design/design-critique` |
+| review | `bmad-method/bmad-review` — Review lenses - adversarial, edge cases, verification gaps, structure, prose | `claude-code-builtin/code-review`<br>`knowledge-work-design/design-critique` |
 | release | `knowledge-work-engineering/documentation` — Write and maintain technical documentation and READMEs<br>`anthropic-skills/doc-coauthoring` — Structured workflow for co-writing documentation | `anthropic-skills/docx`<br>`anthropic-skills/pdf` |
 | operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix | `knowledge-work-engineering/debug`<br>`spec-kit/bug-assess` |
 | learn | `open-skill/open-skill-learn` — Remember lessons and preferences so future routes use them | `bmad-method/bmad-retrospective` |

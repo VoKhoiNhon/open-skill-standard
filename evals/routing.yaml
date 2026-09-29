@@ -197,18 +197,76 @@ cases:
      phases: [review]}
   - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
+  - {id: architect-bmad, role: software-architect, task: "design the checkout architecture", files: [_bmad/config.toml],
+     phases: [plan], include: [bmad-method/bmad-architecture]}
+  - {id: architect-review, role: software-architect, task: "review the architecture of the payments service",
+     phases: [review], exclude: [superpowers/subagent-driven-development]}
+  - {id: architect-research, role: software-architect, task: "research event streaming platforms to compare",
+     phases: [research]}
+  - {id: architect-vietnamese, role: software-architect, task: "thiết kế kiến trúc cho hệ thống đặt hàng",
+     include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
      phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: tech-lead-vietnamese-review, role: tech-lead, task: "rà soát pull request cho module thanh toán",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: tech-lead-bmad, role: tech-lead, task: "add bulk export", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build, bmad-method/bmad-code-review], exclude: [superpowers/subagent-driven-development]}
   - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
+     first: knowledge-work-product-management/sprint-planning}
+  - {id: eng-manager-bmad, role: engineering-manager, task: "plan the next sprint", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-ticket], exclude: [bmad-method/bmad-agent-ux-designer]}
+  - {id: eng-manager-roadmap, role: engineering-manager, task: "write the quarterly roadmap update",
+     include: [knowledge-work-product-management/roadmap-update, knowledge-work-product-management/stakeholder-update]}
+  - {id: eng-manager-vietnamese, role: engineering-manager, task: "lên kế hoạch sprint tới",
      first: knowledge-work-product-management/sprint-planning}
   - {id: product-manager, role: product-manager, task: "write a spec for team workspaces",
      include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
+  - {id: product-manager-bmad, role: product-manager, task: "write a PRD for team workspaces", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
+  - {id: product-manager-research, role: product-manager, task: "research competitors for team workspaces",
+     phases: [research], include: [knowledge-work-product-management/competitive-brief]}
+  - {id: product-manager-brainstorm, role: product-manager, task: "brainstorm ideas for the onboarding flow",
+     phases: [discover], include: [knowledge-work-product-management/product-brainstorming]}
+  - {id: product-manager-vietnamese, role: product-manager, task: "viết PRD cho tính năng thanh toán định kỳ",
+     include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
+  - {id: product-manager-spec-kit, role: product-manager, task: "write a spec for team workspaces",
+     files: [.specify/memory/constitution.md], include: [spec-kit/specify]}
   - {id: business-analyst, role: business-analyst, task: "write requirements for the refund process",
      include: [knowledge-work-product-management/write-spec]}
+  - {id: business-analyst-stories, role: business-analyst, task: "write user stories with acceptance criteria for refunds",
+     include: [knowledge-work-product-management/write-spec]}
+  - {id: business-analyst-vietnamese, role: business-analyst, task: "viết tài liệu yêu cầu nghiệp vụ cho quy trình hoàn tiền",
+     phases: [specify], include: [knowledge-work-product-management/write-spec]}
+  - {id: business-analyst-research, role: business-analyst, task: "research how competitors handle refunds",
+     phases: [research]}
+  - {id: business-analyst-bmad, role: business-analyst, task: "write requirements for the refund process",
+     files: [_bmad/config.toml], include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
+  - {id: ux-a11y-review, role: ux-designer, task: "review the onboarding flow for accessibility",
+     phases: [review], include: [knowledge-work-design/accessibility-review]}
+  - {id: ux-research, role: ux-designer, task: "research how users find the export button",
+     phases: [research], exclude: [open-skill/open-skill-intel]}
+  - {id: ux-vietnamese, role: ux-designer, task: "thiết kế luồng đăng ký",
+     phases: [plan], exclude: [superpowers/subagent-driven-development]}
+  - {id: ux-bmad, role: ux-designer, task: "design the onboarding flow", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-ux]}
   - {id: tech-writer, role: technical-writer, task: "write docs for the public API",
      include: [knowledge-work-engineering/documentation]}
+  - {id: tech-writer-review, role: technical-writer, task: "review the API docs for accuracy",
+     phases: [review], include: [claude-code-builtin/code-review], exclude: [knowledge-work-design/design-critique]}
+  - {id: tech-writer-review-bmad, role: technical-writer, task: "review the API docs for accuracy", files: [_bmad/config.toml],
+     phases: [review], include: [bmad-method/bmad-review]}
+  - {id: tech-writer-vietnamese, role: technical-writer, task: "viết tài liệu hướng dẫn sử dụng API",
+     include: [knowledge-work-engineering/documentation]}
+  - {id: tech-writer-release-notes, role: technical-writer, task: "write the release notes for version 2",
+     include: [knowledge-work-engineering/documentation], exclude: [superpowers/subagent-driven-development]}
   - {id: scrum-master, role: scrum-master, task: "plan the sprint and run the retrospective",
+     first: knowledge-work-product-management/sprint-planning}
+  - {id: scrum-master-bmad, role: scrum-master, task: "plan the sprint", files: [_bmad/config.toml],
+     phases: [plan], include: [bmad-method/bmad-ticket]}
+  - {id: scrum-master-retro-bmad, role: scrum-master, task: "run the retrospective for sprint 12", files: [_bmad/config.toml],
+     phases: [learn], include: [bmad-method/bmad-retrospective]}
+  - {id: scrum-master-vietnamese, role: scrum-master, task: "lên kế hoạch sprint và tổ chức retro",
      first: knowledge-work-product-management/sprint-planning}
   # Framework and model behavior
   - {id: native-spec-kit, role: backend-developer, task: "build a new billing system", files: [.specify/memory/constitution.md],

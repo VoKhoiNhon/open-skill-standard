@@ -59,6 +59,7 @@ phases:
     primary:
     - bmad-method/bmad-review
     alternatives:
+    - claude-code-builtin/code-review
     - knowledge-work-design/design-critique
   release:
     primary:

@@ -69,7 +69,7 @@ skills:
     phases: [specify]
     produces: [prd]
     requires: ["project:_bmad"]
-    task_size: [large]
+    task_size: [medium, large]
     triggers: [prd, requirements]
   - name: bmad-spec
     description: Condense ideas, briefs or transcripts into a short kernel spec
@@ -84,7 +84,7 @@ skills:
     consumes: [spec, prd]
     produces: [adr]
     requires: ["project:_bmad"]
-    task_size: [large]
+    task_size: [medium, large]
     triggers: [architecture, adr, "solution design", kiến trúc]
   - name: bmad-ux
     description: Capture the UX vision in DESIGN.md and EXPERIENCE.md
@@ -99,7 +99,7 @@ skills:
     consumes: [prd, spec]
     produces: [tasks]
     requires: ["project:_bmad"]
-    task_size: [large]
+    task_size: [medium, large]
     triggers: [epic, story, ticket, backlog]
   - name: bmad-build
     description: Right-sized implementation - clarify, plan, implement, review and verify a change

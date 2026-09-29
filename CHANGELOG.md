@@ -20,6 +20,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill route --explain` shows the target phase and size with the keywords that decided them, the phase window with why it was chosen (size, spec/plan/tasks in the project, the role's `build_window`), and up to three runner-ups per step with their scores.
 - `open-skill audit [paths] [--installed] [--format json] [--strict]`: a heuristic security review of skill folders (SKILL.md, references, scripts, assets) that only reads files. It flags instructions that override the user or system, hide actions, skip approvals, impersonate authority or reach for secrets, browser data and password stores; invisible characters and hidden HTML comments; broad `allowed-tools` grants and load-time shell commands; links leaving the skill and bundled executables. Every finding cites its source. Findings are grouped by source, exit 1 on high severity (any finding with `--strict`); `doctor` shows a one-line summary. A clean report does not mean a skill is safe.
 - `open-skill remove <skill> --agent <id> [--project DIR] [--dry-run]` removes only what `install` recorded: files still exactly as installed (never through a link), then folders left empty; files you changed or added stay. `open-skill update [--agent <id>] [--dry-run]` reinstalls installed core skills at the CLI's version and skips any install you changed.
+- Routing evals for the architecture, leadership and product roles: reviews, research, retrospectives, roadmaps, PRDs and user stories, Vietnamese phrasing, and spec-kit and BMad projects. Every role now has at least three cases.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
@@ -33,6 +34,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - The Vietnamese "sự cố" (incident) leads to incident response rather than debugging.
 - Analytics engineers build with the project's native framework (`spec-kit/implement`, `bmad-build`); AI engineers build with `bmad-build` in BMad projects; platform engineers plan with `spec-kit/plan` in spec-kit projects.
 - Problem reports for data analysts, ML engineers and platform engineers start with debugging instead of proposing a scheduled agent.
+- `bmad-ticket`, `bmad-architecture` and `bmad-prd` handle medium tasks, so BMad projects plan sprints, architecture and PRDs with BMad instead of an unrelated BMad persona or a generic skill.
+- Technical writers review docs with code review instead of design critique outside BMad projects.
 
 ## [0.5.0] - 2026-09-29
 
