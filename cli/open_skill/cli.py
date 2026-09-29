@@ -652,6 +652,13 @@ def cmd_adapter(args):
     return 1 if added or removed else 0
 
 
+def _positive(text: str) -> int:
+    n = int(text) if text.lstrip("-").isdigit() else 0
+    if n < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive whole number, got {text!r}")
+    return n
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="open-skill", description="Open Skill Standard CLI")
     p.add_argument("--version", action="version", version=f"open-skill {__version__}")
@@ -708,7 +715,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(fn=cmd_build)
     s = sub.add_parser("search", help="full-text search over skills")
     s.add_argument("query", nargs="?", help="words to search for; leave out to list every skill the filters keep")
-    s.add_argument("--limit", type=int, default=10)
+    s.add_argument("--limit", type=_positive, default=10)
     s.add_argument("--project")
     s.add_argument("--role", help="only skills this role's pack lists or whose manifest names it")
     s.add_argument("--phase", help="only skills that act in this phase")
@@ -785,7 +792,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--cases", help="routing: a YAML file of cases; triggers: a folder of trigger sets (default: bundled)")
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.add_argument("--agent", choices=["claude"], help="triggers: run queries through a real agent instead of the proxy")
-    s.add_argument("--runs", type=int, default=3, help="triggers with --agent: runs per query")
+    s.add_argument("--runs", type=_positive, default=3, help="triggers with --agent: runs per query")
     s.add_argument("--suggest", action="store_true",
                    help="triggers (proxy): terms shared by missed tuning queries, and description words behind false alarms")
     s.set_defaults(fn=cmd_eval)

@@ -466,6 +466,12 @@ def test_role_weight_must_be_a_number(cli):
     assert "weight" in cli.run("init", "--role", "data-engineer=-1", code=2).stderr
     assert not (cli.home / "profile.yaml").exists()
 
+
+def test_counts_must_be_positive(cli):
+    # Bug: `search --limit -1` silently dropped the last hit, and `--runs 0` divided by zero in the trigger report.
+    assert "positive" in cli.run("search", "tests", "--limit", "-1", code=2).stderr
+    assert "positive" in cli.run("eval", "triggers", "--agent", "claude", "--runs", "0", code=2).stderr
+
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
 def _parser_surface() -> set[str]:
