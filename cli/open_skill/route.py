@@ -109,11 +109,18 @@ def _unsatisfied(skill: dict, proj: dict) -> list[str]:
     return [r for r in skill.get("requires", []) if r.startswith("project:") and not (root / r[8:]).exists()]
 
 
-def _install_hint(skill: dict) -> str:
+def _install_hint(skill: dict, agent: str | None = None) -> str:
+    """A project init first; for an agent other than Claude Code, a command that is not a Claude plugin one."""
+    if agent and skill["source"] == "open-skill":
+        return f"open-skill install {skill['name']} --agent {agent}"
     inst = skill.get("install") or {}
     for k, v in inst.items():
         if "init" in k:
             return v
+    if agent and agent != "claude-code":
+        other = [v for k, v in inst.items() if not k.startswith("claude")]
+        if other:
+            return other[0]
     return next(iter(inst.values()), f"install {skill['source']}")
 
 
@@ -243,7 +250,8 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                 if unmet:
                     reason = f"needs {', '.join(u[8:] for u in unmet)} in the project"
                 if reason:
-                    missing[sid] = {"id": sid, "phase": phase, "reason": reason, "install": _install_hint(manifest),
+                    missing[sid] = {"id": sid, "phase": phase, "reason": reason,
+                                    "install": _install_hint(manifest, agent),
                                     "optional": phase != target}
 
     advice = None
@@ -330,7 +338,8 @@ def why_not(result: dict, skill_id: str, reg, installed) -> dict:
     if chosen:
         return out
     if skill_id not in have:
-        out["reasons"].append({"code": "not-installed", "text": f"not installed → {_install_hint(reg.skills[skill_id])}"})
+        hint = _install_hint(reg.skills[skill_id], result.get("agent"))
+        out["reasons"].append({"code": "not-installed", "text": f"not installed → {hint}"})
         return out
     window = result["decisions"]["window"]
     relevant = [d for d in mine if d["outcome"] not in ("wrong-phase", "already-chosen")]
