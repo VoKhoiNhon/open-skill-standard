@@ -96,3 +96,9 @@ def test_relocated_agent_home_is_scanned(reg, tmp_path, monkeypatch):
     monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex-home"))
     got = by_invoke(scan.scan(reg))["brainstorming"]
     assert got.id == "superpowers/brainstorming" and got.agents == {"codex": "brainstorming"}
+
+
+def test_shared_folder_is_seen_by_every_agent_that_reads_it(reg):
+    helper = by_invoke(scan.scan(reg))["shared-helper"]
+    assert helper.agent == "codex"  # ~/.agents/skills is codex's first folder, demo-agent's second
+    assert helper.agents == {"codex": "shared-helper", "demo-agent": "shared-helper"}

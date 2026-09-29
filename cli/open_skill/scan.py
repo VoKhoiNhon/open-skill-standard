@@ -9,11 +9,11 @@ from . import agents, frontmatter
 
 DEFAULT_AGENT = "claude-code"  # detect rules without an `agent`, and skills built into Claude Code
 
-# Generic locations searched for skills no adapter rule claims.
+# Generic locations searched for skills no adapter rule claims: every agent's folders and Claude Code plugins.
 GENERIC = [
-    "~/.claude/skills/*/SKILL.md",
+    "{skills}/*/SKILL.md",
     "~/.claude/plugins/cache/*/*/*/skills/*/SKILL.md",
-    "{project}/.claude/skills/*/SKILL.md",
+    "{project_skills}/*/SKILL.md",
 ]
 
 
