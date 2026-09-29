@@ -124,6 +124,12 @@ cases:
      include: [superpowers/subagent-driven-development]}
   - {id: sysadmin-spec-kit, role: system-administrator, task: "add log rotation to the web servers",
      files: [.specify/memory/constitution.md], include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
+  - {id: sysadmin-failing-job, role: system-administrator, task: "the nightly backup job is failing",
+     first: superpowers/systematic-debugging, exclude: [superpowers/writing-plans]}
+  - {id: sysadmin-review-script, role: system-administrator, task: "review the backup script before it goes to cron",
+     phases: [review]}
+  - {id: sysadmin-vietnamese, role: system-administrator, task: "tự động sao lưu máy chủ hàng đêm",
+     include: [superpowers/subagent-driven-development]}
   - {id: data-engineer, role: data-engineer, task: "add a pipeline that loads orders into the warehouse",
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
   - {id: analytics-engineer, role: analytics-engineer, task: "add a revenue model with tests",
