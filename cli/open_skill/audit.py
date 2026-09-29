@@ -71,8 +71,9 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
 OWASP_LLM01 = "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
 NOT = r"(?<!not )(?<!n't )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
 rule("override-instructions", "high",
-     rf"\b{NOT}(ignore|disregard|forget|override|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
+     rf"\b{NOT}(ignore|disregard|forget|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
      r"all|any|system|user'?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
+     r"|\boverride\s+(the\s+|any\s+|all\s+)?(user'?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
      r"|\b(new|updated|real) system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
      "tries to override the user's or the system's instructions", OWASP_LLM01)
 
@@ -88,7 +89,8 @@ OWASP_LLM06 = "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
 rule("disable-confirmation", "high",
      r"\b(do not|don't|never|no need to|without)\s+(ask|wait|prompt|check)(ing)?\s+(the\s+user\s+)?(for\s+)?"
      r"(permission|confirmation|approval|consent)|\bskip\s+(the\s+|all\s+|any\s+)?(confirmation|approval|permission)s?\b"
-     r"|\bauto-?approve\s+(all|every|any)\b|\b(the\s+user\s+has|you\s+have)\s+(already\s+)?(pre-?)?(approved|authori[sz]ed|consented)",
+     r"|\bauto-?approve\s+(all|every|any)\b"
+     r"|\b(the\s+user\s+has|you\s+have)\s+(already\s+(pre-?)?|pre-?)(approved|authori[sz]ed|consented)",
      "tells the agent to act without the user's approval, or claims approval was already given", OWASP_LLM06)
 
 
