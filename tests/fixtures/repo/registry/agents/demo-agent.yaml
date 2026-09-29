@@ -1,0 +1,9 @@
+id: demo-agent
+name: Demo Agent
+docs: https://example.org/demo/skills
+global:
+  - {path: "~/.demo/skills", source: "https://example.org/demo/skills"}
+project:
+  - {path: ".demo/skills", source: "https://example.org/demo/skills"}
+detect:
+  - {path: "~/.demo", source: "https://example.org/demo/install"}
