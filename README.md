@@ -100,6 +100,10 @@ Adapters describe upstream skills as metadata and point to the official installe
 
 Prompting advice changes between model generations; instructions that helped one model can hurt the next. Skills here stay model-neutral, and model-specific notes live in [`registry/models/`](registry/models/): effort per task size, chain length, short prompting notes and patterns to avoid, each with its source in Anthropic's prompting guides. An unknown future model falls back to its family, then to `generic`, so nothing breaks; a weekly workflow opens an issue when the guides list a model without a profile. `open-skill lint` rejects patterns current models handle badly (reasoning-in-response requests, redundant "double-check" instructions, hard-coded model IDs, removed parameters).
 
+## Skill health
+
+`open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too. Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
+
 ## Learns you, locally
 
 `~/.open-skill/` holds your profile, one-fact-per-file notes and a usage log. Routes attach the notes that apply to the chosen skills, roles, project or phases, and your history nudges rankings (with a 90-day half-life). `learn` refuses text that looks like a secret or personal data; `forget` and `export` are one command each; nothing in this folder is ever published. `open-skill scan --memory` imports Claude Code memory files read-only.

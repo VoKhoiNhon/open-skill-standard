@@ -201,3 +201,22 @@ def lint_plugin(path: Path) -> list[Finding]:
         out.append(Finding(str(path), "plugin-description", "add a description so people know what the plugin does",
                            MARKETPLACE_DOCS, "warning"))
     return out
+
+
+def health(installed) -> dict[str, dict]:
+    """Lint every installed skill file and summarize by source: {source: {skills, errors, warnings, worst}}."""
+    report: dict[str, dict] = {}
+    for inst in installed:
+        path = Path(inst.path)
+        if not path.is_file():  # built-in skills have no file
+            continue
+        src = inst.id.split("/")[0]
+        row = report.setdefault(src, {"skills": 0, "errors": 0, "warnings": 0, "worst": []})
+        row["skills"] += 1
+        found = lint_file(path)
+        errs = [f for f in found if f.severity == "error"]
+        row["errors"] += len(errs)
+        row["warnings"] += len(found) - len(errs)
+        if errs:
+            row["worst"].append(f"{inst.invoke}: {errs[0].rule}")
+    return dict(sorted(report.items()))

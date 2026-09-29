@@ -26,6 +26,17 @@ def cmd_validate(args):
 
 
 def cmd_lint(args):
+    if args.installed:
+        report = lint.health(scan.scan(_registry(args)))
+        if args.format == "json":
+            _print(report)
+            return 0
+        print(f"{'source':34} {'skills':>6} {'errors':>6} {'warnings':>8}")
+        for src, row in report.items():
+            print(f"{src:34} {row['skills']:>6} {row['errors']:>6} {row['warnings']:>8}")
+            for w in row["worst"][:3]:
+                print(f"    {w}")
+        return 0
     targets = args.paths or [str(paths.data_root() / "skills")]
     findings = lint.lint_paths(targets)
     errors = [f for f in findings if f.severity == "error"]
@@ -127,6 +138,10 @@ def cmd_doctor(args):
         hint = "" if n else f"  → {next(iter((a.get('install') or {}).values()), 'see ' + a.get('upstream', ''))}"
         print(f"  {'✓' if n else '·'} {src:22} {n:3} installed / {len(a['skills'])} described{hint}")
     print(f"  harvested (no manifest): {by_src.get('harvested', 0)}")
+    rep = lint.health(installed)
+    errs = sum(r["errors"] for r in rep.values())
+    warns = sum(r["warnings"] for r in rep.values())
+    print(f"  skill health: {errs} error(s), {warns} warning(s) across installed skills → open-skill lint --installed")
     names: dict[str, list[str]] = {}
     for i in installed:
         names.setdefault(i.invoke.split(":")[-1], []).append(i.invoke)
@@ -348,6 +363,7 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("lint", help="lint SKILL.md files against the Agent Skills spec and prompting guidance")
     s.add_argument("paths", nargs="*")
     s.add_argument("--strict", action="store_true", help="fail on warnings too")
+    s.add_argument("--installed", action="store_true", help="health report of every installed skill, by source")
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.set_defaults(fn=cmd_lint)
     s = sub.add_parser("scan", help="list installed skills")
