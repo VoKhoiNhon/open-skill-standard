@@ -1,0 +1,22 @@
+skill: open-skill-intel
+queries:
+  - {q: "how does the payment retry flow work in this codebase, from the webhook to the ledger update", trigger: true}
+  - {q: "who calls apply_discount and what breaks if I change its signature", trigger: true}
+  - {q: "where is the session timeout configured", trigger: true}
+  - {q: "what columns does the orders table have and which ones are nullable", trigger: true}
+  - {q: "which skill can generate end-to-end tests for me", trigger: true}
+  - {q: "check the current Next.js docs for the app router caching API before I use it", trigger: true}
+  - {q: "tra cứu giúp tôi hàm này được gọi ở đâu và ảnh hưởng gì nếu sửa", trigger: true}
+  - {q: "what tests cover the files in my current diff", trigger: true}
+  - {q: "what did I note last time about backfills in this project", trigger: true}
+  - {q: "find which installed skill handles data quality checks", trigger: true}
+  - {q: "add a retry with exponential backoff to the payment webhook", trigger: false}
+  - {q: "remember that the orders table is partitioned by order_date", trigger: false}
+  - {q: "which workflow should I follow to build the new billing system end to end", trigger: false}
+  - {q: "run the definition of done checklist on this change", trigger: false}
+  - {q: "write the PRD for team workspaces", trigger: false}
+  - {q: "make the dashboard look less generic", trigger: false}
+  - {q: "deploy the service to staging", trigger: false}
+  - {q: "create a Word document from these meeting notes", trigger: false}
+  - {q: "brainstorm ten ideas for onboarding emails", trigger: false}
+  - {q: "viết test cho hàm tính thuế", trigger: false}

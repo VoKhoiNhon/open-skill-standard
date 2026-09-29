@@ -1,6 +1,6 @@
 ---
 name: open-skill-intel
-description: Routes a question to the best information source before acting - code structure (codegraph), library and framework docs (Context7), Claude API facts, database schemas, the web, the user's own saved knowledge, and the catalog of installed skills. Use when you need to understand a codebase, trace who calls what, estimate the impact of a change, check an API, inspect a table, or find which skill can do something; also for "how does this work", "where is", "what breaks if", "which skill", "tra cứu".
+description: Finds facts before acting by asking the best source - how code works and where something is defined or configured (codegraph call paths, callers, impact of a change, tests that cover a diff), current library and framework docs (Context7), Claude API facts, database table schemas and columns, the web, notes the user saved earlier, and which installed skill can do a job. Use for questions like "how does this work", "where is X configured", "who calls this", "what breaks if I change it", "which tests cover my diff", "check the docs for", "which skill can", "what did I note about", "tra cứu", "hàm này được gọi ở đâu".
 ---
 
 # Open Skill Intel

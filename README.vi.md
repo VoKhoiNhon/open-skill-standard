@@ -73,6 +73,11 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 - **Tự phát hiện model mới.** Workflow chạy hằng tuần tự mở issue khi Anthropic ra model chưa có hồ sơ.
 - **`open-skill lint`** chặn các mẫu không còn phù hợp: yêu cầu viết lại suy luận vào câu trả lời, lệnh "double-check" thừa, model ID viết cứng.
 
+## Đo lường
+
+- `open-skill eval routing` chạy các ca routing đã gán nhãn (mọi vai trò, framework, model) và báo tỉ lệ đạt theo vai trò.
+- `open-skill eval triggers` đo xem description của mỗi core skill có bắt đúng các yêu cầu cần bắt và bỏ qua các câu "suýt khớp" hay không, với khoảng 20 câu gán nhãn cho mỗi skill. Mặc định dùng proxy lexical tất định (nhanh, chạy trong CI với ngưỡng chống tụt hạng); `--agent claude --runs 3` chạy từng câu qua Claude Code, tính là kích hoạt khi skill được gọi ở ít nhất nửa số lần, và báo precision/recall trên tập train/validation chia 60/40 cố định.
+
 ## Sức khoẻ của skill
 
 `open-skill lint` kiểm tra skill theo [đặc tả Agent Skills](https://agentskills.io/specification) (luật đặt tên và khớp thư mục, giới hạn các trường, file được tham chiếu) và theo hướng dẫn prompt hiện hành; plugin manifest cũng được kiểm tra. Chỉ lỗi mới làm lệnh thất bại; `--strict` coi cả cảnh báo là lỗi, `--format json` để dùng cho công cụ khác. `open-skill lint --installed` báo cáo sức khoẻ của mọi skill đã cài, nhóm theo nguồn.

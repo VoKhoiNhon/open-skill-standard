@@ -1,0 +1,22 @@
+skill: open-skill-learn
+queries:
+  - {q: "remember that I always use uv, never pip", trigger: true}
+  - {q: "from now on, write SQL keywords in uppercase", trigger: true}
+  - {q: "note that the orders table must always be filtered by partition date", trigger: true}
+  - {q: "don't use INSERT for backfills again, we got duplicates last time", trigger: true}
+  - {q: "ghi nhớ: team mình release vào thứ năm hằng tuần", trigger: true}
+  - {q: "bài học hôm nay: phải kiểm tra null trên khoá trước khi merge dữ liệu", trigger: true}
+  - {q: "forget the note about using Docker for local tests", trigger: true}
+  - {q: "save this lesson for the data engineer role: reconcile row counts after every load", trigger: true}
+  - {q: "export my notes so I can move them to my new laptop", trigger: true}
+  - {q: "I pulled the new release, should I review the seed updates it mentioned", trigger: true}
+  - {q: "what does this function do", trigger: false}
+  - {q: "which skill should I use for this task", trigger: false}
+  - {q: "is this ready to merge by our standards", trigger: false}
+  - {q: "write a retrospective for the payments epic", trigger: false}
+  - {q: "summarize this pull request", trigger: false}
+  - {q: "set up the project's AGENTS.md instructions", trigger: false}
+  - {q: "add a cache to the API client", trigger: false}
+  - {q: "look up the pandas merge documentation", trigger: false}
+  - {q: "run the tests and fix what fails", trigger: false}
+  - {q: "phân tích vì sao doanh thu tuần này giảm", trigger: false}
