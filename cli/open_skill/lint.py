@@ -35,6 +35,7 @@ NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # no leading, trailing or dou
 
 # Errors break skills on some agent or model; warnings are strong advice.
 SEVERITY = {
+    "field-allowed-tools": "warning", "field-license": "warning", "unknown-field": "warning", "body-tokens": "warning",
     "frontmatter-name": "error", "frontmatter-description": "error", "reasoning-in-response": "error",
     "legacy-params": "error", "length": "warning", "redundant-verification": "warning",
     "hardcoded-model": "warning", "review-filtering": "warning", "shouting": "warning",
@@ -70,6 +71,15 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
         add("frontmatter-description", "description is missing", BEST)
     elif len(desc) > 1024 or "<" in desc or ">" in desc:
         add("frontmatter-description", "description must be at most 1024 chars with no angle brackets", BEST)
+    if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):
+        add("field-compatibility", "compatibility must be a string of 1-500 characters", SPEC)
+    md = meta.get("metadata")
+    if "metadata" in meta and not (isinstance(md, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in md.items())):
+        add("field-metadata", "metadata must map string keys to string values (quote numbers like \"1.0\")", SPEC)
+    if "allowed-tools" in meta and not isinstance(meta["allowed-tools"], str):
+        add("field-allowed-tools", "allowed-tools should be one space-separated string", SPEC)
+    if "license" in meta and not isinstance(meta["license"], str):
+        add("field-license", "license should be a short string or the name of a bundled license file", SPEC)
     if text.count("\n") + 1 > 500:
         add("length", "SKILL.md over 500 lines; move detail into reference files", BEST)
     for rule, rx, msg, src in PATTERNS:

@@ -66,3 +66,24 @@ def test_name_must_match_folder(tmp_path):
     assert [f.rule for f in lint.lint_file(d / "SKILL.md")] == ["name-matches-folder"]
     (d / "SKILL.md").write_text(doc("x", name="pdf-tools"))
     assert lint.lint_file(d / "SKILL.md") == []
+
+
+def fm(extra: str, body: str = "x") -> str:
+    return f"---\nname: good-skill\ndescription: Does a thing.\n{extra}\n---\n{body}"
+
+
+@pytest.mark.parametrize("extra,rule", [
+    ("compatibility: ''", "field-compatibility"),
+    ("compatibility: " + "a" * 501, "field-compatibility"),
+    ("metadata:\n  version: 1.0", "field-metadata"),
+    ("metadata: [a, b]", "field-metadata"),
+    ("allowed-tools: [Read, Bash]", "field-allowed-tools"),
+    ("license: {name: MIT}", "field-license"),
+])
+def test_optional_field_rules(extra, rule):
+    assert rule in rules(fm(extra))
+
+
+def test_valid_optional_fields_pass():
+    extra = "license: Apache-2.0\ncompatibility: Requires git and uv\nmetadata:\n  author: example-org\n  version: \"1.0\"\nallowed-tools: Bash(git:*) Read"
+    assert rules(fm(extra)) == []
