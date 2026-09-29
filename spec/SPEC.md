@@ -23,7 +23,7 @@ This standard describes Agent Skills (folders containing a `SKILL.md`) by the ro
 
 `spec/taxonomy.yaml` is normative. It defines:
 
-- **Phases**, in order: discover, research, specify, plan, build, verify, review, release, operate, learn. Each phase has keywords (any language) used to detect a task's target phase. Keywords match whole words and phrases, ignoring case and hyphens; a task typed without diacritics matches them folded the way the search index folds text (so `loi` matches `lỗi`), while a task typed with diacritics keeps them (`lời` does not match `lỗi`).
+- **Phases**, in order: discover, research, specify, plan, build, verify, review, release, operate, learn. Each phase has English keywords, and MAY have keywords in other languages (§3.1), used to detect a task's target phase. Keywords match whole words and phrases, ignoring case and hyphens; a task typed without diacritics matches them folded the way the search index folds text (so `cafe` matches `café`), while a task typed with diacritics keeps them (`papá` does not match `papa`). A keyword written in a script without spaces between words (Japanese, Chinese, Thai) matches anywhere in the task.
 - **Artifacts** (19 types) and the repository globs that reveal them.
 - **Edge types:** produces, consumes, precedes, alternative-to, conflicts-with, requires, applies-to, recommends.
 - **Task sizes:** small, medium, large, with keywords that hint at size.
@@ -33,6 +33,30 @@ This standard describes Agent Skills (folders containing a `SKILL.md`) by the ro
 
 Implementations MUST reject documents whose phases, artifacts, roles or sizes are not in the taxonomy.
 
+### 3.1 Locales
+
+English is the canonical language of the standard. A list of words that people type — phase `keywords`, `size_keywords` and adapter `triggers` — holds English only. Words in another language go in a block beside it named `<field>_i18n`, keyed by a BCP 47 language tag and holding what the field holds:
+
+```yaml
+phases:
+  - id: operate
+    keywords: [incident, error, "not working"]
+    keywords_i18n:
+      vi: [sự cố, lỗi, "không chạy"]
+      es: [incidente, "no funciona"]
+size_keywords:
+  small: [typo, rename]
+size_keywords_i18n:
+  es:
+    small: [errata, renombrar]
+skills:
+  - name: systematic-debugging
+    triggers: [bug, debug, "root cause"]
+    triggers_i18n: {es: [depurar, "causa raíz"]}
+```
+
+`en` and its subtags are not valid block keys. Implementations MUST treat a field as its English list plus every block, so a new language needs only new blocks: no code change, no change to the English lists. The generated schemas reject a misspelled block name or a malformed tag. Search matches whole words, so for languages written without spaces between words, triggers help less than keywords do. To add a language, add its blocks, then add routing cases in that language to `evals/routing.yaml` and the holdout.
+
 ## 4. Documents
 
 JSON Schemas generated from the taxonomy live in `spec/schemas/` and are normative for document structure.
@@ -41,7 +65,7 @@ JSON Schemas generated from the taxonomy live in `spec/schemas/` and are normati
 
 An adapter MUST contain `source`, `upstream`, `license` and `skills`. It SHOULD contain `install` (commands copied verbatim from the upstream README) and `detect` rules. It MUST NOT contain upstream skill bodies.
 
-Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words), `kind` (skill or tool), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers`, `portability`.
+Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words, in English), `kind` (skill or tool), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers` (English), `triggers_i18n` (§3.1), `portability`.
 
 Skill identifiers are `<source>/<name>`.
 
