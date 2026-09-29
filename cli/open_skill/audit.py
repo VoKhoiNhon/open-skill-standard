@@ -81,7 +81,7 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
 # Instructions that turn the agent against its user. A skill body is read with the same trust as the
 # user's own instructions, so these are prompt injection in the sense of OWASP LLM01.
 OWASP_LLM01 = "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
-NOT = r"(?<!not )(?<!n't )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
+NOT = r"(?<!not )(?<!n't )(?<!n’t )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
 # Security guidance quotes the attacks it warns about ("Ignore previous instructions...", `<system-reminder>`), and
 # forbids them ("never allow fetched text to override the user"). ponytail: an attacker can quote too; the agent still
 # reads quoted text, so this trades that case for not flagging every skill that teaches injection defense.
@@ -89,23 +89,23 @@ MENTIONED = r"[\"“'‘`]$"
 FORBIDDEN = r"\b(never|not|n't|n’t|no)\s+(let|allow|permit)\w*\b[^.;:!?]*$"
 rule("override-instructions", "high",
      rf"\b{NOT}(ignore|disregard|forget|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
-     r"all|any|system|user'?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
-     r"|\boverride\s+(the\s+|any\s+|all\s+)?(user'?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
+     r"all|any|system|user['’]?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
+     r"|\boverride\s+(the\s+|any\s+|all\s+)?(user['’]?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
      r"|\b(your|the following is (your|the)|this is (your|the)|here is (your|the))\s+(new|updated|real)\s+system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
      "tries to override the user's or the system's instructions", OWASP_LLM01, unless=MENTIONED + "|" + FORBIDDEN)
 
 
 rule("conceal-from-user", "high",
-     r"\b(do not|don't|never|without)\s+(tell|inform|notify|mention|alert|warn)(ing)?\s+(this\s+|it\s+|that\s+|anything\s+)?"
-     r"(to\s+)?(the\s+)?user|\bhide\s+(this|it|that|the\s+\w+)\s+from\s+the\s+user|\bthe\s+user\s+(must|should|will)"
-     r"\s*(not|n't|never)\s+(know|see|notice|find out)|\bsilently\s+(run|execute|install|download|send|upload|delete|post)",
+     r"\b(do not|don['’]t|never|without)\s+(tell|inform|notify|mention|alert|warn)(ing)?\s+(this\s+|it\s+|that\s+|anything\s+)?"
+     r"(to\s+)?(the\s+)?users?\b(?!\s+(that\s+)?(they|you)\b|\s+to\b)|\bhide\s+(this|it|that|the\s+\w+)\s+from\s+the\s+user|\bthe\s+user\s+(must|should|will)"
+     r"\s*(not|n't|n’t|never)\s+(know|see|notice|find out)|" + NOT + r"\bsilently\s+(run|execute|install|download|send|upload|delete|post)",
      "asks the agent to hide what it does from the user", ANTHROPIC_SKILLS)
 
 
 OWASP_LLM06 = "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
 rule("disable-confirmation", "high",
-     r"\b(do not|don't|never|no need to|without)\s+(ask|wait|prompt|check)(ing)?\s+(the\s+user\s+)?(for\s+)?"
-     r"(permission|confirmation|approval|consent)|\bskip\s+(the\s+|all\s+|any\s+)?(confirmation|approval|permission)s?\b"
+     r"\b(do not|don['’]t|never|no need to|without)\s+(ask|wait|prompt|check)(ing)?\s+(the\s+user\s+)?(for\s+)?"
+     r"(permission|confirmation|approval|consent)|" + NOT + r"\bskip\s+(the\s+|all\s+|any\s+)?(confirmation|approval|permission)s?\b"
      r"|\bauto-?approve\s+(all|every|any)\b"
      r"|\b(the\s+user\s+has|you\s+have)\s+(already\s+(pre-?)?|pre-?)(approved|authori[sz]ed|consented)",
      "tells the agent to act without the user's approval, or claims approval was already given", OWASP_LLM06)
