@@ -34,7 +34,11 @@ def route_case(case: dict, reg, installed) -> dict:
 
 def run_case(case: dict, reg, installed) -> list[str]:
     """Run one routing case in a scratch project; return the list of failed expectations (empty = pass)."""
-    r = route_case(case, reg, installed)
+    return check_case(case, route_case(case, reg, installed))
+
+
+def check_case(case: dict, r: dict) -> list[str]:
+    """Failed expectations of a case against a route result ({"chain": [{"id", "phase"}, ...], "advice"})."""
     ids = [s["id"] for s in r["chain"]]
     shown = " → ".join(f"{s['phase']}:{s['id']}" for s in r["chain"]) or str(r["advice"])
     fails = [f"{sid} missing from {shown}" for sid in case.get("include", []) if sid not in ids]
