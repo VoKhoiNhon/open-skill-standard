@@ -223,6 +223,14 @@ cases:
      include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
   - {id: product-manager-bmad, role: product-manager, task: "write a PRD for team workspaces", files: [_bmad/config.toml],
      include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
+  - {id: product-manager-research, role: product-manager, task: "research competitors for team workspaces",
+     phases: [research], include: [knowledge-work-product-management/competitive-brief]}
+  - {id: product-manager-brainstorm, role: product-manager, task: "brainstorm ideas for the onboarding flow",
+     phases: [discover], include: [knowledge-work-product-management/product-brainstorming]}
+  - {id: product-manager-vietnamese, role: product-manager, task: "viết PRD cho tính năng thanh toán định kỳ",
+     include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
+  - {id: product-manager-spec-kit, role: product-manager, task: "write a spec for team workspaces",
+     files: [.specify/memory/constitution.md], include: [spec-kit/specify]}
   - {id: business-analyst, role: business-analyst, task: "write requirements for the refund process",
      include: [knowledge-work-product-management/write-spec]}
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
