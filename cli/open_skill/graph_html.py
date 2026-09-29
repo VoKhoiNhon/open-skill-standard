@@ -13,6 +13,12 @@ PAGE = r"""<!doctype html>
   --bg: #ffffff; --fg: #1a1a1a; --muted: #555555; --line: #c8c8c8; --card: #f4f4f4;
   --accent: #0b57d0; --ok: #1e6b34; --off: #8a3b00; --focus: #0b57d0;
 }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212; --fg: #e8e8e8; --muted: #b0b0b0; --line: #4a4a4a; --card: #1e1e1e;
+    --accent: #8ab4f8; --ok: #7ee2a0; --off: #ffb77a; --focus: #8ab4f8;
+  }
+}
 * { box-sizing: border-box; }
 body { margin: 0; font: 15px/1.45 system-ui, sans-serif; background: var(--bg); color: var(--fg); }
 header, main { padding: 0 16px; }
@@ -31,6 +37,9 @@ h2 { font-size: 1.05rem; margin: 0 0 8px; }
 #detail { border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin: 16px 0; }
 #detail dt { font-weight: 600; margin-top: 6px; }
 #detail dd { margin: 0; }
+.skip { position: absolute; left: -9999px; }
+.skip:focus { position: static; }
+kbd { border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
 .link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; font: inherit; cursor: pointer; }
 table { border-collapse: collapse; width: 100%; margin: 8px 0 24px; }
 .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0; }
@@ -41,9 +50,11 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
 </style>
 </head>
 <body>
+<a class="skip" href="#board">Skip to skills</a>
 <header>
 <h1>Skill graph</h1>
-<p class="muted" id="summary"></p>
+<p class="muted" id="summary" role="status" aria-live="polite"></p>
+<p class="muted">Press <kbd>/</kbd> to search, <kbd>Esc</kbd> to clear the search.</p>
 </header>
 <main>
 <form class="filters" role="search" aria-label="Filter skills" id="filters">
@@ -58,7 +69,7 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
 <noscript><p>This page needs JavaScript to draw the graph. The same data is available with <code>open-skill graph --format json</code>.</p></noscript>
 <section aria-labelledby="phases-h">
 <h2 id="phases-h">Skills by phase</h2>
-<div class="board" id="board"></div>
+<div class="board" id="board" tabindex="-1"></div>
 </section>
 <section id="detail" aria-labelledby="detail-h" aria-live="polite">
 <h2 id="detail-h">Details</h2>
@@ -238,6 +249,12 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
   form.addEventListener("change", draw);
   form.addEventListener("reset", function () { setTimeout(draw, 0); });
   form.addEventListener("submit", function (e) { e.preventDefault(); });
+  var q = document.getElementById("q");
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
+    if (e.key === "/" && !typing) { e.preventDefault(); q.focus(); }
+    else if (e.key === "Escape" && document.activeElement === q) { q.value = ""; draw(); }
+  });
   drawRoles();
   draw();
 })();

@@ -80,3 +80,33 @@ def test_filters_and_search_are_labelled_controls():
     labelled = {a.get("for") for tag, a in c.attrs if tag == "label"}
     assert set(controls) <= labelled
     assert ("input", "search") in {(t, a.get("type")) for t, a in c.attrs}
+
+
+def _luminance(hex_color):
+    rgb = [int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    lin = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def _contrast(a, b):
+    hi, lo = sorted((_luminance(a), _luminance(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def test_light_and_dark_themes_meet_wcag_aa_contrast():
+    html = page()
+    assert "prefers-color-scheme: dark" in html
+    themes = [dict(re.findall(r"--([a-z]+): (#[0-9a-f]{6})", block)) for block in re.findall(r":root \{([^}]*)\}", html)]
+    assert len(themes) == 2
+    for t in themes:
+        for fg in ("fg", "muted", "accent", "ok", "off"):
+            for bg in ("bg", "card"):
+                assert _contrast(t[fg], t[bg]) >= 4.5, (fg, bg, t)
+
+
+def test_keyboard_and_screen_reader_basics():
+    c = parse(page())
+    attrs = {a.get("id"): a for _, a in c.attrs if a.get("id")}
+    assert ("html", "en") in {(t, a.get("lang")) for t, a in c.attrs}
+    assert attrs["summary"]["aria-live"] == "polite"
+    assert any(t == "a" and a.get("href") == "#board" for t, a in c.attrs)
