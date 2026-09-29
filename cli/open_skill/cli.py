@@ -66,7 +66,10 @@ def cmd_audit(args):
     if missing:
         print(f"no such file or folder: {', '.join(missing)}", file=sys.stderr)
         return 2
-    groups = {p: audit.audit_paths([p]) for p in args.paths}
+    if args.installed or not args.paths:
+        groups = audit.audit_installed(scan.scan(_registry(args), Path(args.project) if args.project else None))
+    else:
+        groups = {p: audit.audit_paths([p]) for p in args.paths}
     print(_audit_report(groups))
     return 0
 
@@ -556,7 +559,9 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.set_defaults(fn=cmd_lint)
     s = sub.add_parser("audit", help="heuristic security review of skill folders; reads files, never runs them")
-    s.add_argument("paths", nargs="*", help="skill folders or files")
+    s.add_argument("paths", nargs="*", help="skill folders or files (default: every installed skill)")
+    s.add_argument("--installed", action="store_true", help="audit every installed skill, grouped by source")
+    s.add_argument("--project", help="with --installed: also the project's own skills")
     s.set_defaults(fn=cmd_audit)
     s = sub.add_parser("scan", help="list installed skills")
     s.add_argument("--project")

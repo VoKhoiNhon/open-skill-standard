@@ -33,3 +33,11 @@ def test_audit_clean_skill_says_no_rule_matched(capsys):
 
 def test_audit_missing_path_is_an_error(capsys, tmp_path):
     assert cli.main(["audit", str(tmp_path / "nope")]) == 2
+
+
+@pytest.mark.parametrize("argv", [["audit", "--installed"], ["audit"]])
+def test_audit_installed_groups_by_source(capsys, argv):
+    code, out = run(capsys, *argv)
+    assert code == 0
+    assert "== harvested" in out and "== superpowers" in out
+    assert "claude-code-builtin" not in out  # built-in skills have no files to read
