@@ -83,5 +83,5 @@
 <text x="753" y="271" class="m s">route</text>
 <path d="M680 436L680 396" class="edge" marker-end="url(#arrow)"/>
 <text x="200" y="488" class="m s">records files and hashes in installed.json</text>
-<text x="944" y="546" class="m s" text-anchor="end">generated from the registry by scripts/render_assets.py</text>
+<text x="944" y="546" class="m s" text-anchor="end">generated from the registry · scripts/render_assets.py</text>
 </svg>

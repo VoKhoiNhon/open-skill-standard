@@ -80,8 +80,8 @@ def themed(name: str, draw) -> dict[str, str]:
     return {f"{name}.svg": draw("light"), f"{name}-dark.svg": draw("dark")}
 
 
-def footer(w: int, y: int, source: str) -> str:
-    return text(w - 16, y, f"generated from {source} by scripts/render_assets.py", "m s", "end")
+def footer(w: int, y: int, source: str, how: str = "generated from") -> str:
+    return text(w - 16, y, f"{how} {source} · scripts/render_assets.py", "m s", "end")
 
 
 def card(x, y, w, h, title, lines=(), cls="box", key_width=0) -> list[str]:
@@ -217,10 +217,61 @@ def pipeline() -> dict[str, str]:
               rect(x0, end + 22, bw, 32, "orange"), text(x0 + 14, end + 43, "Ordered steps", "b"),
               text(dx, end + 43, "each with its phase, score and reasons; --explain prints them, --why-not <skill> "
                    "names what excluded a skill", "s"),
-              footer(w, h - 4, "cli/open_skill/route.py")]
+              footer(w, h - 4, "cli/open_skill/route.py", "numbers read from")]
         return svg(w, h, b, theme, "Routing pipeline: request, phase and size, phase window, then for each phase "
                    "candidate filters, scoring and selection, then trimming and the ordered steps")
     return themed("routing", draw)
+
+
+# --- user data safety: what upgrade does to each kind of note (knowledge.sync_seeds, userdata, upgrade) ---
+
+def safety() -> dict[str, str]:
+    w = 960
+    steps = [("New release pulled", ["plugin update, npx skills", "update or a new uvx version"], "box"),
+             ("1  Back up", ["backups/<UTC time>-", "pre-upgrade.zip"], "blue"),
+             ("2  Migrate the schema", ["versioned steps; note text", "stays byte-identical"], "blue"),
+             ("3  Sync starter notes", ["seeds of your roles,", "compared by text hash"], "blue")]
+    rows = [("Seed you never edited", "hash still matches the one installed", "blue",
+             "Updated to the new wording", "reported as: updated <seed> (you had not edited it)"),
+            ("Seed you edited", "hash differs from the one installed", "green",
+             "Kept exactly as you wrote it", "upstream's new wording, if any, waits in seed-updates/ for "
+             "seeds diff | accept | keep"),
+            ("Seed you dismissed", "open-skill forget <id>", "red",
+             "Never re-created", "its id is kept in seeds-dismissed.txt"),
+            ("Seed retired upstream", "no longer in the role pack", "orange",
+             "Kept, reported once", "kept <seed>: no longer shipped upstream, then marked retired"),
+            ("New seed for your role", "added in this release", "blue", "Added", "as a note with source: seed"),
+            ("Your own notes", "open-skill learn, memory imports", "green",
+             "Never touched", "only migrations change metadata, never the text")]
+    h = 186 + 62 * len(rows) + 126
+
+    def draw(theme):
+        b, x = [], 20
+        for i, (title, lines, cls) in enumerate(steps):
+            b += card(x, 20, 212, 86, title, lines, cls)
+            if i:
+                b.append(line([(x - 27, 63), (x - 1, 63)]))
+            x += 236
+        b += [line([(832, 106), (832, 136), (420, 136), (420, 150)]),
+              text(40, 170, "Your note", "h"), text(380, 170, "What upgrade does", "h")]
+        y = 186
+        for state, how, cls, outcome, detail in rows:
+            b += [rect(40, y, 290, 50, cls), text(54, y + 21, state, "b"), text(54, y + 39, how, "m s"),
+                  line([(332, y + 25), (378, y + 25)]),
+                  rect(380, y, 560, 50), text(394, y + 21, outcome, "b"), text(394, y + 39, detail, "m s")]
+            y += 62
+        b += [*card(20, y + 12, 452, 78, "open-skill upgrade --dry-run", [
+                  "lists every change as “would …” and writes nothing,", "not even the backup"]),
+              *card(488, y + 12, 452, 78, "open-skill upgrade --rollback", [
+                  "restores the newest pre-upgrade backup; the state it replaces",
+                  "is zipped first, so a rollback can be undone too"]),
+              text(20, h - 8, "An older CLI refuses to write data a newer one created (SPEC §5.1).", "m s"),
+              footer(w, h - 8, "knowledge.sync_seeds, userdata.py and upgrade.py", "as implemented in")]
+        return svg(w, h, b, theme, "User data safety: an upgrade backs up, migrates and syncs starter notes; seeds you "
+                   "never edited are updated, edited seeds are kept with a proposal in seed-updates, dismissed "
+                   "seeds are never re-created, retired seeds are reported once, your own notes are never touched, "
+                   "with a dry run and a rollback")
+    return themed("safety", draw)
 
 
 # --- lifecycle: phases and artifacts from spec/taxonomy.yaml, edges from the adapters' produces/consumes ---
@@ -285,6 +336,7 @@ def render() -> dict[str, str]:
     out.update(architecture(reg))
     out.update(lifecycle(reg))
     out.update(pipeline())
+    out.update(safety())
     return out
 
 

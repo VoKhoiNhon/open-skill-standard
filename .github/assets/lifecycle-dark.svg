@@ -151,5 +151,5 @@
 <text x="290" y="666.5" class="m s">line width grows with the number of skills</text>
 <rect x="580" y="653" width="34" height="18" rx="9" class="dash"/>
 <text x="624" y="666.5" class="m s">found in repository files only; no skill writes or reads it</text>
-<text x="944" y="712" class="m s" text-anchor="end">generated from spec/taxonomy.yaml and registry/adapters by scripts/render_assets.py</text>
+<text x="944" y="712" class="m s" text-anchor="end">generated from spec/taxonomy.yaml and registry/adapters · scripts/render_assets.py</text>
 </svg>

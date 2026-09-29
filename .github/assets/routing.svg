@@ -50,5 +50,5 @@
 <rect x="48" y="728" width="180" height="32" rx="6" class="orange"/>
 <text x="62" y="749" class="b">Ordered steps</text>
 <text x="250" y="749" class="s">each with its phase, score and reasons; --explain prints them, --why-not &lt;skill&gt; names what excluded a skill</text>
-<text x="944" y="784" class="m s" text-anchor="end">generated from cli/open_skill/route.py by scripts/render_assets.py</text>
+<text x="944" y="784" class="m s" text-anchor="end">numbers read from cli/open_skill/route.py · scripts/render_assets.py</text>
 </svg>
