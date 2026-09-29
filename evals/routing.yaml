@@ -1,0 +1,71 @@
+# Deterministic routing evals. Every registry skill counts as installed; `files` are created in an empty project.
+# `include`: skill ids that must appear; `exclude`: ids that must not; `first`: id of the first step;
+# `phases`: exact phase list; `advice`: expected advice. Keep assertions to what matters, so tuning stays possible.
+cases:
+  - {id: frontend, role: frontend-developer, task: "build a settings page with a dark mode toggle",
+     include: [anthropic-skills/frontend-design], exclude: [superpowers/test-driven-development]}
+  - {id: backend, role: backend-developer, task: "add a REST endpoint to export invoices as CSV",
+     include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
+  - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
+     include: [superpowers/subagent-driven-development, anthropic-skills/webapp-testing], exclude: [taste-skill/taste-skill]}
+  - {id: mobile, role: mobile-developer, task: "add offline sync to the notes screen", include: [claude-code-builtin/run]}
+  - {id: embedded, role: embedded-engineer, task: "add a temperature sensor driver over I2C",
+     include: [superpowers/test-driven-development]}
+  - {id: game, role: game-developer, task: "add a double jump to the player controller", include: [claude-code-builtin/run]}
+  - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
+     include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
+  - {id: devops, role: devops-engineer, task: "add a CI pipeline that builds and deploys the container",
+     include: [superpowers/subagent-driven-development]}
+  - {id: sre-incident, role: site-reliability-engineer, task: "the API has an outage and error rate is spiking",
+     first: knowledge-work-engineering/incident-response}
+  - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
+     include: [claude-code-builtin/security-review]}
+  - {id: security, role: security-engineer, task: "review the login flow for security issues",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
+     include: [knowledge-work-data/sql-queries]}
+  - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
+     include: [superpowers/subagent-driven-development]}
+  - {id: data-engineer, role: data-engineer, task: "add a pipeline that loads orders into the warehouse",
+     include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
+  - {id: analytics-engineer, role: analytics-engineer, task: "add a revenue model with tests",
+     include: [knowledge-work-data/write-query]}
+  - {id: data-analyst, role: data-analyst, task: "why did weekly revenue drop in the north region",
+     phases: [build, verify, release], first: knowledge-work-data/analyze, include: [knowledge-work-data/validate-data],
+     exclude: [superpowers/writing-plans]}
+  - {id: data-scientist, role: data-scientist, task: "build a churn prediction model",
+     include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
+  - {id: ml-engineer, role: ml-engineer, task: "deploy the churn model with drift monitoring",
+     include: [knowledge-work-engineering/deploy-checklist]}
+  - {id: ai-engineer, role: ai-engineer, task: "build a RAG chatbot over our docs with evals",
+     include: [superpowers/subagent-driven-development]}
+  - {id: platform, role: data-ai-platform-engineer, task: "roll out a shared skill pack to all teams",
+     include: [anthropic-skills/skill-creator]}
+  - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
+     include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
+  - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
+     first: knowledge-work-product-management/sprint-planning}
+  - {id: product-manager, role: product-manager, task: "write a spec for team workspaces",
+     include: [knowledge-work-product-management/write-spec], exclude: [superpowers/subagent-driven-development]}
+  - {id: business-analyst, role: business-analyst, task: "write requirements for the refund process",
+     include: [knowledge-work-product-management/write-spec]}
+  - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
+  - {id: tech-writer, role: technical-writer, task: "write docs for the public API",
+     include: [knowledge-work-engineering/documentation]}
+  - {id: scrum-master, role: scrum-master, task: "plan the sprint and run the retrospective",
+     first: knowledge-work-product-management/sprint-planning}
+  # Framework and model behavior
+  - {id: native-spec-kit, role: backend-developer, task: "build a new billing system", files: [.specify/memory/constitution.md],
+     first: spec-kit/specify, include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
+  - {id: native-spec-kit-with-spec, role: backend-developer, task: "build a new billing system",
+     files: [.specify/memory/constitution.md, specs/001-billing/spec.md], first: spec-kit/plan}
+  - {id: native-bmad, role: fullstack-developer, task: "add a password reset flow", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development, spec-kit/implement]}
+  - {id: no-native-no-spec-kit, role: backend-developer, task: "build a new billing system",
+     exclude: [spec-kit/specify, spec-kit/implement]}
+  - {id: haiku-short-chain, role: backend-developer, task: "build a new billing system", model: claude-haiku-4-5,
+     max_steps: 3, last_phase: review}
+  - {id: do-directly, role: fullstack-developer, task: "fix typo in README", advice: "do directly"}
+  - {id: vietnamese, role: data-engineer, task: "thêm pipeline nạp dữ liệu đơn hàng", include: [knowledge-work-data/explore-data]}
