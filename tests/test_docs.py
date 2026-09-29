@@ -33,7 +33,8 @@ def test_router_manual_path_follows_the_playbooks_build_window():
 
 
 # Letters only Vietnamese uses, plain and with tone marks; enough to spot Vietnamese text in files meant to be English.
-VIETNAMESE = re.compile("[ăâđêôơưĂÂĐÊÔƠƯ]|[aeiouy][̣̀́̃̉]|[ạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]", re.I)
+VIETNAMESE = re.compile("[ăâđêôơư]|[aeiouy][̣̀́̃̉]"
+                        "|[Ạ-ỹ]", re.I)
 
 
 def test_skills_are_english_only():
@@ -41,3 +42,26 @@ def test_skills_are_english_only():
     found = [f"{p.relative_to(REPO)}:{n}" for p in sorted((REPO / "skills").rglob("*.md"))
              for n, line in enumerate(p.read_text().splitlines(), 1) if VIETNAMESE.search(line)]
     assert not found, found
+
+
+def _vietnamese_outside_test_inputs(path: Path) -> list[str]:
+    """file:line where Vietnamese appears in code, comments, docstrings or names; in tests/, strings are test inputs."""
+    import tokenize
+    with path.open("rb") as f:
+        toks = list(tokenize.tokenize(f.readline))
+    code = [t for t in toks if t.type not in (tokenize.COMMENT, tokenize.NL)]
+    out = [t.start[0] for t in toks if t.type == tokenize.COMMENT and VIETNAMESE.search(t.string)]
+    for i, tok in enumerate(code):
+        before, after = code[i - 1].type if i else None, code[i + 1].type if i + 1 < len(code) else None
+        docstring = tok.type == tokenize.STRING and before in (tokenize.INDENT, tokenize.NEWLINE, tokenize.ENCODING) \
+            and after == tokenize.NEWLINE
+        test_input = path.parent.name == "tests" and tok.type == tokenize.STRING and not docstring
+        if VIETNAMESE.search(tok.string) and not test_input:
+            out.append(tok.start[0])
+    return [f"{path.relative_to(REPO)}:{n}" for n in sorted(set(out))]
+
+
+def test_code_comments_and_test_names_are_english():
+    """Vietnamese belongs in locale data (spec/taxonomy.yaml, registry vi blocks) and in test inputs, not in code."""
+    files = [*sorted((REPO / "cli").rglob("*.py")), *sorted((REPO / "scripts").glob("*.py")), *sorted((REPO / "tests").glob("*.py"))]
+    assert not [hit for p in files for hit in _vietnamese_outside_test_inputs(p)]
