@@ -1,0 +1,22 @@
+skill: open-skill-router
+queries:
+  - {q: "I'm a data engineer starting in this repo, which skill or workflow should I use to add an orders pipeline?", trigger: true}
+  - {q: "where do I start with this new project? it's a small SaaS billing app", trigger: true}
+  - {q: "route this task for me: migrate the user service from REST to gRPC", trigger: true}
+  - {q: "bắt đầu project mới, nên dùng skill nào cho việc xây dashboard doanh thu?", trigger: true}
+  - {q: "we have spec-kit and superpowers installed, which workflow fits adding SSO to the admin panel", trigger: true}
+  - {q: "as an SRE, what's the right sequence of skills for rolling out a new alerting stack", trigger: true}
+  - {q: "which skill should I use to plan and build the checkout redesign", trigger: true}
+  - {q: "nên dùng skill nào để làm tính năng export CSV cho team CRM", trigger: true}
+  - {q: "pick the best skills for my role (product manager) to write and plan the workspaces feature", trigger: true}
+  - {q: "I'm the tech lead; figure out which workflow and skills to run for this multi-step refactor", trigger: true}
+  - {q: "fix the typo in README.md line 12", trigger: false}
+  - {q: "review this pull request for security issues", trigger: false}
+  - {q: "remember that I always use uv instead of pip", trigger: false}
+  - {q: "what does the parse_config function in settings.py do", trigger: false}
+  - {q: "write a unit test for the date formatter", trigger: false}
+  - {q: "is this pipeline good enough to merge? run the definition of done checklist", trigger: false}
+  - {q: "convert this CSV to an Excel file with a pivot table", trigger: false}
+  - {q: "explain the difference between MERGE and INSERT in Spark SQL", trigger: false}
+  - {q: "ghi nhớ giúp tôi: bảng orders phải lọc theo partition ngày", trigger: false}
+  - {q: "tra cứu schema bảng customers có những cột gì", trigger: false}
