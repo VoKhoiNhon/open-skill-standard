@@ -78,6 +78,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Design the error and empty states first.
-- Test copy by reading it aloud.
-- Check contrast before choosing a palette.
+- id: design-error-empty-states-first
+  text: Design the error and empty states first.
+- id: test-copy-reading-aloud
+  text: Test copy by reading it aloud.
+- id: check-contrast-choosing-palette
+  text: Check contrast before choosing a palette.

@@ -79,6 +79,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Start each page with what the reader will be able to do.
-- Run every code sample before publishing.
-- Link to the source of truth instead of copying it.
+- id: start-page-what-reader-will
+  text: Start each page with what the reader will be able to do.
+- id: run-code-sample-publishing
+  text: Run every code sample before publishing.
+- id: link-source-truth-instead-copying
+  text: Link to the source of truth instead of copying it.

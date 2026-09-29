@@ -83,6 +83,9 @@ phases:
     alternatives:
     - open-skill/open-skill-learn
 seeds:
-- Limit work in progress before adding process.
-- Bring last retro's actions to the next retro.
-- Make one change at a time and measure it.
+- id: limit-work-progress-adding-process
+  text: Limit work in progress before adding process.
+- id: bring-last-retro-s-actions
+  text: Bring last retro's actions to the next retro.
+- id: make-one-change-time-measure
+  text: Make one change at a time and measure it.
