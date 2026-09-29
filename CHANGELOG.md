@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-09-29
+
+Finishing the audit: concurrent writers, model fallback and repository checks.
+
 ### Fixed
 - Two processes running `learn` at once no longer lose each other's scopes on a shared note: the read-modify-write holds a lock on `~/.open-skill/.lock` (POSIX; Windows has no lock yet).
 - A model without its own profile falls back to the nearest profile of its family, the newest one not newer than the model (`claude-opus-5-1` → `claude-opus-5`; `claude-opus-4-7`, older than every profile, → `claude-opus-4-8`), instead of always the newest, whose effort names may be recalibrated; versions compare as numbers, not strings.
@@ -219,7 +223,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.5.0...v0.6.0
