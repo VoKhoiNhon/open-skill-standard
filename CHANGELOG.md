@@ -4,29 +4,48 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-29
+
+Multi-agent support, a security audit and graph explanations: install and scan skills for nine agents, audit skill folders before trusting them, and see why the router picks a skill.
+
 ### Added
-- `open-skill route --phase <id>` takes the target phase from the caller (an agent that read the conversation) and skips keyword detection; unknown ids exit 2. The JSON output gains `phase_from` (`given`, `keywords` or `guessed`), and `--explain` shows a phase picked without any signal as `phase: build (guessed, no signal)`. Build stays the fallback. Routing eval cases may set `phase`.
-- `open-skill graph --format html --out graph.html` writes one self-contained page (no network) with skills by phase, artifacts and roles, filters by role, phase, source and installed state, search, keyboard use and a dark theme; `--out` works for every format. Graph JSON nodes now carry skill descriptions and role names.
-- `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, nothing is left under `[Unreleased]`, the new section is the newest, dated and moves the version forward, and the compare links are updated. CI runs it on `release/*` pull requests.
-- Trigger sets grow to 32 queries per core skill, with multilingual phrasing and closer near misses; the 12 new ones per skill are marked `holdout: true` and kept out of tuning.
-- `eval triggers` reports the lexical proxy on tuning and holdout queries separately and lists failures for tuning queries only; `--agent` uses the `holdout` flags as its validation split when a set has them.
-- `open-skill route "<task>" --why-not <skill>` explains why a skill is not in the chain: not installed, wrong phase or size, requirement unmet, conflict with a chosen skill, below the minimum score, lower score than the winner (both scores), dropped by the model step limit, or done directly. `route.route(..., decisions=True)` exposes every candidate decision; the default output is unchanged.
+
+**Multi-agent support**
+
 - Agent targets in `registry/agents/`: Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot (CLI, coding agent, VS Code), OpenCode, Goose, Windsurf and Amp, with their global and project skill folders, how to detect each one and the documentation URL behind every path (SPEC §4.6).
 - `open-skill scan` looks in the skill folders of every agent target and lists each skill once with the agents that see it; `scan --agent <id>` shows one agent's view under the names it invokes skills by. Detect rules may use `{skills}` and `{project_skills}` for every agent's folders, and may name an `agent` (SPEC §4.2).
 - `open-skill agents [--project DIR] [--json]` lists the known agents, which are installed on this machine, how many skills each sees and where an install for it goes; `doctor` shows the detected agents.
-- Routing evals for the engineering and quality-ops roles: bug, crash and incident reports, reviews, research, postmortems, Vietnamese phrasing, and spec-kit and BMad projects.
-- `open-skill search` filters: `--role`, `--phase`, `--source` and `--installed`, applied before `--limit`; without a query it lists every skill the filters keep.
-- Routing evals for the data and AI roles: broken pipelines, models and reports, DAG and dbt reviews, reconciliation, dashboards, research, Vietnamese phrasing, and spec-kit and BMad projects.
 - `open-skill install <core-skill-or-folder> --agent <id> [--project DIR] [--copy|--symlink] [--dry-run]` installs one of the four core skills or any local skill folder into that agent's skill folder. It never overwrites a different existing skill, leaves an identical one alone, and records every folder it creates, with file hashes, in `~/.open-skill/installed.json`. `doctor` suggests it for detected agents that do not see the router.
-- `open-skill route --explain` shows the target phase and size with the keywords that decided them, the phase window with why it was chosen (size, spec/plan/tasks in the project, the role's `build_window`), and up to three runner-ups per step with their scores.
-- `open-skill audit [paths] [--installed] [--format json] [--strict]`: a heuristic security review of skill folders (SKILL.md, references, scripts, assets) that only reads files. It flags instructions that override the user or system, hide actions, skip approvals, impersonate authority or reach for secrets, browser data and password stores; invisible characters and hidden HTML comments; broad `allowed-tools` grants and load-time shell commands; links leaving the skill and bundled executables. Every finding cites its source. Findings are grouped by source, exit 1 on high severity (any finding with `--strict`); `doctor` shows a one-line summary. A clean report does not mean a skill is safe.
 - `open-skill remove <skill> --agent <id> [--project DIR] [--dry-run]` removes only what `install` recorded: files still exactly as installed (never through a link), then folders left empty; files you changed or added stay. `open-skill update [--agent <id>] [--dry-run]` reinstalls installed core skills at the CLI's version and skips any install you changed.
-- Routing evals for the architecture, leadership and product roles: reviews, research, retrospectives, roadmaps, PRDs and user stories, Vietnamese phrasing, and spec-kit and BMad projects. Every role now has at least three cases.
-- `eval triggers --suggest`: words and phrases common to missed tuning queries and absent from the description, and description words that cause false alarms.
 - `route --agent <id>` and `search --agent <id>` use only the skills that agent sees, under the names it invokes them by (plugin names such as `superpowers:test-driven-development` are Claude Code only). Missing-skill hints fit the agent: `open-skill install … --agent <id>` for core skills, and outside Claude Code a non-plugin install command when the adapter has one, otherwise the upstream link instead of a Claude-only command. The router skill passes `--agent`.
 - SPEC §5.2: guarantees for installing skills into agents (never overwrite, record with hashes, remove only unchanged recorded files, skip changed installs on update). README and README.vi describe the supported agents and the install, remove and update commands; a test keeps their agent tables in line with `registry/agents`.
+
+**Security audit**
+
+- `open-skill audit [paths] [--installed] [--format json] [--strict]`: a heuristic security review of skill folders (SKILL.md, references, scripts, assets) that only reads files. It flags instructions that override the user or system, hide actions, skip approvals, impersonate authority or reach for secrets, browser data and password stores; invisible characters and hidden HTML comments; broad `allowed-tools` grants and load-time shell commands; links leaving the skill and bundled executables. Every finding cites its source. Findings are grouped by source, exit 1 on high severity (any finding with `--strict`); `doctor` shows a one-line summary. A clean report does not mean a skill is safe.
+
+**Graph viewer and explanations**
+
+- `open-skill route --phase <id>` takes the target phase from the caller (an agent that read the conversation) and skips keyword detection; unknown ids exit 2. The JSON output gains `phase_from` (`given`, `keywords` or `guessed`), and `--explain` shows a phase picked without any signal as `phase: build (guessed, no signal)`. Build stays the fallback. Routing eval cases may set `phase`.
+- `open-skill graph --format html --out graph.html` writes one self-contained page (no network) with skills by phase, artifacts and roles, filters by role, phase, source and installed state, search, keyboard use and a dark theme; `--out` works for every format. Graph JSON nodes now carry skill descriptions and role names.
+- `open-skill route "<task>" --why-not <skill>` explains why a skill is not in the chain: not installed, wrong phase or size, requirement unmet, conflict with a chosen skill, below the minimum score, lower score than the winner (both scores), dropped by the model step limit, or done directly. `route.route(..., decisions=True)` exposes every candidate decision; the default output is unchanged.
+- `open-skill search` filters: `--role`, `--phase`, `--source` and `--installed`, applied before `--limit`; without a query it lists every skill the filters keep.
+- `open-skill route --explain` shows the target phase and size with the keywords that decided them, the phase window with why it was chosen (size, spec/plan/tasks in the project, the role's `build_window`), and up to three runner-ups per step with their scores.
+
+**Routing and trigger quality**
+
+- Trigger sets grow to 32 queries per core skill, with multilingual phrasing and closer near misses; the 12 new ones per skill are marked `holdout: true` and kept out of tuning.
+- `eval triggers` reports the lexical proxy on tuning and holdout queries separately and lists failures for tuning queries only; `--agent` uses the `holdout` flags as its validation split when a set has them.
+- Routing evals for the engineering and quality-ops roles: bug, crash and incident reports, reviews, research, postmortems, Vietnamese phrasing, and spec-kit and BMad projects.
+- Routing evals for the data and AI roles: broken pipelines, models and reports, DAG and dbt reviews, reconciliation, dashboards, research, Vietnamese phrasing, and spec-kit and BMad projects.
+- Routing evals for the architecture, leadership and product roles: reviews, research, retrospectives, roadmaps, PRDs and user stories, Vietnamese phrasing, and spec-kit and BMad projects. Every role now has at least three cases.
+- `eval triggers --suggest`: words and phrases common to missed tuning queries and absent from the description, and description words that cause false alarms.
 - Adapter for [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (25 engineering lifecycle skills, MIT), watched by the adapter-drift workflow. SREs build alerts and tracing with `observability-and-instrumentation`, security engineers build fixes with `security-and-hardening`, and DBAs plan zero-downtime migrations with `deprecation-and-migration`.
 - Adapter for [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (9 skills, MIT), watched by the adapter-drift workflow; its detect rules follow the skills CLI, which installs four of them under a `vercel-` prefix. React Native builds use `react-native-skills`, and frontend deploys to Vercel use `deploy-to-vercel`.
+
+**Release tooling**
+
+- `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, nothing is left under `[Unreleased]`, the new section is the newest, dated and moves the version forward, and the compare links are updated. CI runs it on `release/*` pull requests.
 
 ### Changed
 - Core skill bodies tightened: open-skill-standards reports failures and unverified items and reuses existing test output; open-skill-intel stops at the first source that answers; open-skill-router passes `--model` only when the id is known and its manual path no longer points at itself; open-skill-learn states its reason without claims about models.
@@ -111,7 +130,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.2.0...v0.3.0
