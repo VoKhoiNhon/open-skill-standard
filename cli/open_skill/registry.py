@@ -108,6 +108,12 @@ def validate(reg: Registry) -> list[str]:
                 for ref in (entry or {}).get(key, []):
                     if ref not in known:
                         errors.append(f"role {rid}: {phase}.{key} references unknown skill {ref}")
+    for rid, r in reg.roles.items():
+        ids = [s["id"] for s in r.get("seeds", []) if isinstance(s, dict)]
+        if any(isinstance(s, str) for s in r.get("seeds", [])):
+            errors.append(f"role {rid}: every seed needs an id so it can be updated without touching user edits")
+        if len(ids) != len(set(ids)):
+            errors.append(f"role {rid}: duplicate seed ids")
     for mid, m in reg.models.items():
         parent = m.get("inherits")
         if parent and parent not in reg.models:

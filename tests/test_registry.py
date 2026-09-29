@@ -53,3 +53,16 @@ def test_validate_reports_dangling_alternative_and_schema_error(tmp_path):
     errors = registry.validate(registry.load(root))
     assert any("nobody/missing" in e for e in errors)
     assert any("not-a-phase" in e for e in errors)
+
+
+def test_validate_requires_seed_ids(tmp_path):
+    import shutil
+    root = tmp_path / "r"
+    shutil.copytree(FIX / "repo", root)
+    p = root / "registry/roles/data-engineer.yaml"
+    doc = yaml.safe_load(p.read_text())
+    doc["seeds"] = ["no id here", {"id": "a", "text": "x"}, {"id": "a", "text": "y"}]
+    p.write_text(yaml.safe_dump(doc))
+    errors = registry.validate(registry.load(root))
+    assert any("every seed needs an id" in e for e in errors)
+    assert any("duplicate seed ids" in e for e in errors)
