@@ -46,6 +46,12 @@ cases:
      files: [.specify/memory/constitution.md], include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: embedded-vietnamese-hang, role: embedded-engineer, task: "thiết bị bị treo sau khi khởi động lại",
      first: superpowers/systematic-debugging}
+  - {id: embedded-hang, role: embedded-engineer, task: "the firmware hangs after the watchdog reset, debug it",
+     first: superpowers/systematic-debugging}
+  - {id: embedded-review, role: embedded-engineer, task: "review the SPI driver pull request",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: embedded-vietnamese, role: embedded-engineer, task: "viết driver cho cảm biến nhiệt độ",
+     include: [superpowers/test-driven-development]}
   - {id: game, role: game-developer, task: "add a double jump to the player controller", include: [claude-code-builtin/run]}
   - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
      include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
