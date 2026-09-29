@@ -229,6 +229,21 @@ open-skill upgrade             # backup, nâng schema dữ liệu, đồng bộ 
 
 **Skill nội bộ của công ty** được đặt trong một **overlay L1**: một repo riêng có cùng cấu trúc, nạp qua `--overlay`. Bạn không cần fork repo này và cũng không phải đưa gì nội bộ lên public.
 
+## CLI
+
+```text
+open-skill route "<task>" [--project .] [--agent a] [--role r] [--size s] [--phase p] [--model m] [--explain | --why-not <skill>]
+open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed] [--agent a]
+open-skill doctor                   open-skill scan [--agent a] [--memory]
+open-skill agents [--project .]     open-skill install <skill|folder> --agent a [--project .] [--symlink] [--dry-run]
+open-skill remove <skill> --agent a [--project .] [--dry-run]    open-skill update [--agent a] [--dry-run]
+open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
+open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
+open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
+open-skill audit [paths] [--installed] [--format json] [--strict]
+open-skill adapter draft|check --source <name> --from <upstream checkout>
+```
+
 ## Đóng góp
 
 Bạn có thể thêm adapter, role pack hoặc hồ sơ model; xem [CONTRIBUTING.md](CONTRIBUTING.md). Mỗi thay đổi đều chạy: unit test, routing eval cho mọi vai trò, validate schema, lint skill, kiểm tra file sinh tự động, và privacy guard.
