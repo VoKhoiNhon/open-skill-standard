@@ -134,6 +134,10 @@ cases:
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
   - {id: analytics-engineer, role: analytics-engineer, task: "add a revenue model with tests",
      include: [knowledge-work-data/write-query]}
+  - {id: analytics-engineer-spec-kit, role: analytics-engineer, task: "add a revenue model with tests",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
+  - {id: analytics-engineer-bmad, role: analytics-engineer, task: "add a revenue model with tests",
+     files: [_bmad/config.toml], include: [bmad-method/bmad-build]}
   - {id: data-analyst, role: data-analyst, task: "why did weekly revenue drop in the north region",
      phases: [build, verify, release], first: knowledge-work-data/analyze, include: [knowledge-work-data/validate-data],
      exclude: [superpowers/writing-plans]}
