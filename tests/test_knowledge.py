@@ -155,7 +155,8 @@ def test_sync_updates_untouched_but_keeps_user_edits(home):
                             {"id": "nulls", "text": "Check nulls on primary keys."}]}
     actions = knowledge.sync_seeds(["data-engineer"], v2)
     assert "updated data-engineer/merge (you had not edited it)" in actions
-    assert "kept your edit of data-engineer/nulls" in actions
+    assert any(a.startswith("kept your edit of data-engineer/nulls") for a in actions)
+    assert knowledge.proposals()["data-engineer/nulls"] == "Check nulls on primary keys."
     assert _note("data-engineer/merge")["text"] == "Use MERGE on the business key."
     assert "(my rule)" in _note("data-engineer/nulls")["text"]
 
