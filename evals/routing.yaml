@@ -9,6 +9,8 @@ cases:
   - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
      include: [superpowers/subagent-driven-development, anthropic-skills/webapp-testing], exclude: [taste-skill/taste-skill]}
   - {id: mobile, role: mobile-developer, task: "add offline sync to the notes screen", include: [claude-code-builtin/run]}
+  - {id: mobile-crash, role: mobile-developer, task: "the app crashes on launch on Android 14",
+     first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
   - {id: embedded, role: embedded-engineer, task: "add a temperature sensor driver over I2C",
      include: [superpowers/test-driven-development]}
   - {id: game, role: game-developer, task: "add a double jump to the player controller", include: [claude-code-builtin/run]}
