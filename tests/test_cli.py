@@ -176,3 +176,14 @@ def test_doctor_points_to_upgrade_and_reviews(capsys, tmp_path):
     (tmp_path / "h" / "knowledge").mkdir(parents=True)
     code, out = run(capsys, "doctor")
     assert "open-skill upgrade" in out
+
+
+def test_lint_exit_codes_and_json(capsys, tmp_path):
+    d = tmp_path / "s" / "warn-only"
+    d.mkdir(parents=True)
+    (d / "SKILL.md").write_text("---\nname: warn-only\ndescription: Does a thing.\nextra: x\n---\nbody\n")
+    code, out = run(capsys, "lint", str(tmp_path / "s"))
+    assert code == 0 and "0 error(s), 1 warning(s)" in out
+    assert run(capsys, "lint", "--strict", str(tmp_path / "s"))[0] == 1
+    code, out = run(capsys, "lint", "--format", "json", str(tmp_path / "s"))
+    assert json.loads(out)[0]["severity"] == "warning"
