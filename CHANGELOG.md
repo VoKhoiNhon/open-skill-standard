@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - `open-skill graph --format html --out graph.html` writes one self-contained page (no network) with skills by phase, artifacts and roles, filters by role, phase, source and installed state, search, keyboard use and a dark theme; `--out` works for every format. Graph JSON nodes now carry skill descriptions and role names.
-- `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, the CHANGELOG has a dated section and the compare links are updated. CI runs it on `release/*` pull requests.
+- `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, nothing is left under `[Unreleased]`, the new section is the newest, dated and moves the version forward, and the compare links are updated. CI runs it on `release/*` pull requests.
 - Trigger sets grow to 32 queries per core skill, with multilingual phrasing and closer near misses; the 12 new ones per skill are marked `holdout: true` and kept out of tuning.
 - `eval triggers` reports the lexical proxy on tuning and holdout queries separately and lists failures for tuning queries only; `--agent` uses the `holdout` flags as its validation split when a set has them.
 
