@@ -139,3 +139,14 @@ def test_later_rule_of_same_adapter_does_not_reclaim_a_path(reg, tmp_path, monke
                                          {"glob": "~/.claude/skills/vendor-{name}/SKILL.md", "invoke": "vendor-{name}"}]}
     ids = sorted(i.id for i in scan.scan(reg) if i.id.startswith("vendor/"))
     assert ids == ["vendor/react-best-practices", "vendor/vendor-cli"]  # not also an inferred "vendor/cli"
+
+
+def test_describe_ignores_non_string_frontmatter(tmp_path):
+    # An installed skill is untrusted text; str() of a YAML alias tree can be enormous, and ~ used to read as "None".
+    from open_skill import scan
+
+    bomb = "\n".join(["a0: &a0 [x, x, x, x, x, x, x, x, x, x]"] + [
+        f"a{i}: &a{i} [" + ", ".join([f"*a{i-1}"] * 10) + "]" for i in range(1, 8)]).replace("a7:", "description:")
+    (tmp_path / "odd").mkdir()
+    (tmp_path / "odd" / "SKILL.md").write_text(f"---\nname: ~\n{bomb}\n---\nbody")
+    assert scan._describe(tmp_path / "odd" / "SKILL.md") == ("odd", "")

@@ -610,7 +610,7 @@ def _upstream_skills(src_dir: Path) -> dict[str, str]:
         if ".git" in p.parts:
             continue
         meta, _ = frontmatter.parse(p.read_text(errors="replace"))
-        found[p.parent.name] = str(meta.get("description") or "")  # agents invoke skills by folder name
+        found[p.parent.name] = frontmatter.text(meta, "description")  # agents invoke skills by folder name
     return found
 
 
