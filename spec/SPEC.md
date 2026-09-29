@@ -87,6 +87,16 @@ A conforming implementation:
 4. MUST NOT re-create a seed the user deleted, and MUST NOT delete a seed only because upstream stopped shipping it.
 5. SHOULD offer a dry run and a rollback for every upgrade.
 
+### 5.2 Installing skills into agents
+
+A conforming implementation that installs skills into an agent's folders (§4.6):
+
+1. MUST NOT overwrite, change or delete a skill folder it did not create. It MAY leave an identical existing skill in place, but MUST NOT then record it as created.
+2. MUST record in the user layer every folder it creates, with a content hash of each file it wrote and the version that wrote it.
+3. When removing, MUST delete only recorded files whose content still matches, MUST NOT reach files through links, and MUST keep files the user changed or added. A link it created MAY be removed only while it still points at the recorded source.
+4. When updating, MUST skip any install the user changed, and SHOULD swap the new copy in so that a failure leaves the old one.
+5. MUST reject skill names that are not valid Agent Skills names, so every install stays inside the agent's folder, and SHOULD offer a dry run.
+
 ## 6. Routing
 
 A conforming router, given a task, a project and optionally a role, size and model:

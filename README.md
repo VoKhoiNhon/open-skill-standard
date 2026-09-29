@@ -27,7 +27,7 @@ Open Skill Standard adds the missing layer: metadata about **which role a skill 
 ## Quick start
 
 ```bash
-# 1. Install the skills (Claude Code) — or: npx skills add VoKhoiNhon/open-skill-standard -g
+# 1. Install the skills (Claude Code) — or: npx skills add VoKhoiNhon/open-skill-standard -g, or see "Any agent" below
 /plugin marketplace add VoKhoiNhon/open-skill-standard
 /plugin install open-skill@open-skill-standard
 
@@ -39,6 +39,35 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-ski
 ```
 
 `open-skill doctor` shows which frameworks are installed and the official command for each one that is missing.
+
+## Any agent that loads Agent Skills
+
+The skills follow the [Agent Skills](https://agentskills.io) format, so they work in every agent that reads it. `registry/agents/` describes nine of them: where each loads skills, for the user and for a project, and how to tell it is installed. Every path cites the agent's documentation, or the line of [vercel-labs/skills](https://github.com/vercel-labs/skills) it comes from where the docs are silent.
+
+| Agent | id | Installs to (user) | Installs to (project) |
+|---|---|---|---|
+| Claude Code | `claude-code` | `~/.claude/skills` | `.claude/skills` |
+| Codex | `codex` | `~/.agents/skills` | `.agents/skills` |
+| Cursor | `cursor` | `~/.cursor/skills` | `.agents/skills` |
+| Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
+| GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
+| OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
+| Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
+| Windsurf | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
+
+Each agent also reads other folders (Cursor, Copilot, OpenCode, Goose and Amp read Claude Code's, for example); `scan` knows them all and lists a skill once with every agent that sees it.
+
+```bash
+open-skill agents                                     # which agents are installed, what each sees
+open-skill install open-skill-router --agent codex    # a core skill, or a path to any skill folder
+open-skill install ./my-skill --agent cursor --project . --symlink
+open-skill route "<task>" --agent codex               # only skills Codex sees, by the names Codex calls them
+open-skill update                                     # core skills you installed, at this CLI's version
+open-skill remove open-skill-router --agent codex
+```
+
+`install` never overwrites a skill it did not put there. It records every folder it creates, with a hash of each file, in `~/.open-skill/installed.json`; `remove` and `update` act only on those, and leave alone any file you changed or added.
 
 ## How routing works
 
@@ -184,9 +213,11 @@ Organizations can add private skills and house rules as an **L1 overlay** (a sep
 ## CLI
 
 ```text
-open-skill route "<task>" [--project .] [--role r] [--size s] [--model m] [--explain | --why-not <skill>]
-open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed]
-open-skill doctor                   open-skill scan [--memory]
+open-skill route "<task>" [--project .] [--agent a] [--role r] [--size s] [--model m] [--explain | --why-not <skill>]
+open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed] [--agent a]
+open-skill doctor                   open-skill scan [--agent a] [--memory]
+open-skill agents [--project .]     open-skill install <skill|folder> --agent a [--project .] [--symlink] [--dry-run]
+open-skill remove <skill> --agent a [--project .] [--dry-run]    open-skill update [--agent a] [--dry-run]
 open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
 open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
 open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]

@@ -27,7 +27,7 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 ## Bắt đầu nhanh
 
 ```bash
-# 1. Cài skill (Claude Code) — hoặc: npx skills add VoKhoiNhon/open-skill-standard -g
+# 1. Cài skill (Claude Code) — hoặc: npx skills add VoKhoiNhon/open-skill-standard -g, hoặc xem mục "Dùng với mọi agent" bên dưới
 /plugin marketplace add VoKhoiNhon/open-skill-standard
 /plugin install open-skill@open-skill-standard
 
@@ -39,6 +39,35 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-ski
 ```
 
 `open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu.
+
+## Dùng với mọi agent đọc được Agent Skills
+
+Các skill theo định dạng [Agent Skills](https://agentskills.io), nên chạy được trên mọi agent đọc định dạng này. `registry/agents/` mô tả chín agent: mỗi agent nạp skill từ thư mục nào (cho người dùng và cho project), và làm sao biết agent đó đã được cài. Mỗi đường dẫn đều ghi nguồn là tài liệu chính thức của agent, hoặc dòng mã tương ứng trong [vercel-labs/skills](https://github.com/vercel-labs/skills) khi tài liệu không nói.
+
+| Agent | id | Cài vào (người dùng) | Cài vào (project) |
+|---|---|---|---|
+| Claude Code | `claude-code` | `~/.claude/skills` | `.claude/skills` |
+| Codex | `codex` | `~/.agents/skills` | `.agents/skills` |
+| Cursor | `cursor` | `~/.cursor/skills` | `.agents/skills` |
+| Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
+| GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
+| OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
+| Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
+| Windsurf | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
+
+Mỗi agent còn đọc thêm vài thư mục khác (ví dụ Cursor, Copilot, OpenCode, Goose và Amp đọc cả thư mục của Claude Code); `scan` biết hết các thư mục này và liệt kê mỗi skill một lần, kèm mọi agent nhìn thấy nó.
+
+```bash
+open-skill agents                                     # agent nào đã cài, mỗi agent thấy những skill nào
+open-skill install open-skill-router --agent codex    # một skill lõi, hoặc đường dẫn tới thư mục skill bất kỳ
+open-skill install ./my-skill --agent cursor --project . --symlink
+open-skill route "<việc cần làm>" --agent codex       # chỉ các skill Codex thấy, đúng tên Codex dùng để gọi
+open-skill update                                     # cập nhật các skill lõi bạn đã cài theo phiên bản CLI này
+open-skill remove open-skill-router --agent codex
+```
+
+`install` không bao giờ ghi đè skill mà nó không tự cài. Nó ghi lại mọi thư mục nó tạo, kèm mã băm của từng file, vào `~/.open-skill/installed.json`; `remove` và `update` chỉ đụng tới những thư mục đó, và để nguyên mọi file bạn đã sửa hoặc thêm.
 
 ## Router hoạt động thế nào
 

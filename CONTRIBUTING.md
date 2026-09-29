@@ -31,6 +31,10 @@ If `build --check` fails, run `uv run open-skill build` and commit the result.
 3. For each skill, set `phases`, `produces`/`consumes`, `task_size`, `requires`, `conflicts` and role weights where the skill is role-specific. Write descriptions in your own words; never paste upstream skill content.
 4. `uv run open-skill adapter check --source <name> --from <checkout>/skills` must report no drift.
 
+## Add or update an agent target
+
+Agent targets (`registry/agents/<id>.yaml`, SPEC §4.6) say where a coding agent loads skills. Take every path from the agent's official documentation; when the docs are silent (how to tell the agent is installed, an env var that moves its home), take it from the source of [vercel-labs/skills](https://github.com/vercel-labs/skills/blob/main/src/agents.ts), linking a pinned commit and line. Put the URL in the `source` of each path, list the install target first, and never guess a path. Use the same id as the skills CLI where one exists. Update the agent tables in both READMEs; a test checks them.
+
 ## Add or update a role pack
 
 Run `uv run open-skill eval routing` to see pass rates per role before and after your change.
