@@ -112,3 +112,13 @@ def test_broken_link_at_the_target_is_refused(reg, tmp_path):
     target.parent.mkdir(parents=True)
     target.symlink_to(tmp_path / "gone")
     assert install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"]).action == "refuse"
+
+
+def test_symlink_install_links_to_the_source(reg, tmp_path):
+    src = install.resolve_source(str(skill(tmp_path / "src/my-skill", "my-skill")))
+    p = install.plan(src, reg.agents["gemini-cli"], mode="symlink")
+    install.apply(p)
+    assert p.dest.is_symlink() and p.dest.resolve() == src.path
+    [rec] = install.manifest()
+    assert rec["mode"] == "symlink" and rec["files"] == {}
+    assert install.plan(src, reg.agents["gemini-cli"], mode="symlink").action == "unchanged"

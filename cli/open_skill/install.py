@@ -116,8 +116,11 @@ def apply(p: Plan) -> None:
     if p.action != "install":
         return
     p.dest.parent.mkdir(parents=True, exist_ok=True)
-    _copy(p.source.path, p.dest)
+    if p.mode == "symlink":
+        os.symlink(p.source.path, p.dest, target_is_directory=True)
+    else:
+        _copy(p.source.path, p.dest)
     rec = {"skill": p.source.name, "agent": p.agent, "scope": p.scope, "dest": str(p.dest),
            "source": str(p.source.path), "kind": p.source.kind, "mode": p.mode, "version": __version__,
-           "files": _files(p.dest), "installed": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+           "files": {} if p.mode == "symlink" else _files(p.dest), "installed": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
     _save([r for r in manifest() if r["dest"] != rec["dest"]] + [rec])
