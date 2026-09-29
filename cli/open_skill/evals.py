@@ -104,7 +104,7 @@ def lexical_triggers(query: str, descriptions: dict[str, str], top_k: int = 3, r
     from . import index
 
     conn = sqlite3.connect(":memory:")
-    conn.execute("CREATE VIRTUAL TABLE d USING fts5(name UNINDEXED, text, tokenize='unicode61 remove_diacritics 2')")
+    conn.execute(f"CREATE VIRTUAL TABLE d USING fts5(name UNINDEXED, text, tokenize='{index.TOKENIZE}')")
     conn.executemany("INSERT INTO d VALUES (?, ?)", [(n, f"{n.replace('-', ' ')} {t}") for n, t in descriptions.items()])
     tokens = [t for t in index.TOKEN.findall(query.lower()) if t not in index.STOP and t != "near"]
     if not tokens:
