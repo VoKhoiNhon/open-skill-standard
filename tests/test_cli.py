@@ -210,3 +210,10 @@ def test_eval_triggers_command(capsys):
     code = cli.main(["eval", "triggers"])
     out = capsys.readouterr().out
     assert code == 0 and "open-skill-router" in out and "recall" in out
+
+
+def test_eval_triggers_agent_needs_claude(capsys, monkeypatch):
+    import shutil
+    monkeypatch.setattr(shutil, "which", lambda name: None)
+    assert cli.main(["eval", "triggers", "--agent", "claude"]) == 2
+    assert "claude CLI is not on PATH" in capsys.readouterr().err
