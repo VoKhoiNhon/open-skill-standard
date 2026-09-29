@@ -3250,7 +3250,7 @@
   },
   {
    "from": "role:data-analyst",
-   "to": "claude-code-builtin/schedule",
+   "to": "superpowers/systematic-debugging",
    "type": "recommends"
   },
   {

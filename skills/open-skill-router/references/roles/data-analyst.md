@@ -25,7 +25,7 @@ Answers business questions with data and communicates what the numbers mean.
 | verify | `knowledge-work-data/validate-data` — QA an analysis or dataset before sharing - methodology, accuracy, bias<br>`bmad-method/bmad-advanced-elicitation` — Make the model critique and refine its own output - pre-mortem, red team, socratic, first principles | `knowledge-work-data/statistical-analysis` |
 | review | `claude-code-builtin/code-review` — Review the current diff or a PR for correctness bugs<br>`superpowers/requesting-code-review` — Ask for a review of finished work before merging | `bmad-method/bmad-code-review`<br>`ponytail/ponytail-review`<br>`knowledge-work-engineering/code-review` |
 | release | `knowledge-work-data/create-viz` — Publication-quality charts with Python<br>`knowledge-work-data/build-dashboard` — Interactive HTML dashboard with KPI cards, charts and filters | `anthropic-skills/pptx`<br>`anthropic-skills/xlsx`<br>`anthropic-skills/docx` |
-| operate | `claude-code-builtin/schedule` — Scheduled cloud agents on a cron | — |
+| operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix | `claude-code-builtin/schedule` |
 | learn | `open-skill/open-skill-learn` — Remember lessons and preferences so future routes use them | `bmad-method/bmad-retrospective` |
 
 ## Starter knowledge

@@ -141,6 +141,8 @@ cases:
   - {id: data-analyst, role: data-analyst, task: "why did weekly revenue drop in the north region",
      phases: [build, verify, release], first: knowledge-work-data/analyze, include: [knowledge-work-data/validate-data],
      exclude: [superpowers/writing-plans]}
+  - {id: data-analyst-broken-report, role: data-analyst, task: "the weekly sales report is broken since Monday",
+     first: superpowers/systematic-debugging, include: [knowledge-work-data/validate-data]}
   - {id: data-scientist, role: data-scientist, task: "build a churn prediction model",
      include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
   - {id: ml-engineer, role: ml-engineer, task: "deploy the churn model with drift monitoring",
