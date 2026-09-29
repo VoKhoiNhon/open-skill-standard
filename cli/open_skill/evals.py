@@ -125,8 +125,13 @@ def trigger_metrics(labels: list[dict], fired: list[bool]) -> dict:
 
 
 def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str]) -> dict[str, dict]:
-    return {skill: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
-            for skill, qs in sets.items()}
+    """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report."""
+    report = {}
+    for skill, queries in sets.items():
+        train, val = split_queries(queries)
+        report[skill] = {part: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
+                         for part, qs in (("train", train), ("validation", val))}
+    return report
 
 
 def invoked_skills(stream_json: str) -> set[str]:
