@@ -390,6 +390,9 @@ def _scopes(reg, raw: str) -> list[str]:
 def cmd_learn(args):
     try:
         nid = knowledge.learn(args.text, _scopes(_registry(args), args.applies_to), type_=args.type, force=args.force)
+    except knowledge.SensitiveText as e:
+        print(f"{e}; if it is not, run again with --force", file=sys.stderr)
+        return 2
     except ValueError as e:
         print(e, file=sys.stderr)
         return 2

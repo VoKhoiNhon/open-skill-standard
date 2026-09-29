@@ -471,3 +471,10 @@ def test_bug_learn_resolves_project_scopes_like_route_does(capsys, tmp_path, mon
     code, out = run(capsys, "learn", "Deploys go through staging first", "--applies-to", "project:link,role:*")
     note = (tmp_path / "h" / "knowledge" / f"{out.strip()}.md").read_text()
     assert code == 0 and f"project:{(tmp_path / 'real').resolve()}" in note and "role:*" in note
+
+
+def test_bug_learn_refusal_names_the_cli_flag(capsys):
+    # The CLI told users to "pass force=True", a Python argument, instead of --force.
+    code = cli.main(["--registry", str(FIX / "repo"), "learn", "mail a.b@example.com", "--applies-to", "role:*"])
+    err = capsys.readouterr().err
+    assert code == 2 and "--force" in err and "force=True" not in err

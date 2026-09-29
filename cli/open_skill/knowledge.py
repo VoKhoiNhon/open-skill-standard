@@ -65,12 +65,16 @@ def _write(meta: dict, text: str) -> None:
     userdata.atomic_write(_kdir() / f"{meta['id']}.md", body)
 
 
+class SensitiveText(ValueError):
+    """learn() refused text that looks like a secret or personal data; force=True stores it anyway."""
+
+
 def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool = False, source: str = "user") -> str:
     """Store one fact per file; the same text updates the existing node instead of duplicating it."""
     _prepare()
     reason = looks_sensitive(text)
     if reason and not force:
-        raise ValueError(f"refusing to store text that looks like {reason}; pass force=True to override")
+        raise SensitiveText(f"refusing to store text that looks like {reason}")
     nid = _node_id(text)
     path = _kdir() / f"{nid}.md"
     if path.exists():
