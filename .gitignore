@@ -7,3 +7,4 @@ build/
 /.claude/
 /.open-skill/
 events.jsonl
+dist/*.tar.gz
