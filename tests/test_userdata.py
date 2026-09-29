@@ -39,3 +39,14 @@ def test_unversioned_existing_layout_is_version_zero(tmp_path):
 def test_version_file_round_trip(tmp_path):
     userdata.write_version(tmp_path, 7)
     assert userdata.data_version(tmp_path) == 7
+
+
+def test_ensure_writable_stamps_fresh_home(tmp_path):
+    userdata.ensure_writable(tmp_path / "h")
+    assert (tmp_path / "h" / "VERSION").read_text().strip() == str(userdata.SCHEMA_VERSION)
+
+
+def test_newer_data_blocks_writes(tmp_path):
+    userdata.write_version(tmp_path, userdata.SCHEMA_VERSION + 1)
+    with pytest.raises(userdata.NewerDataError):
+        userdata.ensure_writable(tmp_path)

@@ -37,3 +37,20 @@ def data_version(home: Path) -> int:
 
 def write_version(home: Path, version: int = SCHEMA_VERSION) -> None:
     atomic_write(Path(home) / VERSION_FILE, f"{version}\n")
+
+
+class NewerDataError(RuntimeError):
+    """The user layer was written by a newer open-skill; writing with this one could lose data."""
+
+
+def ensure_writable(home: Path) -> None:
+    """Refuse writes from an older CLI; stamp the version on a fresh layer."""
+    home = Path(home)
+    v = data_version(home)
+    if v > SCHEMA_VERSION:
+        raise NewerDataError(
+            f"{home} uses data schema {v}, newer than this open-skill understands ({SCHEMA_VERSION}). "
+            "Upgrade open-skill before writing; reading still works."
+        )
+    if not (home / VERSION_FILE).exists() and v == SCHEMA_VERSION:
+        write_version(home)
