@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, agents, evals, frontmatter, generate, graph_html, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, agents, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -54,8 +54,7 @@ def cmd_scan(args):
     if args.memory:
         print(f"imported {knowledge.import_agent_memory()} memory file(s)")
         return 0
-    if args.agent and args.agent not in reg.agents:
-        print(f"unknown agent {args.agent}; known: {', '.join(sorted(reg.agents))}", file=sys.stderr)
+    if args.agent and _agent_arg(reg, args.agent) is None:
         return 2
     items = scan.scan(reg, Path(args.project) if args.project else None, agent=args.agent)
     if args.json:
@@ -88,6 +87,35 @@ def cmd_agents(args):
         where = r["install_to"]["project"] or r["install_to"]["global"]
         print(f"{'✓' if r['detected'] else '·'} {r['id']:16} {r['name'][:28]:28} {r['skills']:3} skill(s)  {where}")
     print(f"{sum(r['detected'] for r in rows)} of {len(rows)} agent(s) detected")
+    return 0
+
+
+def _agent_arg(reg, aid: str) -> dict | None:
+    if aid not in reg.agents:
+        print(f"unknown agent {aid}; known: {', '.join(sorted(reg.agents))}", file=sys.stderr)
+        return None
+    return reg.agents[aid]
+
+
+def cmd_install(args):
+    agent = _agent_arg(_registry(args), args.agent)
+    if agent is None:
+        return 2
+    try:
+        p = install.plan(install.resolve_source(args.skill), agent, Path(args.project) if args.project else None,
+                         "symlink" if args.symlink else "copy")
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 2
+    if p.action == "refuse":
+        print(p.reason, file=sys.stderr)
+        return 1
+    if p.action == "unchanged":
+        print(f"unchanged: {p.reason}")
+        return 0
+    if not args.dry_run:
+        install.apply(p)
+    print(f"{'would install' if args.dry_run else 'installed'} {p.source.name} for {p.agent} ({p.mode}) → {p.dest}")
     return 0
 
 
@@ -498,6 +526,15 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--project", help="also show the project skill folder of each agent")
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_agents)
+    s = sub.add_parser("install", help="install a core skill or a local skill folder for an agent (never overwrites)")
+    s.add_argument("skill", help="core skill name (open-skill-router, ...) or a folder containing SKILL.md")
+    s.add_argument("--agent", required=True, help="agent id, see: open-skill agents")
+    s.add_argument("--project", help="install into this project's skill folder instead of the user folder")
+    how = s.add_mutually_exclusive_group()
+    how.add_argument("--copy", action="store_true", help="copy the files (default)")
+    how.add_argument("--symlink", action="store_true", help="link to the source folder")
+    s.add_argument("--dry-run", action="store_true", help="show what would happen without changing anything")
+    s.set_defaults(fn=cmd_install)
     s = sub.add_parser("build", help="regenerate playbooks, schemas and dist/")
     s.add_argument("--root")
     s.add_argument("--check", action="store_true", help="exit 1 if generated files are stale")
