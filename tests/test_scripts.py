@@ -85,3 +85,20 @@ def test_changelog_title(version, expected):
 def test_changelog_missing_section():
     with pytest.raises(KeyError):
         cl.section(LOG, "9.9.9")
+
+
+wheel = load("check_wheel")
+
+
+def test_wheel_must_carry_every_tracked_data_file(tmp_path):
+    # The hand-written list named 9 files; a wheel without evals/triggers/ or three of the four core skills passed.
+    import zipfile
+    need = wheel.required(ROOT)
+    assert "open_skill/_data/evals/triggers/open-skill-router.yaml" in need
+    assert "open_skill/_data/skills/open-skill-learn/SKILL.md" in need and "open_skill/route.py" in need
+    gone = "open_skill/_data/evals/triggers/open-skill-router.yaml"
+    with zipfile.ZipFile(tmp_path / "x.whl", "w") as z:
+        for name in need:
+            if name != gone:
+                z.writestr(name, "")
+    assert wheel.missing(str(tmp_path / "x.whl"), ROOT) == [gone]

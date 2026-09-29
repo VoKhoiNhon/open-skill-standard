@@ -1,24 +1,31 @@
-"""Fail unless a built wheel carries the registry, spec and skills the CLI needs at run time."""
+"""Fail unless a built wheel carries the registry, spec, skills, evals and modules the CLI needs at run time.
 
+Usage: python scripts/check_wheel.py dist/<wheel>.whl  (run from a checkout: every tracked data file must be inside)
+"""
+
+import subprocess
 import sys
 import zipfile
+from pathlib import Path
 
-REQUIRED = [
-    "open_skill/cli.py",
-    "open_skill/_data/spec/taxonomy.yaml",
-    "open_skill/_data/registry/roles/data-engineer.yaml",
-    "open_skill/_data/registry/models/generic.yaml",
-    "open_skill/_data/registry/adapters/superpowers.yaml",
-    "open_skill/_data/registry/agents/claude-code.yaml",
-    "open_skill/_data/skills/open-skill-router/SKILL.md",
-    "open_skill/_data/evals/routing.yaml",
-    "open_skill/_data/evals/routing-holdout.yaml",
-]
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ("registry", "spec", "skills", "evals")  # force-included under open_skill/_data/ (pyproject.toml)
 
 
-def missing(wheel: str) -> list[str]:
+def required(root: Path) -> list[str]:
+    files = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True).stdout
+    out = []
+    for f in filter(None, files.split("\0")):
+        if f.startswith("cli/open_skill/") and f.endswith(".py"):
+            out.append("open_skill/" + f.removeprefix("cli/open_skill/"))
+        elif f.split("/")[0] in DATA:
+            out.append("open_skill/_data/" + f)
+    return sorted(out)
+
+
+def missing(wheel: str, root: Path = ROOT) -> list[str]:
     names = set(zipfile.ZipFile(wheel).namelist())
-    return [r for r in REQUIRED if r not in names]
+    return [r for r in required(root) if r not in names]
 
 
 if __name__ == "__main__":
