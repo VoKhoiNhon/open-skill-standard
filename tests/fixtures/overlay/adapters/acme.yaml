@@ -1,0 +1,8 @@
+source: acme
+upstream: internal
+license: proprietary
+skills:
+  - name: warehouse-audit
+    description: Audit warehouse tables
+    phases: [verify]
+    roles: {data-engineer: 1.0}

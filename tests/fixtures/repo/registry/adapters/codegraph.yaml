@@ -1,0 +1,11 @@
+source: codegraph
+upstream: https://github.com/colbymchenry/codegraph
+license: MIT
+install: {init: "codegraph init"}
+skills:
+  - name: explore
+    kind: tool
+    description: Code knowledge graph - callers, impact, affected tests
+    phases: [research, review]
+    roles: {fullstack-developer: 0.8, data-engineer: 0.5}
+    requires: ["project:.codegraph"]

@@ -1,0 +1,10 @@
+id: claude-opus-5
+match: ["claude-opus-5", "claude-opus-5-2*"]
+family: opus
+inherits: generic
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5
+verified: "2026-09-29"
+traits: {self_verifies: true}
+effort: {large: xhigh}
+addenda: ["Deliver what was asked, at the scope intended."]
+avoid: [explicit_double_check]

@@ -1,0 +1,8 @@
+id: generic
+match: ["*"]
+source: null
+verified: true
+effort: {small: low, medium: medium, large: high}
+chain: {max_steps: 8}
+addenda: ["When you have enough information to act, act."]
+avoid: [reasoning_in_response]
