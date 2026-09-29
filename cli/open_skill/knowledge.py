@@ -40,9 +40,8 @@ def _prepare() -> None:
 
 
 def _kdir() -> Path:
-    d = home() / "knowledge"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+    """The notes folder. Not created here: reads must leave a fresh home empty (writes create it)."""
+    return home() / "knowledge"
 
 
 def looks_sensitive(text: str) -> str | None:
@@ -71,6 +70,8 @@ class SensitiveText(ValueError):
 
 def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool = False, source: str = "user") -> str:
     """Store one fact per file; the same text updates the existing node instead of duplicating it."""
+    if not text.strip():
+        raise ValueError("refusing to store an empty note")
     _prepare()
     reason = looks_sensitive(text)
     if reason and not force:
@@ -88,15 +89,21 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
     return nid
 
 
+NODE_ID = re.compile(r"[A-Za-z0-9][\w.-]*")  # a file name inside knowledge/, never a path
+
+
 def forget(node_id: str) -> bool:
+    if not NODE_ID.fullmatch(node_id):
+        return False
     _prepare()
     path = _kdir() / f"{node_id}.md"
     if not path.exists():
         return False
     meta, _ = frontmatter.parse(path.read_text())
-    if meta.get("seed_id"):  # remember the choice so seed sync never brings it back
+    if meta.get("seed_id"):  # remember the choice so seed sync never brings it back, and drop its pending update
         with (home() / DISMISSED).open("a") as f:
             f.write(meta["seed_id"] + "\n")
+        _proposal_path(meta["seed_id"]).unlink(missing_ok=True)
     path.unlink()
     return True
 
@@ -176,7 +183,10 @@ def export(dest: Path) -> Path:
     tmp.mkdir(parents=True)
     if (home() / "profile.yaml").exists():
         shutil.copy(home() / "profile.yaml", tmp / "profile.yaml")
-    shutil.copytree(_kdir(), tmp / "knowledge")
+    if _kdir().is_dir():
+        shutil.copytree(_kdir(), tmp / "knowledge")
+    else:
+        (tmp / "knowledge").mkdir()
     out = shutil.make_archive(str(stage), "zip", tmp)
     shutil.rmtree(tmp)
     return Path(out)

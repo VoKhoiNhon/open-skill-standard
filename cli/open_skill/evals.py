@@ -78,7 +78,7 @@ def routing_report(cases: list[dict], reg, installed) -> dict:
 
 def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
     """skill name -> [{"q": query, "trigger": bool, "holdout": bool, "locale": tag (optional, default en)}, ...]"""
-    folder = Path(folder) if folder else paths.data_root() / "evals" / "triggers"
+    folder = paths.folder(folder) if folder else paths.data_root() / "evals" / "triggers"
     out = {}
     for p in sorted(folder.glob("*.yaml")):
         doc = yaml.safe_load(p.read_text())

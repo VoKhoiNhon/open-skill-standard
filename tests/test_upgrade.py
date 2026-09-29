@@ -19,7 +19,7 @@ def test_upgrade_from_v0_layout(home):
     assert actions[0].startswith("backed up to") and "added qa-engineer/flaky" in actions
     assert userdata.data_version(home) == userdata.SCHEMA_VERSION
     assert (home / "knowledge" / "k-mine.md").read_text().endswith("Mine.\n")
-    assert upgrade.upgrade(SEEDS)[1:] == []
+    assert upgrade.upgrade(SEEDS) == []
 
 
 def test_upgrade_dry_run_touches_nothing(home):
@@ -43,3 +43,14 @@ def test_rollback_restores_state_before_upgrade(home):
 def test_rollback_without_backup(home):
     with pytest.raises(FileNotFoundError):
         upgrade.rollback()
+
+
+def test_rollback_after_a_second_upgrade_still_restores_the_state_before_the_real_one(home):
+    # Bug: an upgrade with nothing to do still made a pre-upgrade backup, so rollback restored the upgraded state.
+    (home / "knowledge").mkdir(parents=True)
+    (home / "profile.yaml").write_text("roles: {qa-engineer: 1.0}\n")
+    upgrade.upgrade(SEEDS)
+    assert upgrade.upgrade(SEEDS) == []
+    assert len([b for b in userdata.list_backups(home) if b.stem.endswith("-pre-upgrade")]) == 1
+    upgrade.rollback()
+    assert not any("flaky" in n["text"] for n in knowledge.load_knowledge())

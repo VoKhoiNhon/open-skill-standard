@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import zipfile
 from pathlib import Path
 
 import yaml
@@ -139,7 +140,7 @@ def cmd_install(args):
     if agent is None:
         return 2
     try:
-        p = install.plan(install.resolve_source(args.skill), agent, Path(args.project) if args.project else None,
+        p = install.plan(install.resolve_source(args.skill), agent, paths.folder(args.project) if args.project else None,
                          "symlink" if args.symlink else "copy")
     except ValueError as e:
         print(e, file=sys.stderr)
@@ -309,6 +310,7 @@ def cmd_graph(args):
         g = index.graph_json(reg, scan.scan(reg))
         text = graph_html.graph_html(g) if args.format == "html" else json.dumps(g, indent=2, ensure_ascii=False) + "\n"
     if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(text, encoding="utf-8")
         print(f"wrote {args.out}")
     else:
@@ -359,17 +361,27 @@ def _parse_roles(items) -> dict[str, float]:
     out = {}
     for item in items or []:
         name, _, w = item.partition("=")
-        out[name] = float(w or 1.0)
+        try:
+            weight = float(w or 1.0)
+        except ValueError:
+            weight = 0.0
+        if not weight > 0:  # also rejects nan
+            raise ValueError(f"role weight for {name} must be a positive number, got {w!r}")
+        out[name] = weight
     return out
 
 
 def cmd_init(args):
     reg = _registry(args)
-    roles = _parse_roles(args.role)
-    if not roles and sys.stdin.isatty():
-        known = ", ".join(sorted(reg.roles))
-        answer = input(f"Your roles, e.g. data-engineer=0.7,data-analyst=0.3\n({known})\n> ")
-        roles = _parse_roles([x.strip() for x in answer.split(",") if x.strip()])
+    try:
+        roles = _parse_roles(args.role)
+        if not roles and sys.stdin.isatty():
+            known = ", ".join(sorted(reg.roles))
+            answer = input(f"Your roles, e.g. data-engineer=0.7,data-analyst=0.3\n({known})\n> ")
+            roles = _parse_roles([x.strip() for x in answer.split(",") if x.strip()])
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 2
     unknown = [r for r in roles if r not in reg.roles]
     if unknown:
         print(f"unknown role(s): {', '.join(unknown)}", file=sys.stderr)
@@ -493,11 +505,16 @@ def _seed_decision(args):
             diff = difflib.unified_diff(note["text"].splitlines(), pending[sid].splitlines(),
                                         f"{sid} (yours)", f"{sid} (upstream)", lineterm="")
             print("\n".join(diff))
-        elif args.action == "accept":
-            print(f"accepted upstream wording for {sid}; your version is in {knowledge.accept_proposal(sid)}")
-        else:
-            knowledge.keep_mine(sid)
-            print(f"kept your version of {sid}")
+            continue
+        try:
+            if args.action == "accept":
+                print(f"accepted upstream wording for {sid}; your version is in {knowledge.accept_proposal(sid)}")
+            else:
+                knowledge.keep_mine(sid)
+                print(f"kept your version of {sid}")
+        except KeyError:
+            print(f"{sid} no longer has a note in {knowledge.home() / 'knowledge'}; nothing changed", file=sys.stderr)
+            return 1
     return 0
 
 
@@ -615,7 +632,7 @@ def cmd_eval(args):
 
 def _upstream_skills(src_dir: Path) -> dict[str, str]:
     found = {}
-    for p in sorted(Path(src_dir).rglob("SKILL.md")):
+    for p in sorted(paths.folder(src_dir).rglob("SKILL.md")):
         if ".git" in p.parts:
             continue
         meta, _ = frontmatter.parse(p.read_text(errors="replace"))
@@ -638,6 +655,13 @@ def cmd_adapter(args):
     for n in removed:
         print(f"- {n}: adapter skill no longer upstream")
     return 1 if added or removed else 0
+
+
+def _positive(text: str) -> int:
+    n = int(text) if text.lstrip("-").isdigit() else 0
+    if n < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive whole number, got {text!r}")
+    return n
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -696,7 +720,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(fn=cmd_build)
     s = sub.add_parser("search", help="full-text search over skills")
     s.add_argument("query", nargs="?", help="words to search for; leave out to list every skill the filters keep")
-    s.add_argument("--limit", type=int, default=10)
+    s.add_argument("--limit", type=_positive, default=10)
     s.add_argument("--project")
     s.add_argument("--role", help="only skills this role's pack lists or whose manifest names it")
     s.add_argument("--phase", help="only skills that act in this phase")
@@ -773,7 +797,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--cases", help="routing: a YAML file of cases; triggers: a folder of trigger sets (default: bundled)")
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.add_argument("--agent", choices=["claude"], help="triggers: run queries through a real agent instead of the proxy")
-    s.add_argument("--runs", type=int, default=3, help="triggers with --agent: runs per query")
+    s.add_argument("--runs", type=_positive, default=3, help="triggers with --agent: runs per query")
     s.add_argument("--suggest", action="store_true",
                    help="triggers (proxy): terms shared by missed tuning queries, and description words behind false alarms")
     s.set_defaults(fn=cmd_eval)
@@ -792,3 +816,8 @@ def main(argv=None) -> int:
     except userdata.NewerDataError as e:
         print(f"open-skill: {e}", file=sys.stderr)
         return 3
+    except (FileNotFoundError, NotADirectoryError, IsADirectoryError, zipfile.BadZipFile) as e:
+        # A path the user gave does not exist or is not what the command needs: bad input, not a crash.
+        where = f": {e.filename}" if getattr(e, "filename", None) else ""
+        print(f"open-skill: {getattr(e, 'strerror', None) or e}{where}", file=sys.stderr)
+        return 2

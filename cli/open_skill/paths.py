@@ -1,5 +1,6 @@
 """Where registry data and the user layer live."""
 
+import errno
 import os
 from pathlib import Path
 
@@ -16,3 +17,11 @@ def data_root() -> Path:
 
 def user_home() -> Path:
     return Path(os.environ.get("OPEN_SKILL_HOME", Path.home() / ".open-skill"))
+
+
+def folder(path) -> Path:
+    """A folder the user named; FileNotFoundError (bad input) when it is not one, instead of globbing nothing."""
+    path = Path(path)
+    if not path.is_dir():
+        raise FileNotFoundError(errno.ENOENT, "no such folder", str(path))
+    return path

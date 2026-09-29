@@ -22,6 +22,16 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- Forgetting a seed also drops its pending upstream update, which otherwise stayed "to review" forever and made `seeds accept` crash.
+- `install --project` must name an existing folder; a mistyped path used to be created along with the skill folders.
+- `search --limit` and `eval triggers --runs` must be positive: `--limit -1` silently dropped the last hit and `--runs 0` crashed.
+- `graph --out` creates the folders it needs, like `export` does.
+- `init --role name=weight` with a weight that is not a positive number exits 2 instead of crashing (or storing a negative weight).
+- `learn` with empty text exits 2 instead of crashing.
+- `adapter check --from <missing folder>` exits 2 instead of reporting every skill as dropped upstream, and `eval triggers --cases <missing folder>` exits 2 instead of passing with an empty report.
+- A missing or corrupt file given on the command line (`restore`, `eval --cases` and others) exits 2 with one line on stderr instead of a traceback.
+- `forget` accepts only note ids: an id such as `../../notes` used to delete `notes.md` outside `~/.open-skill/knowledge/`.
+- `upgrade` with nothing to do no longer makes a pre-upgrade backup and says "already up to date"; before, running it twice made `upgrade --rollback` restore the already-upgraded state.
 - `validate` reports malformed registry documents (a seed or skill without its id or name, `null` lists, a YAML syntax error, a top level that is a list) with the file and field instead of crashing, and catches what used to pass silently: a skill listed twice in one adapter, two files of one layer with the same id, model inheritance cycles, a detect rule naming an unknown agent, and a hand-off to a role without a pack. The duplicate seed error names the ids.
 - `audit`: false positives found by auditing five public skill repositories are gone (40 → 6 high findings), with every remaining one a literal match: "local state" and "web data" in prose are no longer browser data, quoted attack phrases in injection-defense guidance and `<system-reminder>` in backticks are not attacks, "never skip confirmation", "don't silently delete" and curly-apostrophe negations read as negations, `cp .env.example .env` and `cat > .env` are not secret reads, `<!-- prettier-ignore -->` is not a hidden instruction, hidden-comment only applies to Markdown and HTML, and shell-at-load only to SKILL.md and command files. UTF-16 files (PowerShell's default) are audited instead of skipped as binary, grants in folded `allowed-tools:` scalars are read, line numbers no longer drift after U+2028 or form feeds, and public `.pub` keys are not secret files.
 - `upgrade --dry-run` and `seeds --dry-run` say "would keep your edit … upstream wording would wait for review" and "would keep … no longer shipped upstream" instead of claiming they saved or kept something.
@@ -46,6 +56,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - `feedback --ran` credits a skill run instead of the proposed one to that skill, so a correction such as "use superpowers here, not spec-kit" raises it in later routes; it used to be stored under a key routing never read. A proposed step named by its id also counts as run.
 - `lint`: broken frontmatter is reported as `frontmatter` with the YAML line at fault, instead of "name is missing"; a BOM or an empty frontmatter block no longer loses the fields. Non-string names and descriptions (`name: 2024`, `description: ~`) no longer pass, and YAML alias trees are never expanded by `str()` (also in `scan` and `install`). Links inside code and placeholders like `[Title](URL)` are not reported missing. A 500-line file is not "over 500 lines", CJK text is no longer undercounted as tokens, and shouting in code blocks is ignored. Malformed `plugins` in marketplace.json no longer crash lint. `lint` on a missing path exits 2.
 - Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", and Vietnamese `không chạy`, `ngừng hoạt động`, `từ hôm qua` and more). Routing holdout: 23/52 → 36/52.
+- `export` on a fresh `~/.open-skill` no longer creates an empty `knowledge/` folder either, so it too cannot make the home look like an old layout.
+- `build --check` compares the search index `dist/index.db` row by row too; the shipped index had gone stale (it still folded `đ` the old way) without CI noticing, and is rebuilt.
 
 ## [0.6.0] - 2026-09-29
 
