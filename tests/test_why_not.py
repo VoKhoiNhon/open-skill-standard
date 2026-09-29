@@ -151,3 +151,18 @@ def test_why_not_a_chosen_skill_says_so(project):
 def test_why_not_unknown_skill(project):
     with pytest.raises(KeyError):
         reasons(run("add an export endpoint", project, decisions=True), "nobody/nothing")
+
+
+@pytest.mark.parametrize("task,kw", [
+    ("add an export endpoint", {}),
+    ("fix typo in README", {}),
+    ("build a new platform", {"model": "claude-haiku-4-5"}),
+    ("add an export endpoint", {"role": "fullstack-developer"}),
+])
+def test_decisions_never_change_the_route(project, task, kw):
+    plain = run(task, project, **kw)
+    traced = run(task, project, decisions=True, **kw)
+    traced.pop("decisions")
+    for r in (plain, traced):
+        r.pop("route_id")
+    assert plain == traced
