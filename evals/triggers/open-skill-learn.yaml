@@ -20,6 +20,8 @@ queries:
   - {q: "look up the pandas merge documentation", trigger: false}
   - {q: "run the tests and fix what fails", trigger: false}
   - {q: "phân tích vì sao doanh thu tuần này giảm", trigger: false, locale: vi}
+  - {q: "nhớ giúp mình: không deploy vào thứ sáu", trigger: true, locale: vi}
+  - {q: "tu gio luon dung uv thay cho pip nhe", trigger: true, locale: vi}
   # Held out: never read these while tuning the description; they only show whether a change generalizes.
   - {q: "ugh, you used npm again. this repo uses pnpm, keep that in mind next time", trigger: true, holdout: true}
   - {q: "a partir de ahora, escribe los mensajes de commit en inglés aunque te hable en español", trigger: true, holdout: true, locale: es}
@@ -33,3 +35,5 @@ queries:
   - {q: "forget that last change, revert config.py to how it was", trigger: false, holdout: true}
   - {q: "cập nhật CHANGELOG cho bản release mới", trigger: false, holdout: true, locale: vi}
   - {q: "never use global state in this function, rewrite it with a parameter", trigger: false, holdout: true}
+  - {q: "lần sau đừng dùng INSERT cho backfill nữa, nhớ lấy bài học này", trigger: true, holdout: true, locale: vi}
+  - {q: "xoá file config cũ trong thư mục này", trigger: false, holdout: true, locale: vi}

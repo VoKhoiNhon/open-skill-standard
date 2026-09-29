@@ -20,6 +20,8 @@ queries:
   - {q: "make a slide deck summarizing Q3 results", trigger: false}
   - {q: "brainstorm names for our new internal tool", trigger: false}
   - {q: "sửa lỗi chính tả trong file hướng dẫn", trigger: false, locale: vi}
+  - {q: "checklist definition of done cho pipeline dữ liệu gồm những gì?", trigger: true, locale: vi}
+  - {q: "code này đã sẵn sàng merge chưa, rà soát theo tiêu chuẩn giúp mình", trigger: true, locale: vi}
   # Held out: never read these while tuning the description; they only show whether a change generalizes.
   - {q: "sanity check this Terraform module before I merge: anything missing like state locking or tagging?", trigger: true, holdout: true}
   - {q: "I think the backfill job is finished; anything I should check before telling the team it's done?", trigger: true, holdout: true}
@@ -33,3 +35,5 @@ queries:
   - {q: "which skill should I use to review this pipeline", trigger: false, holdout: true}
   - {q: "remember that our definition of done includes a changelog entry", trigger: false, holdout: true}
   - {q: "genera un informe de ventas del último trimestre por región", trigger: false, holdout: true, locale: es}
+  - {q: "tiêu chuẩn về commit message và test của team trước khi phát hành là gì?", trigger: true, holdout: true, locale: vi}
+  - {q: "viết tài liệu hướng dẫn cài đặt cho README", trigger: false, holdout: true, locale: vi}

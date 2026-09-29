@@ -20,6 +20,8 @@ queries:
   - {q: "explain the difference between MERGE and INSERT in Spark SQL", trigger: false}
   - {q: "ghi nhớ giúp tôi: bảng orders phải lọc theo partition ngày", trigger: false, locale: vi}
   - {q: "tra cứu schema bảng customers có những cột gì", trigger: false, locale: vi}
+  - {q: "mình là data engineer, task migrate pipeline này nên bắt đầu từ đâu?", trigger: true, locale: vi}
+  - {q: "nen dung skill nao de lam trang dang nhap", trigger: true, locale: vi}
   # Held out: never read these while tuning the description; they only show whether a change generalizes.
   - {q: "just joined as a QA engineer on this monorepo; what's the right set of skills to get a regression suite going?", trigger: true, holdout: true}
   - {q: "I need to ship a feature flag service: spec it, build it, test it. how should I go about it with the tools installed here?", trigger: true, holdout: true}
@@ -33,3 +35,5 @@ queries:
   - {q: "explain what spec-kit is and how it differs from BMad", trigger: false, holdout: true}
   - {q: "continue with the next unchecked task in tasks.md", trigger: false, holdout: true}
   - {q: "nên dùng thư viện nào để parse YAML trong Python?", trigger: false, holdout: true, locale: vi}
+  - {q: "với vai trò QA, nên theo quy trình skill nào để viết test e2e cho luồng thanh toán?", trigger: true, holdout: true, locale: vi}
+  - {q: "giải thích đoạn code này làm gì", trigger: false, holdout: true, locale: vi}
