@@ -278,6 +278,14 @@ cases:
      phases: [research]}
   - {id: business-analyst-bmad, role: business-analyst, task: "write requirements for the refund process",
      files: [_bmad/config.toml], include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
+  # "write a PRD" and "write requirements" target specify, not build, so these cases place the BMad discover and
+  # research primaries that those two build-window routes used to reach.
+  - {id: business-analyst-bmad-research, role: business-analyst, task: "analyze the business needs for refunds",
+     files: [_bmad/config.toml], include: [bmad-method/bmad-agent-analyst, bmad-method/bmad-prd]}
+  - {id: product-manager-bmad-research, role: product-manager, task: "research the market for team workspaces",
+     files: [_bmad/config.toml], phases: [research], include: [bmad-method/bmad-deep-recon]}
+  - {id: product-manager-bmad-idea, role: product-manager, task: "should we build team workspaces? pressure-test the idea",
+     files: [_bmad/config.toml], phases: [discover], include: [bmad-method/bmad-forge-idea]}
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
   - {id: ux-a11y-review, role: ux-designer, task: "review the onboarding flow for accessibility",
      phases: [review], include: [knowledge-work-design/accessibility-review]}
