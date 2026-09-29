@@ -87,6 +87,7 @@ def test_validate_scan_doctor_graph(capsys):
     assert "superpowers:test-driven-development" in out
     code, out = run(capsys, "doctor")
     assert "superpowers" in out and "no profile yet" in out
+    assert "agents: claude-code (" in out and "codex (" in out and "demo-agent" not in out
     code, out = run(capsys, "graph")
     assert out.startswith("graph LR")
 
