@@ -222,8 +222,10 @@ def cmd_search(args):
 
 def _explain(r) -> str:
     guess = " (guessed)" if r["phase_from"] == "guessed" else ""
-    lines = [f"route {r['route_id']}  role={r['role']}  size={r['size']}  target={r['target_phase']}{guess}",
-             f"project native={r['project']['native']} artifacts={r['project']['artifacts']}",
+    mix = r["role"]
+    roles = next(iter(mix)) if len(mix) == 1 else ", ".join(f"{k} {v:g}" for k, v in mix.items())
+    lines = [f"route {r['route_id']}  role={roles}  size={r['size']}  target={r['target_phase']}{guess}",
+             f"project native={r['project']['native'] or 'none'} artifacts={', '.join(r['project']['artifacts']) or 'none'}",
              f"model profile={r['model']['profile']} ({r['model']['matched_by']}) effort={r['model']['effort']}"]
     d = r.get("decisions")
     if d:
@@ -240,7 +242,7 @@ def _explain(r) -> str:
     for i, s in enumerate(r["chain"], 1):
         lines.append(f"{i}. [{s['phase']}] {s['invoke']}  score={s['score']}  — {s['why']}")
         if s.get("ask"):
-            lines.append(f"   close call on the main step, ask the user: {s['ask']}")
+            lines.append(f"   close call on the main step, ask the user: {' or '.join(s['ask'])}")
         losers = sorted((c for c in (d or {}).get("candidates", []) if c["phase"] == s["phase"] and c["outcome"] == "lower-score"),
                         key=lambda c: -c["score"])[:3]
         if losers:
