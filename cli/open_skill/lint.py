@@ -133,3 +133,31 @@ def lint_paths(paths) -> list[Finding]:
         for f in files:
             out += lint_file(f)
     return out
+
+
+MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+
+
+def lint_marketplace(path: Path) -> list[Finding]:
+    """Required fields of .claude-plugin/marketplace.json, as the Claude Code validator checks them."""
+    import json
+
+    path = Path(path)
+    out: list[Finding] = []
+
+    def add(rule, msg, sev="error"):
+        out.append(Finding(str(path), rule, msg, MARKETPLACE_DOCS, sev))
+
+    try:
+        doc = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        add("manifest-json", f"invalid JSON: {e}")
+        return out
+    for key in ("name", "owner", "plugins"):
+        if key not in doc:
+            add("marketplace-field", f"missing required field '{key}'")
+    for i, p in enumerate(doc.get("plugins") or []):
+        for key in ("name", "source"):
+            if key not in p:
+                add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
+    return out
