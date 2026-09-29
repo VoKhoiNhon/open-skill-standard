@@ -56,6 +56,8 @@ def adapter_schema(tax: dict) -> dict:
             "triggers_i18n": _i18n(_arr({"type": "string"})),
             "portability": _arr({"type": "string"}),
             "invoke": {"type": "string"},
+            "installed_as": {"type": "string", "pattern": "^[a-z0-9][a-z0-9:_-]*$",
+                             "description": "folder name when an installer renames the skill"},
         },
     }
     return {
