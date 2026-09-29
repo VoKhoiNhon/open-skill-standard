@@ -175,7 +175,8 @@ rule("fake-authority", "high",
 # allowed-tools pre-approves tools for the turn that invokes the skill, whether or not the folder is trusted.
 BROAD_BASH = r"""(Bash["']?[ \t]*(,|$)|Bash\b(?![("'])|Bash\(\s*\*\s*\)|Bash\((curl|wget|sudo|rm|sh|bash|eval|python3?|node)\b)"""
 rule("broad-allowed-tools", "medium",
-     rf"(?m)^allowed-tools[ \t]*:[^\n]*?{BROAD_BASH}|^allowed-tools[ \t]*:[ \t]*\n(?:[ \t]+-[^\n]*\n)*?[ \t]+-[ \t]*[\"']?{BROAD_BASH}",
+     # on the key's line, or on the indented lines under it (a YAML list, or a folded > or literal | scalar)
+     rf"(?m)^allowed-tools[ \t]*:[^\n]*?{BROAD_BASH}|^allowed-tools[ \t]*:[ \t]*([>|][+-]?)?[ \t]*\r?\n(?:[ \t]+[^\n]*\n)*?[ \t]+[^\n]*?{BROAD_BASH}",
      "allowed-tools pre-approves any shell command, or a download, delete or interpreter command, without a prompt",
      "https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill", whole=True)
 
