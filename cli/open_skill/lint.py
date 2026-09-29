@@ -168,8 +168,10 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
     else:
         _check_fields(meta, folder, add)
     name, desc = frontmatter.text(meta, "name"), frontmatter.text(meta, "description")
-    if len(body) / 4 > 5000:  # rough token estimate; the spec recommends under 5000 tokens for instructions
-        add("body-tokens", f"instructions are about {len(body) // 4} tokens; keep SKILL.md under ~5000 and move detail to references/", SPEC)
+    # ponytail: rough token estimate (4 ASCII characters or 1 other character per token); a tokenizer would be exact.
+    tokens = int(sum(0.25 if ord(c) < 128 else 1 for c in body))
+    if tokens > 5000:  # the spec recommends under 5000 tokens for instructions
+        add("body-tokens", f"instructions are about {tokens} tokens; keep SKILL.md under ~5000 and move detail to references/")
     if len(text.splitlines()) > 500:
         add("length", "SKILL.md over 500 lines; move detail into reference files", BEST)
     for rule_id, _, rx, msg, _ in PATTERNS:

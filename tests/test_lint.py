@@ -268,3 +268,13 @@ def test_length_counts_lines_not_newlines(lines, fires, eol):
     text = head + eol.join(["x"] * (lines - 4)) + eol
     assert len(text.splitlines()) == lines
     assert ("length" in rules(text)) is fires
+
+
+@pytest.mark.parametrize("body,fires", [
+    ("word " * 4200, True),     # about 5250 tokens of English
+    ("word " * 3800, False),
+    ("数据" * 3000, True),       # 6000 CJK characters are roughly 6000 tokens, not 6000 / 4
+    ("数据" * 2000, False),
+], ids=["english-long", "english-short", "cjk-long", "cjk-short"])
+def test_body_tokens_estimate_counts_non_latin_text(body, fires):
+    assert ("body-tokens" in rules(doc(body))) is fires
