@@ -61,11 +61,12 @@ def routing_report(cases: list[dict], reg, installed) -> dict:
 
 # ---------------------------------------------------------------- trigger evals
 # Agents pick a skill from its name and description alone, so a description is only as good as the queries it
-# catches and the near misses it leaves alone. Each file in evals/triggers/ labels ~20 queries for one skill.
+# catches and the near misses it leaves alone. Each file in evals/triggers/ labels ~30 queries for one skill;
+# queries marked `holdout: true` are kept out of tuning and only show whether a description generalizes.
 
 
 def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
-    """skill name -> [{"q": query, "trigger": bool}, ...]"""
+    """skill name -> [{"q": query, "trigger": bool, "holdout": bool (optional)}, ...]"""
     folder = Path(folder) if folder else paths.data_root() / "evals" / "triggers"
     out = {}
     for p in sorted(folder.glob("*.yaml")):
@@ -73,6 +74,8 @@ def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
         queries = doc.get("queries", [])
         if not all(isinstance(q.get("q"), str) and isinstance(q.get("trigger"), bool) for q in queries):
             raise ValueError(f"{p}: every query needs a string 'q' and a boolean 'trigger'")
+        if not all(isinstance(q.get("holdout", False), bool) for q in queries):
+            raise ValueError(f"{p}: 'holdout' must be true or false")
         out[doc["skill"]] = queries
     return out
 
@@ -122,8 +125,13 @@ def trigger_metrics(labels: list[dict], fired: list[bool]) -> dict:
 
 
 def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str]) -> dict[str, dict]:
-    return {skill: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
-            for skill, qs in sets.items()}
+    """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report."""
+    report = {}
+    for skill, queries in sets.items():
+        train, val = split_queries(queries)
+        report[skill] = {part: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
+                         for part, qs in (("train", train), ("validation", val))}
+    return report
 
 
 def invoked_skills(stream_json: str) -> set[str]:
@@ -157,9 +165,12 @@ def claude_runner(timeout: int = 180):
 
 
 def split_queries(queries: list[dict], train_share: float = 0.6) -> tuple[list[dict], list[dict]]:
-    """Stable train/validation split by query hash, stratified by label, so tuning cannot peek at validation."""
+    """Train/validation split: the `holdout` flags when a set has them, else a stable hash split stratified by label,
+    so tuning cannot peek at validation."""
     import hashlib
 
+    if any("holdout" in q for q in queries):
+        return [q for q in queries if not q.get("holdout")], [q for q in queries if q.get("holdout")]
     train, val = [], []
     for label in (True, False):
         group = sorted((q for q in queries if q["trigger"] is label), key=lambda q: hashlib.sha1(q["q"].encode()).hexdigest())

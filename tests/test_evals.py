@@ -46,6 +46,9 @@ def test_load_trigger_sets(tmp_path):
     (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi}\n")
     with pytest.raises(ValueError):
         evals.load_trigger_sets(tmp_path)
+    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, holdout: yes please}\n")
+    with pytest.raises(ValueError):
+        evals.load_trigger_sets(tmp_path)
 
 
 def test_trigger_metrics():
@@ -62,14 +65,25 @@ def test_lexical_triggers_prefers_the_matching_description():
     assert evals.lexical_triggers("the and of", d) == []
 
 
+def test_lexical_report_splits_train_and_holdout():
+    d = {"pdf-tools": "Extract text and tables from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
+    sets = {"pdf-tools": [{"q": "extract tables from this PDF", "trigger": True},
+                          {"q": "pull the text out of report.pdf", "trigger": True, "holdout": True},
+                          {"q": "write a SQL query for revenue", "trigger": False, "holdout": True}]}
+    rep = evals.trigger_report_lexical(sets, d)["pdf-tools"]
+    assert (rep["train"]["tp"], rep["train"]["fn"]) == (1, 0)
+    assert (rep["validation"]["tp"], rep["validation"]["tn"]) == (1, 1)
+
+
 def test_core_skills_trigger_proxy_meets_floor():
     rep = evals.trigger_report_lexical(evals.load_trigger_sets(ROOT / "evals" / "triggers"),
                                        evals.skill_descriptions(REG, ROOT / "skills"))
     assert set(rep) == {"open-skill-router", "open-skill-standards", "open-skill-intel", "open-skill-learn"}
-    # Regression floors for the lexical proxy; raise them when descriptions improve, never lower them silently.
-    for skill, m in rep.items():
-        assert m["precision"] >= 0.75, (skill, m)
-        assert m["recall"] >= 0.4, (skill, m)
+    # Regression floors for the lexical proxy on the tuning queries; raise them when descriptions improve,
+    # never lower them silently.
+    for skill, r in rep.items():
+        assert r["train"]["precision"] >= 0.75, (skill, r["train"])
+        assert r["train"]["recall"] >= 0.4, (skill, r["train"])
 
 
 def test_invoked_skills_parses_stream_json():
@@ -90,6 +104,13 @@ def test_split_is_stable_and_stratified():
     train, val = evals.split_queries(qs)
     assert len(train) == 12 and len(val) == 8
     assert sum(q["trigger"] for q in train) == 6 and evals.split_queries(qs) == (train, val)
+
+
+def test_split_honors_holdout_flags():
+    qs = [{"q": "a", "trigger": True}, {"q": "b", "trigger": True, "holdout": True},
+          {"q": "c", "trigger": False, "holdout": False}, {"q": "d", "trigger": False, "holdout": True}]
+    train, val = evals.split_queries(qs)
+    assert [q["q"] for q in train] == ["a", "c"] and [q["q"] for q in val] == ["b", "d"]
 
 
 def test_agent_report_uses_rates_and_threshold():

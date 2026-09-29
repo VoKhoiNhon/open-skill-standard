@@ -20,3 +20,16 @@ queries:
   - {q: "explain the difference between MERGE and INSERT in Spark SQL", trigger: false}
   - {q: "ghi nhớ giúp tôi: bảng orders phải lọc theo partition ngày", trigger: false}
   - {q: "tra cứu schema bảng customers có những cột gì", trigger: false}
+  # Held out: never read these while tuning the description; they only show whether a change generalizes.
+  - {q: "just joined as a QA engineer on this monorepo; what's the right set of skills to get a regression suite going?", trigger: true, holdout: true}
+  - {q: "I need to ship a feature flag service: spec it, build it, test it. how should I go about it with the tools installed here?", trigger: true, holdout: true}
+  - {q: "par où commencer ? je suis data analyst et je dois construire un rapport de churn", trigger: true, holdout: true}
+  - {q: "which of the installed workflows fits a two-week project to add multi-tenant support", trigger: true, holdout: true}
+  - {q: "BMad and spec-kit are both set up here, which one should drive the new public API?", trigger: true, holdout: true}
+  - {q: "mình là frontend dev, task làm lại trang settings này nên đi theo quy trình nào?", trigger: true, holdout: true}
+  - {q: "is there an installed skill that can extract tables from a PDF", trigger: false, holdout: true}
+  - {q: "rename the variable usr to user in auth.py", trigger: false, holdout: true}
+  - {q: "what's the definition of done for a frontend feature", trigger: false, holdout: true}
+  - {q: "explain what spec-kit is and how it differs from BMad", trigger: false, holdout: true}
+  - {q: "continue with the next unchecked task in tasks.md", trigger: false, holdout: true}
+  - {q: "nên dùng thư viện nào để parse YAML trong Python?", trigger: false, holdout: true}

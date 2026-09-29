@@ -352,9 +352,10 @@ def _eval_triggers(args, reg):
     if args.format == "json":
         _print(rep)
         return 0
-    print("lexical proxy of description-based triggering (not a model run)")
-    for skill, m in rep.items():
-        print(f"{skill:28} precision {m['precision']:.2f}  recall {m['recall']:.2f}")
+    print("lexical proxy of description-based triggering (not a model run); failures listed for tuning queries only")
+    for skill, r in rep.items():
+        m, h = r["train"], r["validation"]
+        print(f"{skill:28} tune P {m['precision']:.2f} R {m['recall']:.2f} | holdout P {h['precision']:.2f} R {h['recall']:.2f}")
         for q in m["missed"]:
             print(f"    missed: {q}")
         for q in m["false_alarms"]:
