@@ -301,3 +301,17 @@ def test_upgrade_from_vietnamese_seeds_keeps_the_users_edit_and_the_ids(home):
     again = [a for a in upgrade.upgrade(SEEDS_EN) if not a.startswith("backed up")]
     assert edited.read_text() == mine and len(knowledge.load_knowledge()) == 2  # the next upgrade still keeps it
     assert all(a.startswith("kept your edit of data-engineer/nulls") for a in again)  # only the review reminder
+
+
+def test_bug_untouched_seed_resaved_in_nfd_counted_as_a_user_edit(home):
+    """Bug: an editor that saves decomposed Unicode (NFD) made an untouched Vietnamese seed look edited, so it
+    never followed upstream wording again."""
+    import unicodedata
+    from open_skill import upgrade
+    seeds = {"data-engineer": [SEEDS_VI["data-engineer"][0]]}
+    knowledge.init({"roles": {"data-engineer": 1.0}}, seeds=seeds)
+    p = next((home / "knowledge").glob("*.md"))
+    p.write_text(unicodedata.normalize("NFD", p.read_text()))
+    actions = upgrade.upgrade({"data-engineer": [SEEDS_EN["data-engineer"][0]]})
+    assert "updated data-engineer/merge (you had not edited it)" in actions
+    assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]
