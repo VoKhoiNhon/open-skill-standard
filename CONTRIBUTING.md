@@ -51,6 +51,8 @@ When Anthropic publishes a model-specific prompting guide, add `registry/models/
 
 Skills in `skills/` must pass `open-skill lint`. Keep them model-neutral: say why instead of shouting MUST/NEVER, keep instructions brief, name the scope, never ask the model to reproduce its reasoning in the reply, and never hard-code a model id.
 
+A skill's `description` decides when agents load it. To change one, run `uv run open-skill eval triggers --suggest` before and after, tune against the failures it lists (tuning queries only), and never against queries marked `holdout: true`. Look for the concept a group of misses shares instead of pasting their words in. Put the before and after holdout precision and recall in the commit message, and raise the per-skill floors in `tests/test_evals.py` when scores go up.
+
 ## Releases
 
 See [RELEASING.md](RELEASING.md).
