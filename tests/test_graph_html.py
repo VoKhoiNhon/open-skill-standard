@@ -71,3 +71,12 @@ def test_data_cannot_close_the_script_tag():
     assert html.count("</script>") == 2  # the data block and the app script, nothing from the data
     desc = next(n["description"] for n in c.data["nodes"] if n["id"] == "superpowers/writing-plans")
     assert desc == "plan </script><script>alert(1)</script>"
+
+
+def test_filters_and_search_are_labelled_controls():
+    c = parse(page())
+    controls = {a["id"]: tag for tag, a in c.attrs if tag in ("input", "select")}
+    assert set(controls) == {"q", "f-role", "f-phase", "f-source", "f-installed"}
+    labelled = {a.get("for") for tag, a in c.attrs if tag == "label"}
+    assert set(controls) <= labelled
+    assert ("input", "search") in {(t, a.get("type")) for t, a in c.attrs}

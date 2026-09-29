@@ -2,7 +2,7 @@
 
 import json
 
-PAGE = """<!doctype html>
+PAGE = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -33,6 +33,10 @@ h2 { font-size: 1.05rem; margin: 0 0 8px; }
 #detail dd { margin: 0; }
 .link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; font: inherit; cursor: pointer; }
 table { border-collapse: collapse; width: 100%; margin: 8px 0 24px; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0; }
+.filters label { display: flex; flex-direction: column; font-size: 0.85rem; color: var(--muted); }
+input, select, .reset { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; padding: 4px 6px; }
+.reset { cursor: pointer; }
 th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8px; vertical-align: top; }
 </style>
 </head>
@@ -42,6 +46,15 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
 <p class="muted" id="summary"></p>
 </header>
 <main>
+<form class="filters" role="search" aria-label="Filter skills" id="filters">
+<label for="q">Search <input type="search" id="q" placeholder="name, description, artifact"></label>
+<label for="f-role">Role <select id="f-role"><option value="">All roles</option></select></label>
+<label for="f-phase">Phase <select id="f-phase"><option value="">All phases</option></select></label>
+<label for="f-source">Source <select id="f-source"><option value="">All sources</option></select></label>
+<label for="f-installed">Installed <select id="f-installed"><option value="">Installed or not</option>
+<option value="yes">Installed only</option><option value="no">Not installed only</option></select></label>
+<button type="reset" class="reset">Clear filters</button>
+</form>
 <noscript><p>This page needs JavaScript to draw the graph. The same data is available with <code>open-skill graph --format json</code>.</p></noscript>
 <section aria-labelledby="phases-h">
 <h2 id="phases-h">Skills by phase</h2>
@@ -88,6 +101,29 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
       .map(function (e) { return dir === "out" ? e.to : e.from; });
   }
   function strip(ref) { return ref.replace(/^(artifact|role|phase):/, ""); }
+
+  function haystack(s) {
+    return [s.id, s.description || "", s.source, s.phases.join(" ")]
+      .concat(related(s.id, "out", "produces"), related(s.id, "in", "consumes")).join(" ").toLowerCase();
+  }
+  function value(id) { return document.getElementById(id).value; }
+  function visible() {
+    var words = value("q").toLowerCase().split(/\s+/).filter(Boolean);
+    var role = value("f-role"), phase = value("f-phase"), source = value("f-source"), inst = value("f-installed");
+    var recommended = role ? related(role, "out", "recommends") : null;
+    return skills.filter(function (s) {
+      if (recommended && recommended.indexOf(s.id) < 0) return false;
+      if (phase && s.phases.indexOf(phase) < 0) return false;
+      if (source && s.source !== source) return false;
+      if (inst && s.installed !== (inst === "yes")) return false;
+      var text = haystack(s);
+      return words.every(function (w) { return text.indexOf(w) >= 0; });
+    });
+  }
+  function fill(id, pairs) {
+    var sel = document.getElementById(id);
+    pairs.forEach(function (p) { sel.appendChild(el("option", {value: p[0]}, p[1])); });
+  }
 
   function card(s) {
     var b = el("button", {type: "button", "class": "skill", "data-id": s.id, "aria-pressed": String(s.id === selected)});
@@ -177,7 +213,7 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
   }
 
   function draw() {
-    var list = skills;
+    var list = visible();
     var inst = list.filter(function (s) { return s.installed; }).length;
     document.getElementById("summary").textContent =
       list.length + " of " + skills.length + " skills shown, " + inst + " installed; " + phases.length + " phases, " + roles.length + " roles.";
@@ -193,6 +229,15 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
     drawDetail();
   }
 
+  fill("f-role", roles.map(function (r) { return [r.id, r.name || strip(r.id)]; }));
+  fill("f-phase", phases.map(function (p) { return [p, p]; }));
+  var sources = {}; skills.forEach(function (s) { sources[s.source] = true; });
+  fill("f-source", Object.keys(sources).sort().map(function (x) { return [x, x]; }));
+  var form = document.getElementById("filters");
+  form.addEventListener("input", draw);
+  form.addEventListener("change", draw);
+  form.addEventListener("reset", function () { setTimeout(draw, 0); });
+  form.addEventListener("submit", function (e) { e.preventDefault(); });
   drawRoles();
   draw();
 })();
