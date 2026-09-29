@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).parents[1]
 spec = importlib.util.spec_from_file_location("privacy_guard", ROOT / "scripts" / "privacy_guard.py")
 pg = importlib.util.module_from_spec(spec)
@@ -60,3 +62,16 @@ def test_main_scans_from_the_repository_root(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(root / "skills")
     assert pg.main(root) == 1
     assert "skills/x/SKILL.md:1: looks like email" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("line,reason", [
+    ("Co-Authored-By: Someone <123+someone@users.noreply.github.com>", None),
+    ("noreply@anthropic.com", None),
+    ("contact alice@corp.example or noreply@anthropic.com", "email"),   # one allowed address used to clear the line
+    ("pin open-skill@0.6.0 and pkg@1.2.3", None),
+    ("see /Users/alice/work", "local-path"),
+    ("see ~/Users/shared", None),
+    ("password: hunter2", "password"),
+])
+def test_reason_per_line(line, reason):
+    assert pg._reason(line) == reason

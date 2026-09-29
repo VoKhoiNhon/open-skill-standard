@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "cli"))
-from open_skill.knowledge import looks_sensitive  # noqa: E402
+from open_skill.knowledge import SENSITIVE  # noqa: E402
 
 FORBIDDEN_PATHS = (".open-skill/", "events.jsonl", "profile.yaml")
 SCANNED = ("registry/", "skills/", "spec/", "evals/", "specs/", ".github/assets/", "README.md", "README.vi.md")
@@ -21,9 +21,10 @@ LOCAL_PATH = re.compile(r"(?<![\w~])(/Users/|/home/)[A-Za-z0-9._-]+|\b[A-Za-z]:\
 
 
 def _reason(line: str) -> str | None:
-    reason = looks_sensitive(line)
-    if reason and not any(a in line for a in ALLOW.get(reason, ())):
-        return reason
+    """The first kind of sensitive text on the line; an allowed match (a noreply address) excuses only itself."""
+    for name, rx in SENSITIVE:
+        if any(not any(a in m.group() for a in ALLOW.get(name, ())) for m in rx.finditer(line)):
+            return name
     return "local-path" if LOCAL_PATH.search(line) else None
 
 
