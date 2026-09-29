@@ -212,6 +212,27 @@ def test_phase_and_size_keywords_match_without_diacritics():
     assert route._matched("page the on call engineer", ["on-call", "call"]) == ["on-call", "call"]
 
 
+def _with_locale(tag: str, phases: dict, sizes: dict | None = None) -> dict:
+    """The real taxonomy plus one new locale block, added the way SPEC §3.1 tells a community to add one."""
+    import copy
+    tax = copy.deepcopy(REG.taxonomy)
+    for p in tax["phases"]:
+        if p["id"] in phases:
+            p.setdefault("keywords_i18n", {})[tag] = phases[p["id"]]
+    if sizes:
+        tax.setdefault("size_keywords_i18n", {})[tag] = sizes
+    return tax
+
+
+def test_a_new_locale_block_drives_phase_and_size_without_code_changes():
+    tax = _with_locale("es", {"operate": ["falla", "no funciona"], "review": ["revisar"]}, {"small": ["errata"]})
+    assert route.target_phase("la exportación de facturas falla desde ayer", REG.taxonomy) == "build"  # unknown words
+    assert route.target_phase("la exportación de facturas falla desde ayer", tax) == "operate"
+    assert route.target_phase("revisar los cambios del módulo de pagos", tax) == "review"
+    assert route.task_size("corregir una errata en el pie", tax, None) == "small"
+    assert route.target_phase("add an export endpoint", tax) == "build"  # English keywords still apply
+
+
 def test_accents_the_user_typed_still_tell_words_apart():
     tax = REG.taxonomy
     assert route.task_size("rò rỉ bộ nhớ khi tải ảnh", tax, None) == "medium"  # nhớ (memory) is not nhỏ (small)

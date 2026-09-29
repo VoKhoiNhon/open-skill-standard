@@ -5,7 +5,7 @@ import re
 import time
 from pathlib import Path
 
-from . import index, knowledge, models, project
+from . import index, knowledge, models, project, registry
 
 TOKEN = re.compile(r"\w+", re.UNICODE)
 PRIMARY, ALTERNATIVE, UNLISTED = 2.0, 0.7, 0.2
@@ -66,7 +66,7 @@ def target_phase(task: str, tax: dict) -> str:
     """Phase with the most keyword hits; ties go to the phase mentioned first ("add a model with tests" is build)."""
     best, key = "build", None
     for p in tax["phases"]:
-        pos = _positions(task, p["keywords"])
+        pos = _positions(task, registry.localized(p, "keywords"))
         if pos:
             k = (-len(pos), min(pos))
             if key is None or k < key:
@@ -77,7 +77,7 @@ def target_phase(task: str, tax: dict) -> str:
 def task_size(task: str, tax: dict, given: str | None) -> str:
     if given:
         return given
-    kw = tax.get("size_keywords", {})
+    kw = registry.localized(tax, "size_keywords") or {}
     if _hits(task, kw.get("small", [])):
         return "small"
     if _hits(task, kw.get("large", [])):
@@ -161,8 +161,8 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     lead = max(mix, key=mix.get)
     window, window_why = window_and_reason(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"), lead)
     weights = knowledge.personal_weights()
-    phase_kw = {p["id"]: p["keywords"] for p in tax["phases"]}
-    size_kw = tax.get("size_keywords", {}).get(size, [])
+    phase_kw = {p["id"]: registry.localized(p, "keywords") for p in tax["phases"]}
+    size_kw = (registry.localized(tax, "size_keywords") or {}).get(size, [])
     phase_words = [] if given_phase else _matched(task, phase_kw.get(target, []))
     phase_from = "given" if given_phase else ("keywords" if phase_words else "guessed")
     size_from = "given" if given_size else ("keywords" if _matched(task, size_kw) else "default")
