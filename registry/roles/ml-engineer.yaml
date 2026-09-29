@@ -82,6 +82,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Log the feature values used at prediction time.
-- Shadow a new model before it serves traffic.
-- Alert on input drift, not only on accuracy.
+- id: log-feature-values-used-prediction
+  text: Log the feature values used at prediction time.
+- id: shadow-new-model-serves-traffic
+  text: Shadow a new model before it serves traffic.
+- id: alert-input-drift-accuracy
+  text: Alert on input drift, not only on accuracy.

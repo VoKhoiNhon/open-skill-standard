@@ -84,9 +84,12 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Features may only use information available before the prediction time.
-- Always compare against a naive model.
-- Record the seed and the data snapshot with every result.
+- id: features-may-use-information-available
+  text: Features may only use information available before the prediction time.
+- id: always-compare-against-naive-model
+  text: Always compare against a naive model.
+- id: record-seed-data-snapshot-result
+  text: Record the seed and the data snapshot with every result.
 handoff:
   production pipeline: data-engineer
   model serving: ml-engineer

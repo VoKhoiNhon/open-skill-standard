@@ -79,6 +79,9 @@ phases:
     - knowledge-work-data/data-context-extractor
     - open-skill/open-skill-learn
 seeds:
-- Define the grain of every model in its first line of documentation.
-- Compare row counts and key metrics between the old and new model before merging.
-- Never compute the same metric in two places.
+- id: define-grain-model-its-first
+  text: Define the grain of every model in its first line of documentation.
+- id: compare-row-counts-key-metrics
+  text: Compare row counts and key metrics between the old and new model before merging.
+- id: compute-same-metric-two-places
+  text: Never compute the same metric in two places.
