@@ -67,6 +67,45 @@ missing: codegraph/impact (needs .codegraph in the project) → codegraph init
 model note: Deliver what was asked at the intended scope; …
 ```
 
+## See and question the graph
+
+**Why this chain?** `route --explain` shows what decided the target phase, the size and the phase window, then each step with its score and up to three runner-ups:
+
+```text
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --explain
+target build from phase keywords: add, pipeline
+size medium: no size keywords, the default
+phase window: plan → build → verify → review (medium build task: starts at plan, then verify and review)
+1. [plan] superpowers:writing-plans  score=2.5  — phase plan; role prior 2.00 (primary for data-engineer); text 1.00; consumes spec
+2. [build] superpowers:subagent-driven-development  score=2.5  — …; consumes plan
+   runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/write-query 0.9, knowledge-work-data/sql-queries 0.7
+3. [verify] data:explore-data  score=2.0  — …
+   runner-ups: knowledge-work-data/validate-data 2.0 (close call), open-skill/open-skill-standards 2.0, …
+```
+
+**Why not that skill?** `--why-not` takes a skill id or invoke name and names the reason: not installed (with the install command), wrong phase or size, a requirement the project does not meet, a conflict with a chosen skill, a score below the minimum or below the winner's (both scores), the model's step limit, or a task small enough to do directly.
+
+```text
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers:executing-plans
+superpowers/executing-plans is not in the chain for: add a pipeline that loads orders
+  - [build] score 0.375 lost to superpowers/subagent-driven-development (2.5)
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers/brainstorming
+superpowers/brainstorming is not in the chain for: add a pipeline that loads orders
+  - acts in discover, specify; this task's phase window is plan, build, verify, review
+```
+
+**What is there?** `search` filters by `--role`, `--phase`, `--source` and `--installed`; without a query it lists everything the filters keep:
+
+```text
+$ open-skill search --role data-engineer --phase verify --installed
+      -  knowledge-work-data/explore-data
+      -  knowledge-work-data/validate-data
+      -  superpowers/test-driven-development
+      …
+```
+
+**The whole graph.** `open-skill graph --format html --out graph.html` writes one self-contained page (no network access): skills by phase, each skill's artifacts, requirements, conflicts and recommending roles, an artifact table and the roles, with filters by role, phase, source and installed state and a search box. It works with the keyboard (`/` searches, `Esc` clears) and follows your light or dark theme. `--format json` and `--format mermaid` export the same graph for other tools.
+
 ## Roles
 
 | Family | Roles |
@@ -131,11 +170,12 @@ Organizations can add private skills and house rules as an **L1 overlay** (a sep
 ## CLI
 
 ```text
-open-skill route "<task>" [--project .] [--role r] [--size s] [--model m] [--explain]
-open-skill search "<need>"          open-skill doctor           open-skill scan [--memory]
+open-skill route "<task>" [--project .] [--role r] [--size s] [--model m] [--explain | --why-not <skill>]
+open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed]
+open-skill doctor                   open-skill scan [--memory]
 open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
 open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
-open-skill validate | lint [paths] | build [--check] | graph [--format json]
+open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 ```
 

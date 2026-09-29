@@ -52,6 +52,39 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-ski
    - giới hạn số bước theo model đang chạy.
 5. **Đầu ra:** chuỗi skill kèm lý do, các ghi chú của bạn liên quan, skill còn thiếu kèm lệnh cài, và ghi chú prompt riêng cho model.
 
+## Xem và hỏi ngược skill graph
+
+**Vì sao ra chuỗi này?** `route --explain` cho biết từ khoá nào quyết định phase đích và cỡ việc, vì sao chọn dải phase đó, rồi từng bước kèm điểm và tối đa ba ứng viên xếp sau:
+
+```text
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --explain
+target build from phase keywords: add, pipeline
+size medium: no size keywords, the default
+phase window: plan → build → verify → review (medium build task: starts at plan, then verify and review)
+1. [plan] superpowers:writing-plans  score=2.5  — phase plan; role prior 2.00 (primary for data-engineer); text 1.00; consumes spec
+2. [build] superpowers:subagent-driven-development  score=2.5  — …; consumes plan
+   runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/write-query 0.9, knowledge-work-data/sql-queries 0.7
+```
+
+**Sao không chọn skill kia?** `--why-not` nhận id hoặc tên gọi của skill và nêu lý do: chưa cài (kèm lệnh cài), sai phase hoặc sai cỡ việc, project chưa đủ điều kiện, xung đột với skill đã chọn, điểm dưới ngưỡng hoặc thua skill thắng (hiện cả hai điểm), bị cắt vì giới hạn số bước của model, hoặc việc đủ nhỏ để làm thẳng.
+
+```text
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers:executing-plans
+superpowers/executing-plans is not in the chain for: add a pipeline that loads orders
+  - [build] score 0.375 lost to superpowers/subagent-driven-development (2.5)
+```
+
+**Có những gì?** `search` lọc theo `--role`, `--phase`, `--source` và `--installed`; bỏ trống câu tìm thì liệt kê mọi skill qua được bộ lọc:
+
+```text
+$ open-skill search --role data-engineer --phase verify --installed
+      -  knowledge-work-data/explore-data
+      -  knowledge-work-data/validate-data
+      …
+```
+
+**Toàn bộ graph.** `open-skill graph --format html --out graph.html` ghi ra một trang HTML duy nhất, tự chứa, không cần mạng: skill theo phase; artefact, điều kiện, xung đột và vai trò khuyên dùng của từng skill; bảng artefact và danh sách vai trò; lọc theo vai trò, phase, nguồn, đã cài hay chưa, và ô tìm kiếm. Dùng được bằng bàn phím (`/` để tìm, `Esc` để xoá) và theo giao diện sáng/tối của máy. `--format json` và `--format mermaid` xuất cùng graph cho công cụ khác.
+
 ## 28 vai trò
 
 | Nhóm | Vai trò |
