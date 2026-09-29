@@ -15,12 +15,12 @@ jobs:
           test "v$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)" = "${GITHUB_REF_NAME}"
           uv run python scripts/check_versions.py
       - run: uv build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/*.whl
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sdist
           path: dist/*.tar.gz
