@@ -174,7 +174,7 @@ Prompting advice changes between model generations; instructions that helped one
 
 ## Measuring it
 
-- `open-skill eval routing` runs the labeled routing cases (every role, frameworks, models) and reports pass rates per role.
+- `open-skill eval routing` runs the labeled routing cases (every role, frameworks, models) and reports pass rates per role, then the score on held-out cases the router was never tuned on (paraphrased, messy requests in English and Vietnamese, with and without accents). CI requires every tuned case to pass and the holdout to stay above a floor.
 - `open-skill eval triggers` measures how well each core skill's description catches the requests it should and leaves near misses alone, using about 30 labeled queries per skill, of which the ones marked `holdout: true` are never used for tuning. By default it uses a deterministic lexical proxy (fast, runs in CI with regression floors) and lists misses and false alarms for the tuning queries only; `--agent claude --runs 3` runs every query through Claude Code, counts a trigger when the skill is invoked in at least half the runs, and reports precision and recall on the tuning and holdout queries, following the [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions). `--suggest` adds, per skill, the words and phrases that missed tuning queries share but the description lacks, and the description words behind false alarms: hints at a missing concept, not words to paste in.
 
 ## Skill health

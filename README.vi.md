@@ -139,7 +139,7 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 
 ## Đo lường
 
-- `open-skill eval routing` chạy các ca routing đã gán nhãn (mọi vai trò, framework, model) và báo tỉ lệ đạt theo vai trò.
+- `open-skill eval routing` chạy các ca routing đã gán nhãn (mọi vai trò, framework, model) và báo tỉ lệ đạt theo vai trò, rồi điểm trên bộ ca giữ riêng (holdout) mà router chưa từng được chỉnh theo (yêu cầu diễn đạt lại, viết lộn xộn, tiếng Anh và tiếng Việt có dấu lẫn không dấu). CI đòi mọi ca đã chỉnh phải đạt và holdout không tụt dưới một ngưỡng sàn.
 - `open-skill eval triggers` đo xem description của mỗi core skill có bắt đúng các yêu cầu cần bắt và bỏ qua các câu "suýt khớp" hay không, với khoảng 30 câu gán nhãn cho mỗi skill; các câu có `holdout: true` không bao giờ được dùng để tinh chỉnh. Mặc định dùng proxy lexical tất định (nhanh, chạy trong CI với ngưỡng chống tụt hạng) và chỉ liệt kê câu bị bỏ sót hoặc kích hoạt nhầm trong tập tinh chỉnh; `--agent claude --runs 3` chạy từng câu qua Claude Code, tính là kích hoạt khi skill được gọi ở ít nhất nửa số lần, và báo precision/recall trên tập tinh chỉnh và tập holdout. `--suggest` liệt kê thêm, cho mỗi skill, các từ và cụm từ chung của những câu tinh chỉnh bị bỏ sót mà description còn thiếu, và các từ trong description gây kích hoạt nhầm: gợi ý về khái niệm còn thiếu, không phải từ để chép nguyên văn.
 
 ## Sức khoẻ của skill
