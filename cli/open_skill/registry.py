@@ -22,6 +22,15 @@ class Registry:
     files: dict[str, str] = field(default_factory=dict)  # "<kind>:<id>" -> file path, for error messages
 
 
+def _list(v) -> list:
+    """A YAML list field, or [] when it is missing or not a list (the schema reports the wrong type)."""
+    return v if isinstance(v, list) else []
+
+
+def _named(s) -> bool:
+    return isinstance(s, dict) and isinstance(s.get("name"), str)
+
+
 def _yaml_files(d: Path):
     return sorted(p for p in d.glob("*.y*ml") if p.suffix in (".yaml", ".yml")) if d.is_dir() else []
 
@@ -58,11 +67,15 @@ def load(root: Path | None = None, overlays=()) -> Registry:
             doc = _read(p)
             src = doc.get("source", p.stem)
             base = reg.adapters.setdefault(src, {"source": src, "skills": []})
-            by_name = {s["name"]: s for s in base.get("skills", [])}
-            for s in doc.get("skills", []):
-                by_name.setdefault(s["name"], {}).update(s)
+            by_name = {s["name"]: s for s in base.get("skills", []) if _named(s)}
+            broken = [s for s in base.get("skills", []) if not _named(s)]
+            for s in _list(doc.get("skills")):
+                if _named(s):
+                    by_name.setdefault(s["name"], {}).update(s)
+                else:  # kept as is, so the schema check reports it instead of load crashing on it
+                    broken.append(s)
             base.update({k: v for k, v in doc.items() if k != "skills"})
-            base["skills"] = list(by_name.values())
+            base["skills"] = list(by_name.values()) + broken
             reg.files[f"adapter:{src}"] = str(p)
         for p in _yaml_files(layer / "roles"):
             doc = _read(p)
@@ -80,7 +93,7 @@ def load(root: Path | None = None, overlays=()) -> Registry:
             reg.agents.setdefault(aid, {}).update(doc)
             reg.files[f"agent:{aid}"] = str(p)
     for src, a in reg.adapters.items():
-        for s in a.get("skills", []):
+        for s in filter(_named, a.get("skills", [])):
             m = {k: a[k] for k in INHERITED if k in a}
             m.update(s)
             m["source"] = src
@@ -113,21 +126,23 @@ def validate(reg: Registry) -> list[str]:
     known = set(reg.skills)
     for sid, s in reg.skills.items():
         for key in ("alternatives", "conflicts", "precedes"):
-            for ref in s.get(key, []):
+            for ref in _list(s.get(key)):
                 if ref not in known:
                     errors.append(f"skill {sid}: {key} references unknown skill {ref}")
-        for req in s.get("requires", []):
-            if req.startswith("skill:") and req[6:] not in known:
+        for req in _list(s.get("requires")):
+            if isinstance(req, str) and req.startswith("skill:") and req[6:] not in known:
                 errors.append(f"skill {sid}: requires unknown skill {req[6:]}")
     for rid, r in reg.roles.items():
-        for phase, entry in (r.get("phases") or {}).items():
+        phases = r.get("phases") if isinstance(r.get("phases"), dict) else {}
+        for phase, entry in phases.items():
             for key in ("primary", "alternatives"):
-                for ref in (entry or {}).get(key, []):
+                for ref in _list((entry if isinstance(entry, dict) else {}).get(key)):
                     if ref not in known:
                         errors.append(f"role {rid}: {phase}.{key} references unknown skill {ref}")
     for rid, r in reg.roles.items():
-        ids = [s["id"] for s in r.get("seeds", []) if isinstance(s, dict)]
-        if any(isinstance(s, str) for s in r.get("seeds", [])):
+        seeds = _list(r.get("seeds"))
+        ids = [s["id"] for s in seeds if isinstance(s, dict) and "id" in s]
+        if any(isinstance(s, str) for s in seeds):
             errors.append(f"role {rid}: every seed needs an id so it can be updated without touching user edits")
         if len(ids) != len(set(ids)):
             errors.append(f"role {rid}: duplicate seed ids")
