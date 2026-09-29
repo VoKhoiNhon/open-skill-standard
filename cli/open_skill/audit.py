@@ -32,15 +32,17 @@ class Rule:
     pattern: re.Pattern | None  # None for rules checked per file rather than per line
     message: str
     source: str
+    whole: bool = False  # match across lines; the finding points at the line where the match starts
 
 
 RULES: dict[str, Rule] = {}
 
 
-def rule(id: str, severity: str, pattern: str | None, message: str, source: str) -> None:
+def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False) -> None:
     """Register a rule; every rule cites the public guidance it comes from. Patterns ignore case."""
     assert severity in SEVERITIES and id not in RULES, id
-    RULES[id] = Rule(id, severity, re.compile(pattern, re.IGNORECASE) if pattern else None, message, source)
+    flags = re.IGNORECASE | (re.DOTALL if whole else 0)
+    RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole)
 
 
 def _excerpt(line: str, limit: int = 160) -> str:
@@ -54,8 +56,13 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
     out = []
     for n, line in enumerate(text.splitlines(), 1):
         for r in RULES.values():
-            if r.pattern and r.pattern.search(line):
+            if r.pattern and not r.whole and r.pattern.search(line):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
+    for r in RULES.values():
+        if r.pattern and r.whole:
+            for m in r.pattern.finditer(text):
+                out.append(Finding(r.severity, r.id, file, text.count("\n", 0, m.start()) + 1, _excerpt(m.group()),
+                                   r.source, r.message))
     return out
 
 
@@ -126,6 +133,13 @@ rule("browser-data", "high",
 # scripts use them; add them if hidden payloads start using those.
 rule("hidden-unicode", "high", r"[​‪-‮⁠-⁤⁦-⁩\U000e0000-\U000e007f]|(?<!^)﻿",
      "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
+
+
+# Markdown hides HTML comments when rendered, so a reviewer reading the page never sees them; the agent does.
+rule("hidden-comment", "medium",
+     r"<!--(?:(?!-->).){0,2000}?\b(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
+     r"|assistant|you\s+(are|must|should)|curl|wget|base64)\b",
+     "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True)
 
 
 def _files(root: Path):
