@@ -339,3 +339,21 @@ def test_shell_at_load_flags(text):
 @pytest.mark.parametrize("text", ["Run `git diff` yourself.", "KEY=!`cmd` stays literal", "Great!`code` here"])
 def test_shell_at_load_ignores_literal_text(text):
     assert "shell-at-load" not in fired(text)
+
+
+def test_summary_counts_every_severity():
+    f = audit.Finding("high", "r", "f", 1, "", "s", "m")
+    assert audit.summary([f, f]) == {"high": 2, "medium": 0, "low": 0}
+
+
+def test_audit_installed_groups_skill_folders_by_source(tmp_path):
+    from open_skill.scan import Installed
+
+    for name in ("a", "b"):
+        (tmp_path / name).mkdir()
+        (tmp_path / name / "SKILL.md").write_text("!`git status`\n")
+    installed = [Installed("src1/a", "a", str(tmp_path / "a" / "SKILL.md"), "", False),
+                 Installed("src1/b", "b", str(tmp_path / "b" / "SKILL.md"), "", False),
+                 Installed("src2/x", "x", "builtin:ENV", "", False)]
+    groups = audit.audit_installed(installed)
+    assert list(groups) == ["src1"] and [f.rule for f in groups["src1"]] == ["shell-at-load", "shell-at-load"]

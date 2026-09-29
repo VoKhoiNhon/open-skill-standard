@@ -218,3 +218,16 @@ def audit_paths(paths) -> list[Finding]:
         p = Path(os.path.realpath(p))  # a path the user names (often an installed link) is audited at its target
         out += [f for file in _files(p) for f in audit_file(file, p if p.is_dir() else p.parent)]
     return sorted(out, key=lambda f: (SEVERITIES.index(f.severity), f.file, f.line))
+
+
+def summary(findings) -> dict[str, int]:
+    return {s: sum(1 for f in findings if f.severity == s) for s in SEVERITIES}
+
+
+def audit_installed(installed) -> dict[str, list[Finding]]:
+    """Audit the folder of every installed skill that has one, grouped by source (built-ins have no files)."""
+    folders: dict[str, set[str]] = {}
+    for inst in installed:
+        if Path(inst.path).is_file():
+            folders.setdefault(inst.id.split("/")[0], set()).add(str(Path(inst.path).parent))
+    return {src: audit_paths(sorted(dirs)) for src, dirs in sorted(folders.items())}
