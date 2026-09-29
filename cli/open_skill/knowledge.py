@@ -29,6 +29,11 @@ def home() -> Path:
     return paths.user_home()
 
 
+def _prepare() -> None:
+    """Every write goes through here: never let an older CLI write over newer data."""
+    userdata.ensure_writable(home())
+
+
 def _kdir() -> Path:
     d = home() / "knowledge"
     d.mkdir(parents=True, exist_ok=True)
@@ -57,6 +62,7 @@ def _write(meta: dict, text: str) -> None:
 
 def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool = False, source: str = "user") -> str:
     """Store one fact per file; the same text updates the existing node instead of duplicating it."""
+    _prepare()
     reason = looks_sensitive(text)
     if reason and not force:
         raise ValueError(f"refusing to store text that looks like {reason}; pass force=True to override")
@@ -74,6 +80,7 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
 
 
 def forget(node_id: str) -> bool:
+    _prepare()
     path = _kdir() / f"{node_id}.md"
     if not path.exists():
         return False
@@ -92,7 +99,7 @@ def load_knowledge() -> list[dict]:
 
 def init(profile: dict, seeds: dict[str, list[str]]) -> Path:
     """Write profile.yaml and copy the seeds of the chosen roles into knowledge/."""
-    home().mkdir(parents=True, exist_ok=True)
+    _prepare()
     userdata.atomic_write(home() / "profile.yaml", yaml.safe_dump(profile, sort_keys=False, allow_unicode=True))
     for role in profile.get("roles", {}):
         for s in seeds.get(role, []):
@@ -109,6 +116,7 @@ def load_profile() -> dict:
 
 def record(event: dict) -> None:
     event = {"ts": time.time(), **event}
+    _prepare()
     home().mkdir(parents=True, exist_ok=True)
     with (home() / "events.jsonl").open("a") as f:
         f.write(json.dumps(event, ensure_ascii=False) + "\n")
