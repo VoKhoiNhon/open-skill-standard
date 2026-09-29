@@ -70,6 +70,6 @@ If the user corrected the route ("use superpowers here, not spec-kit"), that cor
 If `uv`/`uvx` is unavailable or the command fails, route by hand:
 
 1. Identify the role from the user or the project, then read `references/roles/<role>.md` (index: `references/roles/README.md`).
-2. Pick the phases the request needs: new or large work starts at specify or plan; a bug starts at operate; a question starts at research.
+2. Start at the phase you classified in step 1 and add the phases it needs: large new work starts at specify, medium at plan, both then build, verify and review; operate is followed by build and verify; release comes after verify.
 3. For each phase, take the first primary skill that is installed; use an alternative only if no primary is.
 4. Announce and start as above; there is no route to record feedback for.
