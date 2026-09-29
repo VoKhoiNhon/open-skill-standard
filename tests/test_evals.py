@@ -3,15 +3,13 @@
 from pathlib import Path
 
 import pytest
-import yaml
 
-from open_skill import registry, route
-from open_skill.scan import Installed
+from open_skill import evals, registry
 
 ROOT = Path(__file__).parents[1]
 REG = registry.load(ROOT)
-ALL = [Installed(sid, sid.split("/", 1)[1], "/x", s.get("description", ""), False) for sid, s in REG.skills.items()]
-CASES = yaml.safe_load((ROOT / "evals" / "routing.yaml").read_text())["cases"]
+ALL = evals.all_installed(REG)
+CASES = evals.load_routing_cases(ROOT / "evals" / "routing.yaml")
 
 
 @pytest.fixture(autouse=True)
@@ -20,31 +18,15 @@ def home(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("case", CASES, ids=[c["id"] for c in CASES])
-def test_routing_case(case, tmp_path):
-    proj = tmp_path / "p"
-    proj.mkdir()
-    for f in case.get("files", []):
-        (proj / f).parent.mkdir(parents=True, exist_ok=True)
-        (proj / f).write_text("x")
-    r = route.route(case["task"], proj, REG, ALL, role=case.get("role"), size=case.get("size"),
-                    model=case.get("model"), record=False)
-    ids = [s["id"] for s in r["chain"]]
-    shown = " → ".join(f"{s['phase']}:{s['id']}" for s in r["chain"]) or r["advice"]
-    for sid in case.get("include", []):
-        assert sid in ids, f"{sid} missing from {shown}"
-    for sid in case.get("exclude", []):
-        assert sid not in ids, f"{sid} unexpectedly in {shown}"
-    if "first" in case:
-        assert ids and ids[0] == case["first"], shown
-    if "phases" in case:
-        assert [s["phase"] for s in r["chain"]] == case["phases"], shown
-    if "advice" in case:
-        assert r["advice"] == case["advice"], shown
-    if "max_steps" in case:
-        assert len(ids) <= case["max_steps"], shown
-    if "last_phase" in case:
-        assert r["chain"][-1]["phase"] == case["last_phase"], shown
+def test_routing_case(case):
+    assert evals.run_case(case, REG, ALL) == []
 
 
 def test_every_role_has_an_eval():
     assert {c["role"] for c in CASES} >= set(REG.roles)
+
+
+def test_failures_are_described():
+    fails = evals.run_case({"task": "fix typo in README", "role": "fullstack-developer",
+                            "include": ["superpowers/writing-plans"], "advice": "plan first"}, REG, ALL)
+    assert any("missing" in f for f in fails) and any("advice should be" in f for f in fails)
