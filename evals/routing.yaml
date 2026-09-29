@@ -146,6 +146,12 @@ cases:
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: analytics-engineer-bmad, role: analytics-engineer, task: "add a revenue model with tests",
      files: [_bmad/config.toml], include: [bmad-method/bmad-build]}
+  - {id: analytics-engineer-broken, role: analytics-engineer, task: "the revenue model is broken after the source change",
+     first: superpowers/systematic-debugging, include: [knowledge-work-data/write-query]}
+  - {id: analytics-engineer-review, role: analytics-engineer, task: "review the dbt pull request for the finance models",
+     phases: [review]}
+  - {id: analytics-engineer-vietnamese, role: analytics-engineer, task: "thêm mô hình doanh thu theo cửa hàng",
+     include: [knowledge-work-data/write-query, knowledge-work-data/explore-data]}
   - {id: data-analyst, role: data-analyst, task: "why did weekly revenue drop in the north region",
      phases: [build, verify, release], first: knowledge-work-data/analyze, include: [knowledge-work-data/validate-data],
      exclude: [superpowers/writing-plans]}
