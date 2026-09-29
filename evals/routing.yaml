@@ -84,6 +84,8 @@ cases:
      phases: [learn], include: [knowledge-work-engineering/incident-response]}
   - {id: sre-review-runbook, role: site-reliability-engineer, task: "review the runbook for the database failover",
      phases: [review]}
+  - {id: sre-vietnamese-incident, role: site-reliability-engineer, task: "hệ thống thanh toán bị sự cố, lỗi tăng cao",
+     first: knowledge-work-engineering/incident-response}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
   - {id: security, role: security-engineer, task: "review the login flow for security issues",
