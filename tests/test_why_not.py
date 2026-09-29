@@ -50,3 +50,20 @@ def test_decisions_record_the_window_the_winner_and_the_losers(project):
     assert outcomes(r, "spec-kit/plan")["plan"] == {"phase": "plan", "id": "spec-kit/plan", "outcome": "requirement-unmet",
                                                     "needs": [".specify"]}
     assert outcomes(r, "claude-code-builtin/code-review")["plan"]["outcome"] == "wrong-phase"
+
+
+def test_steps_dropped_by_the_model_limit_are_marked_trimmed(tmp_path):
+    p = tmp_path / "p"
+    for d in (".specify", ".codegraph"):
+        (p / d).mkdir(parents=True)
+    r = run("build a new platform", p, model="claude-haiku-4-5", decisions=True)
+    kept = {s["id"] for s in r["chain"]}
+    trimmed = [d for d in r["decisions"]["candidates"] if d["outcome"] == "trimmed"]
+    assert trimmed and all(d["id"] not in kept and d["max_steps"] == 3 for d in trimmed)
+    assert not [d for d in r["decisions"]["candidates"] if d["outcome"] == "chosen" and d["id"] not in kept]
+
+
+def test_small_tasks_done_directly_mark_the_winner(project):
+    r = run("fix typo in README", project, decisions=True)
+    assert r["advice"] == "do directly"
+    assert outcomes(r, "superpowers/test-driven-development")["build"]["outcome"] == "do-directly"

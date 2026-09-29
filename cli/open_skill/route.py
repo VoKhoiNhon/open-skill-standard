@@ -235,6 +235,9 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     advice = None
     if size == "small" and len(chain) <= 1 and target == "build":
         chain, advice = [], "do directly"
+        for d in trace:
+            if d["outcome"] == "chosen":
+                d["outcome"] = "do-directly"
 
     prof_m = models.resolve(model, reg.models)
     max_steps = (prof_m.get("chain") or {}).get("max_steps")
@@ -242,6 +245,10 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         keep = sorted(chain, key=lambda s: KEEP_PRIORITY.index(s["phase"]) if s["phase"] in KEEP_PRIORITY else 99)
         kept = {id(s) for s in keep[:max_steps]}
         chain = [s for s in chain if id(s) in kept]
+        final = {(s["phase"], s["id"]) for s in chain}
+        for d in trace:
+            if d["outcome"] == "chosen" and (d["phase"], d["id"]) not in final:
+                d.update(outcome="trimmed", max_steps=max_steps)
     effort = (prof_m.get("effort") or {}).get(size)
     for s in chain:
         s["effort"] = effort
