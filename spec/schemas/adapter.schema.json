@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Open Skill Standard adapter",
+  "type": "object",
+  "required": [
+    "source",
+    "upstream",
+    "license",
+    "skills"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "upstream": {
+      "type": "string"
+    },
+    "license": {
+      "type": "string"
+    },
+    "trademark_note": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tested_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "available_env": {
+      "type": "string",
+      "description": "skills count as installed when this env var is set"
+    },
+    "install": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "detect": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "glob",
+          "invoke"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "glob": {
+            "type": "string"
+          },
+          "invoke": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "portability": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "phases"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9:_-]*$"
+          },
+          "kind": {
+            "enum": [
+              "skill",
+              "tool"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "object",
+            "propertyNames": {
+              "enum": [
+                "frontend-developer",
+                "backend-developer",
+                "fullstack-developer",
+                "mobile-developer",
+                "embedded-engineer",
+                "game-developer",
+                "qa-engineer",
+                "devops-engineer",
+                "site-reliability-engineer",
+                "cloud-engineer",
+                "security-engineer",
+                "database-administrator",
+                "system-administrator",
+                "data-engineer",
+                "analytics-engineer",
+                "data-analyst",
+                "data-scientist",
+                "ml-engineer",
+                "ai-engineer",
+                "data-ai-platform-engineer",
+                "software-architect",
+                "tech-lead",
+                "engineering-manager",
+                "product-manager",
+                "business-analyst",
+                "ux-designer",
+                "technical-writer",
+                "scrum-master"
+              ]
+            },
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "discover",
+                "research",
+                "specify",
+                "plan",
+                "build",
+                "verify",
+                "review",
+                "release",
+                "operate",
+                "learn"
+              ]
+            },
+            "minItems": 1
+          },
+          "produces": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "idea-brief",
+                "research-report",
+                "prd",
+                "spec",
+                "plan",
+                "tasks",
+                "adr",
+                "ux-design",
+                "code-change",
+                "test-suite",
+                "data-profile",
+                "data-contract",
+                "pipeline",
+                "analysis-report",
+                "dashboard",
+                "model-card",
+                "eval-suite",
+                "runbook",
+                "retro"
+              ]
+            }
+          },
+          "consumes": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "idea-brief",
+                "research-report",
+                "prd",
+                "spec",
+                "plan",
+                "tasks",
+                "adr",
+                "ux-design",
+                "code-change",
+                "test-suite",
+                "data-profile",
+                "data-contract",
+                "pipeline",
+                "analysis-report",
+                "dashboard",
+                "model-card",
+                "eval-suite",
+                "runbook",
+                "retro"
+              ]
+            }
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+/[a-z0-9:_-]+$"
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+/[a-z0-9:_-]+$"
+            }
+          },
+          "precedes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+/[a-z0-9:_-]+$"
+            }
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^(tool|skill|project):.+$"
+            }
+          },
+          "task_size": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ]
+            }
+          },
+          "triggers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "portability": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "invoke": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    }
+  }
+}
