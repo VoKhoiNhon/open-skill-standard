@@ -16,3 +16,10 @@ def test_readme_agent_table_matches_the_registry():
     want = {aid: (a["global"][0]["path"], a["project"][0]["path"]) for aid, a in reg.agents.items()}
     for name in ("README.md", "README.vi.md"):
         assert _agent_rows((REPO / name).read_text()) == want, f"{name}: update the agent table from registry/agents"
+
+
+def test_router_skill_lists_the_taxonomy_phases_the_agent_passes():
+    skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text()
+    assert "--phase" in skill and "--size" in skill
+    listed = set(re.findall(r"`([a-z]+)` \(", skill))
+    assert {p["id"] for p in registry.load().taxonomy["phases"]} <= listed, "list every phase id in the router skill"
