@@ -57,3 +57,21 @@ def routing_report(cases: list[dict], reg, installed) -> dict:
     passed = sum(r["passed"] for r in results)
     return {"cases": len(results), "passed": passed, "pass_rate": round(passed / max(len(results), 1), 3),
             "by_role": dict(sorted(by_role.items())), "results": results}
+
+
+# ---------------------------------------------------------------- trigger evals
+# Agents pick a skill from its name and description alone, so a description is only as good as the queries it
+# catches and the near misses it leaves alone. Each file in evals/triggers/ labels ~20 queries for one skill.
+
+
+def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
+    """skill name -> [{"q": query, "trigger": bool}, ...]"""
+    folder = Path(folder) if folder else paths.data_root() / "evals" / "triggers"
+    out = {}
+    for p in sorted(folder.glob("*.yaml")):
+        doc = yaml.safe_load(p.read_text())
+        queries = doc.get("queries", [])
+        if not all(isinstance(q.get("q"), str) and isinstance(q.get("trigger"), bool) for q in queries):
+            raise ValueError(f"{p}: every query needs a string 'q' and a boolean 'trigger'")
+        out[doc["skill"]] = queries
+    return out

@@ -1,0 +1,4 @@
+skill: demo-skill
+queries:
+  - {q: "do the demo thing", trigger: true}
+  - {q: "something unrelated", trigger: false}

@@ -38,3 +38,11 @@ def test_routing_report_counts_by_role():
     assert rep["cases"] == 2 and rep["passed"] == 1 and rep["pass_rate"] == 0.5
     assert rep["by_role"]["qa-engineer"] == {"cases": 1, "passed": 0}
     assert next(r for r in rep["results"] if r["id"] == "broken")["failures"]
+
+
+def test_load_trigger_sets(tmp_path):
+    sets = evals.load_trigger_sets(ROOT / "tests" / "fixtures" / "triggers")
+    assert sets == {"demo-skill": [{"q": "do the demo thing", "trigger": True}, {"q": "something unrelated", "trigger": False}]}
+    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi}\n")
+    with pytest.raises(ValueError):
+        evals.load_trigger_sets(tmp_path)
