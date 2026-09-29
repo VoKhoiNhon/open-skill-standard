@@ -16,7 +16,7 @@ from xml.sax.saxutils import escape
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / ".github" / "assets"
 sys.path.insert(0, str(ROOT / "cli"))
-from open_skill import registry  # noqa: E402
+from open_skill import registry, route  # noqa: E402
 
 SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
@@ -53,7 +53,7 @@ def svg(w: int, h: int, body: list[str], theme: str, label: str) -> str:
                     f'markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker>'
                     for s in ["", *(f"-{a}" for a in ACCENTS)])
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
-            f'xml:space="preserve" role="img" aria-label="{escape(label, {chr(34): "&quot;"})}">\n'
+            f'role="img" aria-label="{escape(label, {chr(34): "&quot;"})}">\n'
             f"<style>{_style(THEMES[theme])}</style>\n<defs>{marks}</defs>\n" + "\n".join(body) + "\n</svg>\n")
 
 
@@ -153,6 +153,76 @@ def architecture(reg) -> dict[str, str]:
     return themed("architecture", draw)
 
 
+# --- routing pipeline: the stages of route.route(), with the constants it uses ---
+
+def pipeline() -> dict[str, str]:
+    R = route
+    g = "{:g}".format
+    stages = [
+        ("1  Request", "blue", [
+            ('open-skill route "<task>" --role --size --phase --project --model --agent', "mono"),
+            ("Project: native marker (.specify → spec-kit, _bmad → BMad Method), artifacts, role signals; paths only.", ""),
+            ("Role mix: --role, else the roles in your profile, else project signals, else fullstack-developer.", "")]),
+        ("2  Phase and size", "blue", [
+            ("Phase: --phase from the agent, used as is → else phase keywords (most hits, ties to the first", ""),
+            ("mentioned) → else guessed: build. Reported as given, keywords or guessed.", ""),
+            ("Size: --size → else size keywords (small is checked before large) → else medium.", "")]),
+        ("3  Phase window", "blue", [
+            ("build: small → build only; the lead role's build_window if it has one; medium → plan → build →", ""),
+            ("verify → review; large starts at specify. A spec, plan or tasks in the repo starts it later.", ""),
+            ("operate → operate, build, verify · release → verify, release · a large plan without a spec →", ""),
+            ("specify, plan · any other phase → that phase alone.", "")]),
+        ("4  Candidates", "purple", [
+            ("Installed skills only (with --agent, the ones that agent sees). With a manifest: the phase, task", ""),
+            ("size and project: requirements must match. Without one: the description needs the phase's", ""),
+            (f"keywords and {R.MIN_SHARED_TERMS}+ words shared with the task.", "")]),
+        ("5  Score", "purple", [
+            (f"fit = max(prior × (1 + 3s/(s+4)), s/{g(R.TEXT_ALONE)}), s = BM25 relevance to the task", "mono"),
+            (f"score = fit × (1 + personal weight) × {g(R.FLOW_BONUS)} if it consumes an available artifact", "mono"),
+            (f"and × {g(R.INFERRED_FACTOR)} without a manifest. prior: {R.PRIMARY:.1f} role-pack primary, "
+             f"{R.ALTERNATIVE:.1f} alternative, else the manifest's", ""),
+            (f"weight for the role ({R.UNLISTED:.1f} if it names other roles, {R.UNKNOWN_ROLE:.1f} if none), "
+             f"{R.UNKNOWN_ROLE_HARVESTED:.1f} without a manifest.", "")]),
+        ("6  Select", "purple", [
+            ("The native framework's skills first, then by score. Skip skills already chosen, in conflict with a", ""),
+            (f"chosen one, or below {g(R.MIN_SCORE)}. The winner's produces become available artifacts for later phases.", ""),
+            (f"Runner-up within {g(R.ASK_MARGIN * 100)}%: ask the user on the target phase, else note it.", "")]),
+        ("7  Finish", "green", [
+            ("A small build with one step or none → do it directly. The model profile's max_steps trims", ""),
+            (f"the chain (keeping {', '.join(R.KEEP_PRIORITY[:4])} first). Up to 5 of your notes are attached, missing", ""),
+            ("role-pack skills get install hints, and the route is recorded in events.jsonl (unless --no-record).", "")]),
+    ]
+    w, x0, bw, dx = 960, 48, 180, 250
+    rows, y = [], 20
+    for title, cls, lines in stages:
+        hgt = 20 + 18 * len(lines)
+        rows.append((y, hgt, title, cls, lines))
+        y += hgt + 22
+    h = y + 60
+
+    def draw(theme):
+        b = []
+        for i, (ry, hgt, title, cls, lines) in enumerate(rows):
+            b += [rect(x0, ry, bw, hgt, cls), text(x0 + 14, ry + hgt / 2 + 5, title, "b")]
+            b += [text(dx, ry + 23 + 18 * j, s, c or "s") for j, (s, c) in enumerate(lines)]
+            if i + 1 < len(rows):
+                b.append(line([(x0 + bw / 2, ry + hgt), (x0 + bw / 2, rows[i + 1][0] - 1)]))
+        loop_top, loop_bottom = rows[3][0] + rows[3][1] / 2, rows[5][0] + rows[5][1] / 2
+        mid_y = (loop_top + loop_bottom) / 2
+        b += [line([(x0, loop_bottom), (30, loop_bottom), (30, loop_top), (x0 - 1, loop_top)], "e-purple", "purple"),
+              f'<text x="22" y="{mid_y:g}" class="t-purple s" text-anchor="middle" '
+              f'transform="rotate(-90 22 {mid_y:g})">for each phase in the window</text>']
+        end = rows[-1][0] + rows[-1][1]
+        b += [line([(x0 + bw / 2, end), (x0 + bw / 2, end + 21)]),
+              rect(x0, end + 22, bw, 32, "orange"), text(x0 + 14, end + 43, "Ordered steps", "b"),
+              text(dx, end + 43, "each with its phase, score and reasons; --explain prints them, --why-not <skill> "
+                   "names what excluded a skill", "s"),
+              footer(w, h - 4, "cli/open_skill/route.py")]
+        return svg(w, h, b, theme, "Routing pipeline: request, phase and size, phase window, then for each phase "
+                   "candidate filters, scoring and selection, then trimming and the ordered steps")
+    return themed("routing", draw)
+
+
 # --- lifecycle: phases and artifacts from spec/taxonomy.yaml, edges from the adapters' produces/consumes ---
 
 def lifecycle_edges(reg) -> tuple[dict, dict, dict]:
@@ -214,6 +284,7 @@ def render() -> dict[str, str]:
     out = {}
     out.update(architecture(reg))
     out.update(lifecycle(reg))
+    out.update(pipeline())
     return out
 
 

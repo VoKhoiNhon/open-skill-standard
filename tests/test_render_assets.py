@@ -34,3 +34,11 @@ def test_check_reports_a_stale_asset(tmp_path, monkeypatch, capsys):
     stale.write_text("old", encoding="utf-8")
     assert ra.main(["--check"]) == 1
     assert stale.name in capsys.readouterr().err
+
+
+def test_routing_diagram_uses_the_router_constants(monkeypatch):
+    from open_skill import route
+    monkeypatch.setattr(route, "MIN_SCORE", 0.42)
+    monkeypatch.setattr(route, "FLOW_BONUS", 1.5)
+    light = ra.pipeline()["routing.svg"]
+    assert "below 0.42" in light and "× 1.5 if it consumes" in light
