@@ -1,0 +1,16 @@
+id: opencode
+name: OpenCode
+docs: https://opencode.ai/docs/skills/
+global:
+  - {path: "~/.config/opencode/skills", source: "https://opencode.ai/docs/skills/"}
+  - {path: "~/.agents/skills", source: "https://opencode.ai/docs/skills/"}
+  - {path: "~/.claude/skills", source: "https://opencode.ai/docs/skills/"}
+project:
+  - {path: ".opencode/skills", source: "https://opencode.ai/docs/skills/"}
+  - {path: ".agents/skills", source: "https://opencode.ai/docs/skills/"}
+  - {path: ".claude/skills", source: "https://opencode.ai/docs/skills/"}
+detect:
+  - {path: "~/.config/opencode", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L558"}
+relocate:
+  - {var: XDG_CONFIG_HOME, replaces: "~/.config", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L9"}
+notes: The agent loads skills through its skill tool.
