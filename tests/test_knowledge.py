@@ -200,3 +200,30 @@ def test_retired_seeds_are_reported_once(home):
     assert _note("data-engineer/merge")["retired"] is True
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
     assert "retired" not in _note("data-engineer/merge")
+
+
+def _edit_and_change_upstream(home):
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
+    p.write_text(p.read_text().replace("Check nulls on keys.", "My stricter null rule."))
+    v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]}
+    knowledge.sync_seeds(["data-engineer"], v2)
+    return v2
+
+
+def test_accept_proposal_takes_upstream_after_backup(home):
+    from open_skill import userdata
+    v2 = _edit_and_change_upstream(home)
+    saved = knowledge.accept_proposal("data-engineer/nulls")
+    assert saved and saved in userdata.list_backups(home)
+    assert _note("data-engineer/nulls")["text"] == "Check nulls on primary keys."
+    assert knowledge.proposals() == {} and knowledge.sync_seeds(["data-engineer"], v2) == []
+
+
+def test_keep_mine_silences_that_upstream_wording(home):
+    v2 = _edit_and_change_upstream(home)
+    knowledge.keep_mine("data-engineer/nulls")
+    assert _note("data-engineer/nulls")["text"] == "My stricter null rule."
+    assert knowledge.proposals() == {} and knowledge.sync_seeds(["data-engineer"], v2) == []
+    v3 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on all keys."}]}
+    assert any("kept your edit" in a for a in knowledge.sync_seeds(["data-engineer"], v3))

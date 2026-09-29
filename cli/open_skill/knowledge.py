@@ -299,3 +299,35 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
                 _save(p, m, b)
     return actions
 
+
+def _seed_note(seed_id: str):
+    return next(((p, m, b) for p, m, b in _seed_notes() if m.get("seed_id") == seed_id), None)
+
+
+def accept_proposal(seed_id: str) -> Path | None:
+    """Replace the user's version with upstream's proposal, after a backup. Returns the backup path."""
+    _prepare()
+    text = proposals().get(seed_id)
+    note = _seed_note(seed_id)
+    if text is None or note is None:
+        raise KeyError(seed_id)
+    saved = userdata.backup(home(), "seed-accept")
+    p, m, _ = note
+    m["seed_hash"] = userdata.text_hash(text)
+    m.pop("acknowledged_upstream", None)
+    _save(p, m, text + "\n")
+    _proposal_path(seed_id).unlink()
+    return saved
+
+
+def keep_mine(seed_id: str) -> None:
+    """Keep the user's version and stop proposing this particular upstream wording."""
+    _prepare()
+    text = proposals().get(seed_id)
+    note = _seed_note(seed_id)
+    if text is None or note is None:
+        raise KeyError(seed_id)
+    p, m, b = note
+    m["acknowledged_upstream"] = userdata.text_hash(text)
+    _save(p, m, b)
+    _proposal_path(seed_id).unlink()
