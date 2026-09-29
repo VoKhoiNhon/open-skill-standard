@@ -118,6 +118,7 @@ def test_validate_scan_doctor_graph(capsys):
     code, out = run(capsys, "doctor")
     assert "superpowers" in out and "no profile yet" in out
     assert "agents: claude-code (" in out and "codex (" in out and "demo-agent" not in out
+    assert "open-skill install open-skill-router --agent codex" in out
     code, out = run(capsys, "graph")
     assert out.startswith("graph LR")
 
@@ -300,3 +301,24 @@ def test_agents_lists_detected_agents_and_their_skills(capsys):
     assert by_id["codex"]["install_to"]["global"].endswith(".agents/skills")
     assert by_id["codex"]["install_to"]["project"] is None  # no --project given
     assert by_id["demo-agent"]["docs"].startswith("https://")
+
+
+def test_install_dry_run_then_install_then_refuse(capsys, tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    dest = tmp_path / "home/.agents/skills/open-skill-router"
+    code, out = run(capsys, "install", "open-skill-router", "--agent", "codex", "--dry-run")
+    assert code == 0 and out.startswith("would install") and not dest.exists()
+    code, out = run(capsys, "install", "open-skill-router", "--agent", "codex")
+    assert code == 0 and (dest / "SKILL.md").is_file() and str(dest) in out
+    assert run(capsys, "install", "open-skill-router", "--agent", "codex")[1].startswith("unchanged")
+    (dest / "SKILL.md").write_text("edited\n")
+    assert run(capsys, "install", "open-skill-router", "--agent", "codex")[0] == 1
+    assert (dest / "SKILL.md").read_text() == "edited\n"
+
+
+def test_install_errors(capsys, tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    assert run(capsys, "install", "open-skill-router", "--agent", "nope")[0] == 2
+    assert run(capsys, "install", "no-such-skill", "--agent", "codex")[0] == 2
+    code, _ = run(capsys, "install", "open-skill-learn", "--agent", "codex", "--project", str(tmp_path / "p"), "--symlink")
+    assert code == 0 and (tmp_path / "p/.agents/skills/open-skill-learn").is_symlink()

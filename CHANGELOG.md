@@ -16,6 +16,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Routing evals for the engineering and quality-ops roles: bug, crash and incident reports, reviews, research, postmortems, Vietnamese phrasing, and spec-kit and BMad projects.
 - `open-skill search` filters: `--role`, `--phase`, `--source` and `--installed`, applied before `--limit`; without a query it lists every skill the filters keep.
 - Routing evals for the data and AI roles: broken pipelines, models and reports, DAG and dbt reviews, reconciliation, dashboards, research, Vietnamese phrasing, and spec-kit and BMad projects.
+- `open-skill install <core-skill-or-folder> --agent <id> [--project DIR] [--copy|--symlink] [--dry-run]` installs one of the four core skills or any local skill folder into that agent's skill folder. It never overwrites a different existing skill, leaves an identical one alone, and records every folder it creates, with file hashes, in `~/.open-skill/installed.json`. `doctor` suggests it for detected agents that do not see the router.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
