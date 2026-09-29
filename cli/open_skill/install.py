@@ -171,3 +171,54 @@ def remove(dest: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
         dest.rmdir()
     _save([r for r in manifest() if r["dest"] != str(dest)])
     return removed, kept
+
+
+def _replace(dest: Path, new: Path) -> None:
+    """Swap a verified, unchanged install for a fresh copy; the old one is restored if the copy fails."""
+    old = Path(tempfile.mkdtemp(dir=dest.parent, prefix=f".{dest.name}.open-skill-old-"))
+    old.rmdir()
+    os.replace(dest, old)
+    try:
+        _copy(new, dest)
+    except BaseException:
+        os.replace(old, dest)
+        raise
+    shutil.rmtree(old)  # only files open-skill recorded, checked unchanged just before
+
+
+def update(agent: str | None = None, dry_run: bool = False) -> list[str]:
+    """Reinstall core skills open-skill installed, pinned to this CLI's version. Installs the user changed are skipped."""
+    core, out, records = core_skills(), [], manifest()
+    for rec in records:
+        if agent and rec["agent"] != agent:
+            continue
+        dest, name, who = Path(rec["dest"]), rec["skill"], f"{rec['skill']} for {rec['agent']}"
+        if rec["kind"] != "core" or name not in core:
+            out.append(f"skipped {dest}: local skill; install it again from its folder to update")
+            continue
+        new = core[name]
+        if rec["mode"] == "symlink":
+            if not (dest.is_symlink() and os.readlink(dest) == rec["source"]):
+                out.append(f"skipped {dest}: you changed it since install; left as is")
+                continue
+            current = rec["source"] == str(new)
+        else:
+            if dest.is_symlink() or not dest.is_dir() or _files(dest) != rec["files"]:
+                out.append(f"skipped {dest}: you changed it since install; left as is")
+                continue
+            current = _files(dest) == _files(new)
+        if current:
+            out.append(f"up to date: {who} ({__version__}) → {dest}")
+        else:
+            out.append(f"{'would update' if dry_run else 'updated'} {who} {rec.get('version')} → {__version__}: {dest}")
+        if dry_run:
+            continue
+        if not current and rec["mode"] == "symlink":
+            dest.unlink()
+            os.symlink(new, dest, target_is_directory=True)
+        elif not current:
+            _replace(dest, new)
+        rec.update(source=str(new), version=__version__, files={} if rec["mode"] == "symlink" else _files(dest))
+    if not dry_run and records:
+        _save(records)
+    return out

@@ -201,3 +201,49 @@ def test_repointed_symlink_is_kept(reg, tmp_path):
     p.dest.symlink_to(other, target_is_directory=True)  # the user pointed it elsewhere
     assert install.remove(p.dest) == ([], ["linky"])
     assert p.dest.is_symlink() and (other / "SKILL.md").exists()
+
+
+def _old_core_install(reg, tmp_path, text="old wording\n"):
+    """A core skill installed by an older open-skill: different content, recorded with an older version."""
+    p = install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"])
+    install.apply(p)
+    import shutil
+    shutil.rmtree(p.dest)
+    skill(p.dest, "open-skill-router", text)
+    [rec] = install.manifest()
+    rec["files"], rec["version"] = install._files(p.dest), "0.0.1"
+    install._save([rec])
+    return p.dest
+
+
+def test_update_reinstalls_core_skills_at_the_cli_version(reg, tmp_path):
+    from open_skill import __version__
+    dest = _old_core_install(reg, tmp_path)
+    msgs = install.update()
+    assert msgs[0].startswith("updated open-skill-router for codex")
+    assert install._files(dest) == install._files(REPO / "skills/open-skill-router")
+    [rec] = install.manifest()
+    assert rec["version"] == __version__ and rec["files"] == install._files(dest)
+    assert install.update()[0].startswith("up to date")
+    assert not [x for x in dest.parent.iterdir() if x.name.startswith(".")]
+
+
+def test_update_skips_a_skill_the_user_changed(reg, tmp_path):
+    dest = _old_core_install(reg, tmp_path)
+    (dest / "SKILL.md").write_text("my own edit\n")
+    assert "you changed it" in install.update()[0]
+    assert (dest / "SKILL.md").read_text() == "my own edit\n"
+    assert install.manifest()[0]["version"] == "0.0.1"
+
+
+def test_update_dry_run_and_agent_filter_change_nothing(reg, tmp_path):
+    dest = _old_core_install(reg, tmp_path)
+    assert install.update(dry_run=True)[0].startswith("would update")
+    assert install.update(agent="cursor") == []
+    assert "old wording" in (dest / "SKILL.md").read_text()
+
+
+def test_update_leaves_local_skills_to_the_user(reg, tmp_path):
+    p = _installed(reg, tmp_path)
+    assert "local skill" in install.update()[0]
+    assert (p.dest / "notes.md").exists()
