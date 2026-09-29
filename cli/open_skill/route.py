@@ -106,7 +106,8 @@ def _install_hint(skill: dict) -> str:
 
 
 def route(task: str, project_path: Path, reg, installed, role: str | None = None, size: str | None = None,
-          model: str | None = None, record: bool = True) -> dict:
+          model: str | None = None, record: bool = True, decisions: bool = False) -> dict:
+    """decisions=True adds result["decisions"]: the phase window and the outcome of every candidate per phase."""
     tax = reg.taxonomy
     proj = project.inspect(Path(project_path), tax, reg.roles)
     prof = knowledge.load_profile()
@@ -141,18 +142,31 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                 total += share * (UNKNOWN_ROLE if manifest else UNKNOWN_ROLE_HARVESTED)
         return total, ", ".join(notes)
 
-    chain, chosen, missing, asks = [], [], {}, {}
+    chain, chosen, missing, asks, trace = [], [], {}, {}, []
+
+    def decide(phase: str, sid: str, outcome: str, **extra):
+        trace.append({"phase": phase, "id": sid, "outcome": outcome, **extra})
     available = set(proj["artifacts"])  # artifacts in the repo plus those produced by earlier steps
     for phase in window:
         cands = []
         for sid, inst in by_id.items():
             manifest = reg.skills.get(sid)
             if manifest:
-                if phase not in manifest.get("phases", []) or size not in manifest.get("task_size", [size]):
+                if phase not in manifest.get("phases", []):
+                    decide(phase, sid, "wrong-phase", phases=manifest.get("phases", []))
                     continue
-                if _unsatisfied(manifest, proj):
+                if size not in manifest.get("task_size", [size]):
+                    decide(phase, sid, "wrong-size", sizes=manifest["task_size"])
                     continue
-            elif not _hits(inst.description, phase_kw.get(phase, [])) or len(task_terms & _terms(inst.description)) < MIN_SHARED_TERMS:
+                unmet = _unsatisfied(manifest, proj)
+                if unmet:
+                    decide(phase, sid, "requirement-unmet", needs=[u[8:] for u in unmet])
+                    continue
+            elif not _hits(inst.description, phase_kw.get(phase, [])):
+                decide(phase, sid, "no-phase-keywords")
+                continue
+            elif len(task_terms & _terms(inst.description)) < MIN_SHARED_TERMS:
+                decide(phase, sid, "few-shared-terms", shared=len(task_terms & _terms(inst.description)))
                 continue
             prior, note = role_prior(sid, phase, manifest)
             s = hits.get(sid, 0.0)
@@ -177,12 +191,21 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         for c in cands:
             _, score, sid, _, manifest, _ = c
             conflicts = set((manifest or {}).get("conflicts", []))
-            clash = any(sid in set((reg.skills.get(x) or {}).get("conflicts", [])) or x in conflicts for x in chosen)
-            if sid in chosen or clash or score < MIN_SCORE:
-                continue
-            valid.append(c)
+            clash = [x for x in chosen if sid in set((reg.skills.get(x) or {}).get("conflicts", [])) or x in conflicts]
+            if sid in chosen:
+                decide(phase, sid, "already-chosen")
+            elif clash:
+                decide(phase, sid, "conflict", score=round(score, 3), conflicts_with=clash)
+            elif score < MIN_SCORE:
+                decide(phase, sid, "below-minimum", score=round(score, 3), minimum=MIN_SCORE)
+            else:
+                valid.append(c)
         if valid:
             native, score, sid, inst, manifest, why = valid[0]
+            decide(phase, sid, "chosen", score=round(score, 3), why=why)
+            for c in valid[1:]:
+                decide(phase, c[2], "lower-score", score=round(c[1], 3), winner=sid, winner_score=round(score, 3),
+                     native_winner=native and not c[0])
             step = {"phase": phase, "id": sid, "invoke": inst.invoke, "kind": (manifest or {}).get("kind", "skill"),
                     "score": round(score, 3), "why": why}
             if len(valid) > 1 and valid[1][0] == native and valid[1][1] >= score * (1 - ASK_MARGIN):
@@ -246,6 +269,8 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                   "max_steps": max_steps, "addenda": prof_m.get("addenda", []), "avoid": prof_m.get("avoid", []),
                   "traits": prof_m.get("traits", {})},
     }
+    if decisions:
+        result["decisions"] = {"window": window, "candidates": trace}
     if record:
         knowledge.record({"type": "proposed", "route_id": rid, "task": task,
                           "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
