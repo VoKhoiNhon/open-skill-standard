@@ -89,7 +89,7 @@ def test_route_explain_shows_why_this_window(capsys, tmp_path):
 
 def test_route_explain_lists_runner_ups_with_scores(capsys, tmp_path, monkeypatch):
     from open_skill import registry, route as route_mod, scan
-    reg = registry.load(FIX / "repo")
+    reg = registry.load()  # the bundled registry has the fullstack-developer pack
     everything = [scan.Installed(sid, sid, "/x", s.get("description", ""), False) for sid, s in reg.skills.items()]
     monkeypatch.setattr(scan, "scan", lambda *a, **k: everything)
     (tmp_path / "p").mkdir()
@@ -98,8 +98,9 @@ def test_route_explain_lists_runner_ups_with_scores(capsys, tmp_path, monkeypatc
     plan = next(s for s in r["chain"] if s["phase"] == "plan")
     losers = sorted((d for d in r["decisions"]["candidates"] if d["phase"] == "plan" and d["outcome"] == "lower-score"),
                     key=lambda d: -d["score"])
-    code, out = run(capsys, "route", "add an export endpoint", "--project", str(tmp_path / "p"),
-                    "--role", "fullstack-developer", "--explain", "--no-record")
+    cli.main(["route", "add an export endpoint", "--project", str(tmp_path / "p"),
+              "--role", "fullstack-developer", "--explain", "--no-record"])
+    out = capsys.readouterr().out
     step = out.split(f"[plan] {plan['invoke']}")[1].splitlines()
     close = lambda d: " (close call)" if d["id"] == plan.get("runner_up") else ""  # noqa: E731
     assert step[1].strip() == "runner-ups: " + ", ".join(f"{d['id']} {d['score']}{close(d)}" for d in losers[:3])
@@ -440,3 +441,12 @@ def test_route_phase_flag(capsys, tmp_path):
     code, out = run(capsys, *base, "--phase", "operate", "--explain")
     assert "target operate: given by the caller" in out
     assert run(capsys, *base, "--phase", "deploy")[0] == 2
+
+
+def test_bug_route_rejects_an_unknown_role(capsys, tmp_path):
+    # `--role frontend` routed with no role pack at all and exit 0; search already refused unknown roles.
+    (tmp_path / "p").mkdir()
+    code = cli.main(["--registry", str(FIX / "repo"), "route", "add an export endpoint", "--project",
+                     str(tmp_path / "p"), "--role", "frontend", "--no-record"])
+    err = capsys.readouterr().err
+    assert code == 2 and "unknown role: frontend" in err and "data-engineer" in err

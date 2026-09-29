@@ -279,6 +279,9 @@ def cmd_route(args):
     if args.phase and args.phase not in phases:
         print(f"unknown phase: {args.phase} (one of: {', '.join(phases)})", file=sys.stderr)
         return 2
+    if args.role and args.role not in reg.roles:
+        print(f"unknown role: {args.role} (one of: {', '.join(sorted(reg.roles))})", file=sys.stderr)
+        return 2
     proj = Path(args.project or ".")
     installed = scan.scan(reg, proj, agent=args.agent)
     if args.why_not:
