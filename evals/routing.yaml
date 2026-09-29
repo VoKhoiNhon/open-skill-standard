@@ -214,6 +214,10 @@ cases:
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
   - {id: tech-writer, role: technical-writer, task: "write docs for the public API",
      include: [knowledge-work-engineering/documentation]}
+  - {id: tech-writer-review, role: technical-writer, task: "review the API docs for accuracy",
+     phases: [review], include: [claude-code-builtin/code-review], exclude: [knowledge-work-design/design-critique]}
+  - {id: tech-writer-review-bmad, role: technical-writer, task: "review the API docs for accuracy", files: [_bmad/config.toml],
+     phases: [review], include: [bmad-method/bmad-review]}
   - {id: scrum-master, role: scrum-master, task: "plan the sprint and run the retrospective",
      first: knowledge-work-product-management/sprint-planning}
   - {id: scrum-master-bmad, role: scrum-master, task: "plan the sprint", files: [_bmad/config.toml],
