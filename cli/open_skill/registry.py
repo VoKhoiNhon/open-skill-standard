@@ -38,7 +38,7 @@ def _yaml_files(d: Path):
 
 def _read(p: Path) -> dict:
     try:
-        doc = yaml.safe_load(p.read_text()) or {}
+        doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     except yaml.YAMLError as e:
         raise ValueError(f"{p}: not valid YAML: {e}") from e
     if not isinstance(doc, dict):
@@ -58,7 +58,7 @@ def localized(doc: dict, key: str):
 def load_taxonomy(root: Path | None = None) -> dict:
     for base in (root, paths.data_root()):
         if base and (base / "spec" / "taxonomy.yaml").is_file():
-            return yaml.safe_load((base / "spec" / "taxonomy.yaml").read_text())
+            return yaml.safe_load((base / "spec" / "taxonomy.yaml").read_text(encoding="utf-8"))
     raise FileNotFoundError("spec/taxonomy.yaml not found")
 
 

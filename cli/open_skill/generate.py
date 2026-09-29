@@ -81,8 +81,8 @@ def write_all(reg, root: Path) -> list[Path]:
     written = []
     for path, text in outputs(reg, root).items():
         path.parent.mkdir(parents=True, exist_ok=True)
-        if not path.exists() or path.read_text() != text:
-            path.write_text(text)
+        if not path.exists() or path.read_text(encoding="utf-8") != text:
+            path.write_text(text, encoding="utf-8")
             written.append(path)
     db = Path(root) / "dist" / "index.db"
     db.unlink(missing_ok=True)
@@ -99,7 +99,7 @@ def _index_rows(conn) -> list[tuple]:
 
 def stale(reg, root: Path) -> list[Path]:
     """Generated files that differ from what `build` would write, the search index compared row by row."""
-    out = [p for p, text in outputs(reg, root).items() if not p.exists() or p.read_text() != text]
+    out = [p for p, text in outputs(reg, root).items() if not p.exists() or p.read_text(encoding="utf-8") != text]
     db = Path(root) / "dist" / "index.db"
     try:
         current = db.is_file() and _index_rows(sqlite3.connect(db)) == _index_rows(index.build_index(reg))

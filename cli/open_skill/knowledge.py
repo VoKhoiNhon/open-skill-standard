@@ -90,7 +90,7 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
     path = _kdir() / f"{nid}.md"
     with _locked():  # read-modify-write: two processes learning the same note must merge, not overwrite
         if path.exists():
-            meta, _ = frontmatter.parse(path.read_text())
+            meta, _ = frontmatter.parse(path.read_text(encoding="utf-8"))
             meta["applies_to"] = list(dict.fromkeys([*meta.get("applies_to", []), *applies_to]))
             meta["updated"] = dt.date.today().isoformat()
         else:
@@ -103,7 +103,7 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
 @contextlib.contextmanager
 def _locked():
     """Exclusive lock on ~/.open-skill/.lock for the length of a read-modify-write."""
-    with (home() / ".lock").open("a") as f:
+    with (home() / ".lock").open("a", encoding="utf-8") as f:
         try:
             import fcntl
         except ImportError:  # ponytail: no lock on Windows (no fcntl); use msvcrt.locking if concurrent writers appear there
@@ -126,9 +126,9 @@ def forget(node_id: str) -> bool:
     path = _kdir() / f"{node_id}.md"
     if not path.exists():
         return False
-    meta, _ = frontmatter.parse(path.read_text())
+    meta, _ = frontmatter.parse(path.read_text(encoding="utf-8"))
     if meta.get("seed_id"):  # remember the choice so seed sync never brings it back, and drop its pending update
-        with (home() / DISMISSED).open("a") as f:
+        with (home() / DISMISSED).open("a", encoding="utf-8") as f:
             f.write(meta["seed_id"] + "\n")
         _proposal_path(meta["seed_id"]).unlink(missing_ok=True)
     path.unlink()
@@ -138,7 +138,7 @@ def forget(node_id: str) -> bool:
 def load_knowledge() -> list[dict]:
     out = []
     for p in sorted((home() / "knowledge").glob("*.md")):  # reading never creates the folder (see _prepare)
-        meta, body = frontmatter.parse(p.read_text())
+        meta, body = frontmatter.parse(p.read_text(encoding="utf-8"))
         if meta.get("id"):
             out.append({**meta, "text": body.strip()})
     return out
@@ -275,7 +275,7 @@ def proposals() -> dict[str, str]:
     """seed id -> upstream text waiting for the user's decision."""
     out = {}
     for p in sorted((home() / PROPOSALS).glob("*.md")) if (home() / PROPOSALS).exists() else []:
-        meta, body = frontmatter.parse(p.read_text())
+        meta, body = frontmatter.parse(p.read_text(encoding="utf-8"))
         if meta.get("seed_id"):
             out[meta["seed_id"]] = body.strip()
     return out
@@ -283,7 +283,7 @@ def proposals() -> dict[str, str]:
 
 def dismissed_seeds() -> set[str]:
     p = home() / DISMISSED
-    return {line.strip() for line in p.read_text().splitlines() if line.strip()} if p.exists() else set()
+    return {line.strip() for line in p.read_text(encoding="utf-8").splitlines() if line.strip()} if p.exists() else set()
 
 
 def _seed_notes() -> list[tuple]:

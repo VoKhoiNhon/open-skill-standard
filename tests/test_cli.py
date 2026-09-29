@@ -112,7 +112,7 @@ def test_feedback_appends_event(capsys, tmp_path):
     rid = json.loads(out)["route_id"]
     code, _ = run(capsys, "feedback", rid, "--ran", "a,b", "--outcome", "ok")
     assert code == 0
-    line = (tmp_path / "h" / "events.jsonl").read_text().splitlines()[-1]
+    line = (tmp_path / "h" / "events.jsonl").read_text(encoding="utf-8").splitlines()[-1]
     assert json.loads(line)["ran"] == ["a", "b"]
 
 
@@ -171,10 +171,10 @@ def test_graph_html_writes_one_file(capsys, tmp_path):
     dest = tmp_path / "graph.html"
     code, out = run(capsys, "graph", "--format", "html", "--out", str(dest))
     assert code == 0 and str(dest) in out
-    html = dest.read_text()
+    html = dest.read_text(encoding="utf-8")
     assert html.startswith("<!doctype html>") and "superpowers/writing-plans" in html
     code, out = run(capsys, "graph", "--format", "json", "--out", str(tmp_path / "g.json"))
-    assert json.loads((tmp_path / "g.json").read_text())["nodes"]
+    assert json.loads((tmp_path / "g.json").read_text(encoding="utf-8"))["nodes"]
 
 
 def test_newer_user_data_gives_clear_error(capsys, tmp_path):
@@ -200,7 +200,7 @@ def test_restore_command(capsys, tmp_path):
     run(capsys, "learn", "Second note", "--applies-to", "role:*")
     code, out = run(capsys, "restore", snap)
     assert code == 0 and "previous state saved" in out
-    texts = [p.read_text() for p in (tmp_path / "h" / "knowledge").glob("*.md")]
+    texts = [p.read_text(encoding="utf-8") for p in (tmp_path / "h" / "knowledge").glob("*.md")]
     assert any("First note" in t for t in texts) and not any("Second note" in t for t in texts)
 
 
@@ -252,7 +252,7 @@ def test_seeds_review_commands(capsys, tmp_path):
     from open_skill import knowledge
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "n", "text": "Old."}]})
     p = next((tmp_path / "h" / "knowledge").glob("*.md"))
-    p.write_text(p.read_text().replace("Old.", "Mine."))
+    p.write_text(p.read_text(encoding="utf-8").replace("Old.", "Mine."))
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "n", "text": "New."}]})
     code, out = run(capsys, "seeds", "diff")
     assert code == 0 and "-Mine." in out and "+New." in out
@@ -399,7 +399,7 @@ def test_install_dry_run_then_install_then_refuse(capsys, tmp_path, monkeypatch)
     assert run(capsys, "install", "open-skill-router", "--agent", "codex")[1].startswith("unchanged")
     (dest / "SKILL.md").write_text("edited\n")
     assert run(capsys, "install", "open-skill-router", "--agent", "codex")[0] == 1
-    assert (dest / "SKILL.md").read_text() == "edited\n"
+    assert (dest / "SKILL.md").read_text(encoding="utf-8") == "edited\n"
 
 
 def test_install_errors(capsys, tmp_path, monkeypatch):
@@ -492,7 +492,7 @@ def test_bug_learn_resolves_project_scopes_like_route_does(capsys, tmp_path, mon
     (tmp_path / "link").symlink_to(tmp_path / "real")
     monkeypatch.chdir(tmp_path)
     code, out = run(capsys, "learn", "Deploys go through staging first", "--applies-to", "project:link,role:*")
-    note = (tmp_path / "h" / "knowledge" / f"{out.strip()}.md").read_text()
+    note = (tmp_path / "h" / "knowledge" / f"{out.strip()}.md").read_text(encoding="utf-8")
     assert code == 0 and f"project:{(tmp_path / 'real').resolve()}" in note and "role:*" in note
 
 

@@ -17,7 +17,7 @@ def home(tmp_path, monkeypatch):
 def test_init_writes_profile_and_seeds(home):
     knowledge.init({"roles": {"data-engineer": 1.0}, "stack": ["python"]},
                    seeds={"data-engineer": [{"id": "merge", "text": "Use MERGE on the business key."}]})
-    prof = yaml.safe_load((home / "profile.yaml").read_text())
+    prof = yaml.safe_load((home / "profile.yaml").read_text(encoding="utf-8"))
     assert prof["roles"] == {"data-engineer": 1.0}
     nodes = knowledge.load_knowledge()
     assert len(nodes) == 1
@@ -93,12 +93,12 @@ def test_import_agent_memory(home, tmp_path):
     [node] = knowledge.load_knowledge()
     assert node["source"] == "agent-memory" and node["type"] == "preference"
     assert "uv" in node["text"]
-    assert (mem / "prefers-uv.md").read_text().startswith("---")  # untouched
+    assert (mem / "prefers-uv.md").read_text(encoding="utf-8").startswith("---")  # untouched
 
 
 def test_knowledge_file_has_valid_frontmatter(home):
     nid = knowledge.learn("Staged backfills", ["role:data-engineer"], type_="pitfall")
-    meta, body = frontmatter.parse((home / "knowledge" / f"{nid}.md").read_text())
+    meta, body = frontmatter.parse((home / "knowledge" / f"{nid}.md").read_text(encoding="utf-8"))
     assert meta["type"] == "pitfall" and body.strip() == "Staged backfills"
     assert json.loads(json.dumps(meta))
 
@@ -129,7 +129,7 @@ def test_old_layout_is_migrated_with_backup_before_first_write(home, capsys):
     assert userdata.data_version(home) == userdata.SCHEMA_VERSION
     assert userdata.list_backups(home)
     assert "upgraded your data" in capsys.readouterr().err
-    assert (home / "knowledge" / "k-old.md").read_text().endswith("Old seed text\n")
+    assert (home / "knowledge" / "k-old.md").read_text(encoding="utf-8").endswith("Old seed text\n")
 
 
 SEEDS_V1 = {"data-engineer": [{"id": "merge", "text": "Use MERGE on the key."},
@@ -151,8 +151,8 @@ def test_sync_adds_then_is_idempotent(home):
 
 def test_sync_updates_untouched_but_keeps_user_edits(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
-    edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
-    edited.write_text(edited.read_text().replace("Check nulls on keys.", "Check nulls AND duplicates on keys (my rule)."))
+    edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
+    edited.write_text(edited.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls AND duplicates on keys (my rule)."))
     v2 = {"data-engineer": [{"id": "merge", "text": "Use MERGE on the business key."},
                             {"id": "nulls", "text": "Check nulls on primary keys."}]}
     actions = knowledge.sync_seeds(["data-engineer"], v2)
@@ -188,8 +188,8 @@ def test_sync_dry_run_writes_nothing(home):
 
 def test_sync_is_quiet_about_edits_when_upstream_did_not_change(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
-    p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
-    p.write_text(p.read_text().replace("Check nulls on keys.", "Check nulls on keys, always."))
+    p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
+    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls on keys, always."))
     assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1) == []
 
 
@@ -206,8 +206,8 @@ def test_retired_seeds_are_reported_once(home):
 
 def _edit_and_change_upstream(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
-    p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
-    p.write_text(p.read_text().replace("Check nulls on keys.", "My stricter null rule."))
+    p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
+    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "My stricter null rule."))
     v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]}
     knowledge.sync_seeds(["data-engineer"], v2)
     return v2
@@ -266,8 +266,8 @@ def test_bug_seed_dry_run_created_folders_on_a_fresh_home(home):
 def test_bug_dry_run_said_it_saved_upstream_wording_and_kept_retired_seeds(home):
     # A dry run reported "upstream wording saved for review" and "kept ...", past tense, while writing nothing.
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
-    edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
-    edited.write_text(edited.read_text().replace("Check nulls on keys.", "Check nulls AND duplicates (my rule)."))
+    edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
+    edited.write_text(edited.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls AND duplicates (my rule)."))
     v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]}
     assert knowledge.sync_seeds(["data-engineer"], v2, dry_run=True) == [
         "would keep your edit of data-engineer/nulls; upstream wording would wait for review "
@@ -287,19 +287,19 @@ def test_upgrade_from_vietnamese_seeds_keeps_the_users_edit_and_the_ids(home):
     from open_skill import upgrade
     knowledge.init({"roles": {"data-engineer": 1.0}}, seeds=SEEDS_VI)
     before = {n["seed_id"]: n["id"] for n in knowledge.load_knowledge()}
-    edited = next(p for p in (home / "knowledge").glob("*.md") if "trùng lặp" in p.read_text())
-    mine = edited.read_text().replace("sau mỗi lần nạp.", "sau mỗi lần nạp, kể cả bảng tạm (quy tắc của tôi).")
+    edited = next(p for p in (home / "knowledge").glob("*.md") if "trùng lặp" in p.read_text(encoding="utf-8"))
+    mine = edited.read_text(encoding="utf-8").replace("sau mỗi lần nạp.", "sau mỗi lần nạp, kể cả bảng tạm (quy tắc của tôi).")
     edited.write_text(mine)
 
     actions = upgrade.upgrade(SEEDS_EN)
 
-    assert edited.read_text() == mine  # the edited note is untouched, byte for byte
+    assert edited.read_text(encoding="utf-8") == mine  # the edited note is untouched, byte for byte
     assert any(a.startswith("kept your edit of data-engineer/nulls") for a in actions)
     assert knowledge.proposals()["data-engineer/nulls"] == SEEDS_EN["data-engineer"][1]["text"]
     assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]  # never edited: follows upstream
     assert {n["seed_id"]: n["id"] for n in knowledge.load_knowledge()} == before  # same ids, same notes, no duplicates
     again = [a for a in upgrade.upgrade(SEEDS_EN) if not a.startswith("backed up")]
-    assert edited.read_text() == mine and len(knowledge.load_knowledge()) == 2  # the next upgrade still keeps it
+    assert edited.read_text(encoding="utf-8") == mine and len(knowledge.load_knowledge()) == 2  # the next upgrade still keeps it
     assert all(a.startswith("kept your edit of data-engineer/nulls") for a in again)  # only the review reminder
 
 
@@ -311,7 +311,7 @@ def test_bug_untouched_seed_resaved_in_nfd_counted_as_a_user_edit(home):
     seeds = {"data-engineer": [SEEDS_VI["data-engineer"][0]]}
     knowledge.init({"roles": {"data-engineer": 1.0}}, seeds=seeds)
     p = next((home / "knowledge").glob("*.md"))
-    p.write_text(unicodedata.normalize("NFD", p.read_text()))
+    p.write_text(unicodedata.normalize("NFD", p.read_text(encoding="utf-8")))
     actions = upgrade.upgrade({"data-engineer": [SEEDS_EN["data-engineer"][0]]})
     assert "updated data-engineer/merge (you had not edited it)" in actions
     assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]
@@ -340,7 +340,7 @@ def _edited_seed_with_proposal(home) -> dict:
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [SEEDS_V1["data-engineer"][1]]})
     note = _note("data-engineer/nulls")
     p = home / "knowledge" / f"{note['id']}.md"
-    p.write_text(p.read_text().replace("Check nulls on keys.", "Check nulls, my way."))
+    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls, my way."))
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]})
     assert "data-engineer/nulls" in knowledge.proposals()
     return note

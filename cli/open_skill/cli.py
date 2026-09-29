@@ -814,7 +814,16 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _utf8_streams() -> None:
+    """Write UTF-8 even when stdout is a pipe with a legacy code page (cp1252 on Windows): task text, skill names and
+    arrows are not ASCII."""
+    for stream in (sys.stdout, sys.stderr):
+        if (getattr(stream, "encoding", "") or "").lower().replace("-", "") != "utf8" and hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
+
+
 def main(argv=None) -> int:
+    _utf8_streams()
     args = build_parser().parse_args(argv)
     try:
         return args.fn(args)

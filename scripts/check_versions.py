@@ -8,7 +8,7 @@ GIT_URL = "git+https://github.com/VoKhoiNhon/open-skill-standard"
 
 
 def _field(pattern: str, path: Path) -> str:
-    m = re.search(pattern, path.read_text()) if path.is_file() else None
+    m = re.search(pattern, path.read_text(encoding="utf-8")) if path.is_file() else None
     return m.group(1) if m else "missing"
 
 
@@ -23,7 +23,7 @@ def versions(root: Path) -> dict[str, str]:
     # The files scripts/bump_version.py rewrites; every distinct pin in each one counts.
     for p in sorted([*root.glob("skills/*/SKILL.md"), root / "README.md", root / "README.vi.md"]):
         if p.is_file():
-            for pin in sorted(set(re.findall(re.escape(GIT_URL) + r"@v([\w.\-]+)", p.read_text()))):
+            for pin in sorted(set(re.findall(re.escape(GIT_URL) + r"@v([\w.\-]+)", p.read_text(encoding="utf-8")))):
                 found[f"{p.relative_to(root)} pin v{pin}"] = pin
     return found
 

@@ -35,7 +35,7 @@ def test_validate_reports_dangling_role_reference(tmp_path):
     (root / "registry").mkdir(parents=True)
     import shutil
     shutil.copytree(FIX / "repo" / "registry", root / "registry", dirs_exist_ok=True)
-    role = yaml.safe_load((root / "registry/roles/data-engineer.yaml").read_text())
+    role = yaml.safe_load((root / "registry/roles/data-engineer.yaml").read_text(encoding="utf-8"))
     role["phases"]["build"]["primary"] = ["superpowers/does-not-exist"]
     (root / "registry/roles/data-engineer.yaml").write_text(yaml.safe_dump(role))
     errors = registry.validate(registry.load(root))
@@ -47,7 +47,7 @@ def test_validate_reports_dangling_alternative_and_schema_error(tmp_path):
     import shutil
     shutil.copytree(FIX / "repo", root)
     p = root / "registry/adapters/superpowers.yaml"
-    doc = yaml.safe_load(p.read_text())
+    doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     doc["skills"][0]["alternatives"] = ["nobody/missing"]
     doc["skills"][1]["phases"] = ["not-a-phase"]
     p.write_text(yaml.safe_dump(doc))
@@ -61,7 +61,7 @@ def test_validate_requires_seed_ids(tmp_path):
     root = tmp_path / "r"
     shutil.copytree(FIX / "repo", root)
     p = root / "registry/roles/data-engineer.yaml"
-    doc = yaml.safe_load(p.read_text())
+    doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     doc["seeds"] = ["no id here", {"id": "a", "text": "x"}, {"id": "a", "text": "y"}]
     p.write_text(yaml.safe_dump(doc))
     errors = registry.validate(registry.load(root))
@@ -125,7 +125,7 @@ def _renamed(released: dict, current: dict) -> dict[str, str]:
 
 def test_released_seed_ids_are_never_renamed():
     """A released seed id may be retired, never renamed: when an id is gone, no seed may ship one of its wordings."""
-    released = yaml.safe_load((FIX / "released-seeds.yaml").read_text())
+    released = yaml.safe_load((FIX / "released-seeds.yaml").read_text(encoding="utf-8"))
     reg = registry.load()
     assert not _renamed(released, _shipped_seeds(reg)), "retire the old id and add a new seed instead (SPEC §5.1)"
     seed = reg.roles["data-engineer"]["seeds"][0]
@@ -150,7 +150,7 @@ def _edit(root, rel, path=None, value=None, raw=None):
     if raw is not None:
         p.write_text(raw)
         return
-    doc = yaml.safe_load(p.read_text())
+    doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     _set(doc, path, value)
     p.write_text(yaml.safe_dump(doc, allow_unicode=True))
 
@@ -199,7 +199,7 @@ def test_bug_validate_rejects_a_role_entry_outside_the_skills_phases(tmp_path):
     root = tmp_path / "r"
     shutil.copytree(FIX / "repo", root)
     p = root / "registry/roles/data-engineer.yaml"
-    doc = yaml.safe_load(p.read_text())
+    doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     sid = doc["phases"]["build"]["primary"][0]
     skill = registry.load(root).skills[sid]
     wrong = next(ph for ph in ("discover", "research", "release", "learn") if ph not in skill["phases"])

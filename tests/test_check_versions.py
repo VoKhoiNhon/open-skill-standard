@@ -26,7 +26,7 @@ def test_disagreement_is_reported(tmp_path, capsys):
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(src, dst) if src.is_dir() else shutil.copy(src, dst)
     p = tmp_path / ".claude-plugin/plugin.json"
-    p.write_text(p.read_text().replace('"version": "', '"version": "9', 1))
+    p.write_text(p.read_text(encoding="utf-8").replace('"version": "', '"version": "9', 1))
     assert cv.main(str(tmp_path)) == 1
     assert "versions disagree" in capsys.readouterr().out
 
@@ -35,7 +35,7 @@ cl = load("changelog")
 
 
 def test_changelog_section_extraction():
-    text = (ROOT / "CHANGELOG.md").read_text()
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     body = cl.section(text, "0.2.0")
     assert "Safe upgrades" in body and "## [" not in body
     import pytest
@@ -44,7 +44,7 @@ def test_changelog_section_extraction():
 
 
 def test_changelog_title_takes_the_theme_from_the_first_line():
-    text = (ROOT / "CHANGELOG.md").read_text()
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     assert cl.title(text, "0.4.0") == "v0.4.0 — release engineering"
     assert cl.title(text, "0.1.0") == "v0.1.0 — first public release"
     assert cl.title("## [1.0.0] - x\n\nCI hardening.\n", "1.0.0") == "v1.0.0 — CI hardening"
@@ -88,7 +88,7 @@ def test_every_pin_in_a_skill_is_checked(tmp_path, capsys):
     root = _copy_versioned(tmp_path)
     p = next((root / "skills").glob("*/SKILL.md"))
     good = cv.versions(root)["pyproject.toml"]
-    p.write_text(p.read_text() + f"\nold: uvx --from {cv.GIT_URL}@v0.0.1 open-skill\nnew: uvx --from {cv.GIT_URL}@v{good} open-skill\n")
+    p.write_text(p.read_text(encoding="utf-8") + f"\nold: uvx --from {cv.GIT_URL}@v0.0.1 open-skill\nnew: uvx --from {cv.GIT_URL}@v{good} open-skill\n")
     assert cv.main(str(root)) == 1
     assert "0.0.1" in capsys.readouterr().out
 
@@ -97,7 +97,7 @@ def test_quoted_tested_version_is_read_as_its_value(tmp_path):
     root = _copy_versioned(tmp_path)
     p = root / "registry/adapters/open-skill.yaml"
     good = cv.versions(root)["pyproject.toml"]
-    p.write_text(p.read_text().replace(f"tested_version: {good}", f'tested_version: "{good}"'))
+    p.write_text(p.read_text(encoding="utf-8").replace(f"tested_version: {good}", f'tested_version: "{good}"'))
     assert cv.main(str(root)) == 0
 
 
@@ -113,6 +113,6 @@ def test_readme_pins_are_checked_like_bump_version_writes_them(tmp_path, capsys)
 def test_a_missing_version_field_is_reported_not_a_traceback(tmp_path, capsys):
     root = _copy_versioned(tmp_path)
     p = root / "registry/adapters/open-skill.yaml"
-    p.write_text("\n".join(line for line in p.read_text().splitlines() if not line.startswith("tested_version")))
+    p.write_text("\n".join(line for line in p.read_text(encoding="utf-8").splitlines() if not line.startswith("tested_version")))
     assert cv.main(str(root)) == 1
     assert "missing" in capsys.readouterr().out
