@@ -1,0 +1,108 @@
+source: anthropic-skills
+upstream: https://github.com/anthropics/skills
+license: "per-skill (see upstream)"
+summary: Anthropic's public skills - documents, skill authoring, MCP servers, web testing, frontend design.
+install:
+  claude-plugin: "/plugin marketplace add anthropics/skills && /plugin install document-skills@anthropic-agent-skills && /plugin install example-skills@anthropic-agent-skills"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/document-skills/*/skills/{name}/SKILL.md", invoke: "document-skills:{name}"}
+  - {glob: "~/.claude/plugins/cache/*/example-skills/*/skills/{name}/SKILL.md", invoke: "example-skills:{name}"}
+  - {glob: "~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/*/*/skills/{name}/SKILL.md", invoke: "anthropic-skills:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, claude-desktop]
+skills:
+  - name: skill-creator
+    description: Create, evaluate and improve skills, including description tuning
+    phases: [build, verify]
+    roles: {ai-engineer: 1.0, data-ai-platform-engineer: 0.9}
+    produces: [eval-suite]
+    task_size: [small, medium, large]
+    triggers: [skill, "create a skill", eval, "tạo skill"]
+  - name: mcp-builder
+    description: Build high-quality MCP servers
+    phases: [build]
+    roles: {ai-engineer: 1.0, backend-developer: 0.6, data-ai-platform-engineer: 0.7}
+    task_size: [medium, large]
+    triggers: [mcp, "mcp server", "tool server"]
+  - name: webapp-testing
+    description: Drive and test local web apps with Playwright
+    phases: [verify]
+    roles: {qa-engineer: 1.0, frontend-developer: 0.8, fullstack-developer: 0.8}
+    produces: [test-suite]
+    task_size: [small, medium, large]
+    triggers: [playwright, "browser test", e2e, ui test]
+  - name: frontend-design
+    description: Distinctive, intentional visual design for new or reshaped UI
+    phases: [build]
+    roles: {frontend-developer: 1.0, fullstack-developer: 0.8, ux-designer: 0.8}
+    task_size: [small, medium, large]
+    triggers: [ui, frontend, "landing page", design, giao diện]
+  - name: web-artifacts-builder
+    description: Multi-component HTML artifacts with modern frontend tooling
+    phases: [build]
+    roles: {frontend-developer: 0.7}
+    task_size: [medium]
+  - name: claude-api
+    description: Reference for the Claude API and Anthropic SDKs - models, pricing, tool use, caching
+    phases: [research, build]
+    roles: {ai-engineer: 1.0}
+    task_size: [small, medium, large]
+    triggers: [claude, anthropic, llm, "model id", pricing, caching, "tool use"]
+  - name: doc-coauthoring
+    description: Structured workflow for co-writing documentation
+    phases: [specify, release]
+    roles: {technical-writer: 1.0, product-manager: 0.7}
+    task_size: [medium, large]
+  - name: docx
+    description: Create and edit Word documents
+    phases: [release]
+    task_size: [small, medium, large]
+    triggers: [word, docx]
+  - name: pdf
+    description: Read, create, merge and fill PDF files
+    phases: [release]
+    task_size: [small, medium, large]
+    triggers: [pdf]
+  - name: pptx
+    description: Create and edit slide decks
+    phases: [release]
+    task_size: [small, medium, large]
+    triggers: [slides, deck, pptx, powerpoint]
+  - name: xlsx
+    description: Create, clean and analyze spreadsheets
+    phases: [release, build]
+    task_size: [small, medium, large]
+    triggers: [excel, spreadsheet, xlsx, csv]
+  - name: internal-comms
+    description: Write internal communications in house formats
+    phases: [release]
+    roles: {engineering-manager: 0.7, product-manager: 0.7}
+    task_size: [small, medium]
+  - name: theme-factory
+    description: Apply a visual theme to artifacts
+    phases: [release]
+    task_size: [small]
+  - name: brand-guidelines
+    description: Apply a brand's colors and typography
+    phases: [release]
+    task_size: [small]
+  - name: canvas-design
+    description: Visual art in PNG and PDF
+    phases: [build]
+    task_size: [small]
+  - name: algorithmic-art
+    description: Generative art with p5.js
+    phases: [build]
+    task_size: [small]
+  - name: slack-gif-creator
+    description: Animated GIFs sized for chat
+    phases: [release]
+    task_size: [small]
+  - name: academy-guide
+    description: Guided learning content
+    phases: [learn]
+    task_size: [small]
+  - name: discernment-nudge
+    description: Prompts for careful judgment
+    phases: [review]
+    task_size: [small]

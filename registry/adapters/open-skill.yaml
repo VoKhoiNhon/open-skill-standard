@@ -1,0 +1,33 @@
+source: open-skill
+upstream: https://github.com/VoKhoiNhon/open-skill-standard
+license: MIT
+tested_version: 0.1.0
+summary: Core skills of the Open Skill Standard - router, standards, intel, learn.
+install:
+  claude-plugin: "/plugin marketplace add VoKhoiNhon/open-skill-standard && /plugin install open-skill@open-skill-standard"
+  skills-cli: "npx skills add VoKhoiNhon/open-skill-standard -g"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/open-skill/*/skills/{name}/SKILL.md", invoke: "open-skill:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project}/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: open-skill-router
+    description: Pick and order the right installed skills for a task in any project and role
+    phases: [discover]
+    task_size: [medium, large]
+  - name: open-skill-standards
+    description: Definition-of-done checklists, general and per role
+    phases: [verify, review]
+    task_size: [small, medium, large]
+    triggers: [standards, checklist, "definition of done", "best practice", quy chuẩn]
+  - name: open-skill-intel
+    description: Route a question to the best information source before acting
+    phases: [research]
+    task_size: [small, medium, large]
+    triggers: ["how does", "where is", "what is", schema, docs, "which skill", tra cứu]
+  - name: open-skill-learn
+    description: Remember lessons and preferences so future routes use them
+    phases: [learn]
+    task_size: [small]
+    triggers: [remember, lesson, "note that", "from now on", ghi nhớ, bài học]

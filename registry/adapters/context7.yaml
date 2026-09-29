@@ -1,0 +1,28 @@
+source: context7
+upstream: https://github.com/upstash/context7
+license: MIT
+summary: Current, version-specific library documentation through the Context7 MCP server or ctx7 CLI.
+install:
+  setup: "npx ctx7 setup"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/context7/*/skills/{name}/SKILL.md", invoke: "context7:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex, cursor, copilot]
+skills:
+  - name: context7-mcp
+    description: Fetch current library and API documentation before writing code against it
+    phases: [research, build]
+    task_size: [small, medium, large]
+    triggers: [library, framework, sdk, api, docs, documentation, version, tài liệu thư viện]
+  - name: context7-cli
+    description: Use the ctx7 CLI for docs and skill management
+    phases: [research]
+    task_size: [small, medium]
+  - name: find-docs
+    description: Look up documentation for a library
+    phases: [research]
+    task_size: [small, medium]
+  - name: context7-docs
+    description: Documentation lookup skill for other agents
+    phases: [research]
+    task_size: [small, medium]

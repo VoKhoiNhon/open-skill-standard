@@ -1,0 +1,30 @@
+source: codegraph
+upstream: https://github.com/colbymchenry/codegraph
+license: MIT
+tested_version: 1.6.0
+summary: Local code knowledge graph (MCP tool + CLI) - symbols, call paths, blast radius, affected tests. Does not index SQL.
+install:
+  cli: "npm i -g @colbymchenry/codegraph && codegraph install"
+  project-init: "codegraph init"
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: explore
+    kind: tool
+    description: Answer how code works, trace flows and read symbols with call paths (MCP codegraph_explore)
+    phases: [research, review]
+    requires: ["project:.codegraph"]
+    task_size: [small, medium, large]
+    triggers: ["how does", "where is", trace, callers, "call path"]
+  - name: impact
+    kind: tool
+    description: Blast radius of changing a symbol (codegraph impact)
+    phases: [plan, review]
+    requires: ["project:.codegraph"]
+    task_size: [medium, large]
+    triggers: [impact, "what breaks", "blast radius", ảnh hưởng]
+  - name: affected
+    kind: tool
+    description: Test files affected by changed source files (codegraph affected)
+    phases: [verify]
+    requires: ["project:.codegraph"]
+    task_size: [small, medium, large]

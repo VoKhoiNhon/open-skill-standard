@@ -1,0 +1,53 @@
+source: knowledge-work-design
+upstream: https://github.com/anthropics/knowledge-work-plugins/tree/main/design
+license: Apache-2.0
+summary: Design - critique, accessibility audits, design systems, handoff specs, UX copy and user research.
+install:
+  claude-plugin: "claude plugin marketplace add anthropics/knowledge-work-plugins && claude plugin install design@knowledge-work-plugins"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/design/*/skills/{name}/SKILL.md", invoke: "design:{name}"}
+  - {glob: "~/Library/Application Support/Claude/local-agent-mode-sessions/*/*/rpm/*/skills/{name}/SKILL.md", invoke: "design:{name}"}
+portability: [claude-code, claude-desktop]
+skills:
+  - name: accessibility-review
+    description: WCAG 2.1 AA accessibility audit of a design or page
+    phases: [review, verify]
+    roles: {ux-designer: 1.0, frontend-developer: 1.0, qa-engineer: 0.8, mobile-developer: 0.7}
+    task_size: [small, medium, large]
+    triggers: [accessibility, a11y, wcag, "screen reader"]
+  - name: design-critique
+    description: Structured feedback on usability, hierarchy and consistency
+    phases: [review]
+    roles: {ux-designer: 1.0, frontend-developer: 0.6, product-manager: 0.5}
+    task_size: [small, medium]
+  - name: design-handoff
+    description: Developer handoff specs from a design
+    phases: [plan]
+    roles: {ux-designer: 1.0, frontend-developer: 0.8, mobile-developer: 0.8}
+    produces: [ux-design]
+    task_size: [medium, large]
+  - name: design-system
+    description: Audit, document or extend a design system
+    phases: [plan, review]
+    roles: {ux-designer: 1.0, frontend-developer: 0.9}
+    task_size: [medium, large]
+    triggers: ["design system", tokens, components]
+  - name: user-research
+    description: Plan and run user research - interview guides, usability tests
+    phases: [research]
+    roles: {ux-designer: 1.0, product-manager: 0.8, business-analyst: 0.6}
+    produces: [research-report]
+    task_size: [medium, large]
+    triggers: ["user research", interview, usability]
+  - name: research-synthesis
+    description: Synthesize research into themes, insights and recommendations
+    phases: [research]
+    roles: {ux-designer: 1.0, product-manager: 0.8}
+    produces: [research-report]
+    task_size: [medium, large]
+  - name: ux-copy
+    description: Microcopy, error messages, empty states and calls to action
+    phases: [build]
+    roles: {ux-designer: 1.0, technical-writer: 0.8, frontend-developer: 0.5}
+    task_size: [small, medium]
+    triggers: [copy, microcopy, "error message", wording]

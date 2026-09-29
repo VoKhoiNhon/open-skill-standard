@@ -1,0 +1,94 @@
+source: superpowers
+upstream: https://github.com/obra/superpowers
+license: MIT
+tested_version: 5.1.0
+summary: Execution discipline - design approval, plans, TDD, systematic debugging, verification.
+install:
+  claude-plugin: "/plugin install superpowers@claude-plugins-official"
+  claude-plugin-marketplace: "/plugin marketplace add obra/superpowers-marketplace && /plugin install superpowers@superpowers-marketplace"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/superpowers/*/skills/{name}/SKILL.md", invoke: "superpowers:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project}/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex, cursor, copilot]
+skills:
+  - name: brainstorming
+    description: Converge an idea into an approved design through one-question-at-a-time dialogue before building
+    phases: [discover, specify]
+    produces: [spec]
+    task_size: [medium, large]
+    triggers: [design, "approved design", brainstorm, thiết kế]
+  - name: writing-plans
+    description: Turn a spec into a bite-sized, test-first implementation plan
+    phases: [plan]
+    consumes: [spec]
+    produces: [plan, tasks]
+    task_size: [medium, large]
+    triggers: ["implementation plan", "write the plan", kế hoạch triển khai]
+  - name: subagent-driven-development
+    description: Execute a plan task by task with fresh subagents and review between tasks
+    phases: [build]
+    consumes: [plan]
+    produces: [code-change]
+    alternatives: [superpowers/executing-plans]
+    conflicts: [spec-kit/implement, bmad-method/bmad-build, bmad-method/bmad-build-auto]
+    task_size: [medium, large]
+  - name: executing-plans
+    description: Execute a written plan inline with review checkpoints
+    phases: [build]
+    consumes: [plan]
+    produces: [code-change]
+    alternatives: [superpowers/subagent-driven-development]
+    conflicts: [spec-kit/implement, bmad-method/bmad-build, bmad-method/bmad-build-auto]
+    task_size: [medium, large]
+  - name: test-driven-development
+    description: Write the failing test first, then the minimal code, for any feature or bug fix
+    phases: [build, verify]
+    produces: [test-suite, code-change]
+    task_size: [small, medium, large]
+    triggers: [tdd, "test first", "unit test", "viết test trước"]
+  - name: systematic-debugging
+    description: Find the root cause of a bug, failing test or unexpected behavior before proposing a fix
+    phases: [operate]
+    produces: [runbook]
+    task_size: [small, medium, large]
+    triggers: [bug, debug, "root cause", failing, lỗi, sự cố]
+  - name: verification-before-completion
+    description: Run the real checks and read their output before claiming work is done
+    phases: [verify, release]
+    task_size: [small, medium, large]
+  - name: requesting-code-review
+    description: Ask for a review of finished work before merging
+    phases: [review]
+    task_size: [medium, large]
+  - name: receiving-code-review
+    description: Evaluate review feedback technically before acting on it
+    phases: [review]
+    task_size: [small, medium, large]
+  - name: finishing-a-development-branch
+    description: Decide how to integrate finished, tested work - merge, pull request or cleanup
+    phases: [release]
+    task_size: [medium, large]
+  - name: using-git-worktrees
+    description: Isolate feature work in a git worktree
+    phases: [build]
+    precedes: [superpowers/subagent-driven-development]
+    task_size: [medium, large]
+  - name: dispatching-parallel-agents
+    description: Split two or more independent tasks across parallel agents
+    phases: [build, research]
+    task_size: [large]
+  - name: writing-skills
+    description: Author and test Agent Skills so they measurably change agent behavior
+    phases: [build, verify]
+    roles: {ai-engineer: 1.0, data-ai-platform-engineer: 0.8}
+    task_size: [small, medium, large]
+    triggers: [skill, SKILL.md, "agent skill"]
+  - name: using-superpowers
+    description: Session bootstrap that makes the agent check for relevant skills
+    phases: [discover]
+    task_size: [small]
+  - name: diagnosing-superpowers
+    description: Explain why a superpowers session went wrong
+    phases: [learn]
+    task_size: [small, medium]

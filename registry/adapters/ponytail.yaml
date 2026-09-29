@@ -1,0 +1,38 @@
+source: ponytail
+upstream: https://github.com/DietrichGebert/ponytail
+license: MIT
+summary: Minimalism - the simplest working solution, over-engineering reviews and audits, deferred-shortcut ledger.
+install:
+  claude-plugin: "/plugin marketplace add DietrichGebert/ponytail && /plugin install ponytail@ponytail"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/ponytail/*/skills/{name}/SKILL.md", invoke: "ponytail:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex]
+skills:
+  - name: ponytail
+    description: Take the laziest solution that works - stdlib and native features before new code or dependencies
+    phases: [build]
+    task_size: [small, medium]
+    triggers: [simplest, minimal, yagni, "over-engineering"]
+  - name: ponytail-review
+    description: Review a diff only for over-engineering and what to delete
+    phases: [review]
+    task_size: [small, medium, large]
+    triggers: [bloat, simplify, "over-engineered", delete]
+  - name: ponytail-audit
+    description: Whole-repository over-engineering audit
+    phases: [review]
+    roles: {tech-lead: 0.9, software-architect: 0.8, data-ai-platform-engineer: 0.7}
+    task_size: [large]
+  - name: ponytail-debt
+    description: Ledger of deliberate shortcuts marked for later
+    phases: [learn]
+    task_size: [small]
+  - name: ponytail-gain
+    description: Scoreboard of measured savings
+    phases: [learn]
+    task_size: [small]
+  - name: ponytail-help
+    description: Quick reference for ponytail modes
+    phases: [learn]
+    task_size: [small]
