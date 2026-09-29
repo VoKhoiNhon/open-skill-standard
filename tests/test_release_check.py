@@ -27,7 +27,8 @@ First.
 
 def test_current_release_passes():
     version = (ROOT / "cli/open_skill/__init__.py").read_text().split('"')[1]
-    assert rc.problems(ROOT, version) == []
+    # Between releases main may hold [Unreleased] entries; everything else must already be in place.
+    assert [p for p in rc.problems(ROOT, version) if not p.startswith("entries left under [Unreleased]")] == []
 
 
 def test_version_not_bumped_everywhere(tmp_path):
@@ -62,3 +63,8 @@ def test_compare_links_not_updated():
     assert any("[1.1.0]:" in p for p in rc.changelog_problems(missing, "1.1.0"))
     wrong_base = CHANGELOG.replace("compare/v1.0.0...v1.1.0", "compare/v0.9.0...v1.1.0")
     assert any("[1.1.0]:" in p for p in rc.changelog_problems(wrong_base, "1.1.0"))
+
+
+def test_entries_left_under_unreleased():
+    left = CHANGELOG.replace("## [Unreleased]\n", "## [Unreleased]\n\n### Added\n- z\n")
+    assert any(p.startswith("entries left under [Unreleased]") for p in rc.changelog_problems(left, "1.1.0"))

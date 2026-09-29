@@ -20,6 +20,8 @@ def changelog_problems(text: str, v: str) -> list[str]:
     except KeyError:
         return [f"CHANGELOG has no section for {v}; move [Unreleased] into ## [{v}] - YYYY-MM-DD"]
     out = []
+    if "## [Unreleased]" in text and re.search(r"(?m)^- ", section(text, "Unreleased")):
+        out.append(f"entries left under [Unreleased]; move them into [{v}]")
     if not re.search(rf"(?m)^## \[{re.escape(v)}\] - \d{{4}}-\d{{2}}-\d{{2}}$", text):
         out.append(f"CHANGELOG section for {v} has no date: ## [{v}] - YYYY-MM-DD")
     if not body.strip():
