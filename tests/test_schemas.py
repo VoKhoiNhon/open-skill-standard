@@ -43,3 +43,38 @@ def test_seeds_accept_stable_objects_and_legacy_strings():
     jsonschema.validate(role, schemas.role_schema(TAX))
     role["seeds"] = [{"id": "Bad Id", "text": "x"}]
     assert list(jsonschema.Draft202012Validator(schemas.role_schema(TAX)).iter_errors(role))
+
+
+def _agent(**kw):
+    doc = {"id": "demo-agent", "name": "Demo", "docs": "https://example.org/skills",
+           "global": [{"path": "~/.demo/skills", "source": "https://example.org/skills"}],
+           "project": [{"path": ".demo/skills", "source": "https://example.org/skills"}],
+           "detect": [{"path": "~/.demo", "source": "https://example.org/skills"}]}
+    doc.update(kw)
+    return doc
+
+
+def test_agent_target_minimal_passes():
+    jsonschema.validate(_agent(), schemas.agent_schema(TAX))
+
+
+def test_agent_paths_need_a_source_url():
+    v = jsonschema.Draft202012Validator(schemas.agent_schema(TAX))
+    assert list(v.iter_errors(_agent(**{"global": [{"path": "~/.demo/skills"}]})))
+    assert list(v.iter_errors(_agent(**{"global": [{"path": "~/.demo/skills", "source": "my notes"}]})))
+
+
+def test_agent_global_is_absolute_and_project_is_relative():
+    v = jsonschema.Draft202012Validator(schemas.agent_schema(TAX))
+    src = "https://example.org/skills"
+    assert list(v.iter_errors(_agent(**{"global": [{"path": ".demo/skills", "source": src}]})))
+    assert list(v.iter_errors(_agent(project=[{"path": "~/.demo/skills", "source": src}])))
+    assert list(v.iter_errors(_agent(project=[{"path": "../outside/skills", "source": src}])))
+    assert list(v.iter_errors(_agent(project=[{"path": "/etc/skills", "source": src}])))
+
+
+def test_agent_relocation_names_an_env_var_and_prefix():
+    v = jsonschema.Draft202012Validator(schemas.agent_schema(TAX))
+    ok = [{"var": "DEMO_HOME", "replaces": "~/.demo", "source": "https://example.org/env"}]
+    assert not list(v.iter_errors(_agent(relocate=ok)))
+    assert list(v.iter_errors(_agent(relocate=[{"var": "demo home", "replaces": "~/.demo", "source": "https://x.org"}])))

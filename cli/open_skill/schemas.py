@@ -2,6 +2,7 @@
 
 KEBAB = "^[a-z0-9]+(-[a-z0-9]+)*$"
 SKILL_ID = "^[a-z0-9-]+/[a-z0-9:_-]+$"
+URL = "^https://[^\\s]+$"
 EFFORT = ["low", "medium", "high", "xhigh", "max"]
 
 
@@ -144,6 +145,45 @@ def model_schema(tax: dict) -> dict:
     }
 
 
+def _located(path_pattern: str) -> dict:
+    """A path with the URL of the official page (or upstream source line) that documents it."""
+    return {
+        "type": "object",
+        "required": ["path", "source"],
+        "additionalProperties": False,
+        "properties": {"path": {"type": "string", "pattern": path_pattern}, "source": {"type": "string", "pattern": URL}},
+    }
+
+
+def agent_schema(tax: dict) -> dict:
+    absolute = "^(~/|/)"
+    relative = "^(?!~|/)(?!.*(^|/)\\.\\.(/|$)).+$"
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Open Skill Standard agent target",
+        "type": "object",
+        "required": ["id", "name", "docs", "global", "detect"],
+        "additionalProperties": False,
+        "properties": {
+            "id": {"type": "string", "pattern": KEBAB},
+            "name": {"type": "string"},
+            "docs": {"type": "string", "pattern": URL},
+            "global": _arr(_located(absolute), minItems=1, description="user-level skill folders, install target first"),
+            "project": _arr(_located(relative), description="skill folders relative to the project root, install target first"),
+            "detect": _arr(_located(absolute), minItems=1, description="the agent counts as installed when any path exists"),
+            "relocate": _arr({
+                "type": "object",
+                "required": ["var", "replaces", "source"],
+                "additionalProperties": False,
+                "properties": {"var": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+                               "replaces": {"type": "string", "pattern": absolute},
+                               "source": {"type": "string", "pattern": URL}},
+            }, description="an env var that, when set, replaces a path prefix"),
+            "notes": {"type": "string"},
+        },
+    }
+
+
 def knowledge_schema(tax: dict) -> dict:
     e = _enums(tax)
     return {
@@ -168,6 +208,7 @@ ALL = {
     "role": role_schema,
     "model": model_schema,
     "knowledge": knowledge_schema,
+    "agent": agent_schema,
 }
 
 
