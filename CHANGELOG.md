@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - `open-skill graph --format html --out graph.html` writes one self-contained page (no network) with skills by phase, artifacts and roles, filters by role, phase, source and installed state, search, keyboard use and a dark theme; `--out` works for every format. Graph JSON nodes now carry skill descriptions and role names.
+- `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, the CHANGELOG has a dated section and the compare links are updated. CI runs it on `release/*` pull requests.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
