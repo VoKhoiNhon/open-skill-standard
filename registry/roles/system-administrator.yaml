@@ -82,6 +82,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Run a playbook twice; the second run must change nothing.
-- Write the runbook step before automating it.
-- Keep a change log for every production host.
+- id: run-playbook-twice-second-run
+  text: Run a playbook twice; the second run must change nothing.
+- id: write-runbook-step-automating
+  text: Write the runbook step before automating it.
+- id: keep-change-log-production-host
+  text: Keep a change log for every production host.

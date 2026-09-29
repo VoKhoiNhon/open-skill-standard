@@ -78,6 +78,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Estimate the monthly cost in the pull request description.
-- Plan output is reviewed before apply, every time.
-- Prefer managed services unless a requirement rules them out.
+- id: estimate-monthly-cost-pull-request
+  text: Estimate the monthly cost in the pull request description.
+- id: plan-output-reviewed-apply-time
+  text: Plan output is reviewed before apply, every time.
+- id: prefer-managed-services-unless-requirement
+  text: Prefer managed services unless a requirement rules them out.

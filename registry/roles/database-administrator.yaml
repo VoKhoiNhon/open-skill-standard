@@ -77,6 +77,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Add columns as nullable first, backfill, then add the constraint.
-- Check the query plan before and after an index change.
-- Test a restore every quarter.
+- id: add-columns-nullable-first-backfill
+  text: Add columns as nullable first, backfill, then add the constraint.
+- id: check-query-plan-index-change
+  text: Check the query plan before and after an index change.
+- id: test-restore-quarter
+  text: Test a restore every quarter.
