@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -247,3 +248,17 @@ def test_update_leaves_local_skills_to_the_user(reg, tmp_path):
     p = _installed(reg, tmp_path)
     assert "local skill" in install.update()[0]
     assert (p.dest / "notes.md").exists()
+
+
+def test_update_relinks_a_core_symlink_to_this_cli(reg, tmp_path):
+    import shutil
+    old = tmp_path / "old-cli/skills/open-skill-router"
+    shutil.copytree(REPO / "skills/open-skill-router", old)
+    dest = tmp_path / "home/.agents/skills/open-skill-router"
+    dest.parent.mkdir(parents=True)
+    dest.symlink_to(old, target_is_directory=True)
+    install._save([{"skill": "open-skill-router", "agent": "codex", "scope": "global", "dest": str(dest),
+                    "source": str(old), "kind": "core", "mode": "symlink", "version": "0.0.1", "files": {}}])
+    assert install.update()[0].startswith("updated")
+    assert os.readlink(dest) == str(REPO / "skills/open-skill-router")
+    assert old.is_dir()  # the old target is not ours to delete
