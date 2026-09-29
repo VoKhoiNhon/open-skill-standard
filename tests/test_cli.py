@@ -65,6 +65,14 @@ def test_search_installed_only(capsys):
     assert [line.split()[1] for line in out.splitlines()] == ["harvested/lint-helper"]
 
 
+def test_search_without_query_lists_filtered_skills(capsys):
+    code, out = run(capsys, "search", "--source", "spec-kit")
+    assert code == 0
+    assert [line.split()[1] for line in out.splitlines()] == ["spec-kit/implement", "spec-kit/plan", "spec-kit/specify"]
+    assert all(line.split()[0] == "-" for line in out.splitlines())
+    assert run(capsys, "search")[0] == 2
+
+
 def test_feedback_appends_event(capsys, tmp_path):
     code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
     assert code == 0
