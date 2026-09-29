@@ -65,6 +65,13 @@ def test_lexical_triggers_prefers_the_matching_description():
     assert evals.lexical_triggers("the and of", d) == []
 
 
+def test_lexical_triggers_does_not_penalize_long_descriptions():
+    # Same matches, ten times the text: both must fire. FTS5's bm25() ranked the long one out of the ratio.
+    d = {"long": "Deploy web apps. " + "Covers rollbacks, previews, domains, logs and env vars. " * 5,
+         "short": "Deploy web apps.", "sql-helper": "Write SQL queries for warehouses."}
+    assert set(evals.lexical_triggers("deploy my web apps", d)) == {"long", "short"}
+
+
 def test_lexical_report_splits_train_and_holdout():
     d = {"pdf-tools": "Extract text and tables from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
     sets = {"pdf-tools": [{"q": "extract tables from this PDF", "trigger": True},
@@ -117,20 +124,21 @@ def test_trigger_query_locale_is_a_language_tag(tmp_path):
 # Regression floors for the lexical proxy, just under the current scores so losing one query fails:
 # skill -> (precision, recall) on the tuning queries. Raise them when descriptions improve, never lower them silently.
 TUNE_FLOORS = {
-    "open-skill-intel": (0.75, 0.40),
-    "open-skill-learn": (0.95, 0.80),
-    "open-skill-router": (0.95, 0.70),
-    "open-skill-standards": (0.95, 0.75),
+    "open-skill-intel": (0.80, 0.85),
+    "open-skill-learn": (0.95, 0.95),
+    "open-skill-router": (0.95, 0.95),
+    "open-skill-standards": (0.95, 0.85),
 }
 
 
 # The same on the held-out queries, which are never used for tuning: a false alarm or a lost catch there means a
-# description change did not generalize. Standards has one held-out false alarm today, hence precision 0.45.
+# description change did not generalize. Precision is lower here than it was under FTS5's length-normalized bm25(),
+# where the long core descriptions rarely reached the top 3 at all (1.0 then meant "never fired").
 HOLDOUT_FLOORS = {
-    "open-skill-intel": (0.95, 0.0),
-    "open-skill-learn": (0.95, 0.40),
-    "open-skill-router": (0.95, 0.25),
-    "open-skill-standards": (0.45, 0.10),
+    "open-skill-intel": (0.65, 0.55),  # 0.57 with English-only descriptions (v0.7.0)
+    "open-skill-learn": (0.7, 0.8),
+    "open-skill-router": (0.55, 0.8),
+    "open-skill-standards": (0.7, 0.8),
 }
 
 
@@ -160,7 +168,9 @@ def test_core_skills_trigger_proxy_holds_on_holdout():
 # locale -> skill -> ((tune precision, tune recall), (holdout precision, holdout recall)).
 LOCALE_FLOORS = {"vi": {
     "open-skill-intel": ((0.95, 0.65), (0.95, 0.0)),
-    "open-skill-learn": ((0.95, 0.70), (0.95, 0.95)),
+    # Holdout precision 0.95 -> 0.65 with b = 0 scoring: the long learn description now reaches one held-out
+    # Vietnamese near miss, the same trade-off as the English holdout above.
+    "open-skill-learn": ((0.95, 0.70), (0.65, 0.95)),
     # Holdout 0.95 -> 0.45 when the description lost its Vietnamese phrases: one of two held-out Vietnamese
     # requests no longer reaches the router, and holdout queries are never tuned on.
     "open-skill-router": ((0.95, 0.95), (0.95, 0.45)),
