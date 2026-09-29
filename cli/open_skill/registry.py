@@ -128,6 +128,11 @@ def validate(reg: Registry) -> list[str]:
         errors += _schema_errors(a, sch["agent"], reg.files.get(f"agent:{aid}", aid))
 
     known = set(reg.skills)
+    for src, a in reg.adapters.items():
+        for rule in _list(a.get("detect")):
+            agent = rule.get("agent") if isinstance(rule, dict) else None
+            if agent and agent not in reg.agents:  # the rule would then describe folders no agent reads
+                errors.append(f"adapter {src}: detect rule {rule.get('glob')} names unknown agent {agent}")
     for sid, s in reg.skills.items():
         for key in ("alternatives", "conflicts", "precedes"):
             for ref in _list(s.get(key)):
