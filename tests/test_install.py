@@ -86,3 +86,29 @@ def test_copy_install_writes_files_and_records_them(reg, tmp_path):
 def test_manifest_lives_in_the_user_layer(reg, tmp_path):
     install.apply(install.plan(install.resolve_source("open-skill-learn"), reg.agents["codex"]))
     assert (tmp_path / "osh" / "installed.json").is_file()
+
+
+def test_different_existing_skill_is_never_overwritten(reg, tmp_path):
+    theirs = skill(tmp_path / "home/.agents/skills/open-skill-router", "open-skill-router", "Someone else's.\n")
+    before = (theirs / "SKILL.md").read_bytes()
+    p = install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"])
+    assert p.action == "refuse" and "never overwrites" in p.reason
+    install.apply(p)
+    assert (theirs / "SKILL.md").read_bytes() == before and install.manifest() == []
+
+
+def test_identical_existing_skill_is_left_alone_and_not_claimed(reg, tmp_path):
+    import shutil
+    dest = tmp_path / "home/.agents/skills/open-skill-router"
+    shutil.copytree(REPO / "skills/open-skill-router", dest)
+    p = install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"])
+    assert p.action == "unchanged"
+    install.apply(p)
+    assert install.manifest() == []  # open-skill did not create it, so it will never remove it
+
+
+def test_broken_link_at_the_target_is_refused(reg, tmp_path):
+    target = tmp_path / "home/.agents/skills/open-skill-router"
+    target.parent.mkdir(parents=True)
+    target.symlink_to(tmp_path / "gone")
+    assert install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"]).action == "refuse"

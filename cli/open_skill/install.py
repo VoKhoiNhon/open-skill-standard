@@ -61,7 +61,19 @@ def plan(src: Source, agent: dict, project: Path | None = None, mode: str = "cop
     targets = agents.folders(agent, scope, project)
     if not targets:
         raise ValueError(f"{agent['id']} has no {scope} skill folder")
-    return Plan(src, agent["id"], scope, targets[0] / src.name, mode)
+    p = Plan(src, agent["id"], scope, targets[0] / src.name, mode)
+    if os.path.lexists(p.dest):
+        if _same(src.path, p.dest):
+            p.action, p.reason = "unchanged", f"{p.dest} already holds this skill"
+        else:
+            p.action, p.reason = "refuse", f"{p.dest} already holds a different skill; open-skill never overwrites it"
+    return p
+
+
+def _same(src: Path, dest: Path) -> bool:
+    if dest.is_symlink():
+        return dest.resolve() == src.resolve()
+    return dest.is_dir() and _files(dest) == _files(src)
 
 
 def _hash(path: Path) -> str:
