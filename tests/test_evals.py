@@ -171,9 +171,9 @@ LOCALE_FLOORS = {"vi": {
     # Holdout precision 0.95 -> 0.65 with b = 0 scoring: the long learn description now reaches one held-out
     # Vietnamese near miss, the same trade-off as the English holdout above.
     "open-skill-learn": ((0.95, 0.70), (0.65, 0.95)),
-    # Holdout 0.95 -> 0.45 when the description lost its Vietnamese phrases: one of two held-out Vietnamese
-    # requests no longer reaches the router, and holdout queries are never tuned on.
-    "open-skill-router": ((0.95, 0.95), (0.95, 0.45)),
+    # b = 0 scoring brings back the held-out Vietnamese request the English-only description lost (recall 1.0)
+    # and adds one near miss (precision 0.67).
+    "open-skill-router": ((0.95, 0.95), (0.65, 0.95)),
     "open-skill-standards": ((0.95, 0.95), (0.95, 0.45)),
 }}
 
