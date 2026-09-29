@@ -81,7 +81,8 @@ def test_route_explain_shows_why_this_window(capsys, tmp_path):
     assert "size medium: no size keywords, the default" in out
     assert "phase window: plan → build → verify → review (medium build task: starts at plan" in out
     code, out = run(capsys, "route", "the orders thing", *base[1:], "--size", "small")
-    assert "target build: no phase keywords, the default" in out and "size small: given" in out
+    assert "phase: build (guessed, no signal); pass --phase if you know it" in out and "size small: given" in out
+    assert "target=build (guessed)" in out
     code, out = run(capsys, "route", "fix a typo", *base[1:])
     assert "size small from size keywords: typo" in out
 
@@ -405,3 +406,13 @@ def test_search_agent_counts_only_that_agents_skills_as_installed(capsys):
     assert "harvested/my-internal-skill" not in out  # only in ~/.claude/skills
     assert "harvested/my-internal-skill" in run(capsys, "search", "--installed", "--source", "harvested")[1]
     assert run(capsys, "search", "x", "--agent", "nope")[0] == 2
+
+
+def test_route_phase_flag(capsys, tmp_path):
+    (tmp_path / "p").mkdir()
+    base = ("route", "customers say the export returns nothing", "--project", str(tmp_path / "p"), "--no-record")
+    code, out = run(capsys, *base, "--phase", "operate")
+    assert code == 0 and json.loads(out)["target_phase"] == "operate" and json.loads(out)["phase_from"] == "given"
+    code, out = run(capsys, *base, "--phase", "operate", "--explain")
+    assert "target operate: given by the caller" in out
+    assert run(capsys, *base, "--phase", "deploy")[0] == 2

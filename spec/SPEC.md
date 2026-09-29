@@ -103,7 +103,7 @@ A conforming router, given a task, a project and optionally a role, size and mod
 
 1. MUST inspect the project for native markers, artifacts and role signals without reading file contents.
 2. MUST resolve a role mix from, in order, the explicit role, the user's profile, project signals.
-3. MUST choose a target phase and a phase window, and SHOULD use a role pack's `build_window` for build-type tasks.
+3. MUST choose a target phase and a phase window, and SHOULD use a role pack's `build_window` for build-type tasks. A phase given by the caller MUST be a taxonomy phase id and MUST be used as is; otherwise the router MAY detect it from phase keywords. It MUST report where the phase came from (given, keywords, or guessed when nothing matched).
 4. MUST only place installed skills whose requirements are met; MUST NOT place two skills that conflict; MUST let the project's native framework win the phases it has candidates for.
 5. SHOULD rank candidates by role pack membership, role weights, text relevance, artifact flow and the user's personal weights, and MUST be able to explain each choice.
 6. MUST resolve a model profile, falling back from exact match to family to `generic`, and apply its step limit and notes.

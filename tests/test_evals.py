@@ -182,3 +182,9 @@ def test_lexical_report_suggestions_use_tuning_queries_only():
     rep = evals.trigger_report_lexical(sets, d, suggest=True)["pdf-tools"]
     assert rep["suggest"]["add"] == [("merge", 2), ("merge scanned", 2), ("scanned", 2)]
     assert "suggest" not in evals.trigger_report_lexical(sets, d)["pdf-tools"]
+
+
+def test_case_can_give_the_phase_an_agent_would_pass():
+    case = {"role": "backend-developer", "task": "customers say invoice export returns nothing since yesterday",
+            "first": "superpowers/systematic-debugging"}
+    assert evals.run_case({**case, "phase": "operate"}, REG, ALL) == []

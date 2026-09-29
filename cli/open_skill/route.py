@@ -127,19 +127,25 @@ def _install_hint(skill: dict, agent: str | None = None) -> str:
 
 
 def route(task: str, project_path: Path, reg, installed, role: str | None = None, size: str | None = None,
-          model: str | None = None, record: bool = True, decisions: bool = False, agent: str | None = None) -> dict:
-    """decisions=True adds result["decisions"]: the phase window and the outcome of every candidate per phase."""
+          model: str | None = None, record: bool = True, decisions: bool = False, agent: str | None = None,
+          phase: str | None = None) -> dict:
+    """decisions=True adds result["decisions"]: the phase window and the outcome of every candidate per phase.
+    `phase` is the target phase when the caller knows it (an agent that read the conversation); ValueError if unknown."""
     tax = reg.taxonomy
+    if phase is not None and phase not in _phase_order(tax):
+        raise ValueError(f"unknown phase: {phase} (one of: {', '.join(_phase_order(tax))})")
     proj = project.inspect(Path(project_path), tax, reg.roles)
     prof = knowledge.load_profile()
     mix = _role_mix(role, prof, proj)
     given_size, size = size, task_size(task, tax, size)
-    target = target_phase(task, tax)
+    given_phase, target = phase, phase or target_phase(task, tax)
     lead = max(mix, key=mix.get)
     window, window_why = window_and_reason(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"), lead)
     weights = knowledge.personal_weights()
     phase_kw = {p["id"]: p["keywords"] for p in tax["phases"]}
     size_kw = tax.get("size_keywords", {}).get(size, [])
+    phase_words = [] if given_phase else _matched(task, phase_kw.get(target, []))
+    phase_from = "given" if given_phase else ("keywords" if phase_words else "guessed")
     size_from = "given" if given_size else ("keywords" if _matched(task, size_kw) else "default")
     task_terms = _terms(task)
 
@@ -292,6 +298,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         "role": mix,
         "size": size,
         "target_phase": target,
+        "phase_from": phase_from,
         "project": {k: proj[k] for k in ("path", "native", "artifacts", "codegraph")},
         "chain": chain,
         "advice": advice,
@@ -303,7 +310,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     }
     if decisions:
         result["decisions"] = {
-            "phase": {"target": target, "keywords": _matched(task, phase_kw.get(target, []))},
+            "phase": {"target": target, "from": phase_from, "keywords": phase_words},
             "size": {"size": size, "from": size_from, "keywords": _matched(task, size_kw) if size_from == "keywords" else []},
             "window": window, "window_reason": window_why, "candidates": trace}
     if record:

@@ -1,6 +1,7 @@
 # Deterministic routing evals. Every registry skill counts as installed; `files` are created in an empty project.
 # `include`: skill ids that must appear; `exclude`: ids that must not; `first`: id of the first step;
-# `phases`: exact phase list; `advice`: expected advice. Keep assertions to what matters, so tuning stays possible.
+# `phases`: exact phase list; `advice`: expected advice; `phase`: the target phase an agent passes with --phase.
+# Keep assertions to what matters, so tuning stays possible.
 cases:
   - {id: frontend, role: frontend-developer, task: "build a settings page with a dark mode toggle",
      include: [anthropic-skills/frontend-design], exclude: [superpowers/test-driven-development]}
