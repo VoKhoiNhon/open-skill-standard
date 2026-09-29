@@ -117,22 +117,20 @@ def test_trigger_query_locale_is_a_language_tag(tmp_path):
 # Regression floors for the lexical proxy, just under the current scores so losing one query fails:
 # skill -> (precision, recall) on the tuning queries. Raise them when descriptions improve, never lower them silently.
 TUNE_FLOORS = {
-    # 0.35 -> 0.30 when Vietnamese queries began to read every skill's vi words: codegraph/impact's "ảnh hưởng"
-    # now outranks intel on an accent-free impact question, as it does in search.
-    "open-skill-intel": (0.75, 0.30),
-    "open-skill-learn": (0.95, 0.75),
-    "open-skill-router": (0.95, 0.55),
+    "open-skill-intel": (0.75, 0.40),
+    "open-skill-learn": (0.95, 0.80),
+    "open-skill-router": (0.95, 0.65),
     "open-skill-standards": (0.95, 0.75),
 }
 
 
 # The same on the held-out queries, which are never used for tuning: a false alarm or a lost catch there means a
-# description change did not generalize. Standards has one held-out false alarm today, hence precision 0.
+# description change did not generalize. Standards has one held-out false alarm today, hence precision 0.45.
 HOLDOUT_FLOORS = {
     "open-skill-intel": (0.95, 0.0),
-    "open-skill-learn": (0.95, 0.15),
-    "open-skill-router": (0.95, 0.0),
-    "open-skill-standards": (0.0, 0.0),
+    "open-skill-learn": (0.95, 0.40),
+    "open-skill-router": (0.95, 0.25),
+    "open-skill-standards": (0.45, 0.10),
 }
 
 
@@ -161,10 +159,10 @@ def test_core_skills_trigger_proxy_holds_on_holdout():
 # The same per locale: requests in Vietnamese must keep triggering the core skills as descriptions change.
 # locale -> skill -> ((tune precision, tune recall), (holdout precision, holdout recall)).
 LOCALE_FLOORS = {"vi": {
-    "open-skill-intel": ((0.95, 0.30), (0.95, 0.0)),
-    "open-skill-learn": ((0.95, 0.45), (0.95, 0.45)),
-    "open-skill-router": ((0.95, 0.95), (0.95, 0.0)),
-    "open-skill-standards": ((0.95, 0.95), (0.95, 0.0)),
+    "open-skill-intel": ((0.95, 0.65), (0.95, 0.0)),
+    "open-skill-learn": ((0.95, 0.70), (0.95, 0.95)),
+    "open-skill-router": ((0.95, 0.95), (0.95, 0.95)),
+    "open-skill-standards": ((0.95, 0.95), (0.95, 0.45)),
 }}
 
 

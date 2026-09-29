@@ -16,21 +16,22 @@ skills:
     description: Pick and order the right installed skills for a task in any project and role
     phases: [discover]
     task_size: [medium, large]
+    triggers_i18n: {vi: [bắt đầu, quy trình]}
   - name: open-skill-standards
     description: Definition-of-done checklists, general and per role
     phases: [verify, review]
     task_size: [small, medium, large]
     triggers: [standards, checklist, "definition of done", "best practice"]
-    triggers_i18n: {vi: [quy chuẩn]}
+    triggers_i18n: {vi: [quy chuẩn, tiêu chuẩn, đủ chuẩn]}
   - name: open-skill-intel
     description: Route a question to the best information source before acting
     phases: [research]
     task_size: [small, medium, large]
     triggers: ["how does", "where is", "what is", schema, docs, "which skill"]
-    triggers_i18n: {vi: [tra cứu]}
+    triggers_i18n: {vi: [tra cứu, ở đâu, chỗ nào, định nghĩa, ảnh hưởng, được gọi]}
   - name: open-skill-learn
     description: Remember lessons and preferences so future routes use them
     phases: [learn]
     task_size: [small]
     triggers: [remember, lesson, "note that", "from now on"]
-    triggers_i18n: {vi: [ghi nhớ, bài học]}
+    triggers_i18n: {vi: [ghi nhớ, nhớ giúp, bài học, từ giờ, lần sau]}
