@@ -86,6 +86,24 @@ def test_route_explain_shows_why_this_window(capsys, tmp_path):
     assert "size small from size keywords: typo" in out
 
 
+def test_route_explain_lists_runner_ups_with_scores(capsys, tmp_path, monkeypatch):
+    from open_skill import registry, route as route_mod, scan
+    reg = registry.load(FIX / "repo")
+    everything = [scan.Installed(sid, sid, "/x", s.get("description", ""), False) for sid, s in reg.skills.items()]
+    monkeypatch.setattr(scan, "scan", lambda *a, **k: everything)
+    (tmp_path / "p").mkdir()
+    r = route_mod.route("add an export endpoint", tmp_path / "p", reg, everything, role="fullstack-developer",
+                        record=False, decisions=True)
+    plan = next(s for s in r["chain"] if s["phase"] == "plan")
+    losers = sorted((d for d in r["decisions"]["candidates"] if d["phase"] == "plan" and d["outcome"] == "lower-score"),
+                    key=lambda d: -d["score"])
+    code, out = run(capsys, "route", "add an export endpoint", "--project", str(tmp_path / "p"),
+                    "--role", "fullstack-developer", "--explain", "--no-record")
+    step = out.split(f"[plan] {plan['invoke']}")[1].splitlines()
+    close = lambda d: " (close call)" if d["id"] == plan.get("runner_up") else ""  # noqa: E731
+    assert step[1].strip() == "runner-ups: " + ", ".join(f"{d['id']} {d['score']}{close(d)}" for d in losers[:3])
+
+
 def test_feedback_appends_event(capsys, tmp_path):
     code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
     assert code == 0

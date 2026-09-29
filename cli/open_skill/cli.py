@@ -176,6 +176,11 @@ def _explain(r) -> str:
         lines.append(f"{i}. [{s['phase']}] {s['invoke']}  score={s['score']}  — {s['why']}")
         if s.get("ask"):
             lines.append(f"   close call on the main step, ask the user: {s['ask']}")
+        losers = sorted((c for c in (d or {}).get("candidates", []) if c["phase"] == s["phase"] and c["outcome"] == "lower-score"),
+                        key=lambda c: -c["score"])[:3]
+        if losers:
+            lines.append("   runner-ups: " + ", ".join(
+                f"{c['id']} {c['score']}" + (" (close call)" if c["id"] == s.get("runner_up") else "") for c in losers))
         elif s.get("runner_up"):
             lines.append(f"   runner-up: {s['runner_up']}")
     for m in r["missing"]:
