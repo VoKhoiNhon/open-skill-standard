@@ -142,6 +142,13 @@ rule("hidden-comment", "medium",
      "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True)
 
 
+rule("fake-authority", "high",
+     r"\b(message|notice|instructions?|update|directive|order)\s+from\s+(anthropic|openai|the\s+system|the\s+(administrator|admin)"
+     r"|your\s+(developers?|creators?|operators?))\b|\[\s*(system|admin|developer)\s*(message|override|notice|prompt)\s*\]"
+     r"|</?system-reminder>|<\|im_start\|>|<\|(system|start_header_id)\|>",
+     "impersonates the system, the agent vendor or an administrator to gain authority over the agent", OWASP_LLM01)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
