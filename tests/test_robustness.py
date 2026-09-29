@@ -69,3 +69,14 @@ def test_a_note_with_broken_frontmatter_does_not_block_migration_or_seed_sync(ho
     assert userdata.data_version(home) == userdata.SCHEMA_VERSION
     assert knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "x", "text": "Seed."}]}) == [
         "added data-engineer/x"]
+
+
+def test_notes_path_that_is_a_file_stops_writes_before_anything_changes(home, tmp_path, capsys):
+    # `learn` crashed with FileExistsError after already migrating and backing up; export exported nothing.
+    home.mkdir()
+    (home / "knowledge").write_text("my stuff\n", encoding="utf-8")
+    assert cli.main(["learn", "Hello.", "--applies-to", "role:*"]) == 2
+    assert cli.main(["export", str(tmp_path / "e.zip")]) == 2
+    assert "not a folder" in capsys.readouterr().err
+    assert sorted(p.name for p in home.iterdir()) == ["knowledge"]
+    assert (home / "knowledge").read_text(encoding="utf-8") == "my stuff\n"

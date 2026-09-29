@@ -1,6 +1,7 @@
 """The user layer (L2): profile, knowledge nodes, usage events, personal weights. Local files only."""
 
 import datetime as dt
+import errno
 import hashlib
 import json
 import re
@@ -30,8 +31,16 @@ def home() -> Path:
     return paths.user_home()
 
 
+def _check_layout() -> None:
+    """Refuse to act on a home whose notes path is not a folder, before anything is written."""
+    k = home() / "knowledge"
+    if k.exists() and not k.is_dir():
+        raise NotADirectoryError(errno.ENOTDIR, "not a folder; move it away so notes can be stored", str(k))
+
+
 def _prepare() -> None:
     """Every write goes through here: upgrade older data (with a backup) and never write over newer data."""
+    _check_layout()
     if userdata.pending(home()):
         actions = userdata.migrate(home())
         if actions:
@@ -203,6 +212,7 @@ def personal_weights(now: float | None = None, names: dict[str, str] | None = No
 
 def export(dest: Path) -> Path:
     """Zip of profile.yaml + knowledge/ (events stay on this machine)."""
+    _check_layout()
     stage = Path(dest).with_suffix("")
     tmp = stage.parent / (stage.name + ".staging")
     shutil.rmtree(tmp, ignore_errors=True)
