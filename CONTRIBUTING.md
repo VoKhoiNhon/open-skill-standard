@@ -44,6 +44,10 @@ When Anthropic publishes a model-specific prompting guide, add `registry/models/
 
 Skills in `skills/` must pass `open-skill lint`. Keep them model-neutral: say why instead of shouting MUST/NEVER, keep instructions brief, name the scope, never ask the model to reproduce its reasoning in the reply, and never hard-code a model id.
 
+## Releases
+
+See [RELEASING.md](RELEASING.md).
+
 ## Commits and pull requests
 
 Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `ci:`). Keep each pull request to one purpose. Larger features follow the repository's own spec-driven flow in `specs/`.
