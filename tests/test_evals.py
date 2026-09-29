@@ -207,3 +207,13 @@ def test_routing_holdout_is_separate_from_the_tuned_cases():
     assert len({c["id"] for c in holdout}) == len(holdout)
     assert not {c["id"] for c in holdout} & {c["id"] for c in CASES}
     assert not {(c["role"], c["task"]) for c in holdout} & {(c.get("role"), c["task"]) for c in CASES}
+
+
+# The held-out routing cases gate only on a floor just below the measured pass rate: a routing change that loses
+# held-out cases fails, but no single case must pass. Raise the floor when the score goes up; never lower it silently.
+HOLDOUT_ROUTING_FLOOR = 0.42  # measured 23/52 = 0.442
+
+
+def test_routing_holdout_meets_floor():
+    rep = evals.routing_report(evals.load_routing_cases(HOLDOUT_PATH), REG, ALL)
+    assert rep["pass_rate"] >= HOLDOUT_ROUTING_FLOOR, f"holdout {rep['passed']}/{rep['cases']}"
