@@ -287,6 +287,15 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
         shipped_ids = {f"{role}/{s['id']}" for s in shipped if s["id"]}
         for p, m, b in notes:
             sid = m.get("seed_id", "")
-            if sid.startswith(f"{role}/") and sid not in shipped_ids:
+            if not sid.startswith(f"{role}/"):
+                continue
+            if sid not in shipped_ids and not m.get("retired"):  # report once, then remember
                 actions.append(f"kept {sid}: no longer shipped upstream")
+                if not dry_run:
+                    m["retired"] = True
+                    _save(p, m, b)
+            elif sid in shipped_ids and m.get("retired") and not dry_run:
+                m.pop("retired")
+                _save(p, m, b)
     return actions
+

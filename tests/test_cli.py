@@ -138,3 +138,4 @@ def test_seeds_sync_command(capsys, tmp_path):
     run(capsys, "init", "--role", "data-engineer")
     code, out = run(capsys, "seeds", "sync", "--dry-run")
     assert code == 0 and "up to date" in out
+

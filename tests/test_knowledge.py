@@ -189,3 +189,14 @@ def test_sync_is_quiet_about_edits_when_upstream_did_not_change(home):
     p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
     p.write_text(p.read_text().replace("Check nulls on keys.", "Check nulls on keys, always."))
     assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1) == []
+
+
+
+def test_retired_seeds_are_reported_once(home):
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    v2 = {"data-engineer": [SEEDS_V1["data-engineer"][1]]}
+    assert knowledge.sync_seeds(["data-engineer"], v2) == ["kept data-engineer/merge: no longer shipped upstream"]
+    assert knowledge.sync_seeds(["data-engineer"], v2) == []
+    assert _note("data-engineer/merge")["retired"] is True
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    assert "retired" not in _note("data-engineer/merge")
