@@ -153,6 +153,25 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 Mỗi role pack ghi rủi ro đặc thù của vai trò, các nguyên tắc (dùng làm constitution cho spec-kit), tín hiệu nhận diện project, và skill primary/alternative cho từng phase.
 
+## Các framework được tích hợp
+
+Adapter mô tả skill của từng nguồn dưới dạng metadata và trỏ tới trình cài đặt chính thức; repo không chép nội dung của nguồn nào.
+
+| Nguồn | Vai trò trong chuỗi | Giấy phép |
+|---|---|---|
+| [superpowers](https://github.com/obra/superpowers) | Kỷ luật thực thi: duyệt thiết kế, kế hoạch, TDD, debug, xác minh | MIT |
+| [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) | Bạn đồng hành tư duy, persona, artefact lập kế hoạch, build vừa cỡ (cần `bmad setup`) | MIT, nhãn hiệu |
+| [spec-kit](https://github.com/github/spec-kit) | Spec bền vững → plan → tasks → implement → converge (cần `specify init`) | MIT |
+| [codegraph](https://github.com/colbymchenry/codegraph) | Đồ thị tri thức về code: đường gọi hàm, tác động, test bị ảnh hưởng | MIT |
+| [Anthropic skills](https://github.com/anthropics/skills) | Tài liệu, viết skill, MCP server, kiểm thử web, thiết kế frontend | theo từng skill |
+| [Knowledge-work plugins](https://github.com/anthropics/knowledge-work-plugins) | Dữ liệu, kỹ thuật, quản lý sản phẩm, thiết kế | Apache-2.0 |
+| [Context7](https://github.com/upstash/context7) | Tài liệu thư viện mới nhất | MIT |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | Giải pháp tối giản và review chống over-engineering | MIT |
+| [taste-skill](https://github.com/leonxlnx/taste-skill) | Chất lượng thị giác của frontend | MIT |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Vòng đời kỹ thuật: spec, chia task, lát mỏng, observability, hardening, migration, launch | MIT |
+| [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | Quy tắc React, Next.js và React Native, review UI và văn phong, deploy Vercel và tối ưu chi phí | MIT |
+| Skill có sẵn của Claude Code | code-review, security-review, run, claude-api, schedule… | — |
+
 ## Thích ứng theo model
 
 Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng giúp ích cho model cũ có thể gây hại cho model mới. Vì vậy:
