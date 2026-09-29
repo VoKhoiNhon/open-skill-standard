@@ -46,6 +46,9 @@ def test_load_trigger_sets(tmp_path):
     (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi}\n")
     with pytest.raises(ValueError):
         evals.load_trigger_sets(tmp_path)
+    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, holdout: yes please}\n")
+    with pytest.raises(ValueError):
+        evals.load_trigger_sets(tmp_path)
 
 
 def test_trigger_metrics():
@@ -90,6 +93,13 @@ def test_split_is_stable_and_stratified():
     train, val = evals.split_queries(qs)
     assert len(train) == 12 and len(val) == 8
     assert sum(q["trigger"] for q in train) == 6 and evals.split_queries(qs) == (train, val)
+
+
+def test_split_honors_holdout_flags():
+    qs = [{"q": "a", "trigger": True}, {"q": "b", "trigger": True, "holdout": True},
+          {"q": "c", "trigger": False, "holdout": False}, {"q": "d", "trigger": False, "holdout": True}]
+    train, val = evals.split_queries(qs)
+    assert [q["q"] for q in train] == ["a", "c"] and [q["q"] for q in val] == ["b", "d"]
 
 
 def test_agent_report_uses_rates_and_threshold():
