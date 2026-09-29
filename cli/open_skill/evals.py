@@ -124,3 +124,33 @@ def trigger_metrics(labels: list[dict], fired: list[bool]) -> dict:
 def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str]) -> dict[str, dict]:
     return {skill: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
             for skill, qs in sets.items()}
+
+
+def invoked_skills(stream_json: str) -> set[str]:
+    """Skill names an agent invoked, from Claude Code `--output-format stream-json` output."""
+    import json
+
+    found = set()
+    for line in stream_json.splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        for block in (event.get("message") or {}).get("content") or []:
+            if isinstance(block, dict) and block.get("type") == "tool_use" and block.get("name") == "Skill":
+                name = str((block.get("input") or {}).get("skill", ""))
+                if name:
+                    found.add(name.split(":")[-1])  # "plugin:skill" -> "skill"
+    return found
+
+
+def claude_runner(timeout: int = 180):
+    """Run one query through Claude Code headless and return the skills it invoked."""
+    import subprocess
+
+    def run(query: str) -> set[str]:
+        out = subprocess.run(["claude", "-p", query, "--output-format", "stream-json", "--verbose", "--max-turns", "2"],
+                             capture_output=True, text=True, timeout=timeout)
+        return invoked_skills(out.stdout)
+
+    return run

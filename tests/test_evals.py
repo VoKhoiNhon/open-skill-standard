@@ -70,3 +70,16 @@ def test_core_skills_trigger_proxy_meets_floor():
     for skill, m in rep.items():
         assert m["precision"] >= 0.75, (skill, m)
         assert m["recall"] >= 0.4, (skill, m)
+
+
+def test_invoked_skills_parses_stream_json():
+    import json
+    lines = [
+        json.dumps({"type": "system", "subtype": "init"}),
+        json.dumps({"type": "assistant", "message": {"content": [
+            {"type": "text", "text": "Routing."},
+            {"type": "tool_use", "name": "Skill", "input": {"skill": "open-skill:open-skill-router"}},
+            {"type": "tool_use", "name": "Bash", "input": {"command": "ls"}}]}}),
+        "not json",
+    ]
+    assert evals.invoked_skills("\n".join(lines)) == {"open-skill-router"}
