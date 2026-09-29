@@ -15,7 +15,8 @@ skills:
     phases: [review]
     roles: {security-engineer: 1.0, backend-developer: 0.8, devops-engineer: 0.7, cloud-engineer: 0.7, ai-engineer: 0.8}
     task_size: [small, medium, large]
-    triggers: [security, auth, secrets, injection, vulnerability, bảo mật]
+    triggers: [security, auth, secrets, injection, vulnerability]
+    triggers_i18n: {vi: [bảo mật]}
   - name: simplify
     description: Clean up changed code for reuse, simplicity and efficiency
     phases: [review]
@@ -25,7 +26,8 @@ skills:
     phases: [verify]
     roles: {frontend-developer: 1.0, fullstack-developer: 1.0, mobile-developer: 0.9, game-developer: 0.9, backend-developer: 0.8}
     task_size: [small, medium, large]
-    triggers: [run, start, screenshot, "does it work", chạy thử]
+    triggers: [run, start, screenshot, "does it work"]
+    triggers_i18n: {vi: [chạy thử]}
   - name: init
     description: Create a CLAUDE.md describing the codebase
     phases: [learn]
@@ -53,7 +55,8 @@ skills:
     phases: [operate]
     roles: {data-analyst: 0.7, site-reliability-engineer: 0.6, data-engineer: 0.6}
     task_size: [small, medium]
-    triggers: [schedule, cron, "every day", "every week", định kỳ]
+    triggers: [schedule, cron, "every day", "every week"]
+    triggers_i18n: {vi: [định kỳ]}
   - name: loop
     description: Run a prompt or command on a recurring interval
     phases: [operate]

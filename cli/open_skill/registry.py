@@ -33,6 +33,15 @@ def _read(p: Path) -> dict:
     return doc
 
 
+def localized(doc: dict, key: str):
+    """`doc[key]`, the English list, plus every locale block under `doc[key + "_i18n"]` (SPEC §3.1). For a mapping
+    of lists such as size_keywords, each list gets the same entry of every block."""
+    base, blocks = doc.get(key), list((doc.get(f"{key}_i18n") or {}).values())
+    if isinstance(base, dict):
+        return {k: list(v) + [w for b in blocks for w in b.get(k, [])] for k, v in base.items()}
+    return list(base or []) + [w for b in blocks for w in b]
+
+
 def load_taxonomy(root: Path | None = None) -> dict:
     for base in (root, paths.data_root()):
         if base and (base / "spec" / "taxonomy.yaml").is_file():
@@ -91,7 +100,7 @@ def _schema_errors(doc: dict, schema: dict, where: str) -> list[str]:
 def validate(reg: Registry) -> list[str]:
     """Schema checks per document plus cross-reference checks. Empty list means valid."""
     sch = schemas.all_schemas(reg.taxonomy)
-    errors: list[str] = []
+    errors: list[str] = _schema_errors(reg.taxonomy, sch["taxonomy"], "spec/taxonomy.yaml")
     for src, a in reg.adapters.items():
         errors += _schema_errors(a, sch["adapter"], reg.files.get(f"adapter:{src}", src))
     for rid, r in reg.roles.items():

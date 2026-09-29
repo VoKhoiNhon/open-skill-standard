@@ -1,34 +1,53 @@
 # Open Skill Standard v0.1 — taxonomy (normative)
 version: "0.1"
 
-# Lifecycle phases, in order. Keywords drive target-phase detection in `route`;
-# add keywords in any language (multilingual matching is a goal of the standard).
+# Lifecycle phases, in order. Keywords drive target-phase detection in `route`. `keywords` is English, the
+# canonical list; other languages go in `keywords_i18n`, one block per BCP 47 language tag (SPEC §3.1).
 phases:
   - id: discover
-    keywords: [idea, ideas, brainstorm, ideate, "pressure-test", concept, explore, "what if", should we, ý tưởng, brainstorming, suy nghĩ, phản biện]
+    keywords: [idea, ideas, brainstorm, ideate, "pressure-test", concept, explore, "what if", should we, brainstorming]
+    keywords_i18n:
+      vi: [ý tưởng, suy nghĩ, phản biện]
   - id: research
-    keywords: [research, compare, benchmark, "market research", survey, "literature", investigate, evaluate options, nghiên cứu, so sánh, tìm hiểu, khảo sát]
+    keywords: [research, compare, benchmark, "market research", survey, "literature", investigate, evaluate options]
+    keywords_i18n:
+      vi: [nghiên cứu, so sánh, tìm hiểu, khảo sát]
   - id: specify
-    keywords: [spec, specification, requirements, prd, "user story", "acceptance criteria", "data contract", đặc tả, "yêu cầu nghiệp vụ", "tài liệu yêu cầu"]
+    keywords: [spec, specification, requirements, prd, "user story", "acceptance criteria", "data contract"]
+    keywords_i18n:
+      vi: [đặc tả, "yêu cầu nghiệp vụ", "tài liệu yêu cầu"]
   - id: plan
-    keywords: [plan, design, architecture, adr, roadmap, breakdown, estimate, "task list", kế hoạch, thiết kế, kiến trúc, chia việc]
+    keywords: [plan, design, architecture, adr, roadmap, breakdown, estimate, "task list"]
+    keywords_i18n:
+      vi: [kế hoạch, thiết kế, kiến trúc, chia việc]
   - id: build
-    keywords: [build, implement, create, add, develop, code, write, feature, pipeline, endpoint, migrate, refactor, fix, integrate, xây, làm, thêm, viết, triển khai, tính năng, sửa]
+    keywords: [build, implement, create, add, develop, code, write, feature, pipeline, endpoint, migrate, refactor, fix, integrate]
+    keywords_i18n:
+      vi: [xây, làm, thêm, viết, triển khai, tính năng, sửa]
   - id: verify
-    keywords: [test, tests, verify, validate, qa, "e2e", check, reconcile, profiling, kiểm thử, kiểm tra, đối soát, xác minh]
+    keywords: [test, tests, verify, validate, qa, "e2e", check, reconcile, profiling]
+    keywords_i18n:
+      vi: [kiểm thử, kiểm tra, đối soát, xác minh]
   - id: review
-    keywords: [review, audit, "pull request", pr, "code review", critique, rà soát, đánh giá code]
+    keywords: [review, audit, "pull request", pr, "code review", critique]
+    keywords_i18n:
+      vi: [rà soát, đánh giá code]
   - id: release
-    keywords: [release, deploy, ship, publish, rollout, merge, phát hành, triển khai lên, deploy lên]
+    keywords: [release, deploy, ship, publish, rollout, merge]
+    keywords_i18n:
+      vi: [phát hành, triển khai lên, deploy lên]
   - id: operate
     # Symptoms count too: people report what they see, not that it is a bug. Not bare "regression" (a model type).
     keywords: [incident, outage, alert, monitor, "on-call", debug, error, failing, broken, crash, crashes, hangs, slow, cost,
                slower, regressed, "performance regression", timeout, "timed out", "times out", "stopped working",
-               "not working", "doesn't work", "returns nothing", "since yesterday",
-               sự cố, lỗi, treo, văng, giám sát, chậm, chi phí, "không chạy", "không hoạt động", "ngừng hoạt động",
-               "không trả về", "từ hôm qua"]
+               "not working", "doesn't work", "returns nothing", "since yesterday"]
+    keywords_i18n:
+      vi: [sự cố, lỗi, treo, văng, giám sát, chậm, chi phí, "không chạy", "không hoạt động", "ngừng hoạt động",
+           "không trả về", "từ hôm qua"]
   - id: learn
-    keywords: [retro, retrospective, postmortem, "lessons learned", remember, "note that", bài học, rút kinh nghiệm, ghi nhớ]
+    keywords: [retro, retrospective, postmortem, "lessons learned", remember, "note that"]
+    keywords_i18n:
+      vi: [bài học, rút kinh nghiệm, ghi nhớ]
 
 # Artifact types and the repository globs that reveal them.
 artifacts:
@@ -56,10 +75,14 @@ edges: [produces, consumes, precedes, alternative-to, conflicts-with, requires, 
 
 task_sizes: [small, medium, large]
 
-# Keywords that hint at task size (used when --size is not given).
+# Keywords that hint at task size (used when --size is not given); other languages in size_keywords_i18n.
 size_keywords:
-  large: [app, application, system, platform, product, "new project", "from scratch", greenfield, mvp, ứng dụng, hệ thống, nền tảng, dự án mới, từ đầu]
-  small: [typo, rename, "one-line", "one line", small, tiny, quick, minor, bump, lỗi chính tả, đổi tên, nhỏ, nhanh]
+  large: [app, application, system, platform, product, "new project", "from scratch", greenfield, mvp]
+  small: [typo, rename, "one-line", "one line", small, tiny, quick, minor, bump]
+size_keywords_i18n:
+  vi:
+    large: [ứng dụng, hệ thống, nền tảng, dự án mới, từ đầu]
+    small: [lỗi chính tả, đổi tên, nhỏ, nhanh]
 
 role_families:
   engineering: [frontend-developer, backend-developer, fullstack-developer, mobile-developer, embedded-engineer, game-developer]

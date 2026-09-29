@@ -15,7 +15,8 @@ skills:
     roles: {software-architect: 1.0, tech-lead: 0.9, backend-developer: 0.7, data-ai-platform-engineer: 0.8, cloud-engineer: 0.7}
     produces: [adr]
     task_size: [medium, large]
-    triggers: [adr, "architecture decision", "choose between", kiến trúc]
+    triggers: [adr, "architecture decision", "choose between"]
+    triggers_i18n: {vi: [kiến trúc]}
   - name: system-design
     description: Design systems, services and architectures
     phases: [plan]
@@ -41,7 +42,8 @@ skills:
     roles: {site-reliability-engineer: 1.0, devops-engineer: 0.9, system-administrator: 0.8, engineering-manager: 0.6, database-administrator: 0.6}
     produces: [runbook, retro]
     task_size: [medium, large]
-    triggers: [incident, outage, "on-call", postmortem, sự cố]
+    triggers: [incident, outage, "on-call", postmortem]
+    triggers_i18n: {vi: [sự cố]}
   - name: deploy-checklist
     description: Pre-deployment verification for releases, migrations and flags
     phases: [release]
@@ -53,7 +55,8 @@ skills:
     phases: [release]
     roles: {technical-writer: 1.0, tech-lead: 0.6}
     task_size: [small, medium, large]
-    triggers: [docs, readme, documentation, "document this", tài liệu]
+    triggers: [docs, readme, documentation, "document this"]
+    triggers_i18n: {vi: [tài liệu]}
   - name: standup
     description: Standup update from recent activity
     phases: [learn]
@@ -64,7 +67,8 @@ skills:
     phases: [review, plan]
     roles: {tech-lead: 1.0, engineering-manager: 0.8, software-architect: 0.8}
     task_size: [medium, large]
-    triggers: ["tech debt", refactor, cleanup, "nợ kỹ thuật"]
+    triggers: ["tech debt", refactor, cleanup]
+    triggers_i18n: {vi: [nợ kỹ thuật]}
   - name: testing-strategy
     description: Design test strategies and test plans
     phases: [plan, verify]

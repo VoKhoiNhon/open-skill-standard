@@ -4,6 +4,7 @@ KEBAB = "^[a-z0-9]+(-[a-z0-9]+)*$"
 SKILL_ID = "^[a-z0-9-]+/[a-z0-9:_-]+$"
 URL = "^https://[^\\s]+$"
 EFFORT = ["low", "medium", "high", "xhigh", "max"]
+LOCALE = "^(?!en(-|$))[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$"  # BCP 47 language tag; English is the canonical list
 
 
 def _enums(tax: dict) -> dict:
@@ -19,6 +20,12 @@ def _enums(tax: dict) -> dict:
 
 def _arr(items: dict, **kw) -> dict:
     return {"type": "array", "items": items, **kw}
+
+
+def _i18n(value: dict) -> dict:
+    """`<field>_i18n`: locale tag -> what `<field>` holds, in that language (SPEC §3.1)."""
+    return {"type": "object", "propertyNames": {"pattern": LOCALE}, "additionalProperties": value,
+            "description": "per-locale additions to the English list, keyed by BCP 47 language tag"}
 
 
 def adapter_schema(tax: dict) -> dict:
@@ -46,6 +53,7 @@ def adapter_schema(tax: dict) -> dict:
             "requires": _arr({"type": "string", "pattern": "^(tool|skill|project):.+$"}),
             "task_size": _arr({"enum": e["sizes"]}),
             "triggers": _arr({"type": "string"}),
+            "triggers_i18n": _i18n(_arr({"type": "string"})),
             "portability": _arr({"type": "string"}),
             "invoke": {"type": "string"},
         },
@@ -114,6 +122,34 @@ def role_schema(tax: dict) -> dict:
             ]}),
             "build_window": _arr({"enum": e["phases"]}, minItems=1),
             "handoff": {"type": "object", "additionalProperties": {"enum": e["roles"]}},
+        },
+    }
+
+
+def taxonomy_schema(tax: dict) -> dict:
+    e = _enums(tax)
+    words = _arr({"type": "string", "minLength": 1})
+    sizes = {"type": "object", "propertyNames": {"enum": e["sizes"]}, "additionalProperties": words}
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Open Skill Standard taxonomy",
+        "type": "object",
+        "required": ["version", "phases", "artifacts", "edges", "task_sizes", "role_families", "knowledge_types"],
+        "additionalProperties": False,
+        "properties": {
+            "version": {"type": "string"},
+            "phases": _arr({"type": "object", "required": ["id", "keywords"], "additionalProperties": False,
+                            "properties": {"id": {"type": "string", "pattern": KEBAB}, "keywords": words,
+                                           "keywords_i18n": _i18n(words)}}, minItems=1),
+            "artifacts": {"type": "object", "additionalProperties": _arr({"type": "string"})},
+            "edges": _arr({"type": "string"}),
+            "task_sizes": _arr({"type": "string"}),
+            "size_keywords": sizes,
+            "size_keywords_i18n": _i18n(sizes),
+            "role_families": {"type": "object", "additionalProperties": _arr({"type": "string", "pattern": KEBAB})},
+            "native_markers": _arr({"type": "object", "required": ["framework", "paths"]}),
+            "tool_markers": {"type": "object", "additionalProperties": _arr({"type": "string"})},
+            "knowledge_types": _arr({"type": "string"}),
         },
     }
 
@@ -210,6 +246,7 @@ ALL = {
     "model": model_schema,
     "knowledge": knowledge_schema,
     "agent": agent_schema,
+    "taxonomy": taxonomy_schema,
 }
 
 

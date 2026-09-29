@@ -92,3 +92,20 @@ def test_relocation_vars_are_cleared_for_tests():
     reg = registry.load()
     used = {r["var"] for a in reg.agents.values() for r in a.get("relocate", [])}
     assert used <= set(RELOCATION_VARS), "add new relocation vars to tests/conftest.py"
+
+
+def test_validate_checks_the_taxonomy_itself():
+    reg = registry.load(FIX / "repo")
+    reg.taxonomy = {**reg.taxonomy, "size_keyword_i18n": {"ja": {"small": ["小さい"]}}}  # misspelled block
+    assert any("taxonomy" in e and "size_keyword_i18n" in e for e in registry.validate(reg))
+
+
+def test_canonical_keyword_lists_are_english_and_other_languages_sit_in_locale_blocks():
+    reg = registry.load()
+    tax = reg.taxonomy
+    lists = {f"phase {p['id']}": p["keywords"] for p in tax["phases"]}
+    lists |= {f"size {k}": v for k, v in tax["size_keywords"].items()}
+    lists |= {f"skill {sid}": s.get("triggers", []) for sid, s in reg.skills.items()}
+    stray = {where: [w for w in words if not w.isascii()] for where, words in lists.items()}
+    assert not {k: v for k, v in stray.items() if v}, "move non-English words into the <field>_i18n block"
+    assert any(p.get("keywords_i18n", {}).get("vi") for p in tax["phases"])  # Vietnamese stays supported

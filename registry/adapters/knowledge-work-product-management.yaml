@@ -15,21 +15,24 @@ skills:
     roles: {product-manager: 1.0, business-analyst: 0.9, tech-lead: 0.5}
     produces: [spec, prd]
     task_size: [medium, large]
-    triggers: [spec, prd, requirements, "user story", đặc tả]
+    triggers: [spec, prd, requirements, "user story"]
+    triggers_i18n: {vi: [đặc tả]}
   - name: product-brainstorming
     description: Explore problem spaces and challenge assumptions as a thinking partner
     phases: [discover]
     roles: {product-manager: 1.0, ux-designer: 0.7, business-analyst: 0.7}
     produces: [idea-brief]
     task_size: [small, medium, large]
-    triggers: [idea, brainstorm, "problem space", ý tưởng]
+    triggers: [idea, brainstorm, "problem space"]
+    triggers_i18n: {vi: [ý tưởng]}
   - name: competitive-brief
     description: Competitive analysis for a feature area or competitors
     phases: [research]
     roles: {product-manager: 1.0, business-analyst: 0.8}
     produces: [research-report]
     task_size: [medium, large]
-    triggers: [competitor, competitive, "market", đối thủ]
+    triggers: [competitor, competitive, "market"]
+    triggers_i18n: {vi: [đối thủ]}
   - name: synthesize-research
     description: Turn interviews, surveys and feedback into structured insights
     phases: [research]
@@ -41,7 +44,8 @@ skills:
     phases: [plan]
     roles: {product-manager: 1.0, engineering-manager: 0.6}
     task_size: [medium, large]
-    triggers: [roadmap, prioritize, "lộ trình"]
+    triggers: [roadmap, prioritize]
+    triggers_i18n: {vi: [lộ trình]}
   - name: sprint-planning
     description: Scope work, estimate capacity and draft a sprint plan
     phases: [plan]
@@ -54,7 +58,8 @@ skills:
     phases: [release]
     roles: {product-manager: 1.0, engineering-manager: 0.9, scrum-master: 0.7}
     task_size: [small, medium]
-    triggers: ["status update", stakeholder, "weekly update", báo cáo]
+    triggers: ["status update", stakeholder, "weekly update"]
+    triggers_i18n: {vi: [báo cáo]}
   - name: metrics-review
     description: Review product metrics with trends and actionable insights
     phases: [verify, learn]

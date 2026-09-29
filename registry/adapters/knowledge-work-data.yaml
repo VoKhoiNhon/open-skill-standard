@@ -15,26 +15,30 @@ skills:
     roles: {data-analyst: 1.0, analytics-engineer: 0.8, data-scientist: 0.8, data-engineer: 0.6, product-manager: 0.5}
     produces: [analysis-report]
     task_size: [small, medium, large]
-    triggers: [metric, kpi, "why did", trend, analysis, phân tích, số liệu]
+    triggers: [metric, kpi, "why did", trend, analysis]
+    triggers_i18n: {vi: [phân tích, số liệu]}
   - name: explore-data
     description: Profile a dataset - shape, nulls, distributions, duplicates, quality issues
     phases: [verify, research]
     roles: {data-engineer: 1.0, data-scientist: 1.0, data-analyst: 0.9, analytics-engineer: 0.9}
     produces: [data-profile]
     task_size: [small, medium, large]
-    triggers: [profile, profiling, nulls, duplicates, "new table", khám phá dữ liệu]
+    triggers: [profile, profiling, nulls, duplicates, "new table"]
+    triggers_i18n: {vi: [khám phá dữ liệu]}
   - name: validate-data
     description: QA an analysis or dataset before sharing - methodology, accuracy, bias
     phases: [verify]
     roles: {data-analyst: 1.0, data-engineer: 1.0, data-scientist: 1.0, analytics-engineer: 1.0}
     task_size: [small, medium, large]
-    triggers: [validate, qa, reconcile, "sanity check", đối soát, kiểm tra số]
+    triggers: [validate, qa, reconcile, "sanity check"]
+    triggers_i18n: {vi: [đối soát, kiểm tra số]}
   - name: write-query
     description: Translate a data need into optimized SQL for your dialect
     phases: [build]
     roles: {data-analyst: 1.0, analytics-engineer: 1.0, data-engineer: 0.9, database-administrator: 0.7}
     task_size: [small, medium]
-    triggers: [sql, query, "write a query", truy vấn]
+    triggers: [sql, query, "write a query"]
+    triggers_i18n: {vi: [truy vấn]}
   - name: sql-queries
     description: Correct, performant SQL across warehouse dialects; optimize and translate
     phases: [build, review]
@@ -46,14 +50,16 @@ skills:
     phases: [build, verify]
     roles: {data-scientist: 1.0, data-analyst: 0.9, ml-engineer: 0.6}
     task_size: [small, medium, large]
-    triggers: [statistics, "a/b test", significance, hypothesis, p-value, model, predict, prediction, forecast, churn, kiểm định, dự báo]
+    triggers: [statistics, "a/b test", significance, hypothesis, p-value, model, predict, prediction, forecast, churn]
+    triggers_i18n: {vi: [kiểm định, dự báo]}
   - name: create-viz
     description: Publication-quality charts with Python
     phases: [release]
     roles: {data-analyst: 1.0, data-scientist: 0.9}
     produces: [analysis-report]
     task_size: [small, medium]
-    triggers: [chart, plot, graph, biểu đồ]
+    triggers: [chart, plot, graph]
+    triggers_i18n: {vi: [biểu đồ]}
   - name: data-visualization
     description: Choose chart types and apply visualization design principles
     phases: [release]

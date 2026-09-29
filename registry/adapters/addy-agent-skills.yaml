@@ -107,7 +107,8 @@ skills:
     phases: [build, operate]
     roles: {site-reliability-engineer: 0.6, devops-engineer: 0.5, backend-developer: 0.4, ml-engineer: 0.4}
     task_size: [medium, large]
-    triggers: [logging, metrics, tracing, alerting, observability, giám sát, cảnh báo]
+    triggers: [logging, metrics, tracing, alerting, observability]
+    triggers_i18n: {vi: [giám sát, cảnh báo]}
   - name: code-simplification
     description: Refactor for clarity without changing behavior
     phases: [review, build]
