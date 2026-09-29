@@ -263,6 +263,7 @@ def test_seeds_review_commands(capsys, tmp_path):
 
 def test_upgrade_command_and_rollback(capsys, tmp_path):
     run(capsys, "init", "--role", "data-engineer")
+    (tmp_path / "h" / "VERSION").unlink()  # a layout from before versioning: there is something to upgrade
     code, out = run(capsys, "upgrade", "--dry-run")
     assert code == 0 and "dry run" in out
     code, out = run(capsys, "upgrade")

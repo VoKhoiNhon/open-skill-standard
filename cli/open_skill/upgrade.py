@@ -8,14 +8,16 @@ LABEL = "pre-upgrade"
 def upgrade(seeds: dict[str, list], dry_run: bool = False) -> list[str]:
     home = knowledge.home()
     roles = list(knowledge.load_profile().get("roles", {}))
+    planned = userdata.migrate(home, dry_run=True) + (knowledge.sync_seeds(roles, seeds, dry_run=True) if roles else [])
+    if dry_run or not planned:  # nothing to do: no backup, so --rollback still undoes the last real upgrade
+        return planned
     actions: list[str] = []
-    if not dry_run:
-        saved = userdata.backup(home, LABEL)
-        if saved:
-            actions.append(f"backed up to {saved}")
-    actions += userdata.migrate(home, dry_run=dry_run)
+    saved = userdata.backup(home, LABEL)
+    if saved:
+        actions.append(f"backed up to {saved}")
+    actions += userdata.migrate(home)
     if roles:
-        actions += knowledge.sync_seeds(roles, seeds, dry_run=dry_run)
+        actions += knowledge.sync_seeds(roles, seeds)
     return actions
 
 
