@@ -1,0 +1,39 @@
+<!-- Generated from registry/roles/backend-developer.yaml by `open-skill build`. Edit the YAML, not this file. -->
+
+# Backend Developer playbook
+
+Builds services, APIs, background jobs and the data access behind them.
+
+**Characteristic risk:** Breaking API contracts or corrupting data during migrations.
+
+## Principles
+
+- API contracts are explicit and versioned; breaking changes are announced.
+- Migrations are reversible and safe to re-run.
+- Input is validated at system boundaries only; internal code is trusted.
+- Every new endpoint ships with logs, metrics and error handling that preserves data.
+
+## Skills by phase
+
+| Phase | Primary | Alternatives |
+|---|---|---|
+| discover | `superpowers/brainstorming` — Converge an idea into an approved design through one-question-at-a-time dialogue before building<br>`bmad-method/bmad-forge-idea` — Pressure-test a half-formed idea with personas until it can be acted on or dropped | `bmad-method/bmad-brainstorming`<br>`knowledge-work-product-management/product-brainstorming` |
+| research | `open-skill/open-skill-intel` — Route a question to the best information source before acting<br>`context7/context7-mcp` — Fetch current library and API documentation before writing code against it | `codegraph/explore`<br>`bmad-method/bmad-deep-recon` |
+| specify | `spec-kit/specify` — Write the feature specification - what and why, not how<br>`superpowers/brainstorming` — Converge an idea into an approved design through one-question-at-a-time dialogue before building | `bmad-method/bmad-spec`<br>`knowledge-work-product-management/write-spec` |
+| plan | `superpowers/writing-plans` — Turn a spec into a bite-sized, test-first implementation plan<br>`knowledge-work-engineering/system-design` — Design systems, services and architectures<br>`spec-kit/plan` — Create the technical plan and design artifacts from the spec | `knowledge-work-engineering/architecture`<br>`bmad-method/bmad-architecture` |
+| build | `superpowers/subagent-driven-development` — Execute a plan task by task with fresh subagents and review between tasks<br>`spec-kit/implement` — Execute tasks.md<br>`superpowers/test-driven-development` — Write the failing test first, then the minimal code, for any feature or bug fix | `bmad-method/bmad-build`<br>`superpowers/executing-plans` |
+| verify | `superpowers/test-driven-development` — Write the failing test first, then the minimal code, for any feature or bug fix<br>`superpowers/verification-before-completion` — Run the real checks and read their output before claiming work is done | `codegraph/affected`<br>`spec-kit/converge` |
+| review | `claude-code-builtin/code-review` — Review the current diff or a PR for correctness bugs<br>`claude-code-builtin/security-review` — Security review of pending changes | `bmad-method/bmad-code-review`<br>`ponytail/ponytail-review` |
+| release | `knowledge-work-engineering/deploy-checklist` — Pre-deployment verification for releases, migrations and flags<br>`superpowers/finishing-a-development-branch` — Decide how to integrate finished, tested work - merge, pull request or cleanup | — |
+| operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix | `knowledge-work-engineering/debug`<br>`spec-kit/bug-assess` |
+| learn | `open-skill/open-skill-learn` — Remember lessons and preferences so future routes use them | `bmad-method/bmad-retrospective` |
+
+## Starter knowledge
+
+- Change the API contract, its clients and tests in the same change.
+- Write and test the down migration before the up migration ships.
+- Log the request id on every error path.
+
+## Project signals
+
+`pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `**/migrations/**`, `openapi.*`, `Dockerfile`

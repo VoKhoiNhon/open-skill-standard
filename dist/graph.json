@@ -1,0 +1,4962 @@
+{
+ "version": "0.1",
+ "nodes": [
+  {
+   "id": "phase:discover",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:research",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:specify",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:plan",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:build",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:verify",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:review",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:release",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:operate",
+   "kind": "phase"
+  },
+  {
+   "id": "phase:learn",
+   "kind": "phase"
+  },
+  {
+   "id": "artifact:idea-brief",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:research-report",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:prd",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:spec",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:plan",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:tasks",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:adr",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:ux-design",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:code-change",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:test-suite",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:data-profile",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:data-contract",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:pipeline",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:analysis-report",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:dashboard",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:model-card",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:eval-suite",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:runbook",
+   "kind": "artifact"
+  },
+  {
+   "id": "artifact:retro",
+   "kind": "artifact"
+  },
+  {
+   "id": "anthropic-skills/academy-guide",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/algorithmic-art",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/brand-guidelines",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/canvas-design",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/claude-api",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "research",
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/discernment-nudge",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/doc-coauthoring",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "specify",
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/docx",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/frontend-design",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/internal-comms",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/mcp-builder",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/pdf",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/pptx",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/skill-creator",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "build",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/slack-gif-creator",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/theme-factory",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/web-artifacts-builder",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/webapp-testing",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "anthropic-skills/xlsx",
+   "kind": "skill",
+   "source": "anthropic-skills",
+   "phases": [
+    "release",
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-advanced-elicitation",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "verify",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-agent-analyst",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "research",
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-agent-architect",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-agent-dev",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-agent-pm",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-agent-ux-designer",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-architecture",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-brainstorming",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-build",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-build-auto",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-code-review",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-correct-course",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "plan",
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-customize",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-deep-recon",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-forge-idea",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-party-mode",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-prd",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-prfaq",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover",
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-product-brief",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-project-context",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "learn",
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-qa-generate-e2e-tests",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-retrospective",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-review",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-spec",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-ticket",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-ux",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmad-walkthrough",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "review",
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmod-core-tools",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "bmad-method/bmod-method",
+   "kind": "skill",
+   "source": "bmad-method",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/claude-api",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "research",
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/code-review",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/fewer-permission-prompts",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/init",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/loop",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/run",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/schedule",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/security-review",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/simplify",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "claude-code-builtin/update-config",
+   "kind": "skill",
+   "source": "claude-code-builtin",
+   "phases": [
+    "build",
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "codegraph/affected",
+   "kind": "tool",
+   "source": "codegraph",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "codegraph/explore",
+   "kind": "tool",
+   "source": "codegraph",
+   "phases": [
+    "research",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "codegraph/impact",
+   "kind": "tool",
+   "source": "codegraph",
+   "phases": [
+    "plan",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "context7/context7-cli",
+   "kind": "skill",
+   "source": "context7",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "context7/context7-docs",
+   "kind": "skill",
+   "source": "context7",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "context7/context7-mcp",
+   "kind": "skill",
+   "source": "context7",
+   "phases": [
+    "research",
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "context7/find-docs",
+   "kind": "skill",
+   "source": "context7",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/analyze",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/build-dashboard",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/create-viz",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/data-context-extractor",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "learn",
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/data-visualization",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/explore-data",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "verify",
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/sql-queries",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "build",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/statistical-analysis",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "build",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/validate-data",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-data/write-query",
+   "kind": "skill",
+   "source": "knowledge-work-data",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/accessibility-review",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "review",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/design-critique",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/design-handoff",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/design-system",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "plan",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/research-synthesis",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/user-research",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-design/ux-copy",
+   "kind": "skill",
+   "source": "knowledge-work-design",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/architecture",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/code-review",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/debug",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/deploy-checklist",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/documentation",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/incident-response",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "operate",
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/standup",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/system-design",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/tech-debt",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "review",
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-engineering/testing-strategy",
+   "kind": "skill",
+   "source": "knowledge-work-engineering",
+   "phases": [
+    "plan",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/competitive-brief",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/metrics-review",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "verify",
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/product-brainstorming",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/roadmap-update",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/sprint-planning",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/stakeholder-update",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/synthesize-research",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "knowledge-work-product-management/write-spec",
+   "kind": "skill",
+   "source": "knowledge-work-product-management",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "open-skill/open-skill-intel",
+   "kind": "skill",
+   "source": "open-skill",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "open-skill/open-skill-learn",
+   "kind": "skill",
+   "source": "open-skill",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "open-skill/open-skill-router",
+   "kind": "skill",
+   "source": "open-skill",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "open-skill/open-skill-standards",
+   "kind": "skill",
+   "source": "open-skill",
+   "phases": [
+    "verify",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "ponytail/ponytail",
+   "kind": "skill",
+   "source": "ponytail",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "ponytail/ponytail-audit",
+   "kind": "skill",
+   "source": "ponytail",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "ponytail/ponytail-debt",
+   "kind": "skill",
+   "source": "ponytail",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "ponytail/ponytail-gain",
+   "kind": "skill",
+   "source": "ponytail",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "ponytail/ponytail-help",
+   "kind": "skill",
+   "source": "ponytail",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "ponytail/ponytail-review",
+   "kind": "skill",
+   "source": "ponytail",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/analyze",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "verify",
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/assess-decide",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/assess-define",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/assess-intake",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/assess-research",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/assess-shape",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/bug-assess",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/bug-fix",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/bug-test",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/checklist",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "plan",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/clarify",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/constitution",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/converge",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/implement",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/plan",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/specify",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/tasks",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "spec-kit/taskstoissues",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "plan",
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/brainstorming",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "discover",
+    "specify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/diagnosing-superpowers",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "learn"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/dispatching-parallel-agents",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "build",
+    "research"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/executing-plans",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/finishing-a-development-branch",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/receiving-code-review",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/requesting-code-review",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/subagent-driven-development",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/systematic-debugging",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "operate"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/test-driven-development",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "build",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/using-git-worktrees",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/using-superpowers",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "discover"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/verification-before-completion",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "verify",
+    "release"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/writing-plans",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "superpowers/writing-skills",
+   "kind": "skill",
+   "source": "superpowers",
+   "phases": [
+    "build",
+    "verify"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/brandkit",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/brutalist-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/gpt-tasteskill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/image-to-code-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/imagegen-frontend-mobile",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/imagegen-frontend-web",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/minimalist-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/output-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/redesign-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build",
+    "review"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/soft-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/stitch-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "plan"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/taste-skill",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "taste-skill/taste-skill-v1",
+   "kind": "skill",
+   "source": "taste-skill",
+   "phases": [
+    "build"
+   ],
+   "installed": false
+  },
+  {
+   "id": "role:ai-engineer",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:analytics-engineer",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:backend-developer",
+   "kind": "role",
+   "family": "engineering"
+  },
+  {
+   "id": "role:business-analyst",
+   "kind": "role",
+   "family": "product-delivery"
+  },
+  {
+   "id": "role:cloud-engineer",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:data-ai-platform-engineer",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:data-analyst",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:data-engineer",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:data-scientist",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:database-administrator",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:devops-engineer",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:embedded-engineer",
+   "kind": "role",
+   "family": "engineering"
+  },
+  {
+   "id": "role:engineering-manager",
+   "kind": "role",
+   "family": "architecture-leadership"
+  },
+  {
+   "id": "role:frontend-developer",
+   "kind": "role",
+   "family": "engineering"
+  },
+  {
+   "id": "role:fullstack-developer",
+   "kind": "role",
+   "family": "engineering"
+  },
+  {
+   "id": "role:game-developer",
+   "kind": "role",
+   "family": "engineering"
+  },
+  {
+   "id": "role:ml-engineer",
+   "kind": "role",
+   "family": "data-ai"
+  },
+  {
+   "id": "role:mobile-developer",
+   "kind": "role",
+   "family": "engineering"
+  },
+  {
+   "id": "role:product-manager",
+   "kind": "role",
+   "family": "product-delivery"
+  },
+  {
+   "id": "role:qa-engineer",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:scrum-master",
+   "kind": "role",
+   "family": "product-delivery"
+  },
+  {
+   "id": "role:security-engineer",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:site-reliability-engineer",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:software-architect",
+   "kind": "role",
+   "family": "architecture-leadership"
+  },
+  {
+   "id": "role:system-administrator",
+   "kind": "role",
+   "family": "quality-ops"
+  },
+  {
+   "id": "role:tech-lead",
+   "kind": "role",
+   "family": "architecture-leadership"
+  },
+  {
+   "id": "role:technical-writer",
+   "kind": "role",
+   "family": "product-delivery"
+  },
+  {
+   "id": "role:ux-designer",
+   "kind": "role",
+   "family": "product-delivery"
+  }
+ ],
+ "edges": [
+  {
+   "from": "anthropic-skills/skill-creator",
+   "to": "artifact:eval-suite",
+   "type": "produces"
+  },
+  {
+   "from": "anthropic-skills/webapp-testing",
+   "to": "artifact:test-suite",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-advanced-elicitation",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-agent-analyst",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-agent-architect",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-agent-dev",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-agent-pm",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-agent-ux-designer",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-architecture",
+   "to": "artifact:adr",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "bmad-method/bmad-architecture",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:prd",
+   "to": "bmad-method/bmad-architecture",
+   "type": "consumes"
+  },
+  {
+   "from": "bmad-method/bmad-architecture",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-brainstorming",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-brainstorming",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-build",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-build",
+   "to": "spec-kit/implement",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "bmad-method/bmad-build",
+   "to": "superpowers/subagent-driven-development",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "bmad-method/bmad-build",
+   "to": "superpowers/executing-plans",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "bmad-method/bmad-build",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-build-auto",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-build-auto",
+   "to": "spec-kit/implement",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "bmad-method/bmad-build-auto",
+   "to": "superpowers/subagent-driven-development",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "bmad-method/bmad-build-auto",
+   "to": "superpowers/executing-plans",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "bmad-method/bmad-build-auto",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-code-review",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-correct-course",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-customize",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-deep-recon",
+   "to": "artifact:research-report",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-deep-recon",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-forge-idea",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-forge-idea",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-party-mode",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-prd",
+   "to": "artifact:prd",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-prd",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-prfaq",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-prfaq",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-product-brief",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-product-brief",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-project-context",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-qa-generate-e2e-tests",
+   "to": "artifact:test-suite",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-qa-generate-e2e-tests",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-retrospective",
+   "to": "artifact:retro",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-retrospective",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-review",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-spec",
+   "to": "artifact:spec",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-spec",
+   "to": "spec-kit/specify",
+   "type": "alternative-to"
+  },
+  {
+   "from": "bmad-method/bmad-spec",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-ticket",
+   "to": "artifact:tasks",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:prd",
+   "to": "bmad-method/bmad-ticket",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "bmad-method/bmad-ticket",
+   "type": "consumes"
+  },
+  {
+   "from": "bmad-method/bmad-ticket",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-ux",
+   "to": "artifact:ux-design",
+   "type": "produces"
+  },
+  {
+   "from": "bmad-method/bmad-ux",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "bmad-method/bmad-walkthrough",
+   "to": "project:_bmad",
+   "type": "requires"
+  },
+  {
+   "from": "claude-code-builtin/claude-api",
+   "to": "anthropic-skills/claude-api",
+   "type": "alternative-to"
+  },
+  {
+   "from": "codegraph/affected",
+   "to": "project:.codegraph",
+   "type": "requires"
+  },
+  {
+   "from": "codegraph/explore",
+   "to": "project:.codegraph",
+   "type": "requires"
+  },
+  {
+   "from": "codegraph/impact",
+   "to": "project:.codegraph",
+   "type": "requires"
+  },
+  {
+   "from": "knowledge-work-data/analyze",
+   "to": "artifact:analysis-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-data/build-dashboard",
+   "to": "artifact:dashboard",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-data/create-viz",
+   "to": "artifact:analysis-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-data/explore-data",
+   "to": "artifact:data-profile",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-design/design-handoff",
+   "to": "artifact:ux-design",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-design/research-synthesis",
+   "to": "artifact:research-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-design/user-research",
+   "to": "artifact:research-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-engineering/architecture",
+   "to": "artifact:adr",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-engineering/debug",
+   "to": "superpowers/systematic-debugging",
+   "type": "alternative-to"
+  },
+  {
+   "from": "knowledge-work-engineering/incident-response",
+   "to": "artifact:runbook",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-engineering/incident-response",
+   "to": "artifact:retro",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-engineering/system-design",
+   "to": "artifact:adr",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-engineering/system-design",
+   "to": "artifact:plan",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-engineering/testing-strategy",
+   "to": "artifact:plan",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/competitive-brief",
+   "to": "artifact:research-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/metrics-review",
+   "to": "artifact:analysis-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/product-brainstorming",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/sprint-planning",
+   "to": "artifact:tasks",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/synthesize-research",
+   "to": "artifact:research-report",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/write-spec",
+   "to": "artifact:spec",
+   "type": "produces"
+  },
+  {
+   "from": "knowledge-work-product-management/write-spec",
+   "to": "artifact:prd",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "spec-kit/analyze",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:plan",
+   "to": "spec-kit/analyze",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:tasks",
+   "to": "spec-kit/analyze",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/analyze",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/assess-decide",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/assess-define",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/assess-intake",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "spec-kit/assess-intake",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/assess-research",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/assess-shape",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/bug-assess",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/bug-fix",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/bug-test",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "spec-kit/checklist",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/checklist",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "spec-kit/clarify",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/clarify",
+   "to": "spec-kit/plan",
+   "type": "precedes"
+  },
+  {
+   "from": "spec-kit/clarify",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/constitution",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "spec-kit/converge",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:plan",
+   "to": "spec-kit/converge",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:tasks",
+   "to": "spec-kit/converge",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/converge",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/implement",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:tasks",
+   "to": "spec-kit/implement",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/implement",
+   "to": "superpowers/subagent-driven-development",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "spec-kit/implement",
+   "to": "superpowers/executing-plans",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "spec-kit/implement",
+   "to": "bmad-method/bmad-build",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "spec-kit/implement",
+   "to": "bmad-method/bmad-build-auto",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "spec-kit/implement",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/plan",
+   "to": "artifact:plan",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "spec-kit/plan",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/plan",
+   "to": "superpowers/writing-plans",
+   "type": "alternative-to"
+  },
+  {
+   "from": "spec-kit/plan",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/specify",
+   "to": "artifact:spec",
+   "type": "produces"
+  },
+  {
+   "from": "spec-kit/specify",
+   "to": "bmad-method/bmad-spec",
+   "type": "alternative-to"
+  },
+  {
+   "from": "spec-kit/specify",
+   "to": "knowledge-work-product-management/write-spec",
+   "type": "alternative-to"
+  },
+  {
+   "from": "spec-kit/specify",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "spec-kit/tasks",
+   "to": "artifact:tasks",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:plan",
+   "to": "spec-kit/tasks",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/tasks",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "artifact:tasks",
+   "to": "spec-kit/taskstoissues",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/taskstoissues",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
+   "from": "superpowers/brainstorming",
+   "to": "artifact:spec",
+   "type": "produces"
+  },
+  {
+   "from": "superpowers/executing-plans",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:plan",
+   "to": "superpowers/executing-plans",
+   "type": "consumes"
+  },
+  {
+   "from": "superpowers/executing-plans",
+   "to": "superpowers/subagent-driven-development",
+   "type": "alternative-to"
+  },
+  {
+   "from": "superpowers/executing-plans",
+   "to": "spec-kit/implement",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "superpowers/executing-plans",
+   "to": "bmad-method/bmad-build",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "superpowers/executing-plans",
+   "to": "bmad-method/bmad-build-auto",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "superpowers/subagent-driven-development",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:plan",
+   "to": "superpowers/subagent-driven-development",
+   "type": "consumes"
+  },
+  {
+   "from": "superpowers/subagent-driven-development",
+   "to": "superpowers/executing-plans",
+   "type": "alternative-to"
+  },
+  {
+   "from": "superpowers/subagent-driven-development",
+   "to": "spec-kit/implement",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "superpowers/subagent-driven-development",
+   "to": "bmad-method/bmad-build",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "superpowers/subagent-driven-development",
+   "to": "bmad-method/bmad-build-auto",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "superpowers/systematic-debugging",
+   "to": "artifact:runbook",
+   "type": "produces"
+  },
+  {
+   "from": "superpowers/test-driven-development",
+   "to": "artifact:test-suite",
+   "type": "produces"
+  },
+  {
+   "from": "superpowers/test-driven-development",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "superpowers/using-git-worktrees",
+   "to": "superpowers/subagent-driven-development",
+   "type": "precedes"
+  },
+  {
+   "from": "superpowers/writing-plans",
+   "to": "artifact:plan",
+   "type": "produces"
+  },
+  {
+   "from": "superpowers/writing-plans",
+   "to": "artifact:tasks",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "superpowers/writing-plans",
+   "type": "consumes"
+  },
+  {
+   "from": "taste-skill/imagegen-frontend-mobile",
+   "to": "artifact:ux-design",
+   "type": "produces"
+  },
+  {
+   "from": "taste-skill/imagegen-frontend-web",
+   "to": "artifact:ux-design",
+   "type": "produces"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "claude-code-builtin/claude-api",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "anthropic-skills/claude-api",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "bmad-method/bmad-architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "anthropic-skills/skill-creator",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "anthropic-skills/mcp-builder",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/writing-skills",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ai-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "knowledge-work-data/sql-queries",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "knowledge-work-data/write-query",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "knowledge-work-data/validate-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "knowledge-work-data/explore-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "knowledge-work-data/build-dashboard",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "knowledge-work-data/data-context-extractor",
+   "type": "recommends"
+  },
+  {
+   "from": "role:analytics-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "knowledge-work-engineering/system-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:backend-developer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "knowledge-work-product-management/synthesize-research",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "bmad-method/bmad-agent-analyst",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "bmad-method/bmad-deep-recon",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "knowledge-work-product-management/write-spec",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "bmad-method/bmad-prd",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "bmad-method/bmad-ticket",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "spec-kit/checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "spec-kit/analyze",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "knowledge-work-data/validate-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:business-analyst",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "bmad-method/bmad-deep-recon",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "knowledge-work-engineering/architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "knowledge-work-engineering/system-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "codegraph/impact",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:cloud-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "bmad-method/bmad-deep-recon",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "bmad-method/bmad-architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "knowledge-work-engineering/architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "anthropic-skills/skill-creator",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "claude-code-builtin/update-config",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "ponytail/ponytail-audit",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "bmad-method/bmad-correct-course",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "claude-code-builtin/schedule",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "knowledge-work-data/data-context-extractor",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-ai-platform-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "knowledge-work-product-management/product-brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "knowledge-work-data/analyze",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "knowledge-work-data/write-query",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "knowledge-work-data/validate-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "bmad-method/bmad-advanced-elicitation",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "knowledge-work-data/create-viz",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "knowledge-work-data/build-dashboard",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "claude-code-builtin/schedule",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-analyst",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "knowledge-work-data/validate-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "knowledge-work-data/explore-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "open-skill/open-skill-standards",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "codegraph/impact",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "ponytail/ponytail-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-engineer",
+   "to": "bmad-method/bmad-retrospective",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "bmad-method/bmad-deep-recon",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "knowledge-work-data/explore-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "bmad-method/bmad-spec",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "knowledge-work-data/statistical-analysis",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "knowledge-work-data/validate-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "bmad-method/bmad-advanced-elicitation",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "knowledge-work-data/create-viz",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "knowledge-work-data/build-dashboard",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:data-scientist",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "knowledge-work-data/sql-queries",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "knowledge-work-data/write-query",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:database-administrator",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "knowledge-work-engineering/architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "codegraph/impact",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "knowledge-work-engineering/incident-response",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:devops-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "ponytail/ponytail-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "knowledge-work-product-management/sprint-planning",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "knowledge-work-product-management/roadmap-update",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "knowledge-work-engineering/tech-debt",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "knowledge-work-product-management/stakeholder-update",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "anthropic-skills/internal-comms",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "knowledge-work-engineering/incident-response",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "bmad-method/bmad-retrospective",
+   "type": "recommends"
+  },
+  {
+   "from": "role:engineering-manager",
+   "to": "knowledge-work-engineering/standup",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "taste-skill/taste-skill",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "anthropic-skills/frontend-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "claude-code-builtin/run",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "anthropic-skills/webapp-testing",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "knowledge-work-design/accessibility-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:frontend-developer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "claude-code-builtin/run",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "anthropic-skills/webapp-testing",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:fullstack-developer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "bmad-method/bmad-brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "claude-code-builtin/run",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:game-developer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "knowledge-work-engineering/system-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "knowledge-work-data/statistical-analysis",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "knowledge-work-data/validate-data",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "claude-code-builtin/schedule",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ml-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "knowledge-work-design/design-handoff",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "claude-code-builtin/run",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:mobile-developer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/product-brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "bmad-method/bmad-prfaq",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/competitive-brief",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/synthesize-research",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "bmad-method/bmad-deep-recon",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/write-spec",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "bmad-method/bmad-prd",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/roadmap-update",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "bmad-method/bmad-ticket",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/metrics-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-data/analyze",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "knowledge-work-product-management/stakeholder-update",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:product-manager",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "knowledge-work-engineering/testing-strategy",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "bmad-method/bmad-qa-generate-e2e-tests",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "anthropic-skills/webapp-testing",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "codegraph/affected",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:qa-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "knowledge-work-product-management/sprint-planning",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "bmad-method/bmad-ticket",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "knowledge-work-product-management/stakeholder-update",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "bmad-method/bmad-retrospective",
+   "type": "recommends"
+  },
+  {
+   "from": "role:scrum-master",
+   "to": "knowledge-work-engineering/standup",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "knowledge-work-engineering/architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "bmad-method/bmad-advanced-elicitation",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "claude-code-builtin/security-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "knowledge-work-engineering/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "knowledge-work-engineering/incident-response",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "codegraph/explore",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "knowledge-work-engineering/system-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "knowledge-work-engineering/incident-response",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:site-reliability-engineer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "bmad-method/bmad-deep-recon",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "codegraph/explore",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "knowledge-work-engineering/architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "knowledge-work-engineering/system-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "bmad-method/bmad-architecture",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "bmad-method/bmad-advanced-elicitation",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "ponytail/ponytail-audit",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "knowledge-work-engineering/tech-debt",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "codegraph/impact",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:software-architect",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "ponytail/ponytail",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/requesting-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "knowledge-work-engineering/incident-response",
+   "type": "recommends"
+  },
+  {
+   "from": "role:system-administrator",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "knowledge-work-engineering/system-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/subagent-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "claude-code-builtin/code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "bmad-method/bmad-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/receiving-code-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "bmad-method/bmad-walkthrough",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "bmad-method/bmad-project-context",
+   "type": "recommends"
+  },
+  {
+   "from": "role:tech-lead",
+   "to": "bmad-method/bmad-retrospective",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "open-skill/open-skill-intel",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "codegraph/explore",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "context7/context7-mcp",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "superpowers/writing-plans",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "spec-kit/plan",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "spec-kit/tasks",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "knowledge-work-design/ux-copy",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "bmad-method/bmad-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "knowledge-work-engineering/documentation",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "anthropic-skills/doc-coauthoring",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:technical-writer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "superpowers/brainstorming",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "bmad-method/bmad-forge-idea",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/user-research",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/research-synthesis",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "spec-kit/specify",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "bmad-method/bmad-ux",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/design-handoff",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/design-system",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/ux-copy",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "taste-skill/taste-skill",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "anthropic-skills/frontend-design",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "superpowers/test-driven-development",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "superpowers/verification-before-completion",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/design-critique",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "knowledge-work-design/accessibility-review",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "superpowers/finishing-a-development-branch",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "superpowers/systematic-debugging",
+   "type": "recommends"
+  },
+  {
+   "from": "role:ux-designer",
+   "to": "open-skill/open-skill-learn",
+   "type": "recommends"
+  }
+ ]
+}
