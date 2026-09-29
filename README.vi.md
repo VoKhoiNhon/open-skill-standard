@@ -35,7 +35,8 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.6.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
 
 # 3. Trong agent, ở bất kỳ project nào
-/open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
+/open-skill-router add a pipeline that loads orders into the warehouse
+# yêu cầu bằng tiếng Việt cũng được: /open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
 ```
 
 `open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu.
@@ -62,7 +63,7 @@ Mỗi agent còn đọc thêm vài thư mục khác (ví dụ Cursor, Copilot, O
 open-skill agents                                     # agent nào đã cài, mỗi agent thấy những skill nào
 open-skill install open-skill-router --agent codex    # một skill lõi, hoặc đường dẫn tới thư mục skill bất kỳ
 open-skill install ./my-skill --agent cursor --project . --symlink
-open-skill route "<việc cần làm>" --agent codex       # chỉ các skill Codex thấy, đúng tên Codex dùng để gọi
+open-skill route "<task>" --agent codex               # chỉ các skill Codex thấy, đúng tên Codex dùng để gọi
 open-skill update                                     # cập nhật các skill lõi bạn đã cài theo phiên bản CLI này
 open-skill remove open-skill-router --agent codex
 ```
@@ -118,6 +119,8 @@ phase window: plan → build → verify → review (medium build task: starts at
 1. [plan] superpowers:writing-plans  score=2.5  — phase plan; role prior 2.00 (primary for data-engineer); text 1.00; consumes spec
 2. [build] superpowers:subagent-driven-development  score=2.5  — …; consumes plan
    runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/write-query 0.9, knowledge-work-data/sql-queries 0.7
+3. [verify] data:explore-data  score=2.0  — …
+   runner-ups: knowledge-work-data/validate-data 2.0 (close call), open-skill/open-skill-standards 2.0, …
 ```
 
 Khi không có từ khoá phase nào khớp, dòng phase ghi `phase: build (guessed, no signal)` và JSON có `"phase_from": "guessed"`. Agent đã đọc cuộc hội thoại nên tự truyền `--phase` (và `--size`); dò từ khoá chỉ là phương án dự phòng.
@@ -128,6 +131,9 @@ Khi không có từ khoá phase nào khớp, dòng phase ghi `phase: build (gues
 $ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers:executing-plans
 superpowers/executing-plans is not in the chain for: add a pipeline that loads orders
   - [build] score 0.375 lost to superpowers/subagent-driven-development (2.5)
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers/brainstorming
+superpowers/brainstorming is not in the chain for: add a pipeline that loads orders
+  - acts in discover, specify; this task's phase window is plan, build, verify, review
 ```
 
 **Có những gì?** `search` lọc theo `--role`, `--phase`, `--source` và `--installed`; bỏ trống câu tìm thì liệt kê mọi skill qua được bộ lọc:
@@ -136,6 +142,7 @@ superpowers/executing-plans is not in the chain for: add a pipeline that loads o
 $ open-skill search --role data-engineer --phase verify --installed
       -  knowledge-work-data/explore-data
       -  knowledge-work-data/validate-data
+      -  superpowers/test-driven-development
       …
 ```
 
