@@ -125,11 +125,24 @@ def init(profile: dict, seeds: dict[str, list[str]]) -> Path:
     return home()
 
 
+class ProfileError(ValueError):
+    """profile.yaml cannot be read as a mapping. It is the user's file: report it, never replace it."""
+
+
 def load_profile() -> dict:
     p = home() / "profile.yaml"
     if not p.exists():
         return {}
-    return yaml.safe_load(p.read_text()) or {}
+    try:
+        prof = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as e:
+        mark = getattr(e, "problem_mark", None)
+        raise ProfileError(f"{p} is not valid YAML{f' (line {mark.line + 1})' if mark else ''}; "
+                           "fix it, or move it away and run open-skill init") from None
+    if not isinstance(prof, dict):
+        raise ProfileError(f"{p} must be a mapping of settings (roles:, stack: ...); fix it, or move it away "
+                           "and run open-skill init")
+    return prof
 
 
 def record(event: dict) -> None:

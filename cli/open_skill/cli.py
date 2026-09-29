@@ -816,6 +816,9 @@ def main(argv=None) -> int:
     except userdata.NewerDataError as e:
         print(f"open-skill: {e}", file=sys.stderr)
         return 3
+    except knowledge.ProfileError as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 2
     except (FileNotFoundError, NotADirectoryError, IsADirectoryError, zipfile.BadZipFile) as e:
         # A path the user gave does not exist or is not what the command needs: bad input, not a crash.
         where = f": {e.filename}" if getattr(e, "filename", None) else ""

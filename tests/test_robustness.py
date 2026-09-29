@@ -41,3 +41,15 @@ def test_truncated_events_log_is_read_up_to_the_damage(home, capsys):
     lines = (home / "events.jsonl").read_text(encoding="utf-8").splitlines()
     assert len(lines) == 4 and all(lines)
     assert '"route_id": "r-2", "ta' in (home / "events.jsonl").read_text(encoding="utf-8")  # damage kept, not rewritten
+
+
+@pytest.mark.parametrize("text", ["roles: {data-engineer: 1.0\n", "- just\n- a list\n"])
+def test_broken_profile_is_reported_and_left_alone(home, capsys, text):
+    # Every command used to die with a yaml traceback (or AttributeError for a list), since all of them read it.
+    home.mkdir()
+    (home / "profile.yaml").write_text(text, encoding="utf-8")
+    assert cli.main(["validate"]) == 2
+    err = capsys.readouterr().err
+    assert "profile.yaml" in err and "Traceback" not in err
+    assert cli.main(["init", "--role", "data-engineer"]) == 2
+    assert (home / "profile.yaml").read_text(encoding="utf-8") == text
