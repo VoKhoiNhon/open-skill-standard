@@ -14,8 +14,9 @@ def all_installed(reg) -> list[Installed]:
     return [Installed(sid, sid.split("/", 1)[1], "/eval", s.get("description", ""), False) for sid, s in reg.skills.items()]
 
 
-def load_routing_cases(path: Path | None = None) -> list[dict]:
-    path = Path(path) if path else paths.data_root() / "evals" / "routing.yaml"
+def load_routing_cases(path: Path | None = None, name: str = "routing.yaml") -> list[dict]:
+    """Bundled cases by file name: routing.yaml (tuned on) or routing-holdout.yaml (never tuned on)."""
+    path = Path(path) if path else paths.data_root() / "evals" / name
     return yaml.safe_load(path.read_text())["cases"]
 
 
