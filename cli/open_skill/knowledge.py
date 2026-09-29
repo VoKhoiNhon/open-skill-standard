@@ -136,15 +136,28 @@ def record(event: dict) -> None:
     event = {"ts": time.time(), **event}
     _prepare()
     home().mkdir(parents=True, exist_ok=True)
-    with (home() / "events.jsonl").open("a") as f:
-        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    with (home() / "events.jsonl").open("a+b") as f:
+        torn = False  # a crash left half a line: start the new event on a line of its own
+        if f.seek(0, 2):
+            f.seek(-1, 2)
+            torn = f.read(1) != b"\n"
+        f.write((("\n" if torn else "") + json.dumps(event, ensure_ascii=False) + "\n").encode("utf-8"))
 
 
 def _events() -> list[dict]:
+    """Every readable event; a line damaged by a crash or a full disk is skipped, never rewritten."""
     p = home() / "events.jsonl"
     if not p.exists():
         return []
-    return [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
+    out = []
+    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line) if line.strip() else None
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            out.append(event)
+    return out
 
 
 def route_recorded(route_id: str) -> bool:
