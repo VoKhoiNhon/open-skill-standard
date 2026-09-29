@@ -1,6 +1,7 @@
 """Lint SKILL.md files: frontmatter limits and prompt patterns that current Claude models handle badly."""
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,6 +12,8 @@ FABLE5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineeri
 OPUS5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5"
 SONNET5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5"
 SPEC = "https://agentskills.io/specification"
+SKILLS_REF = "https://github.com/agentskills/agentskills/blob/main/skills-ref/src/skills_ref/validator.py"
+QUICK_VALIDATE = "https://github.com/anthropics/skills/blob/main/skills/skill-creator/scripts/quick_validate.py"
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
 
 PATTERNS = [
@@ -57,9 +60,15 @@ def rule(id: str, severity: str, checks: str, source: str) -> None:
 
 MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
 rule("frontmatter", "error", "SKILL.md starts with a closed block of YAML frontmatter that is a mapping", SPEC)
-rule("frontmatter-name", "error", "`name` is present, 1-64 lowercase letters, digits and single hyphens, and not 'claude' or 'anthropic'", BEST)
-rule("name-matches-folder", "error", "`name` equals the name of the folder holding SKILL.md", SPEC)
-rule("frontmatter-description", "error", "`description` is present, at most 1024 characters, with no angle brackets", BEST)
+rule("frontmatter-name", "error", "`name` is a string of 1-64 lowercase letters, digits and single hyphens, not starting or"
+     " ending with a hyphen; letters outside a-z are allowed as the reference validator allows them", SPEC)
+rule("name-ascii", "warning", "`name` uses only a-z, 0-9 and hyphens, which Anthropic's packager and claude.ai uploads require",
+     QUICK_VALIDATE)
+rule("name-reserved-word", "error", "`name` does not contain the reserved words 'claude' or 'anthropic'", BEST)
+rule("name-matches-folder", "error", "`name` equals the name of the folder holding SKILL.md, compared in Unicode NFKC form",
+     SKILLS_REF)
+rule("frontmatter-description", "error", "`description` is a non-blank string of at most 1024 characters", SPEC)
+rule("description-angle-brackets", "error", "`description` has no `<` or `>`, which Anthropic's packager rejects", QUICK_VALIDATE)
 rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or a documented agent extension", SPEC)
 rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
 rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
@@ -106,20 +115,32 @@ def _not_text(meta: dict, key: str) -> str | None:
     return None if v.strip() else f"{key} is blank"
 
 
+def _spec_name(name: str) -> bool:
+    """The reference validator's test: lowercase letters (any script), digits and single inner hyphens, 1-64 long."""
+    return (0 < len(name) <= 64 and name == name.lower() and not name.startswith("-") and not name.endswith("-")
+            and "--" not in name and all(c.isalnum() or c == "-" for c in name))
+
+
 def _check_fields(meta: dict, folder: str | None, add) -> None:
-    name, desc = frontmatter.text(meta, "name"), frontmatter.text(meta, "description")
+    name = unicodedata.normalize("NFKC", frontmatter.text(meta, "name").strip())
+    desc = frontmatter.text(meta, "description")
     if _not_text(meta, "name"):
-        add("frontmatter-name", _not_text(meta, "name"), BEST)
-    elif len(name) > 64 or not NAME_RX.match(name):
-        add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen", SPEC)
-    elif "claude" in name or "anthropic" in name:
-        add("frontmatter-name", "name must not contain 'claude' or 'anthropic'", BEST)
-    if name and folder and name != folder:
-        add("name-matches-folder", f"name '{name}' must match its folder '{folder}'", SPEC)
+        add("frontmatter-name", _not_text(meta, "name"))
+    elif not _spec_name(name):
+        add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen")
+    else:
+        if not NAME_RX.match(name):
+            add("name-ascii", f"name '{name}' has letters outside a-z; claude.ai uploads and package_skill.py reject it")
+        if "claude" in name or "anthropic" in name:
+            add("name-reserved-word", "name must not contain 'claude' or 'anthropic'")
+    if name and folder and name != unicodedata.normalize("NFKC", folder):
+        add("name-matches-folder", f"name '{name}' must match its folder '{folder}'")
     if _not_text(meta, "description"):
-        add("frontmatter-description", _not_text(meta, "description"), BEST)
-    elif len(desc) > 1024 or "<" in desc or ">" in desc:
-        add("frontmatter-description", "description must be at most 1024 chars with no angle brackets", BEST)
+        add("frontmatter-description", _not_text(meta, "description"))
+    elif len(desc) > 1024:
+        add("frontmatter-description", f"description is {len(desc)} characters; the limit is 1024")
+    elif "<" in desc or ">" in desc:
+        add("description-angle-brackets", "description must not contain < or >; Anthropic's packager rejects it")
     for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS):
         add("unknown-field", f"'{key}' is not an Agent Skills field; agents will ignore it (put custom data under metadata)", SPEC)
     if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):

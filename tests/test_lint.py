@@ -21,7 +21,7 @@ def test_clean_skill_has_no_findings():
     (doc("x", name="Claude-Helper"), "frontmatter-name"),
     (doc("x", name="a" * 65), "frontmatter-name"),
     (doc("x", desc="a" * 1025), "frontmatter-description"),
-    (doc("x", desc="uses <tags>"), "frontmatter-description"),
+    (doc("x", desc="uses <tags>"), "description-angle-brackets"),
     ("---\nname: x\n---\nbody", "frontmatter-description"),
     (doc("\n" * 501), "length"),
     (doc("Show your reasoning in the response before answering."), "reasoning-in-response"),
@@ -228,3 +228,33 @@ def test_yaml_alias_bomb_in_description_is_not_expanded():
 @pytest.mark.parametrize("desc", [">\n  Folded over\n  two lines.", "|\n  Literal\n  block.", "&d Anchored.", '"Quoted: colon."'])
 def test_yaml_scalar_styles_are_valid_descriptions(desc):
     assert rules(f"---\nname: good-skill\ndescription: {desc}\n---\nbody") == []
+
+
+@pytest.mark.parametrize("name,rule", [
+    ("claude-helper", "name-reserved-word"),
+    ("my-anthropic-tools", "name-reserved-word"),
+    ("phân-tích-dữ-liệu", "name-ascii"),  # the Agent Skills reference validator accepts Unicode lowercase letters
+    ("数据分析", "name-ascii"),
+    ("Phân-tích", "frontmatter-name"),     # uppercase is invalid everywhere
+    ("a" * 65, "frontmatter-name"),
+])
+def test_name_rules_each_cite_their_own_source(name, rule):
+    found = {f.rule: f for f in lint.lint_text(doc("x", name=name))}
+    assert rule in found and found[rule].source == lint.RULES[rule].source
+    assert not ({"frontmatter-name", "name-ascii", "name-reserved-word"} - {rule}) & set(found)
+
+
+def test_unicode_name_matches_a_folder_in_another_normal_form(tmp_path):
+    # macOS and some zip tools store names decomposed (NFD); the frontmatter is usually composed (NFC).
+    import unicodedata
+    d = tmp_path / unicodedata.normalize("NFD", "phân-tích")
+    d.mkdir()
+    (d / "SKILL.md").write_text(doc("x", name=unicodedata.normalize("NFC", "phân-tích")))
+    assert "name-matches-folder" not in [f.rule for f in lint.lint_file(d / "SKILL.md")]
+
+
+def test_description_angle_brackets_are_their_own_rule():
+    found = {f.rule: f for f in lint.lint_text(doc("x", desc="Use the `<ViewTransition>` component"))}
+    assert list(found) == ["description-angle-brackets"]
+    assert "quick_validate" in found["description-angle-brackets"].source
+    assert rules(doc("x", desc="a" * 1024)) == [] and rules(doc("x", desc="a" * 1025)) == ["frontmatter-description"]
