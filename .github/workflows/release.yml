@@ -14,6 +14,9 @@ jobs:
         run: |
           test "v$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)" = "${GITHUB_REF_NAME}"
           uv run python scripts/check_versions.py
+      - name: CHANGELOG has a section for the tag
+        # Fails before anything is built or published, so PyPI never gets a release without notes.
+        run: python3 scripts/changelog.py "$GITHUB_REF_NAME" > /dev/null
       - run: uv build
       - uses: actions/upload-artifact@v7
         with:

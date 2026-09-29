@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 
 ### Changed
+- The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
 - Releases are titled `vX.Y.Z — <theme>` automatically, from the first line of the CHANGELOG section (`scripts/changelog.py title`).
 
 ### Fixed

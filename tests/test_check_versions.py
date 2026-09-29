@@ -51,6 +51,17 @@ def test_changelog_title_takes_the_theme_from_the_first_line():
     assert cl.title("## [1.0.0] - x\n\n### Added\n- y\n", "1.0.0") == "v1.0.0"
 
 
+def test_changelog_missing_section_fails_with_one_clear_error(tmp_path):
+    import subprocess
+    import sys
+    (tmp_path / "CHANGELOG.md").write_text("## [Unreleased]\n\n## [1.0.0] - x\n\nFirst.\n")
+    for args in (["v2.0.0"], ["title", "v2.0.0"]):
+        r = subprocess.run([sys.executable, str(ROOT / "scripts/changelog.py"), *args, str(tmp_path / "CHANGELOG.md")],
+                           capture_output=True, text=True)
+        assert r.returncode == 1 and r.stdout == ""
+        assert r.stderr.startswith("::error::CHANGELOG.md has no section for 2.0.0") and "Traceback" not in r.stderr
+
+
 pt = load("check_pr_title")
 
 
