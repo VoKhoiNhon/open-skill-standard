@@ -25,7 +25,7 @@ Takes models to production: training pipelines, feature stores, serving and moni
 | verify | `knowledge-work-data/statistical-analysis` — Descriptive statistics, trends, outliers and hypothesis tests<br>`knowledge-work-data/validate-data` — QA an analysis or dataset before sharing - methodology, accuracy, bias | `superpowers/verification-before-completion` |
 | review | `claude-code-builtin/code-review` — Review the current diff or a PR for correctness bugs<br>`superpowers/requesting-code-review` — Ask for a review of finished work before merging | `bmad-method/bmad-code-review`<br>`ponytail/ponytail-review`<br>`knowledge-work-engineering/code-review` |
 | release | `knowledge-work-engineering/deploy-checklist` — Pre-deployment verification for releases, migrations and flags | `superpowers/finishing-a-development-branch` |
-| operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix<br>`claude-code-builtin/schedule` — Scheduled cloud agents on a cron | `knowledge-work-engineering/incident-response` |
+| operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix | `knowledge-work-engineering/incident-response`<br>`claude-code-builtin/schedule` |
 | learn | `open-skill/open-skill-learn` — Remember lessons and preferences so future routes use them | `bmad-method/bmad-retrospective` |
 
 ## Starter knowledge

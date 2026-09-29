@@ -145,6 +145,8 @@ cases:
      include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
   - {id: ml-engineer, role: ml-engineer, task: "deploy the churn model with drift monitoring",
      include: [knowledge-work-engineering/deploy-checklist]}
+  - {id: ml-latency, role: ml-engineer, task: "the model latency is slow in production",
+     first: superpowers/systematic-debugging}
   - {id: ai-engineer, role: ai-engineer, task: "build a RAG chatbot over our docs with evals",
      include: [superpowers/subagent-driven-development]}
   - {id: platform, role: data-ai-platform-engineer, task: "roll out a shared skill pack to all teams",

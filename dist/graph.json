@@ -4165,11 +4165,6 @@
   },
   {
    "from": "role:ml-engineer",
-   "to": "claude-code-builtin/schedule",
-   "type": "recommends"
-  },
-  {
-   "from": "role:ml-engineer",
    "to": "open-skill/open-skill-learn",
    "type": "recommends"
   },
