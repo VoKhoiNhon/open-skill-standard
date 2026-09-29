@@ -175,6 +175,17 @@ def _split_note(raw: str) -> tuple[str, str]:
     return "", raw
 
 
+def note_meta(fm: str) -> dict | None:
+    """Frontmatter of a note as a dict; None when it is missing, not a mapping or not valid YAML."""
+    import yaml
+
+    try:
+        meta = yaml.safe_load(fm) if fm else None
+    except yaml.YAMLError:
+        return None
+    return meta if isinstance(meta, dict) else None
+
+
 def _m0_to_1(home: Path, dry_run: bool) -> list[str]:
     """Stamp notes with `schema: 1`; seed notes also record the hash of their text as `seed_hash`."""
     import yaml
@@ -182,8 +193,11 @@ def _m0_to_1(home: Path, dry_run: bool) -> list[str]:
     changed = []
     for p in sorted((Path(home) / "knowledge").glob("*.md")):
         fm, body = _split_note(p.read_text(encoding="utf-8"))
-        meta = yaml.safe_load(fm) if fm else None
-        if not isinstance(meta, dict) or meta.get("schema") == 1:
+        meta = note_meta(fm)
+        if meta is None and fm:
+            changed.append(f"left as is {p.name}: its frontmatter is not valid YAML")
+            continue
+        if meta is None or meta.get("schema") == 1:
             continue
         meta["schema"] = 1
         if meta.get("source") == "seed" and "seed_hash" not in meta:

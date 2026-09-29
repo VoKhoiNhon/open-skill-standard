@@ -53,3 +53,19 @@ def test_broken_profile_is_reported_and_left_alone(home, capsys, text):
     assert "profile.yaml" in err and "Traceback" not in err
     assert cli.main(["init", "--role", "data-engineer"]) == 2
     assert (home / "profile.yaml").read_text(encoding="utf-8") == text
+
+
+def test_a_note_with_broken_frontmatter_does_not_block_migration_or_seed_sync(home):
+    # yaml.safe_load raised inside the v0 -> v1 step and in seed sync, so every write failed from then on.
+    k = home / "knowledge"
+    k.mkdir(parents=True)
+    broken = "---\nid: k-broken\napplies_to: [role:*\n---\nMy text.\n"
+    (k / "k-broken.md").write_text(broken, encoding="utf-8")
+    (k / "k-ok.md").write_text("---\nid: k-ok\ntype: lesson\napplies_to: ['role:*']\nsource: user\n---\nFine.\n",
+                               encoding="utf-8")
+    actions = userdata.migrate(home)
+    assert any("k-broken.md" in a and "left as is" in a for a in actions)
+    assert (k / "k-broken.md").read_text(encoding="utf-8") == broken
+    assert userdata.data_version(home) == userdata.SCHEMA_VERSION
+    assert knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "x", "text": "Seed."}]}) == [
+        "added data-engineer/x"]

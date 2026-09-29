@@ -263,8 +263,8 @@ def _seed_notes() -> list[tuple]:
     out = []
     for p in sorted((home() / "knowledge").glob("*.md")):
         fm, body = userdata._split_note(p.read_text(encoding="utf-8"))
-        meta = yaml.safe_load(fm) if fm else None
-        if isinstance(meta, dict) and meta.get("source") == "seed":
+        meta = userdata.note_meta(fm)
+        if meta and meta.get("source") == "seed":
             out.append((p, meta, body))
     return out
 
