@@ -131,3 +131,7 @@ def test_released_seed_ids_are_never_renamed():
     old, seed["id"] = seed["id"], "renamed-" + seed["id"]
     assert _renamed(released, _shipped_seeds(reg)) == {f"data-engineer/{old}": f"data-engineer/renamed-{old}"}
 
+
+def test_seed_texts_are_english():
+    texts = [s["text"] for r in registry.load().roles.values() for s in r.get("seeds", [])]
+    assert texts and all(t.isascii() for t in texts)
