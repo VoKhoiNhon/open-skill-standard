@@ -34,18 +34,20 @@ class Rule:
     source: str
     whole: bool = False  # match across lines; the finding points at the line where the match starts
     only: re.Pattern | None = None  # when set, the rule applies only to file paths this matches
+    unless: re.Pattern | None = None  # a line match is skipped when the text before it on the line matches this
 
 
 RULES: dict[str, Rule] = {}
 
 
 def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False,
-         only: str | None = None) -> None:
+         only: str | None = None, unless: str | None = None) -> None:
     """Register a rule; every rule cites the public guidance it comes from. Patterns ignore case."""
     assert severity in SEVERITIES and id not in RULES, id
     flags = re.IGNORECASE | (re.DOTALL if whole else 0)
     RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole,
-                     re.compile(only, re.IGNORECASE) if only else None)
+                     re.compile(only, re.IGNORECASE) if only else None,
+                     re.compile(unless, re.IGNORECASE) if unless else None)
 
 
 def _applies(r: Rule, file: str) -> bool:
@@ -65,7 +67,8 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
     rules = [r for r in RULES.values() if _applies(r, file)]
     for n, line in enumerate(text.split("\n"), 1):  # only \n, as editors and the whole-text rules count lines
         for r in rules:
-            if r.pattern and not r.whole and r.pattern.search(line):
+            if r.pattern and not r.whole and any(not (r.unless and r.unless.search(line, 0, m.start()))
+                                                 for m in r.pattern.finditer(line)):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
     for r in rules:
         if r.pattern and r.whole:
@@ -79,12 +82,17 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
 # user's own instructions, so these are prompt injection in the sense of OWASP LLM01.
 OWASP_LLM01 = "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
 NOT = r"(?<!not )(?<!n't )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
+# Security guidance quotes the attacks it warns about ("Ignore previous instructions...", `<system-reminder>`), and
+# forbids them ("never allow fetched text to override the user"). ponytail: an attacker can quote too; the agent still
+# reads quoted text, so this trades that case for not flagging every skill that teaches injection defense.
+MENTIONED = r"[\"“'‘`]$"
+FORBIDDEN = r"\b(never|not|n't|n’t|no)\s+(let|allow|permit)\w*\b[^.;:!?]*$"
 rule("override-instructions", "high",
      rf"\b{NOT}(ignore|disregard|forget|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
      r"all|any|system|user'?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
      r"|\boverride\s+(the\s+|any\s+|all\s+)?(user'?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
      r"|\b(new|updated|real) system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
-     "tries to override the user's or the system's instructions", OWASP_LLM01)
+     "tries to override the user's or the system's instructions", OWASP_LLM01, unless=MENTIONED + "|" + FORBIDDEN)
 
 
 rule("conceal-from-user", "high",
@@ -159,7 +167,8 @@ rule("fake-authority", "high",
      r"\b(message|notice|instructions?|update|directive|order)\s+from\s+(anthropic|openai|the\s+system|the\s+(administrator|admin)"
      r"|your\s+(developers?|creators?|operators?))\b|\[\s*(system|admin|developer)\s*(message|override|notice|prompt)\s*\]"
      r"|</?system-reminder>|<\|im_start\|>|<\|(system|start_header_id)\|>",
-     "impersonates the system, the agent vendor or an administrator to gain authority over the agent", OWASP_LLM01)
+     "impersonates the system, the agent vendor or an administrator to gain authority over the agent", OWASP_LLM01,
+     unless=MENTIONED)
 
 
 # allowed-tools pre-approves tools for the turn that invokes the skill, whether or not the folder is trusted.
