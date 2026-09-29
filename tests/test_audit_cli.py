@@ -41,3 +41,14 @@ def test_audit_installed_groups_by_source(capsys, argv):
     assert code == 0
     assert "== harvested" in out and "== superpowers" in out
     assert "claude-code-builtin" not in out  # built-in skills have no files to read
+
+
+def test_audit_json_has_groups_summary_and_disclaimer(capsys):
+    import json
+
+    code, out = run(capsys, "audit", str(AUDIT / "risky-skill"), "--format", "json")
+    doc = json.loads(out)
+    assert doc["disclaimer"] == audit.DISCLAIMER
+    (found,) = doc["groups"].values()
+    assert {"severity", "rule", "file", "line", "excerpt", "source", "message"} <= set(found[0])
+    assert doc["summary"]["high"] == sum(1 for f in found if f["severity"] == "high") > 0
