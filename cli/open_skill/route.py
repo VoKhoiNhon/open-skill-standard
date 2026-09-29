@@ -2,6 +2,7 @@
 
 import hashlib
 import re
+import sys
 import time
 from pathlib import Path
 
@@ -372,8 +373,12 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
             "size": {"size": size, "from": size_from, "keywords": _matched(task, size_kw) if size_from == "keywords" else []},
             "window": window, "window_reason": window_why, "candidates": trace}
     if record:
-        knowledge.record({"type": "proposed", "route_id": rid, "task": task,
-                          "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
+        try:
+            knowledge.record({"type": "proposed", "route_id": rid, "task": task,
+                              "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
+        except OSError as e:  # a read-only or full home must not stop routing; only feedback needs the record
+            print(f"open-skill: route not recorded ({e.strerror or e}: {e.filename}); feedback for it will be refused",
+                  file=sys.stderr)
     return result
 
 

@@ -1,6 +1,7 @@
 """The user layer (L2): profile, knowledge nodes, usage events, personal weights. Local files only."""
 
 import datetime as dt
+import errno
 import hashlib
 import json
 import re
@@ -30,8 +31,16 @@ def home() -> Path:
     return paths.user_home()
 
 
+def _check_layout() -> None:
+    """Refuse to act on a home whose notes path is not a folder, before anything is written."""
+    k = home() / "knowledge"
+    if k.exists() and not k.is_dir():
+        raise NotADirectoryError(errno.ENOTDIR, "not a folder; move it away so notes can be stored", str(k))
+
+
 def _prepare() -> None:
     """Every write goes through here: upgrade older data (with a backup) and never write over newer data."""
+    _check_layout()
     if userdata.pending(home()):
         actions = userdata.migrate(home())
         if actions:
@@ -125,26 +134,52 @@ def init(profile: dict, seeds: dict[str, list[str]]) -> Path:
     return home()
 
 
+class ProfileError(ValueError):
+    """profile.yaml cannot be read as a mapping. It is the user's file: report it, never replace it."""
+
+
 def load_profile() -> dict:
     p = home() / "profile.yaml"
     if not p.exists():
         return {}
-    return yaml.safe_load(p.read_text()) or {}
+    try:
+        prof = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as e:
+        mark = getattr(e, "problem_mark", None)
+        raise ProfileError(f"{p} is not valid YAML{f' (line {mark.line + 1})' if mark else ''}; "
+                           "fix it, or move it away and run open-skill init") from None
+    if not isinstance(prof, dict):
+        raise ProfileError(f"{p} must be a mapping of settings (roles:, stack: ...); fix it, or move it away "
+                           "and run open-skill init")
+    return prof
 
 
 def record(event: dict) -> None:
     event = {"ts": time.time(), **event}
     _prepare()
     home().mkdir(parents=True, exist_ok=True)
-    with (home() / "events.jsonl").open("a") as f:
-        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    with (home() / "events.jsonl").open("a+b") as f:
+        torn = False  # a crash left half a line: start the new event on a line of its own
+        if f.seek(0, 2):
+            f.seek(-1, 2)
+            torn = f.read(1) != b"\n"
+        f.write((("\n" if torn else "") + json.dumps(event, ensure_ascii=False) + "\n").encode("utf-8"))
 
 
 def _events() -> list[dict]:
+    """Every readable event; a line damaged by a crash or a full disk is skipped, never rewritten."""
     p = home() / "events.jsonl"
     if not p.exists():
         return []
-    return [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
+    out = []
+    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line) if line.strip() else None
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            out.append(event)
+    return out
 
 
 def route_recorded(route_id: str) -> bool:
@@ -177,6 +212,7 @@ def personal_weights(now: float | None = None, names: dict[str, str] | None = No
 
 def export(dest: Path) -> Path:
     """Zip of profile.yaml + knowledge/ (events stay on this machine)."""
+    _check_layout()
     stage = Path(dest).with_suffix("")
     tmp = stage.parent / (stage.name + ".staging")
     shutil.rmtree(tmp, ignore_errors=True)
@@ -237,8 +273,8 @@ def _seed_notes() -> list[tuple]:
     out = []
     for p in sorted((home() / "knowledge").glob("*.md")):
         fm, body = userdata._split_note(p.read_text(encoding="utf-8"))
-        meta = yaml.safe_load(fm) if fm else None
-        if isinstance(meta, dict) and meta.get("source") == "seed":
+        meta = userdata.note_meta(fm)
+        if meta and meta.get("source") == "seed":
             out.append((p, meta, body))
     return out
 

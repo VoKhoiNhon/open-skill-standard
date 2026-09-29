@@ -21,6 +21,8 @@ def _print(obj, as_json=True):
 def cmd_validate(args):
     try:
         errors = registry.validate(_registry(args))
+    except knowledge.ProfileError:
+        raise  # the user's profile, not the registry: exit 2 like every other command
     except ValueError as e:  # a file that cannot be read as a registry document
         errors = [str(e)]
     for e in errors:
@@ -525,6 +527,9 @@ def cmd_upgrade(args):
         except FileNotFoundError as e:
             print(e, file=sys.stderr)
             return 1
+        except userdata.UnsafeBackupError as e:
+            print(e, file=sys.stderr)
+            return 2
         return 0
     reg = _registry(args)
     seeds = {rid: r.get("seeds", []) for rid, r in reg.roles.items()}
@@ -816,8 +821,14 @@ def main(argv=None) -> int:
     except userdata.NewerDataError as e:
         print(f"open-skill: {e}", file=sys.stderr)
         return 3
+    except knowledge.ProfileError as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 2
     except (FileNotFoundError, NotADirectoryError, IsADirectoryError, zipfile.BadZipFile) as e:
         # A path the user gave does not exist or is not what the command needs: bad input, not a crash.
         where = f": {e.filename}" if getattr(e, "filename", None) else ""
         print(f"open-skill: {getattr(e, 'strerror', None) or e}{where}", file=sys.stderr)
         return 2
+    except OSError as e:  # the home or a target folder is read-only, full, locked...: the environment, not the input
+        print(f"open-skill: {e.strerror or e}{f': {e.filename}' if e.filename else ''}", file=sys.stderr)
+        return 1

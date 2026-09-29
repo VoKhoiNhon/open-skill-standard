@@ -59,13 +59,26 @@ def ensure_writable(home: Path) -> None:
 BACKUP_DIR = "backups"
 
 
+def _files(home: Path) -> list[Path]:
+    """Every file in the user layer, following linked folders (a notes folder on a synced drive) once each."""
+    out, seen = [], set()
+    for d, dirs, names in os.walk(home, followlinks=True):
+        real = os.path.realpath(d)
+        if real in seen:
+            dirs[:] = []
+            continue
+        seen.add(real)
+        out += [Path(d) / n for n in names if (Path(d) / n).is_file()]
+    return sorted(out)
+
+
 def backup(home: Path, label: str = "manual") -> Path | None:
     """Zip the whole user layer (except older backups) to backups/<UTC time>-<label>.zip. None if nothing to save."""
     import datetime as dt
     import zipfile
 
     home = Path(home)
-    files = [p for p in sorted(home.rglob("*")) if p.is_file() and BACKUP_DIR not in p.relative_to(home).parts]
+    files = [p for p in _files(home) if BACKUP_DIR not in p.relative_to(home).parts]
     if not files:
         return None
     (home / BACKUP_DIR).mkdir(parents=True, exist_ok=True)
@@ -73,9 +86,15 @@ def backup(home: Path, label: str = "manual") -> Path | None:
         dest = home / BACKUP_DIR / f"{dt.datetime.now(dt.timezone.utc):%Y%m%dT%H%M%S%fZ}-{label}.zip"
         if not dest.exists():
             break
-    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in files:
-            z.write(p, p.relative_to(home).as_posix())
+    part = dest.with_name(f".{dest.name}.part")  # renamed once complete: backups/*.zip are always whole archives
+    try:
+        with zipfile.ZipFile(part, "w", zipfile.ZIP_DEFLATED) as z:
+            for p in files:
+                z.write(p, p.relative_to(home).as_posix())
+        os.replace(part, dest)
+    except BaseException:
+        part.unlink(missing_ok=True)
+        raise
     return dest
 
 
@@ -104,23 +123,45 @@ def _check_members(names: list[str]) -> None:
 
 
 def restore(home: Path, archive: Path) -> Path | None:
-    """Replace the user layer with an archive's content. The current state is backed up first; backups/ is kept."""
+    """Replace the user layer with an archive's content. The current state is backed up first; backups/ is kept.
+    The archive is unpacked beside the current state and swapped in by renames; on any failure the old state is
+    put back, so the home is never left half restored."""
     import shutil
     import zipfile
 
     home = Path(home)
+    home.mkdir(parents=True, exist_ok=True)  # staging must sit on the same drive as the home for renames
     with zipfile.ZipFile(archive) as z:
         _check_members(z.namelist())
+        links = [e for e in home.iterdir() if e.is_symlink()]
+        if links:  # replacing them would either break the user's link or delete files outside the home
+            raise UnsafeBackupError(f"{links[0]} is a link to {os.path.realpath(links[0])}; restore never writes "
+                                    f"through links. Replace it with a folder, or unzip {archive} there by hand")
         safety = backup(home, "before-restore")
-        staging = Path(tempfile.mkdtemp(dir=home if home.exists() else None, prefix=".restore-"))
-        z.extractall(staging)
-    home.mkdir(parents=True, exist_ok=True)
-    for entry in home.iterdir():
-        if entry.name not in (BACKUP_DIR, staging.name):
+        staging = Path(tempfile.mkdtemp(dir=home, prefix=".restore-"))
+        try:
+            z.extractall(staging)
+        except BaseException:
+            shutil.rmtree(staging, ignore_errors=True)
+            raise
+    old = Path(tempfile.mkdtemp(dir=home, prefix=".restore-old-"))
+    moved_in: list[Path] = []
+    try:
+        for entry in [e for e in home.iterdir() if e.name not in (BACKUP_DIR, staging.name, old.name)]:
+            os.replace(entry, old / entry.name)
+        for entry in list(staging.iterdir()):
+            os.replace(entry, home / entry.name)
+            moved_in.append(home / entry.name)
+    except BaseException:
+        for entry in moved_in:
             shutil.rmtree(entry) if entry.is_dir() else entry.unlink()
-    for entry in staging.iterdir():
-        os.replace(entry, home / entry.name)
-    staging.rmdir()
+        for entry in list(old.iterdir()):
+            os.replace(entry, home / entry.name)
+        old.rmdir()  # empty now; if it is not, it keeps what could not be moved back
+        raise
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    shutil.rmtree(old)  # the replaced state is in the safety backup
     return safety
 
 
@@ -175,6 +216,17 @@ def _split_note(raw: str) -> tuple[str, str]:
     return "", raw
 
 
+def note_meta(fm: str) -> dict | None:
+    """Frontmatter of a note as a dict; None when it is missing, not a mapping or not valid YAML."""
+    import yaml
+
+    try:
+        meta = yaml.safe_load(fm) if fm else None
+    except yaml.YAMLError:
+        return None
+    return meta if isinstance(meta, dict) else None
+
+
 def _m0_to_1(home: Path, dry_run: bool) -> list[str]:
     """Stamp notes with `schema: 1`; seed notes also record the hash of their text as `seed_hash`."""
     import yaml
@@ -182,8 +234,11 @@ def _m0_to_1(home: Path, dry_run: bool) -> list[str]:
     changed = []
     for p in sorted((Path(home) / "knowledge").glob("*.md")):
         fm, body = _split_note(p.read_text(encoding="utf-8"))
-        meta = yaml.safe_load(fm) if fm else None
-        if not isinstance(meta, dict) or meta.get("schema") == 1:
+        meta = note_meta(fm)
+        if meta is None and fm:
+            changed.append(f"left as is {p.name}: its frontmatter is not valid YAML")
+            continue
+        if meta is None or meta.get("schema") == 1:
             continue
         meta["schema"] = 1
         if meta.get("source") == "seed" and "seed_hash" not in meta:
