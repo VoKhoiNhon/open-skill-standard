@@ -21,7 +21,7 @@ from xml.sax.saxutils import escape
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / ".github" / "assets"
 sys.path.insert(0, str(ROOT / "cli"))
-from open_skill import __version__, registry, route  # noqa: E402
+from open_skill import __version__, registry, route, userdata  # noqa: E402
 
 SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
@@ -387,6 +387,36 @@ ROUTES = [  # (file, role, task): one build, one data and one operations request
 ]
 
 
+def _older_layer(env: dict, cwd: Path) -> None:
+    """The user layer of someone who ran init on an older release, then lived with it: one seed still has that
+    release's wording, one they rewrote (and upstream changed since), one seed upstream has retired, plus a note of
+    their own. Seed notes are edited the way an older release would have written them."""
+    run_cli(["init", "--role", "backend-developer"], env, cwd)
+    run_cli(["learn", "Our API returns dates as ISO 8601 strings in UTC.", "--applies-to", "role:backend-developer",
+             "--type", "project-fact"], env, cwd, fresh=False)
+    home = Path(env["OPEN_SKILL_HOME"])
+    for p in sorted((home / "knowledge").glob("*.md")):
+        text = p.read_text("utf-8")
+        seed = re.search(r"(?m)^seed_id: (.+)$", text)
+        head = text[:text.index("\n---\n", 4) + 5]
+        if not seed:
+            continue
+        older = {"backend-developer/log-request-id-error-path": ("Log the request id on errors.", None),
+                 "backend-developer/change-api-contract-its-clients": (
+                     "Change the API contract and its tests together.", "Ship API contract changes with the client "
+                     "changes and contract tests in one pull request.")}.get(seed.group(1))
+        if older:
+            installed, mine = older
+            head = re.sub(r"(?m)^seed_hash: .+$", f"seed_hash: {userdata.text_hash(installed)}", head)
+            p.write_text(head + (mine or installed) + "\n", "utf-8")
+    retired = home / "knowledge" / "k-version-every-public-endpoint-5e0c1f2a.md"
+    retired.write_text("---\nid: k-version-every-public-endpoint-5e0c1f2a\nkind: knowledge\ntype: pitfall\n"
+                       "applies_to:\n- role:backend-developer\nsource: seed\ncreated: '2026-01-15'\nschema: 1\n"
+                       "seed_id: backend-developer/version-every-public-endpoint\n"
+                       f"seed_hash: {userdata.text_hash('Version every public endpoint.')}\n---\n"
+                       "Version every public endpoint.\n", "utf-8")
+
+
 def captures(reg) -> dict[str, str]:
     out = {}
     with tempfile.TemporaryDirectory() as t:
@@ -401,6 +431,10 @@ def captures(reg) -> dict[str, str]:
                                   ("audit", ["audit", "./downloaded-skill"], "open-skill audit")):
             out[f"{name}.svg"] = terminal(title, "open-skill " + " ".join(args),
                                           _mask(run_cli(args, env, tmp / "project"), tmp))
+        _older_layer(env, tmp / "project")
+        out["upgrade.svg"] = terminal("open-skill upgrade --dry-run · notes from an older release",
+                                      "open-skill upgrade --dry-run",
+                                      _mask(run_cli(["upgrade", "--dry-run"], env, tmp / "project", fresh=False), tmp))
     return out
 
 
