@@ -50,3 +50,24 @@ def test_newer_data_blocks_writes(tmp_path):
     userdata.write_version(tmp_path, userdata.SCHEMA_VERSION + 1)
     with pytest.raises(userdata.NewerDataError):
         userdata.ensure_writable(tmp_path)
+
+
+def _layer(home):
+    (home / "knowledge").mkdir(parents=True)
+    (home / "knowledge" / "k-a.md").write_text("---\nid: k-a\n---\nA")
+    (home / "profile.yaml").write_text("roles: {qa-engineer: 1.0}\n")
+    return home
+
+
+def test_backup_zips_layer_but_not_other_backups(tmp_path):
+    import zipfile
+    home = _layer(tmp_path / "h")
+    first = userdata.backup(home)
+    second = userdata.backup(home, "again")
+    names = zipfile.ZipFile(second).namelist()
+    assert sorted(names) == ["knowledge/k-a.md", "profile.yaml"]
+    assert first != second and first.exists()
+
+
+def test_backup_of_empty_home_is_none(tmp_path):
+    assert userdata.backup(tmp_path / "empty") is None

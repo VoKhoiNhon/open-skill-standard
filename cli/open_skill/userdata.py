@@ -54,3 +54,27 @@ def ensure_writable(home: Path) -> None:
         )
     if not (home / VERSION_FILE).exists() and v == SCHEMA_VERSION:
         write_version(home)
+
+
+BACKUP_DIR = "backups"
+
+
+def backup(home: Path, label: str = "manual") -> Path | None:
+    """Zip the whole user layer (except older backups) to backups/<UTC time>-<label>.zip. None if nothing to save."""
+    import time
+    import zipfile
+
+    home = Path(home)
+    files = [p for p in sorted(home.rglob("*")) if p.is_file() and BACKUP_DIR not in p.relative_to(home).parts]
+    if not files:
+        return None
+    dest = home / BACKUP_DIR / f"{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}-{label}.zip"
+    n = 1
+    while dest.exists():
+        n += 1
+        dest = dest.with_name(f"{dest.stem.rsplit('.', 1)[0]}.{n}.zip")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
+        for p in files:
+            z.write(p, p.relative_to(home).as_posix())
+    return dest
