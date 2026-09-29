@@ -34,7 +34,7 @@ Open Skill Standard adds the missing layer: metadata about **which role a skill 
 /plugin install open-skill@open-skill-standard
 
 # 2. Tell it your role(s); this also seeds starter knowledge for them
-uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
+uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.1 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
 
 # 3. In your agent, inside any project
 /open-skill-router add a pipeline that loads orders into the warehouse
