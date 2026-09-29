@@ -42,3 +42,8 @@ def test_review_filter_only_applies_to_review_skills():
 def test_every_finding_cites_a_source():
     for f in lint.lint_text(doc("Double-check your work. Use budget_tokens.")):
         assert f.source.startswith("https://")
+
+
+def test_findings_carry_severity():
+    by_rule = {f.rule: f.severity for f in lint.lint_text(doc("Show your reasoning in the response. Double-check your answer."))}
+    assert by_rule == {"reasoning-in-response": "error", "redundant-verification": "warning"}

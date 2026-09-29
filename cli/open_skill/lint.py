@@ -32,12 +32,21 @@ SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
 NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 
+# Errors break skills on some agent or model; warnings are strong advice.
+SEVERITY = {
+    "frontmatter-name": "error", "frontmatter-description": "error", "reasoning-in-response": "error",
+    "legacy-params": "error", "length": "warning", "redundant-verification": "warning",
+    "hardcoded-model": "warning", "review-filtering": "warning", "shouting": "warning",
+}
+
+
 @dataclass
 class Finding:
     path: str
     rule: str
     message: str
     source: str
+    severity: str = "error"
 
 
 def lint_text(text: str, path: str = "<text>") -> list[Finding]:
@@ -45,7 +54,7 @@ def lint_text(text: str, path: str = "<text>") -> list[Finding]:
     meta, body = frontmatter.parse(text)
 
     def add(rule, msg, src):
-        out.append(Finding(path, rule, msg, src))
+        out.append(Finding(path, rule, msg, src, SEVERITY.get(rule, "error")))
 
     name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
     if not name:
