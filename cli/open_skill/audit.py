@@ -37,9 +37,9 @@ RULES: dict[str, Rule] = {}
 
 
 def rule(id: str, severity: str, pattern: str | None, message: str, source: str) -> None:
-    """Register a rule; every rule cites the public guidance it comes from."""
+    """Register a rule; every rule cites the public guidance it comes from. Patterns ignore case."""
     assert severity in SEVERITIES and id not in RULES, id
-    RULES[id] = Rule(id, severity, re.compile(pattern) if pattern else None, message, source)
+    RULES[id] = Rule(id, severity, re.compile(pattern, re.IGNORECASE) if pattern else None, message, source)
 
 
 def _excerpt(line: str, limit: int = 160) -> str:
@@ -56,6 +56,17 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
             if r.pattern and r.pattern.search(line):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
     return out
+
+
+# Instructions that turn the agent against its user. A skill body is read with the same trust as the
+# user's own instructions, so these are prompt injection in the sense of OWASP LLM01.
+OWASP_LLM01 = "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+NOT = r"(?<!not )(?<!n't )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
+rule("override-instructions", "high",
+     rf"\b{NOT}(ignore|disregard|forget|override|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
+     r"all|any|system|user'?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
+     r"|\b(new|updated|real) system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
+     "tries to override the user's or the system's instructions", OWASP_LLM01)
 
 
 def _files(root: Path):
