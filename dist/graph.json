@@ -3505,6 +3505,11 @@
   },
   {
    "from": "role:embedded-engineer",
+   "to": "spec-kit/implement",
+   "type": "recommends"
+  },
+  {
+   "from": "role:embedded-engineer",
    "to": "superpowers/verification-before-completion",
    "type": "recommends"
   },

@@ -4,14 +4,62 @@
 cases:
   - {id: frontend, role: frontend-developer, task: "build a settings page with a dark mode toggle",
      include: [anthropic-skills/frontend-design], exclude: [superpowers/test-driven-development]}
+  - {id: frontend-bug, role: frontend-developer, task: "the date picker is broken on Safari",
+     first: superpowers/systematic-debugging, include: [anthropic-skills/webapp-testing]}
+  - {id: frontend-a11y-review, role: frontend-developer, task: "audit the signup form for accessibility",
+     phases: [review], include: [knowledge-work-design/accessibility-review]}
+  - {id: frontend-vietnamese, role: frontend-developer, task: "thêm trang cài đặt tài khoản",
+     include: [anthropic-skills/webapp-testing], exclude: [superpowers/test-driven-development]}
+  - {id: frontend-bmad, role: frontend-developer, task: "add a search page", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: backend, role: backend-developer, task: "add a REST endpoint to export invoices as CSV",
+     include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
+  - {id: backend-incident, role: backend-developer, task: "the export endpoint is failing with a 500 error",
+     first: superpowers/systematic-debugging, include: [superpowers/test-driven-development],
+     exclude: [superpowers/writing-plans]}
+  - {id: backend-review-migration, role: backend-developer, task: "review the migration that splits the users table",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: backend-research, role: backend-developer, task: "research message queues to compare for order events",
+     phases: [research], exclude: [superpowers/subagent-driven-development]}
+  - {id: backend-vietnamese, role: backend-developer, task: "thêm API xuất hóa đơn ra CSV",
      include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
      include: [superpowers/subagent-driven-development, anthropic-skills/webapp-testing], exclude: [taste-skill/taste-skill]}
+  - {id: fullstack-bug, role: fullstack-developer, task: "login is broken after the session change",
+     first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
+  - {id: fullstack-vietnamese-auth, role: fullstack-developer, task: "thêm chức năng đặt lại mật khẩu",
+     include: [claude-code-builtin/security-review, anthropic-skills/webapp-testing]}
+  - {id: fullstack-spec-kit, role: fullstack-developer, task: "add team invitations", files: [.specify/memory/constitution.md],
+     include: [spec-kit/plan, spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: mobile, role: mobile-developer, task: "add offline sync to the notes screen", include: [claude-code-builtin/run]}
+  - {id: mobile-crash, role: mobile-developer, task: "the app crashes on launch on Android 14",
+     first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
+  - {id: mobile-hang, role: mobile-developer, task: "the app hangs when the network drops",
+     first: superpowers/systematic-debugging, include: [claude-code-builtin/run]}
+  - {id: mobile-review, role: mobile-developer, task: "review the pull request for push notifications",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: mobile-bmad, role: mobile-developer, task: "add a settings screen", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: embedded, role: embedded-engineer, task: "add a temperature sensor driver over I2C",
      include: [superpowers/test-driven-development]}
+  - {id: embedded-spec-kit, role: embedded-engineer, task: "add a bootloader update over UART",
+     files: [.specify/memory/constitution.md], include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
+  - {id: embedded-vietnamese-hang, role: embedded-engineer, task: "thiết bị bị treo sau khi khởi động lại",
+     first: superpowers/systematic-debugging}
+  - {id: embedded-hang, role: embedded-engineer, task: "the firmware hangs after the watchdog reset, debug it",
+     first: superpowers/systematic-debugging}
+  - {id: embedded-review, role: embedded-engineer, task: "review the SPI driver pull request",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: embedded-vietnamese, role: embedded-engineer, task: "viết driver cho cảm biến nhiệt độ",
+     include: [superpowers/test-driven-development]}
   - {id: game, role: game-developer, task: "add a double jump to the player controller", include: [claude-code-builtin/run]}
+  - {id: game-crash, role: game-developer, task: "the game crashes when loading a save file",
+     first: superpowers/systematic-debugging, include: [claude-code-builtin/run]}
+  - {id: game-perf, role: game-developer, task: "the frame rate is slow in the forest level",
+     first: superpowers/systematic-debugging}
+  - {id: game-bmad, role: game-developer, task: "add a boss fight", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: game-vietnamese, role: game-developer, task: "thêm chế độ chơi nhiều người", include: [claude-code-builtin/run]}
   - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
      include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
   - {id: devops, role: devops-engineer, task: "add a CI pipeline that builds and deploys the container",

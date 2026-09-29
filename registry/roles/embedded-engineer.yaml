@@ -49,6 +49,7 @@ phases:
     primary:
     - superpowers/test-driven-development
     - superpowers/subagent-driven-development
+    - spec-kit/implement
     alternatives:
     - bmad-method/bmad-build
     - ponytail/ponytail
