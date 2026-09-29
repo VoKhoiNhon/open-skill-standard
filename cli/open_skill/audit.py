@@ -33,16 +33,25 @@ class Rule:
     message: str
     source: str
     whole: bool = False  # match across lines; the finding points at the line where the match starts
+    only: re.Pattern | None = None  # when set, the rule applies only to file paths this matches
+    unless: re.Pattern | None = None  # a line match is skipped when the text before it on the line matches this
 
 
 RULES: dict[str, Rule] = {}
 
 
-def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False) -> None:
+def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False,
+         only: str | None = None, unless: str | None = None) -> None:
     """Register a rule; every rule cites the public guidance it comes from. Patterns ignore case."""
     assert severity in SEVERITIES and id not in RULES, id
     flags = re.IGNORECASE | (re.DOTALL if whole else 0)
-    RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole)
+    RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole,
+                     re.compile(only, re.IGNORECASE) if only else None,
+                     re.compile(unless, re.IGNORECASE) if unless else None)
+
+
+def _applies(r: Rule, file: str) -> bool:
+    return r.only is None or file == "<text>" or bool(r.only.search(file))
 
 
 def _excerpt(line: str, limit: int = 160) -> str:
@@ -53,12 +62,15 @@ def _excerpt(line: str, limit: int = 160) -> str:
 
 
 def audit_text(text: str, file: str = "<text>") -> list[Finding]:
+    """Findings for one file's text; rules limited to some files (only=) are skipped elsewhere, except for "<text>"."""
     out = []
-    for n, line in enumerate(text.splitlines(), 1):
-        for r in RULES.values():
-            if r.pattern and not r.whole and r.pattern.search(line):
+    rules = [r for r in RULES.values() if _applies(r, file)]
+    for n, line in enumerate(text.split("\n"), 1):  # only \n, as editors and the whole-text rules count lines
+        for r in rules:
+            if r.pattern and not r.whole and any(not (r.unless and r.unless.search(line, 0, m.start()))
+                                                 for m in r.pattern.finditer(line)):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
-    for r in RULES.values():
+    for r in rules:
         if r.pattern and r.whole:
             for m in r.pattern.finditer(text):
                 out.append(Finding(r.severity, r.id, file, text.count("\n", 0, m.start()) + 1, _excerpt(m.group()),
@@ -69,26 +81,31 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
 # Instructions that turn the agent against its user. A skill body is read with the same trust as the
 # user's own instructions, so these are prompt injection in the sense of OWASP LLM01.
 OWASP_LLM01 = "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
-NOT = r"(?<!not )(?<!n't )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
+NOT = r"(?<!not )(?<!n't )(?<!n’t )(?<!never )"  # "don't ignore the user's instructions" is advice, not an attack
+# Security guidance quotes the attacks it warns about ("Ignore previous instructions...", `<system-reminder>`), and
+# forbids them ("never allow fetched text to override the user"). ponytail: an attacker can quote too; the agent still
+# reads quoted text, so this trades that case for not flagging every skill that teaches injection defense.
+MENTIONED = r"[\"“'‘`]$"
+FORBIDDEN = r"\b(never|not|n't|n’t|no)\s+(let|allow|permit)\w*\b[^.;:!?]*$"
 rule("override-instructions", "high",
      rf"\b{NOT}(ignore|disregard|forget|bypass)\b[^.\n]{{0,40}}\b(previous|prior|above|earlier|preceding|"
-     r"all|any|system|user'?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
-     r"|\boverride\s+(the\s+|any\s+|all\s+)?(user'?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
-     r"|\b(new|updated|real) system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
-     "tries to override the user's or the system's instructions", OWASP_LLM01)
+     r"all|any|system|user['’]?s?|other)\b[^.\n]{0,20}\b(instructions?|prompts?|rules|guidelines|directions|policies)\b"
+     r"|\boverride\s+(the\s+|any\s+|all\s+)?(user['’]?s?|previous|prior|earlier)\s+(instructions?|prompts?|rules|requests?)"
+     r"|\b(your|the following is (your|the)|this is (your|the)|here is (your|the))\s+(new|updated|real)\s+system prompt\b|\btake(s)? (precedence|priority) over (the |any |your )?(system|user)",
+     "tries to override the user's or the system's instructions", OWASP_LLM01, unless=MENTIONED + "|" + FORBIDDEN)
 
 
 rule("conceal-from-user", "high",
-     r"\b(do not|don't|never|without)\s+(tell|inform|notify|mention|alert|warn)(ing)?\s+(this\s+|it\s+|that\s+|anything\s+)?"
-     r"(to\s+)?(the\s+)?user|\bhide\s+(this|it|that|the\s+\w+)\s+from\s+the\s+user|\bthe\s+user\s+(must|should|will)"
-     r"\s*(not|n't|never)\s+(know|see|notice|find out)|\bsilently\s+(run|execute|install|download|send|upload|delete|post)",
+     r"\b(do not|don['’]t|never|without)\s+(tell|inform|notify|mention|alert|warn)(ing)?\s+(this\s+|it\s+|that\s+|anything\s+)?"
+     r"(to\s+)?(the\s+)?users?\b(?!\s+(that\s+)?(they|you)\b|\s+to\b)|\bhide\s+(this|it|that|the\s+\w+)\s+from\s+the\s+user|\bthe\s+user\s+(must|should|will)"
+     r"\s*(not|n't|n’t|never)\s+(know|see|notice|find out)|" + NOT + r"\bsilently\s+(run|execute|install|download|send|upload|delete|post)",
      "asks the agent to hide what it does from the user", ANTHROPIC_SKILLS)
 
 
 OWASP_LLM06 = "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
 rule("disable-confirmation", "high",
-     r"\b(do not|don't|never|no need to|without)\s+(ask|wait|prompt|check)(ing)?\s+(the\s+user\s+)?(for\s+)?"
-     r"(permission|confirmation|approval|consent)|\bskip\s+(the\s+|all\s+|any\s+)?(confirmation|approval|permission)s?\b"
+     r"\b(do not|don['’]t|never|no need to|without)\s+(ask|wait|prompt|check)(ing)?\s+(the\s+user\s+)?(for\s+)?"
+     r"(permission|confirmation|approval|consent)|" + NOT + r"\bskip\s+(the\s+|all\s+|any\s+)?(confirmation|approval|permission)s?\b"
      r"|\bauto-?approve\s+(all|every|any)\b"
      r"|\b(the\s+user\s+has|you\s+have)\s+(already\s+(pre-?)?|pre-?)(approved|authori[sz]ed|consented)",
      "tells the agent to act without the user's approval, or claims approval was already given", OWASP_LLM06)
@@ -103,16 +120,17 @@ rule("permission-bypass-flag", "medium",
 
 ATTACK_CRED_FILES = "https://attack.mitre.org/techniques/T1552/001/"
 rule("secret-files", "medium",
-     r"(~|\$HOME|\$\{HOME\}|%USERPROFILE%)[/\\]\.ssh\b|\bid_(rsa|dsa|ecdsa|ed25519)\b|\.aws[/\\](credentials|config)\b"
+     r"(~|\$HOME|\$\{HOME\}|%USERPROFILE%)[/\\]\.ssh\b|\bid_(rsa|dsa|ecdsa|ed25519)\b(?!\.pub)|\.aws[/\\](credentials|config)\b"
      r"|\.(netrc|pypirc|npmrc|git-credentials)\b|\.docker[/\\]config\.json|\.kube[/\\]config\b|\.gnupg\b"
      r"|application_default_credentials\.json|gcloud[/\\]credentials|\.config[/\\]gh[/\\]hosts\.yml|\.azure[/\\]\w*token",
      "points at SSH keys or cloud and package-registry credentials; a skill rarely needs to read them", ATTACK_CRED_FILES)
 
 
-# Writing one ("copy .env.example to .env") is ordinary setup, so a ".env" right after "to" is skipped.
+# Writing one ("copy .env.example to .env", "cat > .env") is ordinary setup, so a .env that is the target is skipped.
 rule("env-file-read", "medium",
-     r"\b(cat|less|more|head|tail|type|read|print|dump|send|upload|post|copy|cp|scp|base64|xxd|curl)\b[^\n]{0,40}"
-     r"(?<![\w.-])(?<!to )\.env(?!\.(example|sample|template))(\.[\w-]+)?\b",
+     r"\b(cat|less|more|head|tail|type|read|print|dump|send|upload|post|copy|cp|scp|base64|xxd|curl)\b"
+     r"(?![^\n]{0,40}\.env\.(example|sample|template))[^\n]{0,40}"  # copying a template writes .env, it does not read it
+     r"(?<![\w.-])(?<!to )(?<!to `)(?<!>)(?<!> )\.env(?!\.(example|sample|template))(\.[\w-]+)?\b",
      "reads or sends a .env file, which usually holds API keys and passwords", ATTACK_CRED_FILES)
 
 
@@ -124,7 +142,7 @@ rule("credential-store", "high",
 
 
 rule("browser-data", "high",
-     r"\b(Login Data|Web Data|Local State)\b|\b(logins\.json|key[34]\.db|cookies\.sqlite)\b|Google[/\\]Chrome[/\\]"
+     r"[/\\](?-i:Login Data|Web Data|Local State)\b|\b(logins\.json|key[34]\.db|cookies\.sqlite)\b|Google[/\\]Chrome[/\\]"
      r"|Microsoft[/\\]Edge[/\\]User Data|BraveSoftware[/\\]|\.mozilla[/\\]firefox|Firefox[/\\]Profiles|Library[/\\]Cookies",
      "reaches into browser profiles, where saved passwords and session cookies live",
      "https://attack.mitre.org/techniques/T1555/003/")
@@ -133,35 +151,39 @@ rule("browser-data", "high",
 # Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
 # byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
 # scripts use them; add them if hidden payloads start using those.
-rule("hidden-unicode", "high", r"[​‪-‮⁠-⁤⁦-⁩\U000e0000-\U000e007f]|(?<!^)﻿",
+rule("hidden-unicode", "high", r"[\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\U000e0000-\U000e007f]|(?<!^)\ufeff",
      "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
 
 
 # Markdown hides HTML comments when rendered, so a reviewer reading the page never sees them; the agent does.
+# Keywords must stand alone: <!-- prettier-ignore --> and <!-- simplify-ignore-start --> are tool directives.
 rule("hidden-comment", "medium",
-     r"<!--(?:(?!-->).){0,2000}?\b(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
-     r"|assistant|you\s+(are|must|should)|curl|wget|base64)\b",
-     "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True)
+     r"<!--(?:(?!-->).){0,2000}?(?<![\w-])(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
+     r"|assistant|you\s+(are|must|should)|curl|wget|base64)(?![\w-])",
+     "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True,
+     only=r"\.(md|mdx|markdown|html?)$")
 
 
 rule("fake-authority", "high",
      r"\b(message|notice|instructions?|update|directive|order)\s+from\s+(anthropic|openai|the\s+system|the\s+(administrator|admin)"
      r"|your\s+(developers?|creators?|operators?))\b|\[\s*(system|admin|developer)\s*(message|override|notice|prompt)\s*\]"
      r"|</?system-reminder>|<\|im_start\|>|<\|(system|start_header_id)\|>",
-     "impersonates the system, the agent vendor or an administrator to gain authority over the agent", OWASP_LLM01)
+     "impersonates the system, the agent vendor or an administrator to gain authority over the agent", OWASP_LLM01,
+     unless=MENTIONED)
 
 
 # allowed-tools pre-approves tools for the turn that invokes the skill, whether or not the folder is trusted.
 BROAD_BASH = r"""(Bash["']?[ \t]*(,|$)|Bash\b(?![("'])|Bash\(\s*\*\s*\)|Bash\((curl|wget|sudo|rm|sh|bash|eval|python3?|node)\b)"""
 rule("broad-allowed-tools", "medium",
-     rf"(?m)^allowed-tools[ \t]*:[^\n]*?{BROAD_BASH}|^allowed-tools[ \t]*:[ \t]*\n(?:[ \t]+-[^\n]*\n)*?[ \t]+-[ \t]*[\"']?{BROAD_BASH}",
+     # on the key's line, or on the indented lines under it (a YAML list, or a folded > or literal | scalar)
+     rf"(?m)^allowed-tools[ \t]*:[^\n]*?{BROAD_BASH}|^allowed-tools[ \t]*:[ \t]*([>|][+-]?)?[ \t]*\r?\n(?:[ \t]+[^\n]*\n)*?[ \t]+[^\n]*?{BROAD_BASH}",
      "allowed-tools pre-approves any shell command, or a download, delete or interpreter command, without a prompt",
      "https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill", whole=True)
 
 
 rule("shell-at-load", "low", r"(^|\s)!`[^`]+`|^\s*```!",
      "runs a shell command while the skill loads, before the agent or the user sees the text; check what it runs",
-     "https://code.claude.com/docs/en/skills#inject-dynamic-context")
+     "https://code.claude.com/docs/en/skills#inject-dynamic-context", only=r"(^|[/\\])(SKILL\.md|commands[/\\][^/\\]+\.md)$")
 
 
 def _files(root: Path):
@@ -203,12 +225,13 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
         return []
     with path.open("rb") as fh:
         head = fh.read(8192)
-    if b"\0" in head:  # binary: images and fonts are normal, programs deserve a look
+    enc = "utf-16" if head[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8"  # PowerShell writes UTF-16 with a BOM
+    if enc == "utf-8" and b"\0" in head:  # binary: images and fonts are normal, programs deserve a look
         return [_flag("native-executable", path, head[:4].hex())] if head.startswith(NATIVE) else []
     if path.stat().st_size > MAX_TEXT_BYTES:
         return [_flag("unscanned-file", path, f"{path.stat().st_size} bytes")]
     data = path.read_bytes()
-    return audit_text(data.decode("utf-8", errors="replace"), str(path))
+    return audit_text(data.decode(enc, errors="replace"), str(path))
 
 
 def audit_paths(paths) -> list[Finding]:
