@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-29
+
+Follow-up fixes from the audit: sturdier user data, fairer keyword and trigger scoring, reviewed model profiles.
+
+### Changed
+- The Claude Opus 4.8 profile is verified against its full guide: effort xhigh for medium and large work and high for small (it inherited low/medium/high, below the guide's minimum), fewer subagents and a preference for reasoning over tool calls as traits, and notes on tool use, subagent fan-out and its fixed design house style.
+- The `generic` model profile keeps only advice from the general prompting guide it cites; two notes taken from the Claude Fable 5 guide ("give a recommendation instead of a survey", "point to the tool result that shows it") move to the `claude-fable-5` profile, so other models and agents no longer receive them.
+- Keyword routing no longer lets generic verbs decide a tie: "write a postmortem" targets learn, "write a data contract" specify and "write an ADR" plan. Symptoms (failing, broken, crash, hangs, debug) now beat build and release words, so "the deploy pipeline is failing" starts with debugging (operate). Topic words do not: alert, monitor, cost, and also error and `lỗi` ("add error handling", `lỗi chính tả`). "write tests" and "add a model with tests" stay build. Taxonomy phases may list `generic` and `symptoms` keywords, with `_i18n` blocks like `keywords`; `update` and `cập nhật` are new generic build verbs.
+- The `eval triggers` lexical proxy scores descriptions with BM25 without length normalization, so the core skills' long SKILL.md descriptions no longer lose to short registry descriptions for the same matches, and adding an adapter moves fewer scores. Tuning recall rises to 0.90–1.00 and holdout recall from 0.00–0.17 to 0.67–0.83; holdout precision falls to 0.56–0.71 because the core skills now reach the top 3 at all. The floors in `tests/test_evals.py` follow.
+
+### Fixed
+- `route --model` finds the profile for provider-prefixed ids such as Amazon Bedrock's `us.anthropic.claude-opus-5-5-v1:0` or a gateway's `anthropic/claude-opus-5-5`; they fell back to `generic`, dropping the model's step limit and notes.
+- `restore` unpacks beside the current state and swaps it in by renames, putting the old state back if anything fails (a full disk, a locked file); it used to delete the current files first and could leave a half-restored home, and restoring on a machine without `~/.open-skill` staged in the system temp folder, which fails when that is another drive.
+- `restore` (and `upgrade --rollback`) refuse, with exit 2 and nothing changed, when a folder in `~/.open-skill` is a link; they used to crash on it after deleting other files.
+- Backups (including the one taken before a migration) include notes in a linked folder, such as `knowledge/` pointing to a synced drive; they used to leave those notes out.
+- A backup interrupted by a full disk no longer leaves a partial archive in `backups/` that `upgrade --rollback` or `restore` would take for a whole one; archives are written under a temporary name and renamed when complete.
+- A read-only (or otherwise unwritable) `~/.open-skill` makes writes exit 1 with the path and the reason instead of a traceback, and `route` still prints its chain, warning that the route was not recorded.
+- When `~/.open-skill/knowledge` is a file, writes and `export` stop with exit 2 before changing anything; `learn` used to migrate and back up first, then crash, and `export` wrote an archive without notes.
+- A note whose frontmatter is not valid YAML no longer makes the data migration and seed sync fail on every write; the migration leaves it byte for byte as it is and says so.
+- A `profile.yaml` that is not valid YAML, or not a mapping, stops every command with exit 2 and the line at fault instead of a traceback; the file is left as it is.
+- A half-written last line in `events.jsonl` (a crash or a full disk mid-append) no longer breaks every route: damaged lines are skipped, and the next event starts on a line of its own instead of being glued to the broken one.
+- `validate` with a broken `profile.yaml` exits 2 like every other command, instead of counting it as a registry error.
+- CI checks: the privacy guard scans every tracked text file (including names with spaces or accents) and an allowed noreply address no longer clears the rest of its line; `check_versions` checks every pin, the READMEs too; revert pull request titles pass the title check; the oldest release's notes stop before the compare links; the wheel check requires every tracked data file and module.
+- taste-skill skills installed with `npx skills add`, which names each folder after its frontmatter `name` (`design-taste-frontend`, `minimalist-ui`, ...), are detected under their registry ids instead of being harvested as unknown skills. Adapter skills may set `installed_as` for such a folder name (SPEC §4.1, §4.2).
+
 ## [0.7.0] - 2026-09-29
 
 English-first and audited: the whole repository is written for an international audience with Vietnamese as a locale, every lint, audit and registry rule was checked against its source and real public skills, the core skills, adapters and role packs were reviewed against the CLI and upstream, every command is tested end to end, and the README is illustrated with generated diagrams and real terminal captures.
@@ -37,18 +62,6 @@ English-first and audited: the whole repository is written for an international 
 - `forget` accepts only note ids: an id such as `../../notes` used to delete `notes.md` outside `~/.open-skill/knowledge/`.
 - `upgrade` with nothing to do no longer makes a pre-upgrade backup and says "already up to date"; before, running it twice made `upgrade --rollback` restore the already-upgraded state.
 - `validate` reports malformed registry documents (a seed or skill without its id or name, `null` lists, a YAML syntax error, a top level that is a list) with the file and field instead of crashing, and catches what used to pass silently: a skill listed twice in one adapter, two files of one layer with the same id, model inheritance cycles, a detect rule naming an unknown agent, and a hand-off to a role without a pack. The duplicate seed error names the ids.
-- The Claude Opus 4.8 profile is verified against its full guide: effort xhigh for medium and large work and high for small (it inherited low/medium/high, below the guide's minimum), fewer subagents and a preference for reasoning over tool calls as traits, and notes on tool use, subagent fan-out and its fixed design house style.
-- The `generic` model profile keeps only advice from the general prompting guide it cites; two notes taken from the Claude Fable 5 guide ("give a recommendation instead of a survey", "point to the tool result that shows it") move to the `claude-fable-5` profile, so other models and agents no longer receive them.
-- `route --model` finds the profile for provider-prefixed ids such as Amazon Bedrock's `us.anthropic.claude-opus-5-5-v1:0` or a gateway's `anthropic/claude-opus-5-5`; they fell back to `generic`, dropping the model's step limit and notes.
-- `restore` unpacks beside the current state and swaps it in by renames, putting the old state back if anything fails (a full disk, a locked file); it used to delete the current files first and could leave a half-restored home, and restoring on a machine without `~/.open-skill` staged in the system temp folder, which fails when that is another drive.
-- `restore` (and `upgrade --rollback`) refuse, with exit 2 and nothing changed, when a folder in `~/.open-skill` is a link; they used to crash on it after deleting other files.
-- Backups (including the one taken before a migration) include notes in a linked folder, such as `knowledge/` pointing to a synced drive; they used to leave those notes out.
-- A backup interrupted by a full disk no longer leaves a partial archive in `backups/` that `upgrade --rollback` or `restore` would take for a whole one; archives are written under a temporary name and renamed when complete.
-- A read-only (or otherwise unwritable) `~/.open-skill` makes writes exit 1 with the path and the reason instead of a traceback, and `route` still prints its chain, warning that the route was not recorded.
-- When `~/.open-skill/knowledge` is a file, writes and `export` stop with exit 2 before changing anything; `learn` used to migrate and back up first, then crash, and `export` wrote an archive without notes.
-- A note whose frontmatter is not valid YAML no longer makes the data migration and seed sync fail on every write; the migration leaves it byte for byte as it is and says so.
-- A `profile.yaml` that is not valid YAML, or not a mapping, stops every command with exit 2 and the line at fault instead of a traceback; the file is left as it is.
-- A half-written last line in `events.jsonl` (a crash or a full disk mid-append) no longer breaks every route: damaged lines are skipped, and the next event starts on a line of its own instead of being glued to the broken one.
 - `audit`: false positives found by auditing five public skill repositories are gone (40 → 6 high findings), with every remaining one a literal match: "local state" and "web data" in prose are no longer browser data, quoted attack phrases in injection-defense guidance and `<system-reminder>` in backticks are not attacks, "never skip confirmation", "don't silently delete" and curly-apostrophe negations read as negations, `cp .env.example .env` and `cat > .env` are not secret reads, `<!-- prettier-ignore -->` is not a hidden instruction, hidden-comment only applies to Markdown and HTML, and shell-at-load only to SKILL.md and command files. UTF-16 files (PowerShell's default) are audited instead of skipped as binary, grants in folded `allowed-tools:` scalars are read, line numbers no longer drift after U+2028 or form feeds, and public `.pub` keys are not secret files.
 - `upgrade --dry-run` and `seeds --dry-run` say "would keep your edit … upstream wording would wait for review" and "would keep … no longer shipped upstream" instead of claiming they saved or kept something.
 - Seed sync no longer mistakes an untouched starter note for your edit when an editor re-saved it in decomposed Unicode (NFD, common on macOS); such notes follow new upstream wording again. Hashes of ordinary (NFC) text are unchanged.
@@ -74,10 +87,6 @@ English-first and audited: the whole repository is written for an international 
 - Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", and Vietnamese `không chạy`, `ngừng hoạt động`, `từ hôm qua` and more). Routing holdout: 23/52 → 36/52.
 - `export` on a fresh `~/.open-skill` no longer creates an empty `knowledge/` folder either, so it too cannot make the home look like an old layout.
 - `build --check` compares the search index `dist/index.db` row by row too; the shipped index had gone stale (it still folded `đ` the old way) without CI noticing, and is rebuilt.
-- Keyword routing no longer lets generic verbs decide a tie: "write a postmortem" targets learn, "write a data contract" specify and "write an ADR" plan. Symptoms (failing, broken, crash, hangs, debug) now beat build and release words, so "the deploy pipeline is failing" starts with debugging (operate). Topic words do not: alert, monitor, cost, and also error and `lỗi` ("add error handling", `lỗi chính tả`). "write tests" and "add a model with tests" stay build. Taxonomy phases may list `generic` and `symptoms` keywords, with `_i18n` blocks like `keywords`; `update` and `cập nhật` are new generic build verbs.
-### Fixed
-
-- The `eval triggers` lexical proxy scores descriptions with BM25 without length normalization, so the core skills' long SKILL.md descriptions no longer lose to short registry descriptions for the same matches, and adding an adapter moves fewer scores. Tuning recall rises to 0.90–1.00 and holdout recall from 0.00–0.17 to 0.67–0.83; holdout precision falls to 0.56–0.71 because the core skills now reach the top 3 at all. The floors in `tests/test_evals.py` follow.
 
 ## [0.6.0] - 2026-09-29
 
@@ -139,7 +148,6 @@ Multi-agent support, a security audit and graph explanations: install and scan s
 - `bmad-ticket`, `bmad-architecture` and `bmad-prd` handle medium tasks, so BMad projects plan sprints, architecture and PRDs with BMad instead of an unrelated BMad persona or a generic skill.
 - Technical writers review docs with code review instead of design critique outside BMad projects.
 - A later detect rule of the same adapter no longer claims a path an earlier rule already found, so a prefix rule such as `{skills}/vendor-{name}` does not add a duplicate inferred skill.
-- taste-skill skills installed with `npx skills add`, which names each folder after its frontmatter `name` (`design-taste-frontend`, `minimalist-ui`, ...), are detected under their registry ids instead of being harvested as unknown skills. Adapter skills may set `installed_as` for such a folder name (SPEC §4.1, §4.2).
 
 ## [0.5.0] - 2026-09-29
 
@@ -206,7 +214,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.4.0...v0.5.0
