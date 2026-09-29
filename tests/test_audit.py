@@ -368,3 +368,9 @@ def test_line_numbers_count_newlines_only(toy_rule, sep):
 
 def test_crlf_lines_keep_their_numbers(toy_rule):
     assert [f.line for f in audit.audit_text("ok\r\nok\r\ndanger\r\n") if f.rule == "toy"] == [3]
+
+
+def test_the_cli_source_has_no_invisible_characters():
+    # The hidden-unicode pattern itself was written with literal zero-width and bidi characters.
+    src = Path(audit.__file__).parent
+    assert [f for f in audit.audit_paths([src]) if f.rule == "hidden-unicode"] == []

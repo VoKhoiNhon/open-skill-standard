@@ -133,7 +133,7 @@ rule("browser-data", "high",
 # Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
 # byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
 # scripts use them; add them if hidden payloads start using those.
-rule("hidden-unicode", "high", r"[​‪-‮⁠-⁤⁦-⁩\U000e0000-\U000e007f]|(?<!^)﻿",
+rule("hidden-unicode", "high", r"[\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\U000e0000-\U000e007f]|(?<!^)\ufeff",
      "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
 
 
