@@ -69,5 +69,12 @@ def test_skill_filters_by_role_phase_and_source():
 
 
 def test_fold_tokenizes_like_the_index():
-    assert index.fold("Xuất hóa-đơn ra CSV, đang bị LỖI!") == "xuat hoa đon ra csv đang bi loi"
+    assert index.fold("Xuất hóa-đơn ra CSV, đang bị LỖI!") == "xuat hoa don ra csv dang bi loi"
     assert index.fold("pressure-test") == index.fold("pressure test") == "pressure test"
+
+
+def test_search_folds_d_with_stroke():
+    reg, _ = setup()
+    conn = index.build_index(reg, [Installed("harvested/x", "x", "/x", "xuất đơn hàng", True)])
+    assert [sid for sid, _ in index.search(conn, "don")] == ["harvested/x"]
+    assert [sid for sid, _ in index.search(conn, "đơn")] == ["harvested/x"]
