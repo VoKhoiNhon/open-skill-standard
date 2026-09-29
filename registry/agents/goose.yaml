@@ -1,0 +1,16 @@
+id: goose
+name: Goose
+docs: https://goose-docs.ai/docs/guides/context-engineering/using-skills/
+global:
+  - {path: "~/.agents/skills", source: "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"}
+  - {path: "~/.claude/skills", source: "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"}
+  - {path: "~/.config/goose/skills", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L382"}
+project:
+  - {path: ".agents/skills", source: "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"}
+  - {path: ".goose/skills", source: "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"}
+  - {path: ".claude/skills", source: "https://goose-docs.ai/docs/guides/context-engineering/using-skills/"}
+detect:
+  - {path: "~/.config/goose", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L384"}
+relocate:
+  - {var: XDG_CONFIG_HOME, replaces: "~/.config", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L9"}
+notes: Ask for a skill by name, or use /skills <name>. The docs recommend .agents/skills; .goose/skills and .claude/skills still load.
