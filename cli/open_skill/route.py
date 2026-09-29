@@ -15,13 +15,19 @@ MIN_SHARED_TERMS = 2  # a skill without a manifest must share this many meaningf
 KEEP_PRIORITY = ["build", "review", "verify", "plan", "specify", "operate", "research", "discover", "release", "learn"]
 
 
+def _words(text: str) -> str:
+    """Lowercase letters and digits, split like index.fold() but keeping accents."""
+    return " ".join(re.findall(r"[^\W_]+", text.lower()))
+
+
 def _positions(text: str, keywords: list[str]) -> list[int]:
-    """Start offsets of keyword matches (whole words; phrases as substrings)."""
-    low = text.lower()
+    """Start offsets of whole-word and phrase keyword matches, ignoring case and hyphens. Text typed without accents
+    is matched folded, as the index folds it; text with accents keeps them, since lời (words) is not lỗi (error)."""
+    form = _words if _words(text) != index.fold(text) else index.fold
+    words = form(text)
     out = []
     for k in keywords:
-        k = k.lower()
-        m = re.search(re.escape(k) if (" " in k or "-" in k) else rf"(?<!\w){re.escape(k)}(?!\w)", low)
+        m = re.search(rf"(?<!\S){re.escape(form(k))}(?!\S)", words) if form(k) else None
         if m:
             out.append(m.start())
     return out

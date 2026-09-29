@@ -211,7 +211,7 @@ def test_routing_holdout_is_separate_from_the_tuned_cases():
 
 # The held-out routing cases gate only on a floor just below the measured pass rate: a routing change that loses
 # held-out cases fails, but no single case must pass. Raise the floor when the score goes up; never lower it silently.
-HOLDOUT_ROUTING_FLOOR = 0.42  # measured 23/52 = 0.442
+HOLDOUT_ROUTING_FLOOR = 0.67  # measured 36/52 = 0.692 (was 23/52 before keyword folding and symptom words)
 
 
 def test_routing_holdout_meets_floor():

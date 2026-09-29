@@ -201,3 +201,42 @@ def test_phase_without_any_signal_is_reported_as_a_guess(tmp_path):
     assert (r["target_phase"], r["phase_from"]) == ("build", "guessed")  # build stays the fallback
     assert route.route("add an export endpoint", p, REG, ALL)["phase_from"] == "keywords"
     assert route.route("add an export endpoint", p, REG, ALL, phase="build")["phase_from"] == "given"
+
+
+def test_phase_and_size_keywords_match_without_diacritics():
+    tax = REG.taxonomy
+    assert route.target_phase("xuat hoa don ra CSV bi loi", tax) == "operate"
+    assert route.target_phase("xuất hóa đơn ra CSV đang bị LỖI", tax) == "operate"
+    assert route.task_size("doi ten bien total", tax, None) == "small"
+    assert route.target_phase("the prefix is wrong in the reviewer list", tax) == "build"  # whole words only
+    assert route._matched("page the on call engineer", ["on-call", "call"]) == ["on-call", "call"]
+
+
+def test_accents_the_user_typed_still_tell_words_apart():
+    tax = REG.taxonomy
+    assert route.task_size("rò rỉ bộ nhớ khi tải ảnh", tax, None) == "medium"  # nhớ (memory) is not nhỏ (small)
+    assert route._matched("thêm lời chào cho trang chủ", ["lỗi"]) == []  # lời (words) is not lỗi (error)
+    assert route._matched("vang khi mo camera", ["văng"]) == ["văng"]  # typed without accents: fold
+    assert route.task_size("doi ten ham get_user thanh load_user", tax, None) == "small"  # _ splits words
+
+
+@pytest.mark.parametrize("task", [
+    "the search page got slower after the upgrade",
+    "report export stopped working this morning",
+    "the webhook times out on large payloads",
+    "invoice API returns nothing for new accounts",
+    "p95 latency regressed after the cache change",
+    "trang báo cáo không chạy nữa",
+    "trang bao cao khong chay nua",
+    "đồng bộ đơn hàng ngừng hoạt động từ hôm qua",
+])
+def test_symptoms_without_a_bug_word_are_operate(task):
+    assert route.target_phase(task, REG.taxonomy) == "operate"
+
+
+@pytest.mark.parametrize("task, phase", [
+    ("add a timeout to the HTTP client", "build"),  # a symptom word in a build request
+    ("fit a linear regression on weekly sales", "build"),  # regression the model, not the bug
+])
+def test_symptom_words_do_not_take_over_build_requests(task, phase):
+    assert route.target_phase(task, REG.taxonomy) == phase

@@ -1,5 +1,6 @@
 """SQLite FTS5 search index and graph exports."""
 
+import functools
 import re
 import sqlite3
 
@@ -8,6 +9,31 @@ STOP = set("""a an the to of in on for and or not is it this that these those wi
 my our your we i you me us please can could should would will how what why when where which who do does did
 make get use using need want just also some any all new one
 và của cho là có các những một này đó với được trong không thì mà để khi như nào gì bị""".split())
+
+TOKENIZE = "unicode61 remove_diacritics 2"  # lowercase, split on non-alphanumerics, drop accents: "Lỗi" → "loi"
+
+
+def _dd(text: str) -> str:
+    """đ is a letter of its own to the tokenizer, but people typing Vietnamese without accents write d."""
+    return text.replace("đ", "d").replace("Đ", "D")
+
+
+@functools.lru_cache(maxsize=1)
+def _fold_table() -> sqlite3.Connection:
+    conn = sqlite3.connect(":memory:")
+    conn.execute(f"CREATE VIRTUAL TABLE f USING fts5(x, tokenize='{TOKENIZE}')")
+    conn.execute("CREATE VIRTUAL TABLE fv USING fts5vocab(f, instance)")
+    return conn
+
+
+@functools.lru_cache(maxsize=8192)
+def fold(text: str) -> str:
+    """The words of `text` as the index sees them, joined by single spaces, so keyword matching folds like search."""
+    conn = _fold_table()
+    rowid = conn.execute("INSERT INTO f(x) VALUES (?)", (_dd(text),)).lastrowid
+    words = [t for (t,) in conn.execute("SELECT term FROM fv WHERE doc = ? ORDER BY offset", (rowid,))]
+    conn.execute("DELETE FROM f WHERE rowid = ?", (rowid,))
+    return " ".join(words)
 
 
 def _doc(sid: str, s: dict) -> str:
@@ -21,17 +47,17 @@ def _doc(sid: str, s: dict) -> str:
 def build_index(reg, installed=(), path: str = ":memory:") -> sqlite3.Connection:
     """FTS5 index over registry skills plus installed skills without a manifest (in memory by default)."""
     conn = sqlite3.connect(path)
-    conn.execute("CREATE VIRTUAL TABLE skills USING fts5(id UNINDEXED, text, tokenize='unicode61 remove_diacritics 2')")
+    conn.execute(f"CREATE VIRTUAL TABLE skills USING fts5(id UNINDEXED, text, tokenize='{TOKENIZE}')")
     rows = [(sid, _doc(sid, s)) for sid, s in reg.skills.items()]
     rows += [(i.id, f"{i.invoke.replace('-', ' ')} {i.description}") for i in installed if i.id not in reg.skills]
-    conn.executemany("INSERT INTO skills VALUES (?, ?)", rows)
+    conn.executemany("INSERT INTO skills VALUES (?, ?)", [(sid, _dd(text)) for sid, text in rows])
     conn.commit()
     return conn
 
 
 def search(conn: sqlite3.Connection, query: str, limit: int = 10) -> list[tuple[str, float]]:
     """(skill id, relevance > 0), best first. Every token is quoted, so user text can't break FTS syntax."""
-    tokens = [t for t in TOKEN.findall(query.lower()) if t not in STOP and t != "near"]
+    tokens = [_dd(t) for t in TOKEN.findall(query.lower()) if t not in STOP and t != "near"]
     if not tokens:
         return []
     q = " OR ".join(f'"{t}"' for t in dict.fromkeys(tokens))
