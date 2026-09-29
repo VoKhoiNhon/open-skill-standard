@@ -2,7 +2,9 @@
 
 **Một router, một skill graph, 28 vai trò IT.** Đây là một chuẩn mở, không phụ thuộc agent, để chọn đúng Agent Skill cho từng việc. Repo kèm bản triển khai tham chiếu, nối các bộ superpowers, BMad Method, spec-kit, codegraph, skill của Anthropic và nhiều nguồn khác mà không sao chép nội dung của bộ nào.
 
-[English](README.md) · [Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
+[English](README.md) · **Tiếng Việt**
+
+[Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
 
 ## Vì sao cần
 
