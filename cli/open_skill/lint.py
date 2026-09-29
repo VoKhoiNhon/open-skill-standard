@@ -14,17 +14,17 @@ SPEC = "https://agentskills.io/specification"
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
 
 PATTERNS = [
-    ("reasoning-in-response",
+    ("reasoning-in-response", "error",
      re.compile(r"(?i)(show|write out|reproduce|explain|include|output) (all |your |the )?(reasoning|thinking|chain[- ]of[- ]thought)"
                 r"( process)?( in| into)? (the |your )?(response|answer|reply|output)|think step[- ]by[- ]step (in|and write)"),
      "Asking the model to reproduce its reasoning in the reply can be declined as reasoning_extraction.", FABLE5),
-    ("redundant-verification",
+    ("redundant-verification", "warning",
      re.compile(r"(?i)\b(double[- ]check your|re-?verify (your|before)|verify (it|your work) again)"),
      "Current models self-verify; extra verification instructions cause over-verification.", OPUS5),
-    ("hardcoded-model",
+    ("hardcoded-model", "warning",
      re.compile(r"(?i)\bclaude-(opus|sonnet|haiku|fable|mythos)-\d"),
      "Model IDs belong in registry/models profiles, not in skills.", PRACTICES),
-    ("legacy-params",
+    ("legacy-params", "error",
      re.compile(r"(?i)\b(budget_tokens|temperature\s*[=:]|prefill(ed)? (the )?(assistant|response))"),
      "budget_tokens, temperature and prefills are removed or rejected on current models.", PRACTICES),
 ]
@@ -39,12 +39,46 @@ NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # no leading, trailing or dou
 
 
 # Errors break skills on some agent or model; warnings are strong advice.
-SEVERITY = {
-    "field-allowed-tools": "warning", "field-license": "warning", "unknown-field": "warning", "body-tokens": "warning",
-    "frontmatter-name": "error", "frontmatter-description": "error", "reasoning-in-response": "error",
-    "legacy-params": "error", "length": "warning", "redundant-verification": "warning",
-    "hardcoded-model": "warning", "review-filtering": "warning", "shouting": "warning",
-}
+@dataclass(frozen=True)
+class Rule:
+    id: str
+    severity: str
+    checks: str  # what the rule looks for, as the rule catalog shows it
+    source: str  # the public guidance the rule comes from
+
+
+RULES: dict[str, Rule] = {}
+
+
+def rule(id: str, severity: str, checks: str, source: str) -> None:
+    assert severity in ("error", "warning") and id not in RULES, id
+    RULES[id] = Rule(id, severity, checks, source)
+
+
+MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+rule("frontmatter-name", "error", "`name` is present, 1-64 lowercase letters, digits and single hyphens, and not 'claude' or 'anthropic'", BEST)
+rule("name-matches-folder", "error", "`name` equals the name of the folder holding SKILL.md", SPEC)
+rule("frontmatter-description", "error", "`description` is present, at most 1024 characters, with no angle brackets", BEST)
+rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or a documented agent extension", SPEC)
+rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
+rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
+rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
+rule("field-license", "warning", "`license`, when present, is a string", SPEC)
+rule("body-tokens", "warning", "the SKILL.md body is under about 5000 tokens", SPEC)
+rule("length", "warning", "SKILL.md is under 500 lines", BEST)
+for _id, _sev, _rx, _msg, _src in PATTERNS:
+    rule(_id, _sev, _msg, _src)
+rule("review-filtering", "warning", "a review skill does not tell the model to report only severe findings", SONNET5)
+rule("shouting", "warning", "no more than five lines use capitalized MUST, NEVER, ALWAYS, CRITICAL or IMPORTANT", FABLE5)
+rule("missing-reference", "error", "every relative file the body links to or names exists", SPEC)
+rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
+rule("marketplace-field", "error", "marketplace.json has `name`, `owner` and `plugins`", MARKETPLACE_DOCS)
+rule("marketplace-plugin", "error", "every marketplace plugin entry has `name` and `source`", MARKETPLACE_DOCS)
+rule("marketplace-source", "error", "a relative plugin `source` does not leave the marketplace with `..`", MARKETPLACE_DOCS)
+rule("marketplace-name", "warning", "the marketplace name does not look like an official Anthropic marketplace", MARKETPLACE_DOCS)
+rule("plugin-name", "error", "plugin.json `name` is kebab-case", MARKETPLACE_DOCS)
+rule("plugin-version", "error", "plugin.json `version`, when present, is semantic (x.y.z)", MARKETPLACE_DOCS)
+rule("plugin-description", "warning", "plugin.json has a `description`", MARKETPLACE_DOCS)
 
 
 @dataclass
@@ -56,12 +90,17 @@ class Finding:
     severity: str = "error"
 
 
+def _finding(path, rule_id: str, message: str, source: str | None = None) -> Finding:
+    r = RULES[rule_id]
+    return Finding(str(path), rule_id, message, source or r.source, r.severity)
+
+
 def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
     out: list[Finding] = []
     meta, body = frontmatter.parse(text)
 
-    def add(rule, msg, src):
-        out.append(Finding(path, rule, msg, src, SEVERITY.get(rule, "error")))
+    def add(rule_id, msg, src=None):
+        out.append(_finding(path, rule_id, msg, src))
 
     name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
     if not name:
@@ -91,9 +130,9 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
         add("body-tokens", f"instructions are about {len(body) // 4} tokens; keep SKILL.md under ~5000 and move detail to references/", SPEC)
     if text.count("\n") + 1 > 500:
         add("length", "SKILL.md over 500 lines; move detail into reference files", BEST)
-    for rule, rx, msg, src in PATTERNS:
+    for rule_id, _, rx, msg, _ in PATTERNS:
         if rx.search(body):
-            add(rule, msg, src)
+            add(rule_id, msg)
     if re.search(r"(?i)review", name + " " + desc) and REVIEW_FILTER.search(body):
         add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.", SONNET5)
     if sum(1 for line in body.splitlines() if SHOUT.search(line)) > 5:
@@ -122,7 +161,7 @@ def lint_file(path: Path) -> list[Finding]:
     text = path.read_text(errors="replace")
     out = lint_text(text, str(path), folder)
     for ref in missing_references(frontmatter.parse(text)[1], path.parent):
-        out.append(Finding(str(path), "missing-reference", f"references '{ref}', which does not exist", SPEC))
+        out.append(_finding(path, "missing-reference", f"references '{ref}', which does not exist"))
     return out
 
 
@@ -146,9 +185,6 @@ def lint_paths(paths) -> list[Finding]:
     return out
 
 
-MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
-
-
 def lint_marketplace(path: Path) -> list[Finding]:
     """Required fields of .claude-plugin/marketplace.json, as the Claude Code validator checks them."""
     import json
@@ -156,8 +192,8 @@ def lint_marketplace(path: Path) -> list[Finding]:
     path = Path(path)
     out: list[Finding] = []
 
-    def add(rule, msg, sev="error"):
-        out.append(Finding(str(path), rule, msg, MARKETPLACE_DOCS, sev))
+    def add(rule_id, msg):
+        out.append(_finding(path, rule_id, msg))
 
     try:
         doc = json.loads(path.read_text())
@@ -176,7 +212,7 @@ def lint_marketplace(path: Path) -> list[Finding]:
             add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
     name = str(doc.get("name", "")).lower()
     if any(w in name for w in ("anthropic", "claude-plugins-official", "official")):
-        add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace", "warning")
+        add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace")
     return out
 
 
@@ -191,15 +227,14 @@ def lint_plugin(path: Path) -> list[Finding]:
     try:
         doc = json.loads(path.read_text())
     except json.JSONDecodeError as e:
-        return [Finding(str(path), "manifest-json", f"invalid JSON: {e}", MARKETPLACE_DOCS)]
+        return [_finding(path, "manifest-json", f"invalid JSON: {e}")]
     out = []
     if not NAME_RX.match(str(doc.get("name", ""))):
-        out.append(Finding(str(path), "plugin-name", "plugin name must be kebab-case", MARKETPLACE_DOCS))
+        out.append(_finding(path, "plugin-name", "plugin name must be kebab-case"))
     if "version" in doc and not SEMVER.match(str(doc["version"])):
-        out.append(Finding(str(path), "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)", MARKETPLACE_DOCS))
+        out.append(_finding(path, "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)"))
     if not doc.get("description"):
-        out.append(Finding(str(path), "plugin-description", "add a description so people know what the plugin does",
-                           MARKETPLACE_DOCS, "warning"))
+        out.append(_finding(path, "plugin-description", "add a description so people know what the plugin does"))
     return out
 
 

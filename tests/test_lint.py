@@ -167,3 +167,19 @@ def test_health_groups_findings_by_source(tmp_path):
                  Installed("claude-code-builtin/code-review", "code-review", "builtin:CLAUDECODE", "", False)]
     report = lint.health(installed)
     assert report == {"pack": {"skills": 2, "errors": 1, "warnings": 0, "worst": ["bad: name-matches-folder"]}}
+
+
+def test_every_rule_has_one_severity_and_a_public_source():
+    for r in lint.RULES.values():
+        assert r.severity in ("error", "warning") and r.source.startswith("https://") and r.checks, r.id
+
+
+def test_findings_take_severity_from_the_rule_table(tmp_path):
+    # name-matches-folder and missing-reference used to fall back to "error" because SEVERITY did not list them.
+    d = tmp_path / "other"
+    d.mkdir()
+    (d / "SKILL.md").write_text(doc("[gone](references/gone.md) Double-check your work. " + "MUST x\n" * 6))
+    found = lint.lint_file(d / "SKILL.md")
+    assert {f.rule for f in found} >= {"name-matches-folder", "missing-reference", "redundant-verification", "shouting"}
+    for f in found:
+        assert f.severity == lint.RULES[f.rule].severity, f.rule
