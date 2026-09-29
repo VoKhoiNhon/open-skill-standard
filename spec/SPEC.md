@@ -55,7 +55,7 @@ skills:
     triggers_i18n: {es: [depurar, "causa raíz"]}
 ```
 
-`en` and its subtags are not valid block keys. Implementations MUST treat a field as its English list plus every block, so a new language needs only new blocks: no code change, no change to the English lists. The generated schemas reject a misspelled block name or a malformed tag. Search matches whole words, so for languages written without spaces between words, triggers help less than keywords do. To add a language, add its blocks, then add routing cases in that language to `evals/routing.yaml` and the holdout.
+`en` and its subtags are not valid block keys. Implementations MUST treat a field as its English list plus every block, so a new language needs only new blocks: no code change, no change to the English lists. The generated schemas reject a misspelled block name or a malformed tag. Search matches whole words, so for languages written without spaces between words, triggers help less than keywords do. To add a language, add its blocks, then add routing cases in that language to `evals/routing.yaml` and the holdout, and trigger queries with `locale: <tag>` to `evals/triggers/`. Skill descriptions stay English; agents read them, and the registry's blocks carry the other languages.
 
 ## 4. Documents
 

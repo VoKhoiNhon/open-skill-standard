@@ -54,6 +54,8 @@ Skills in `skills/` must pass `open-skill lint`. Keep them model-neutral: say wh
 
 A skill's `description` decides when agents load it. To change one, run `uv run open-skill eval triggers --suggest` before and after, tune against the failures it lists (tuning queries only), and never against queries marked `holdout: true`. Look for the concept a group of misses shares instead of pasting their words in. Put the before and after holdout precision and recall in the commit message, and raise the per-skill floors in `tests/test_evals.py` when scores go up.
 
+Descriptions are English only. Queries in another language carry `locale: <tag>` and are reported as a slice per language (floors in `LOCALE_FLOORS`); for them the proxy also reads each skill's `triggers_i18n` for that language, since it cannot translate. When a slice drops, improve the English wording or the locale block in the registry, never the description with words in that language.
+
 ## Releases
 
 See [RELEASING.md](RELEASING.md).
