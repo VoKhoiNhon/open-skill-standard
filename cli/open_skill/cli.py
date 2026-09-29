@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, evals, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -325,6 +325,22 @@ def cmd_status(args):
     return 0
 
 
+def cmd_eval(args):
+    reg = _registry(args)
+    cases = evals.load_routing_cases(Path(args.cases) if args.cases else None)
+    rep = evals.routing_report(cases, reg, evals.all_installed(reg))
+    if args.format == "json":
+        _print(rep)
+    else:
+        for role, row in rep["by_role"].items():
+            print(f"{role:30} {row['passed']}/{row['cases']}")
+        for r in rep["results"]:
+            for f in r["failures"]:
+                print(f"FAIL {r['id']}: {f}")
+        print(f"{rep['passed']}/{rep['cases']} passed ({rep['pass_rate']:.0%})")
+    return 0 if rep["passed"] == rep["cases"] else 1
+
+
 def _upstream_skills(src_dir: Path) -> dict[str, str]:
     found = {}
     for p in sorted(Path(src_dir).rglob("SKILL.md")):
@@ -440,6 +456,11 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("status", help="versions of the CLI and your data, and anything waiting for you")
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_status)
+    s = sub.add_parser("eval", help="measure routing quality against labeled cases")
+    s.add_argument("kind", choices=["routing"])
+    s.add_argument("--cases", help="YAML file with cases (default: the bundled evals/routing.yaml)")
+    s.add_argument("--format", choices=["text", "json"], default="text")
+    s.set_defaults(fn=cmd_eval)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
     s.add_argument("action", choices=["draft", "check"])
     s.add_argument("--source", required=True)

@@ -10,6 +10,7 @@ REQUIRED = [
     "open_skill/_data/registry/models/generic.yaml",
     "open_skill/_data/registry/adapters/superpowers.yaml",
     "open_skill/_data/skills/open-skill-router/SKILL.md",
+    "open_skill/_data/evals/routing.yaml",
 ]
 
 
