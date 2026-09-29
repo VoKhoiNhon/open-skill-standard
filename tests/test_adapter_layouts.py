@@ -65,5 +65,17 @@ def test_bug_each_anthropic_plugin_claims_only_its_own_skills(found):
     assert found["anthropic-skills/xlsx"].agents["claude-code"] == "document-skills:xlsx"
 
 
+def test_bug_codegraph_counts_as_installed_when_its_cli_is_on_path(monkeypatch):
+    # codegraph is a CLI and MCP server with no skill folder, and its adapter had no way to be detected, so its
+    # tools were never placed in a route even in a project with .codegraph/.
+    monkeypatch.setenv("HOME", str(LAYOUTS / "home"))
+    monkeypatch.setenv("PATH", str(LAYOUTS / "bin"))
+    got = {i.id: i for i in scan.scan(REG)}
+    assert got["codegraph/impact"].invoke == "codegraph impact"
+    assert set(got["codegraph/impact"].agents) == set(REG.agents)
+    monkeypatch.setenv("PATH", "")
+    assert "codegraph/impact" not in {i.id for i in scan.scan(REG)}
+
+
 def test_every_adapter_with_detect_rules_has_a_layout_case():
     assert {src for src, a in REG.adapters.items() if a.get("detect")} <= {sid.split("/")[0] for sid, _, _ in CASES}

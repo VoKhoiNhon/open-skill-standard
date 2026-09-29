@@ -72,6 +72,7 @@ def adapter_schema(tax: dict) -> dict:
             "tested_version": {"type": ["string", "null"]},
             "summary": {"type": "string"},
             "available_env": {"type": "string", "description": "skills count as installed when this env var is set"},
+            "available_cmd": {"type": "string", "description": "skills count as installed, for every agent, when this command is on PATH"},
             "install": {"type": "object", "additionalProperties": {"type": "string"}},
             "detect": _arr(
                 {

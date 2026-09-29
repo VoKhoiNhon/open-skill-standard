@@ -2,6 +2,7 @@
 
 import os
 import re
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -123,6 +124,11 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
             for s in adapter.get("skills", []):
                 sid, inv = f"{src}/{s['name']}", s.get("invoke", s["name"])
                 _add(found, sid, Installed(sid, inv, f"builtin:{env}", s.get("description", ""), False), [DEFAULT_AGENT])
+        cmd = adapter.get("available_cmd")
+        if cmd and shutil.which(cmd):  # a CLI every agent can run, such as a code graph
+            for s in adapter.get("skills", []):
+                sid, inv = f"{src}/{s['name']}", s.get("invoke", s["name"])
+                _add(found, sid, Installed(sid, inv, f"command:{cmd}", s.get("description", ""), False), list(reg.agents))
     taken = {(a, inv) for i in found.values() for a, inv in i.agents.items()}
     for pattern in GENERIC:
         for pat, seen_by in _targets(pattern, project, reg, DEFAULT_AGENT):

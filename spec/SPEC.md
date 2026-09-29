@@ -71,7 +71,7 @@ Skill identifiers are `<source>/<name>`.
 
 `requires` entries take the forms `tool:<name>`, `skill:<id>`, or `project:<relative path>`. A skill whose `project:` requirement is not met MUST NOT be placed in a route; it MAY be reported as missing with an install hint.
 
-`available_env` names an environment variable whose presence makes every skill of the adapter count as installed (for skills built into an agent).
+`available_env` names an environment variable whose presence makes every skill of the adapter count as installed (for skills built into an agent). `available_cmd` names a command whose presence on `PATH` makes every skill of the adapter count as installed for every agent (for tools such as a code graph CLI); a skill's `invoke` then says how to call it.
 
 ### 4.2 Detect rules
 

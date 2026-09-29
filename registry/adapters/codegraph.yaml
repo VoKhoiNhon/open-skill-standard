@@ -6,10 +6,12 @@ summary: Local code knowledge graph (MCP tool + CLI) - symbols, call paths, blas
 install:
   cli: "npm i -g @colbymchenry/codegraph && codegraph install"
   project-init: "codegraph init"
+available_cmd: codegraph
 portability: [claude-code, codex, cursor, copilot, gemini]
 skills:
   - name: explore
     kind: tool
+    invoke: "codegraph explore"
     description: Answer how code works, trace flows and read symbols with call paths (MCP codegraph_explore)
     phases: [research, review]
     requires: ["project:.codegraph"]
@@ -17,6 +19,7 @@ skills:
     triggers: ["how does", "where is", trace, callers, "call path"]
   - name: impact
     kind: tool
+    invoke: "codegraph impact"
     description: Blast radius of changing a symbol (codegraph impact)
     phases: [plan, review]
     requires: ["project:.codegraph"]
@@ -25,6 +28,7 @@ skills:
     triggers_i18n: {vi: [ảnh hưởng]}
   - name: affected
     kind: tool
+    invoke: "codegraph affected"
     description: Test files affected by changed source files (codegraph affected)
     phases: [verify]
     requires: ["project:.codegraph"]
