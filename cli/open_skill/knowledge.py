@@ -290,7 +290,9 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
                     _save(p, m, text + "\n")
             elif m.get("seed_hash") != userdata.text_hash(text) and m.get("acknowledged_upstream") != userdata.text_hash(text):
                 # The user edited it and upstream changed too: keep theirs, park upstream's next to it (like .dpkg-new).
-                actions.append(f"kept your edit of {sid}; upstream wording saved for review (open-skill seeds diff {sid})")
+                actions.append(f"would keep your edit of {sid}; upstream wording would wait for review "
+                               f"(open-skill seeds diff {sid})" if dry_run else
+                               f"kept your edit of {sid}; upstream wording saved for review (open-skill seeds diff {sid})")
                 if not dry_run:
                     userdata.atomic_write(_proposal_path(sid), f"---\nseed_id: {sid}\nupstream_hash: {userdata.text_hash(text)}\n---\n{text}\n")
         shipped_ids = {f"{role}/{s['id']}" for s in shipped if s["id"]}
@@ -299,7 +301,7 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
             if not sid.startswith(f"{role}/"):
                 continue
             if sid not in shipped_ids and not m.get("retired"):  # report once, then remember
-                actions.append(f"kept {sid}: no longer shipped upstream")
+                actions.append(f"{'would keep' if dry_run else 'kept'} {sid}: no longer shipped upstream")
                 if not dry_run:
                     m["retired"] = True
                     _save(p, m, b)
