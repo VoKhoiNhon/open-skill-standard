@@ -240,3 +240,11 @@ def test_symptoms_without_a_bug_word_are_operate(task):
 ])
 def test_symptom_words_do_not_take_over_build_requests(task, phase):
     assert route.target_phase(task, REG.taxonomy) == phase
+
+
+def test_a_strong_text_match_is_not_held_back_by_a_missing_role_prior():
+    no_text_primary = route.fit(route.PRIMARY, 0)
+    assert route.fit(route.UNLISTED, 13) > no_text_primary  # a request naming what the skill is for
+    assert route.fit(route.UNLISTED, 6.5) < no_text_primary  # a typical best match does not beat the role
+    assert route.fit(0.6, 10) < no_text_primary
+    assert route.fit(route.PRIMARY, 5) == pytest.approx(2 * (1 + 3 * 5 / 9))  # the role-weighted fit is unchanged

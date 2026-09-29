@@ -11,6 +11,7 @@ TOKEN = re.compile(r"\w+", re.UNICODE)
 PRIMARY, ALTERNATIVE, UNLISTED = 2.0, 0.7, 0.2
 UNKNOWN_ROLE, UNKNOWN_ROLE_HARVESTED = 0.3, 0.5  # no role data: generic registry skill vs. local skill
 INFERRED_FACTOR, MIN_SCORE, ASK_MARGIN, FLOW_BONUS = 0.8, 0.35, 0.10, 1.25
+TEXT_ALONE = 6.0  # BM25 per point of fit that text earns without any role prior; see fit()
 MIN_SHARED_TERMS = 2  # a skill without a manifest must share this many meaningful words with the task
 KEEP_PRIORITY = ["build", "review", "verify", "plan", "specify", "operate", "research", "discover", "release", "learn"]
 
@@ -43,6 +44,18 @@ def _terms(text: str) -> set[str]:
 
 def _matched(text: str, keywords: list[str]) -> list[str]:
     return [k for k in keywords if _positions(text, [k])]
+
+
+def _text(s: float) -> float:
+    return 1 + 3 * s / (s + 4)  # saturating: at most 4x
+
+
+def fit(prior: float, s: float) -> float:
+    """How well a skill fits a phase of this task, from its role prior and its text relevance s (BM25, >= 0): the
+    better of the role-weighted fit, prior x (1 + 3s/(s+4)), and text alone, s / TEXT_ALONE. The role prior can lift
+    a skill but not hold back a strong text match: BM25 12, the top tenth of best matches, equals a primary skill
+    with no text match."""
+    return max(prior * _text(s), s / TEXT_ALONE)
 
 
 def _phase_order(tax) -> list[str]:
@@ -205,12 +218,13 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                 continue
             prior, note = role_prior(sid, phase, manifest)
             s = hits.get(sid, 0.0)
-            rel = 1 + 3 * s / (s + 4)  # saturating: strong text matches help, but cannot outweigh role and phase
             personal = weights.get(sid, 0.0)
             native = bool(manifest and proj["native"] and manifest["source"] == proj["native"])
             flow = bool(manifest and set(manifest.get("consumes", [])) & available)
-            score = rel * prior * (1 + personal) * (INFERRED_FACTOR if inst.inferred else 1.0) * (FLOW_BONUS if flow else 1.0)
-            why = [f"phase {phase}", f"role prior {prior:.2f}" + (f" ({note})" if note else ""), f"text {rel:.2f}"]
+            score = fit(prior, s) * (1 + personal) * (INFERRED_FACTOR if inst.inferred else 1.0) * (FLOW_BONUS if flow else 1.0)
+            why = [f"phase {phase}", f"role prior {prior:.2f}" + (f" ({note})" if note else ""), f"text {_text(s):.2f}"]
+            if s / TEXT_ALONE > prior * _text(s):
+                why.append(f"strong text match {s / TEXT_ALONE:.2f} outweighs the role prior")
             if personal:
                 why.append(f"your history {personal:+.2f}")
             if native:

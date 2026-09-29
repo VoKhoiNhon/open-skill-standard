@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `evals/routing-holdout.yaml`: 52 held-out routing cases (paraphrased and messy requests across 23 roles, English and Vietnamese with and without accents) that routing is never tuned on. `eval routing` reports in-sample and holdout scores apart (baseline 23/52); only in-sample failures change the exit code, and CI keeps the holdout above a floor. Routing cases gain `first_phase` and `include_any` assertions.
 
 ### Changed
+- Routing score: a skill's fit is now the better of role prior × saturating text relevance and text alone (BM25 / 6), instead of the product only, so a skill outside the role pack that the request clearly names (BM25 12 or more) can beat a primary with no text match; typical matches rank as before (SPEC §6.5). `--explain` marks steps that won on text alone. In-sample routing evals stay at 100%; the holdout is unchanged.
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
