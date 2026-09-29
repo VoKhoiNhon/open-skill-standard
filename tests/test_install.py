@@ -181,3 +181,23 @@ def test_remove_never_follows_a_link_out_of_the_skill(reg, tmp_path):
     (p.dest / "sub").symlink_to(elsewhere, target_is_directory=True)
     removed, _ = install.remove(p.dest)
     assert "sub/x.md" not in removed and (elsewhere / "x.md").exists()
+
+
+
+def test_remove_symlink_install(reg, tmp_path):
+    src = install.resolve_source(str(skill(tmp_path / "src/linky", "linky")))
+    p = install.plan(src, reg.agents["codex"], mode="symlink")
+    install.apply(p)
+    assert install.remove(p.dest) == (["linky"], [])
+    assert not p.dest.is_symlink() and (src.path / "SKILL.md").exists()  # the link goes, its target stays
+
+
+def test_repointed_symlink_is_kept(reg, tmp_path):
+    src = install.resolve_source(str(skill(tmp_path / "src/linky", "linky")))
+    p = install.plan(src, reg.agents["codex"], mode="symlink")
+    install.apply(p)
+    p.dest.unlink()
+    other = skill(tmp_path / "other/linky", "linky")
+    p.dest.symlink_to(other, target_is_directory=True)  # the user pointed it elsewhere
+    assert install.remove(p.dest) == ([], ["linky"])
+    assert p.dest.is_symlink() and (other / "SKILL.md").exists()

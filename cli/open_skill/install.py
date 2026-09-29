@@ -143,6 +143,13 @@ def remove(dest: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
     rec = record_for(dest)
     if rec is None:
         raise LookupError(f"{dest} was not installed by open-skill; nothing removed")
+    if rec["mode"] == "symlink":
+        ours = dest.is_symlink() and os.readlink(dest) == rec["source"]
+        if not dry_run:
+            if ours:
+                dest.unlink()
+            _save([r for r in manifest() if r["dest"] != str(dest)])
+        return ([rec["skill"]], []) if ours else ([], [rec["skill"]])
     removed = [rel for rel, sha in rec["files"].items() if _ours(dest, rel, sha)]
     kept = sorted(set(_files(dest)) - set(removed)) if dest.is_dir() else []
     if dry_run:
