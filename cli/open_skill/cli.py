@@ -21,6 +21,8 @@ def _print(obj, as_json=True):
 def cmd_validate(args):
     try:
         errors = registry.validate(_registry(args))
+    except knowledge.ProfileError:
+        raise  # the user's profile, not the registry: exit 2 like every other command
     except ValueError as e:  # a file that cannot be read as a registry document
         errors = [str(e)]
     for e in errors:
