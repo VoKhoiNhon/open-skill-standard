@@ -111,3 +111,44 @@ def test_long_body_warns_on_tokens():
     found = lint.lint_text(doc("word " * 4200))
     assert ("body-tokens", "warning") in [(f.rule, f.severity) for f in found]
     assert "body-tokens" not in rules(doc("word " * 100))
+
+
+def write_json(tmp_path, name, obj):
+    import json
+    p = tmp_path / ".claude-plugin" / name
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(obj if isinstance(obj, str) else json.dumps(obj))
+    return p
+
+
+def test_marketplace_required_fields(tmp_path):
+    ok = {"name": "tools", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./"}]}
+    assert lint.lint_marketplace(write_json(tmp_path, "marketplace.json", ok)) == []
+    bad = {"name": "tools", "plugins": [{"name": "a"}]}
+    rules_found = [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", bad))]
+    assert rules_found == ["marketplace-field", "marketplace-plugin"]
+    assert [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", "{nope"))] == ["manifest-json"]
+
+
+def test_repository_marketplace_is_valid():
+    from pathlib import Path
+    root = Path(__file__).parents[1]
+    assert lint.lint_marketplace(root / ".claude-plugin" / "marketplace.json") == []
+
+
+def test_marketplace_source_escape_and_impersonation(tmp_path):
+    doc_ = {"name": "anthropic-official-tools", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
+    found = [(f.rule, f.severity) for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
+    assert found == [("marketplace-source", "error"), ("marketplace-name", "warning")]
+
+
+def test_plugin_json_rules(tmp_path):
+    assert lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "tools", "version": "1.2.3", "description": "d"})) == []
+    found = [f.rule for f in lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "My Tools", "version": "v1"}))]
+    assert found == ["plugin-name", "plugin-version", "plugin-description"]
+
+
+def test_lint_paths_includes_manifests(tmp_path):
+    write_json(tmp_path, "plugin.json", {"name": "Bad Name"})
+    assert "plugin-name" in [f.rule for f in lint.lint_paths([tmp_path / ".claude-plugin"])]
+    assert "plugin-name" in [f.rule for f in lint.lint_paths([tmp_path])]

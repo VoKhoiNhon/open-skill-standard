@@ -127,9 +127,77 @@ def lint_file(path: Path) -> list[Finding]:
 
 
 def lint_paths(paths) -> list[Finding]:
+    """Lint SKILL.md files and any Claude plugin manifests found under the given paths."""
     out = []
     for p in map(Path, paths):
         files = sorted(p.rglob("SKILL.md")) if p.is_dir() else [p]
+        manifests = sorted(p.rglob(".claude-plugin/*.json")) if p.is_dir() else []
+        if p.is_dir() and p.name == ".claude-plugin":
+            manifests = sorted(p.glob("*.json"))
         for f in files:
-            out += lint_file(f)
+            if f.name == "marketplace.json":
+                out += lint_marketplace(f)
+            elif f.name == "plugin.json":
+                out += lint_plugin(f)
+            else:
+                out += lint_file(f)
+        for m in manifests:
+            out += lint_marketplace(m) if m.name == "marketplace.json" else lint_plugin(m) if m.name == "plugin.json" else []
+    return out
+
+
+MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+
+
+def lint_marketplace(path: Path) -> list[Finding]:
+    """Required fields of .claude-plugin/marketplace.json, as the Claude Code validator checks them."""
+    import json
+
+    path = Path(path)
+    out: list[Finding] = []
+
+    def add(rule, msg, sev="error"):
+        out.append(Finding(str(path), rule, msg, MARKETPLACE_DOCS, sev))
+
+    try:
+        doc = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        add("manifest-json", f"invalid JSON: {e}")
+        return out
+    for key in ("name", "owner", "plugins"):
+        if key not in doc:
+            add("marketplace-field", f"missing required field '{key}'")
+    for i, p in enumerate(doc.get("plugins") or []):
+        for key in ("name", "source"):
+            if key not in p:
+                add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
+        src = p.get("source")
+        if isinstance(src, str) and ".." in Path(src).parts:
+            add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
+    name = str(doc.get("name", "")).lower()
+    if any(w in name for w in ("anthropic", "claude-plugins-official", "official")):
+        add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace", "warning")
+    return out
+
+
+SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
+
+
+def lint_plugin(path: Path) -> list[Finding]:
+    """.claude-plugin/plugin.json: a kebab-case name, and a semantic version when one is given."""
+    import json
+
+    path = Path(path)
+    try:
+        doc = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        return [Finding(str(path), "manifest-json", f"invalid JSON: {e}", MARKETPLACE_DOCS)]
+    out = []
+    if not NAME_RX.match(str(doc.get("name", ""))):
+        out.append(Finding(str(path), "plugin-name", "plugin name must be kebab-case", MARKETPLACE_DOCS))
+    if "version" in doc and not SEMVER.match(str(doc["version"])):
+        out.append(Finding(str(path), "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)", MARKETPLACE_DOCS))
+    if not doc.get("description"):
+        out.append(Finding(str(path), "plugin-description", "add a description so people know what the plugin does",
+                           MARKETPLACE_DOCS, "warning"))
     return out
