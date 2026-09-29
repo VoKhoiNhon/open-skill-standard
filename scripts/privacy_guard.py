@@ -1,4 +1,4 @@
-"""CI guard: user-layer files never tracked; no secrets, personal data or local paths in public content.
+"""CI guard: user-layer files never tracked; no secrets, personal data or local paths in any public text file.
 
 SVG images are checked by their text (labels, captures, alt text), not their geometry.
 """
@@ -15,7 +15,9 @@ sys.path.insert(0, str(ROOT / "cli"))
 from open_skill.knowledge import SENSITIVE  # noqa: E402
 
 FORBIDDEN_PATHS = (".open-skill/", "events.jsonl", "profile.yaml")
-SCANNED = ("registry/", "skills/", "spec/", "evals/", "specs/", ".github/assets/", "README.md", "README.vi.md")
+# Every tracked text file is public; tests are skipped because they hold fake secrets on purpose.
+SKIPPED = ("tests/", "uv.lock")
+TEXT = (".md", ".yaml", ".yml", ".json", ".py", ".sh", ".toml", ".txt", ".mmd", ".cfg", ".ini", "")
 ALLOW = {"email": ("noreply", "users.noreply.github.com")}
 LOCAL_PATH = re.compile(r"(?<![\w~])(/Users/|/home/)[A-Za-z0-9._-]+|\b[A-Za-z]:\\Users\\")  # a machine's home folder
 
@@ -36,11 +38,11 @@ def _svg_text(path: str) -> list[str]:
 def check(files: list[str]) -> list[str]:
     problems = [f"tracked user-layer file: {f}" for f in files if any(p in f for p in FORBIDDEN_PATHS)]
     for f in files:
-        if not f.startswith(SCANNED):
+        if f.startswith(SKIPPED):
             continue
         if f.endswith(".svg"):
             problems += [f"{f}: text looks like {r}" for r in map(_reason, _svg_text(f)) if r]
-        elif f.endswith((".md", ".yaml", ".yml", ".json")):
+        elif Path(f).suffix in TEXT:
             for n, line in enumerate(Path(f).read_text(errors="replace").splitlines(), 1):
                 reason = _reason(line)
                 if reason:

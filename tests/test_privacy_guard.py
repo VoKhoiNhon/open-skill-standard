@@ -75,3 +75,16 @@ def test_main_scans_from_the_repository_root(tmp_path, monkeypatch, capsys):
 ])
 def test_reason_per_line(line, reason):
     assert pg._reason(line) == reason
+
+
+@pytest.mark.parametrize("rel,flagged", [
+    ("CHANGELOG.md", True), ("CONTRIBUTING.md", True), (".github/workflows/ci.yml", True),
+    ("cli/open_skill/x.py", True), ("scripts/tool.sh", True), ("NOTICE", True), ("pyproject.toml", True),
+    ("tests/test_x.py", False),        # tests hold fake secrets on purpose
+    ("dist/index.db", False),          # binary
+])
+def test_every_public_text_file_is_scanned(tmp_path, monkeypatch, rel, flagged):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / rel).write_text("maintainer: alice@corp.example\n")
+    assert bool(pg.check([rel])) is flagged
