@@ -218,6 +218,10 @@ cases:
      first: knowledge-work-product-management/sprint-planning}
   - {id: scrum-master-bmad, role: scrum-master, task: "plan the sprint", files: [_bmad/config.toml],
      phases: [plan], include: [bmad-method/bmad-ticket]}
+  - {id: scrum-master-retro-bmad, role: scrum-master, task: "run the retrospective for sprint 12", files: [_bmad/config.toml],
+     phases: [learn], include: [bmad-method/bmad-retrospective]}
+  - {id: scrum-master-vietnamese, role: scrum-master, task: "lên kế hoạch sprint và tổ chức retro",
+     first: knowledge-work-product-management/sprint-planning}
   # Framework and model behavior
   - {id: native-spec-kit, role: backend-developer, task: "build a new billing system", files: [.specify/memory/constitution.md],
      first: spec-kit/specify, include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
