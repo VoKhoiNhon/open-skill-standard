@@ -57,3 +57,19 @@ def test_builtin_adapter_available_only_under_its_env(reg, monkeypatch):
     monkeypatch.setenv("CLAUDECODE", "1")
     got = by_invoke(scan.scan(reg))
     assert got["code-review"].id == "claude-code-builtin/code-review" and got["code-review"].inferred is False
+
+
+def test_claude_code_rules_tag_the_agent(reg):
+    tdd = by_invoke(scan.scan(reg))["superpowers:test-driven-development"]
+    assert tdd.agent == "claude-code"
+    assert tdd.agents == {"claude-code": "superpowers:test-driven-development"}
+
+
+def test_rule_may_name_its_agent(reg, tmp_path, monkeypatch):
+    skill = tmp_path / ".demo/skills/brainstorming/SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text("---\nname: brainstorming\ndescription: d\n---\n")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    reg.adapters["superpowers"]["detect"] = [{"glob": "~/.demo/skills/{name}/SKILL.md", "invoke": "{name}", "agent": "demo-agent"}]
+    got = by_invoke(scan.scan(reg))["brainstorming"]
+    assert got.agent == "demo-agent" and got.agents == {"demo-agent": "brainstorming"}

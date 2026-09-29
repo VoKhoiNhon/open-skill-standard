@@ -2,10 +2,12 @@
 
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import frontmatter
+from . import agents, frontmatter
+
+DEFAULT_AGENT = "claude-code"  # detect rules without an `agent`, and skills built into Claude Code
 
 # Generic locations searched for skills no adapter rule claims.
 GENERIC = [
@@ -22,14 +24,16 @@ class Installed:
     path: str
     description: str
     inferred: bool
+    agent: str = DEFAULT_AGENT  # the agent `invoke` is valid for
+    agents: dict[str, str] = field(default_factory=dict)  # every agent that sees the skill -> name it invokes
 
 
-def _expand(pattern: str, project: Path | None) -> str | None:
+def _expand(pattern: str, project: Path | None, agent: dict | None = None) -> str | None:
     if "{project}" in pattern:
         if project is None:
             return None
         pattern = pattern.replace("{project}", str(Path(project).resolve()))
-    return str(Path(pattern).expanduser()) if pattern.startswith("~") else pattern
+    return str(agents.expand(agent or {}, pattern)) if pattern.startswith("~") else pattern
 
 
 def _regex(pattern: str) -> re.Pattern:
@@ -69,7 +73,8 @@ def scan(reg, project: Path | None = None) -> list[Installed]:
     for src, adapter in reg.adapters.items():
         known = {s["name"] for s in adapter.get("skills", [])}
         for rule in adapter.get("detect", []):
-            pat = _expand(rule["glob"], project)
+            aid = rule.get("agent", DEFAULT_AGENT)
+            pat = _expand(rule["glob"], project, reg.agents.get(aid))
             if not pat:
                 continue
             rx = _regex(pat)
@@ -89,13 +94,14 @@ def scan(reg, project: Path | None = None) -> list[Installed]:
                     continue  # an earlier rule already found this skill
                 _, desc = _describe(path)
                 inv = rule["invoke"].format(name=name)
-                found[inv] = Installed(sid, inv, str(path), desc, inferred=name not in known)
+                found[inv] = Installed(sid, inv, str(path), desc, name not in known, aid, {aid: inv})
     for src, adapter in reg.adapters.items():
         env = adapter.get("available_env")
         if env and os.environ.get(env):
             for s in adapter.get("skills", []):
                 inv = s.get("invoke", s["name"])
-                found.setdefault(inv, Installed(f"{src}/{s['name']}", inv, f"builtin:{env}", s.get("description", ""), False))
+                found.setdefault(inv, Installed(f"{src}/{s['name']}", inv, f"builtin:{env}", s.get("description", ""), False,
+                                                 DEFAULT_AGENT, {DEFAULT_AGENT: inv}))
     for pattern in GENERIC:
         pat = _expand(pattern, project)
         if not pat:
@@ -107,5 +113,5 @@ def scan(reg, project: Path | None = None) -> list[Installed]:
             parts = path.parts
             inv = f"{parts[parts.index('skills') - 2]}:{name}" if "cache" in parts else name
             if inv not in found:
-                found[inv] = Installed(f"harvested/{name}", inv, str(path), desc, inferred=True)
+                found[inv] = Installed(f"harvested/{name}", inv, str(path), desc, True, DEFAULT_AGENT, {DEFAULT_AGENT: inv})
     return sorted(found.values(), key=lambda i: i.invoke)

@@ -70,7 +70,8 @@ def adapter_schema(tax: dict) -> dict:
                     "type": "object",
                     "required": ["glob", "invoke"],
                     "additionalProperties": False,
-                    "properties": {"glob": {"type": "string"}, "invoke": {"type": "string"}},
+                    "properties": {"glob": {"type": "string"}, "invoke": {"type": "string"},
+                                   "agent": {"type": "string", "pattern": KEBAB, "description": "agent id, default claude-code"}},
                 }
             ),
             "portability": _arr({"type": "string"}),
