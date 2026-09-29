@@ -230,3 +230,31 @@ def test_a_failure_halfway_through_the_restore_swap_puts_the_old_state_back(home
     monkeypatch.setattr(os, "replace", real)
     assert {k: v for k, v in _snapshot(home).items() if not k.startswith("backups/")} == before
     assert not [p for p in home.iterdir() if p.name.startswith(".restore")]
+
+
+WRITER = """
+import sys
+from open_skill import knowledge
+for i in range(int(sys.argv[2])):
+    knowledge.learn(f"{sys.argv[1]} fact number {i}.", ["role:*"])
+    knowledge.learn("Shared fact.", [f"skill:{sys.argv[1]}-{i}"])
+"""
+
+
+def _run_together(*argvs):
+    procs = [subprocess.Popen([sys.executable, *a], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+             for a in argvs]
+    outs = [p.communicate(timeout=120) for p in procs]
+    assert all(p.returncode == 0 for p in procs), outs
+    return outs
+
+
+def test_two_processes_learning_at_once_lose_nothing(home, tmp_path):
+    script = tmp_path / "writer.py"
+    script.write_text(WRITER, encoding="utf-8")
+    n = 25
+    _run_together([str(script), "alpha", str(n)], [str(script), "beta", str(n)])
+    notes = knowledge.load_knowledge()
+    assert len([k for k in notes if "fact number" in k["text"]]) == 2 * n
+    shared = next(k for k in notes if k["text"] == "Shared fact.")
+    assert len(shared["applies_to"]) == 2 * n  # both processes' scopes merged into the one note
