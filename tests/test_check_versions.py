@@ -43,6 +43,14 @@ def test_changelog_section_extraction():
         cl.section(text, "9.9.9")
 
 
+def test_changelog_title_takes_the_theme_from_the_first_line():
+    text = (ROOT / "CHANGELOG.md").read_text()
+    assert cl.title(text, "0.4.0") == "v0.4.0 — release engineering"
+    assert cl.title(text, "0.1.0") == "v0.1.0 — first public release"
+    assert cl.title("## [1.0.0] - x\n\nCI hardening.\n", "1.0.0") == "v1.0.0 — CI hardening"
+    assert cl.title("## [1.0.0] - x\n\n### Added\n- y\n", "1.0.0") == "v1.0.0"
+
+
 pt = load("check_pr_title")
 
 
