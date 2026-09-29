@@ -498,3 +498,8 @@ def test_bug_learn_refusal_names_the_cli_flag(capsys):
     code = cli.main(["--registry", str(FIX / "repo"), "learn", "mail a.b@example.com", "--applies-to", "role:*"])
     err = capsys.readouterr().err
     assert code == 2 and "--force" in err and "force=True" not in err
+
+
+def test_lint_missing_path_exits_2_without_a_traceback(capsys, tmp_path):
+    code = cli.main(["lint", str(tmp_path / "nope")])
+    assert code == 2 and "no such file or folder" in capsys.readouterr().err
