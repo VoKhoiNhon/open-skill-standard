@@ -41,3 +41,13 @@ def test_changelog_section_extraction():
     import pytest
     with pytest.raises(KeyError):
         cl.section(text, "9.9.9")
+
+
+pt = load("check_pr_title")
+
+
+def test_pr_titles():
+    for good in ["feat: add x", "fix(lint): y", "release: v0.3.0 — spec", "feat(registry)!: rename z", "docs(vi): ghi chú"]:
+        assert pt.ok(good), good
+    for bad in ["Add x", "feat:missing space", "feature: x", "feat(Scope): x", "fix: "]:
+        assert not pt.ok(bad), bad
