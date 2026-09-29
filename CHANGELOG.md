@@ -26,7 +26,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `feedback` for a route id that was never recorded (mistyped, or routed with `--no-record`) exits 1 and says so, instead of printing `recorded` for feedback that routing ignores.
 - `feedback --ran` credits a skill run instead of the proposed one to that skill, so a correction such as "use superpowers here, not spec-kit" raises it in later routes; it used to be stored under a key routing never read. A proposed step named by its id also counts as run.
 - `lint`: broken frontmatter is reported as `frontmatter` with the YAML line at fault, instead of "name is missing"; a BOM or an empty frontmatter block no longer loses the fields. Non-string names and descriptions (`name: 2024`, `description: ~`) no longer pass, and YAML alias trees are never expanded by `str()` (also in `scan` and `install`). Links inside code and placeholders like `[Title](URL)` are not reported missing. A 500-line file is not "over 500 lines", CJK text is no longer undercounted as tokens, and shouting in code blocks is ignored. Malformed `plugins` in marketplace.json no longer crash lint. `lint` on a missing path exits 2.
-- Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", không chạy, ngừng hoạt động, từ hôm qua and more). Routing holdout: 23/52 → 36/52.
+- Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", and Vietnamese `không chạy`, `ngừng hoạt động`, `từ hôm qua` and more). Routing holdout: 23/52 → 36/52.
 
 ## [0.6.0] - 2026-09-29
 
@@ -79,10 +79,10 @@ Multi-agent support, a security audit and graph explanations: install and scan s
 - README and README.vi: a "See and question the graph" section with example output for `route --explain`, `route --why-not`, search filters and the HTML graph; the CLI reference lists the new flags.
 
 ### Fixed
-- Crash and hang reports, in English and Vietnamese ("crashes", "hangs", "bị treo", "văng"), start with debugging instead of a planned build.
+- Crash and hang reports, in English and Vietnamese ("crashes", "hangs", `bị treo`, `văng`), start with debugging instead of a planned build.
 - Embedded builds in spec-kit projects use `spec-kit/implement` instead of subagent-driven development.
 - In spec-kit projects, cloud, security and SRE work plans with `spec-kit/plan`, and sysadmin work builds with `spec-kit/implement`.
-- The Vietnamese "sự cố" (incident) leads to incident response rather than debugging.
+- The Vietnamese `sự cố` (incident) leads to incident response rather than debugging.
 - Analytics engineers build with the project's native framework (`spec-kit/implement`, `bmad-build`); AI engineers build with `bmad-build` in BMad projects; platform engineers plan with `spec-kit/plan` in spec-kit projects.
 - Problem reports for data analysts, ML engineers and platform engineers start with debugging instead of proposing a scheduled agent.
 - `bmad-ticket`, `bmad-architecture` and `bmad-prd` handle medium tasks, so BMad projects plan sprints, architecture and PRDs with BMad instead of an unrelated BMad persona or a generic skill.
