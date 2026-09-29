@@ -20,3 +20,16 @@ queries:
   - {q: "create a Word document from these meeting notes", trigger: false}
   - {q: "brainstorm ten ideas for onboarding emails", trigger: false}
   - {q: "viết test cho hàm tính thuế", trigger: false}
+  # Held out: never read these while tuning the description; they only show whether a change generalizes.
+  - {q: "before I touch billing/invoice.py, show me everything that depends on InvoiceBuilder", trigger: true, holdout: true}
+  - {q: "¿dónde se define la variable de entorno DATABASE_URL en este repo?", trigger: true, holdout: true}
+  - {q: "we pin pydantic 2.7 in pyproject; what do its docs say about model_validator in that version?", trigger: true, holdout: true}
+  - {q: "is there a skill installed that can turn a Figma frame into React components?", trigger: true, holdout: true}
+  - {q: "bảng transactions có những cột nào kiểu timestamp, xem schema giúp mình", trigger: true, holdout: true}
+  - {q: "what are the current rate limits and max output tokens for the Claude model we call in llm_client.py", trigger: true, holdout: true}
+  - {q: "refactor InvoiceBuilder into smaller classes", trigger: false, holdout: true}
+  - {q: "add a created_at column to the transactions table with a migration", trigger: false, holdout: true}
+  - {q: "write a docstring for every public function in utils.py", trigger: false, holdout: true}
+  - {q: "remember that the invoices service owns the tax rules", trigger: false, holdout: true}
+  - {q: "je ne sais pas par où commencer ce projet de migration, quel workflow suivre ?", trigger: false, holdout: true}
+  - {q: "check this diff against our definition of done before I open the PR", trigger: false, holdout: true}
