@@ -106,10 +106,21 @@ def test_route_explain_lists_runner_ups_with_scores(capsys, tmp_path, monkeypatc
 
 
 def test_feedback_appends_event(capsys, tmp_path):
-    code, _ = run(capsys, "feedback", "r-1", "--ran", "a,b", "--outcome", "ok")
+    (tmp_path / "p").mkdir()
+    code, out = run(capsys, "route", "add an export endpoint", "--project", str(tmp_path / "p"))
+    rid = json.loads(out)["route_id"]
+    code, _ = run(capsys, "feedback", rid, "--ran", "a,b", "--outcome", "ok")
     assert code == 0
-    line = (tmp_path / "h" / "events.jsonl").read_text().strip()
+    line = (tmp_path / "h" / "events.jsonl").read_text().splitlines()[-1]
     assert json.loads(line)["ran"] == ["a", "b"]
+
+
+def test_bug_feedback_for_a_route_never_recorded_says_so(capsys, tmp_path):
+    # It printed "recorded" and exited 0, though weights ignore feedback without a proposed route
+    # (a mistyped id, or a route run with --no-record).
+    code = cli.main(["--registry", str(FIX / "repo"), "feedback", "r-typo", "--ran", "a"])
+    assert code == 1 and "no route r-typo" in capsys.readouterr().err
+    assert not (tmp_path / "h" / "events.jsonl").exists()
 
 
 def test_build_then_check(capsys, tmp_path):

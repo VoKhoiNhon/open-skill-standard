@@ -385,6 +385,10 @@ def cmd_forget(args):
 
 
 def cmd_feedback(args):
+    if not knowledge.route_recorded(args.route_id):
+        print(f"no route {args.route_id} was recorded (mistyped, or routed with --no-record); nothing to learn from",
+              file=sys.stderr)
+        return 1
     knowledge.record({"type": "feedback", "route_id": args.route_id, "ran": [x for x in args.ran.split(",") if x],
                       "outcome": args.outcome, "note": args.note})
     print("recorded")

@@ -13,6 +13,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- `feedback` for a route id that was never recorded (mistyped, or routed with `--no-record`) exits 1 and says so, instead of printing `recorded` for feedback that routing ignores.
 - `feedback --ran` credits a skill run instead of the proposed one to that skill, so a correction such as "use superpowers here, not spec-kit" raises it in later routes; it used to be stored under a key routing never read. A proposed step named by its id also counts as run.
 - Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", không chạy, ngừng hoạt động, từ hôm qua and more). Routing holdout: 23/52 → 36/52.
 

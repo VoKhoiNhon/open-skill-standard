@@ -136,6 +136,10 @@ def _events() -> list[dict]:
     return [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
 
 
+def route_recorded(route_id: str) -> bool:
+    return any(e.get("type") == "proposed" and e.get("route_id") == route_id for e in _events())
+
+
 def personal_weights(now: float | None = None, names: dict[str, str] | None = None) -> dict[str, float]:
     """+1 for skills proposed and run (or run unproposed), -1 for proposed but skipped; halved every 90 days.
     `names` maps invoke names to skill ids, so a skill run instead of the proposed one is credited to its id."""
