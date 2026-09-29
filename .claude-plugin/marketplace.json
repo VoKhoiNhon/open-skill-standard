@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "open-skill-standard",
+  "description": "Open, agent-agnostic standard and router for Agent Skills across 28 IT roles.",
+  "owner": {
+    "name": "Võ Khôi Nhơn",
+    "url": "https://github.com/VoKhoiNhon"
+  },
+  "plugins": [
+    {
+      "name": "open-skill",
+      "description": "Routes each task to the right installed skills for your role and project, with checklists, lookups and a personal knowledge layer.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
