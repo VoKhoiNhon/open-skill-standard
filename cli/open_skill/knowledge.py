@@ -40,9 +40,8 @@ def _prepare() -> None:
 
 
 def _kdir() -> Path:
-    d = home() / "knowledge"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+    """The notes folder. Not created here: reads must leave a fresh home empty (writes create it)."""
+    return home() / "knowledge"
 
 
 def looks_sensitive(text: str) -> str | None:
@@ -176,7 +175,10 @@ def export(dest: Path) -> Path:
     tmp.mkdir(parents=True)
     if (home() / "profile.yaml").exists():
         shutil.copy(home() / "profile.yaml", tmp / "profile.yaml")
-    shutil.copytree(_kdir(), tmp / "knowledge")
+    if _kdir().is_dir():
+        shutil.copytree(_kdir(), tmp / "knowledge")
+    else:
+        (tmp / "knowledge").mkdir()
     out = shutil.make_archive(str(stage), "zip", tmp)
     shutil.rmtree(tmp)
     return Path(out)

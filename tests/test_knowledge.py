@@ -315,3 +315,12 @@ def test_bug_untouched_seed_resaved_in_nfd_counted_as_a_user_edit(home):
     actions = upgrade.upgrade({"data-engineer": [SEEDS_EN["data-engineer"][0]]})
     assert "updated data-engineer/merge (you had not edited it)" in actions
     assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]
+def test_reading_a_fresh_home_creates_nothing_so_it_is_not_mistaken_for_legacy_data(home, tmp_path):
+    # Bug: load_knowledge() created knowledge/, which made a fresh home look like a v0 layout; the next write
+    # then ran a spurious migration and printed "upgraded your data".
+    from open_skill import userdata
+
+    assert knowledge.load_knowledge() == [] and knowledge.proposals() == {}
+    knowledge.export(tmp_path / "out.zip")
+    assert not (home / "knowledge").exists()
+    assert userdata.pending(home) == []
