@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, evals, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, evals, frontmatter, generate, graph_html, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -119,10 +119,16 @@ def cmd_route(args):
 
 def cmd_graph(args):
     reg = _registry(args)
-    if args.format == "json":
-        _print(index.graph_json(reg, scan.scan(reg)))
+    if args.format == "mermaid":
+        text = index.graph_mermaid(reg)
     else:
-        print(index.graph_mermaid(reg), end="")
+        g = index.graph_json(reg, scan.scan(reg))
+        text = graph_html.graph_html(g) if args.format == "html" else json.dumps(g, indent=2, ensure_ascii=False) + "\n"
+    if args.out:
+        Path(args.out).write_text(text, encoding="utf-8")
+        print(f"wrote {args.out}")
+    else:
+        print(text, end="")
     return 0
 
 
@@ -439,7 +445,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--no-record", action="store_true")
     s.set_defaults(fn=cmd_route)
     s = sub.add_parser("graph", help="export the skill graph")
-    s.add_argument("--format", choices=["mermaid", "json"], default="mermaid")
+    s.add_argument("--format", choices=["mermaid", "json", "html"], default="mermaid")
+    s.add_argument("--out", help="write to this file instead of stdout")
     s.set_defaults(fn=cmd_graph)
     s = sub.add_parser("doctor", help="what is installed, missing, duplicated")
     s.add_argument("--project")
