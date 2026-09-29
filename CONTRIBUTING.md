@@ -32,6 +32,8 @@ If `build --check` fails, run `uv run open-skill build` and commit the result.
 
 ## Add or update a role pack
 
+Run `uv run open-skill eval routing` to see pass rates per role before and after your change.
+
 Edit `registry/roles/<role-id>.yaml`: `risk`, 3–5 `constitution` principles, `signals`, per-phase `primary`/`alternatives`, generic `seeds`, and `build_window` if the role does not follow plan → build → verify → review. Add a case to `evals/routing.yaml` showing the behavior you expect. New role ids go into `spec/taxonomy.yaml` first.
 
 Role packs and seeds must stay generic: no company, product or person names, and no internal data.
