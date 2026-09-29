@@ -90,7 +90,8 @@ def _add(found: dict, key: str, item: Installed, seen_by: list[str]) -> None:
         found[key].agents.setdefault(aid, item.invoke)
 
 
-def scan(reg, project: Path | None = None) -> list[Installed]:
+def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Installed]:
+    """Installed skills; with `agent`, only those that agent sees, named as it invokes them."""
     found: dict[str, Installed] = {}  # registry id (or invocation, for harvested skills) -> entry
     claimed: set[Path] = set()
     for src, adapter in reg.adapters.items():
@@ -132,4 +133,9 @@ def scan(reg, project: Path | None = None) -> list[Installed]:
                 if free:
                     _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True), free)
                     taken |= {(a, inv) for a in free}
-    return sorted(found.values(), key=lambda i: i.invoke)
+    items = list(found.values())
+    if agent:
+        items = [i for i in items if agent in i.agents]
+        for i in items:
+            i.agent, i.invoke = agent, i.agents[agent]
+    return sorted(items, key=lambda i: i.invoke)

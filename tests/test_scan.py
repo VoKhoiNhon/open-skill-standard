@@ -118,3 +118,11 @@ def test_bundled_adapters_find_their_skills_in_other_agents(tmp_path, monkeypatc
     assert {"codex", "cursor", "gemini-cli", "github-copilot"} <= set(router.agents)
     assert "claude-code" not in router.agents
     assert "codex" in got["spec-kit/plan"].agents
+
+
+def test_agent_view_keeps_only_its_skills_with_its_names(reg):
+    got = by_invoke(scan.scan(reg, agent="codex"))
+    assert got["test-driven-development"].id == "superpowers/test-driven-development"
+    assert got["test-driven-development"].agent == "codex"
+    assert "superpowers:test-driven-development" not in got  # plugin names are Claude Code only
+    assert "my-internal-skill" not in got  # lives in ~/.claude/skills, which codex does not read
