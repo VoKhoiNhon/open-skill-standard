@@ -87,3 +87,26 @@ def test_prune_keeps_newest_of_one_label_only(tmp_path):
     removed = userdata.prune_backups(home, "auto", keep=2)
     assert removed == autos[:2]
     assert set(userdata.list_backups(home)) == {autos[2], autos[3], manual}
+
+
+def test_restore_round_trip_with_safety_backup(tmp_path):
+    home = _layer(tmp_path / "h")
+    snap = userdata.backup(home)
+    (home / "knowledge" / "k-a.md").write_text("changed")
+    (home / "knowledge" / "k-new.md").write_text("new")
+    safety = userdata.restore(home, snap)
+    assert (home / "knowledge" / "k-a.md").read_text().endswith("A")
+    assert not (home / "knowledge" / "k-new.md").exists()
+    assert safety.exists() and safety in userdata.list_backups(home) and snap.exists()
+
+
+def test_restore_rejects_path_traversal(tmp_path):
+    import zipfile
+    home = _layer(tmp_path / "h")
+    evil = tmp_path / "evil.zip"
+    with zipfile.ZipFile(evil, "w") as z:
+        z.writestr("../outside.txt", "x")
+    with pytest.raises(userdata.UnsafeBackupError):
+        userdata.restore(home, evil)
+    assert not (tmp_path / "outside.txt").exists()
+    assert (home / "profile.yaml").exists()
