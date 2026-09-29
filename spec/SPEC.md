@@ -23,7 +23,7 @@ This standard describes Agent Skills (folders containing a `SKILL.md`) by the ro
 
 `spec/taxonomy.yaml` is normative. It defines:
 
-- **Phases**, in order: discover, research, specify, plan, build, verify, review, release, operate, learn. Each phase has keywords (any language) used to detect a task's target phase.
+- **Phases**, in order: discover, research, specify, plan, build, verify, review, release, operate, learn. Each phase has keywords (any language) used to detect a task's target phase. Keywords match whole words and phrases, ignoring case and hyphens; a task typed without diacritics matches them folded the way the search index folds text (so `loi` matches `lỗi`), while a task typed with diacritics keeps them (`lời` does not match `lỗi`).
 - **Artifacts** (19 types) and the repository globs that reveal them.
 - **Edge types:** produces, consumes, precedes, alternative-to, conflicts-with, requires, applies-to, recommends.
 - **Task sizes:** small, medium, large, with keywords that hint at size.
