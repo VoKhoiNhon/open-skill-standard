@@ -64,3 +64,9 @@ def test_audit_strict_fails_on_any_finding(capsys, tmp_path):
     assert run(capsys, "audit", str(tmp_path))[0] == 0
     assert run(capsys, "audit", str(tmp_path), "--strict")[0] == 1
     assert run(capsys, "audit", str(AUDIT / "clean-skill"), "--strict")[0] == 0
+
+
+def test_doctor_shows_a_one_line_audit_summary(capsys):
+    code, out = run(capsys, "doctor")
+    (line,) = [x for x in out.splitlines() if "security audit" in x]
+    assert "0 high, 0 medium, 0 low" in line and "open-skill audit --installed" in line

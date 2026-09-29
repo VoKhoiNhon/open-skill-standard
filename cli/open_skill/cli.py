@@ -289,6 +289,8 @@ def cmd_doctor(args):
     errs = sum(r["errors"] for r in rep.values())
     warns = sum(r["warnings"] for r in rep.values())
     print(f"  skill health: {errs} error(s), {warns} warning(s) across installed skills → open-skill lint --installed")
+    c = audit.summary([f for found in audit.audit_installed(installed).values() for f in found])
+    print(f"  security audit (heuristic): {c['high']} high, {c['medium']} medium, {c['low']} low → open-skill audit --installed")
     names: dict[str, list[str]] = {}
     for i in installed:
         names.setdefault(i.invoke.split(":")[-1], []).append(i.invoke)
