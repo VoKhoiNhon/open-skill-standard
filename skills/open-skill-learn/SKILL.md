@@ -7,7 +7,7 @@ description: Remembers what the user teaches - lessons, preferences, conventions
 
 Current models do better work when they can read lessons from earlier sessions. This skill keeps those lessons as small local files that `open-skill route` attaches to future chains.
 
-`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.4.0 open-skill`.
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-skill`.
 
 ## Save
 
