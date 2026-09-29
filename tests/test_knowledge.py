@@ -261,3 +261,16 @@ def test_bug_seed_dry_run_created_folders_on_a_fresh_home(home):
     assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1, dry_run=True) == [
         "would add data-engineer/merge", "would add data-engineer/nulls"]
     assert not home.exists()
+
+
+def test_bug_dry_run_said_it_saved_upstream_wording_and_kept_retired_seeds(home):
+    # A dry run reported "upstream wording saved for review" and "kept ...", past tense, while writing nothing.
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
+    edited.write_text(edited.read_text().replace("Check nulls on keys.", "Check nulls AND duplicates (my rule)."))
+    v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]}
+    assert knowledge.sync_seeds(["data-engineer"], v2, dry_run=True) == [
+        "would keep your edit of data-engineer/nulls; upstream wording would wait for review "
+        "(open-skill seeds diff data-engineer/nulls)",
+        "would keep data-engineer/merge: no longer shipped upstream"]
+    assert knowledge.proposals() == {}
