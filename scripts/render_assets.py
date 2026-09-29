@@ -53,7 +53,7 @@ def svg(w: int, h: int, body: list[str], theme: str, label: str) -> str:
                     f'markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker>'
                     for s in ["", *(f"-{a}" for a in ACCENTS)])
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
-            f'role="img" aria-label="{escape(label, {chr(34): "&quot;"})}">\n'
+            f'xml:space="preserve" role="img" aria-label="{escape(label, {chr(34): "&quot;"})}">\n'
             f"<style>{_style(THEMES[theme])}</style>\n<defs>{marks}</defs>\n" + "\n".join(body) + "\n</svg>\n")
 
 
@@ -82,6 +82,75 @@ def themed(name: str, draw) -> dict[str, str]:
 
 def footer(w: int, y: int, source: str) -> str:
     return text(w - 16, y, f"generated from {source} by scripts/render_assets.py", "m s", "end")
+
+
+def card(x, y, w, h, title, lines=(), cls="box", key_width=0) -> list[str]:
+    """A box with a bold title and muted lines under it; with key_width, lines are (monospace key, value) rows."""
+    out = [rect(x, y, w, h, cls), text(x + 12, y + 22, title, "b")]
+    for i, s in enumerate(lines):
+        ly = y + 42 + 17 * i
+        if key_width:
+            out += [text(x + 12, ly, s[0], "mono"), text(x + 12 + key_width, ly, s[1], "m s")]
+        else:
+            out.append(text(x + 12, ly, s, "m s"))
+    return out
+
+
+def line(points, cls="edge", arrow="muted", dashed=False) -> str:
+    d = "M" + "L".join(f"{x:g} {y:g}" for x, y in points)
+    dash = ' stroke-dasharray="5 4"' if dashed else ""
+    end = f' marker-end="url(#arrow{"" if arrow == "muted" else "-" + arrow})"' if arrow else ""
+    return f'<path d="{d}" class="{cls}"{dash}{end}/>'
+
+
+# --- architecture: registry layers -> scan -> index -> router -> agent, with the user layer beside them ---
+
+def architecture(reg) -> dict[str, str]:
+    w, h = 960, 556
+    n_skills = sum(len(a.get("skills", [])) for a in reg.adapters.values())
+    top, mid, low = 40, 290, 436
+
+    def draw(theme):
+        b = [*card(20, top, 300, 164, "L0 · public registry (this repository)", [
+                ("registry/adapters/", f"{len(reg.adapters)} sources, {n_skills} skills"),
+                ("registry/roles/", f"{len(reg.roles)} role packs"),
+                ("registry/agents/", f"{len(reg.agents)} coding agents"),
+                ("registry/models/", f"{len(reg.models)} model profiles"),
+                ("spec/taxonomy.yaml", "phases, artifacts, sizes")], "purple", 146),
+             *card(360, top, 230, 124, "L1 · organization overlays", [
+                 "private skills, house rules", "--overlay DIR or overlays:", "in profile.yaml; same layout",
+                 "as registry/"]),
+             *card(630, top, 310, 164, "L2 · ~/.open-skill, never published", [
+                 ("profile.yaml", "roles and weights"), ("knowledge/", "one note per file"),
+                 ("events.jsonl", "routes and what ran"), ("installed.json", "what install wrote"),
+                 ("backups/", "zips made before upgrades")], "green", 118),
+             line([(360, 100), (322, 100)], arrow="muted"), text(341, 92, "wins", "m s", "middle"),
+             text(475, 186, "later layers override earlier ones by id", "m s", "middle"),
+             *card(20, mid, 170, 104, "Agent skill folders", ["user and project folders", f"of {len(reg.agents)} agents, plus", "Claude plugin caches"]),
+             *card(215, mid, 165, 104, "scan", ["one entry per skill,", "with the name each", "agent invokes it by"], "blue"),
+             *card(405, mid, 165, 104, "index", ["SQLite FTS5 (BM25)", "over registry and", "installed skills"], "blue"),
+             *card(595, mid, 165, 104, "route", ["phase, window, scores", "and rules → an ordered", "chain with reasons"], "blue"),
+             *card(785, mid, 155, 104, "Coding agent", ["announces the chain,", "runs step 1"], "orange"),
+             *card(20, low, 170, 84, "open-skill install", ["copies or links a skill,", "never overwrites one"]),
+             *card(560, low, 240, 84, "Your project", [".specify/ or _bmad/, artifacts,", "role signals (paths, not contents)"])]
+        y = mid + 52
+        for x1, x2 in ((190, 215), (380, 405), (570, 595), (760, 785)):
+            b.append(line([(x1, y), (x2 - 1, y)]))
+        b += [line([(105, low), (105, mid + 106)]),
+              line([(120, top + 164), (120, 250), (297, 250), (297, mid - 2)]),
+              line([(220, top + 164), (220, 236), (487, 236), (487, mid - 2)]),
+              text(304, 270, "detect rules", "m s"), text(494, 270, "skill metadata", "m s"),
+              line([(625, top + 166), (625, mid - 2)], "e-green", "green"),
+              line([(745, mid), (745, top + 168)], "e-green", "green"),
+              text(633, 256, "roles, notes,", "m s"), text(633, 271, "your weights", "m s"),
+              text(753, 256, "records each", "m s"), text(753, 271, "route", "m s"),
+              line([(680, low), (680, mid + 106)]),
+              text(200, low + 52, "records files and hashes in installed.json", "m s"),
+              footer(w, h - 10, "the registry")]
+        return svg(w, h, b, theme, "Architecture: the public registry and organization overlays feed scan and a SQLite "
+                   "FTS5 index, the router uses them with your project and your local ~/.open-skill layer, and the "
+                   "coding agent runs the chain")
+    return themed("architecture", draw)
 
 
 # --- lifecycle: phases and artifacts from spec/taxonomy.yaml, edges from the adapters' produces/consumes ---
@@ -143,6 +212,7 @@ def lifecycle(reg) -> dict[str, str]:
 def render() -> dict[str, str]:
     reg = registry.load(ROOT)
     out = {}
+    out.update(architecture(reg))
     out.update(lifecycle(reg))
     return out
 
