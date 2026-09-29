@@ -168,6 +168,14 @@ def cmd_remove(args):
     return 0
 
 
+def cmd_update(args):
+    if args.agent and _agent_arg(_registry(args), args.agent) is None:
+        return 2
+    msgs = install.update(agent=args.agent, dry_run=args.dry_run)
+    print("\n".join(msgs) if msgs else "no skills installed by open-skill yet; see open-skill install")
+    return 0
+
+
 def cmd_build(args):
     reg = _registry(args)
     root = Path(args.root) if args.root else paths.data_root()
@@ -616,6 +624,10 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--project", help="the project it was installed in")
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(fn=cmd_remove)
+    s = sub.add_parser("update", help="reinstall the core skills open-skill installed, at this CLI's version")
+    s.add_argument("--agent", help="only installs for this agent")
+    s.add_argument("--dry-run", action="store_true")
+    s.set_defaults(fn=cmd_update)
     s = sub.add_parser("build", help="regenerate playbooks, schemas and dist/")
     s.add_argument("--root")
     s.add_argument("--check", action="store_true", help="exit 1 if generated files are stale")

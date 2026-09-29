@@ -367,3 +367,12 @@ def test_remove_only_what_install_created(capsys, tmp_path, monkeypatch):
     assert (dest / "mine.md").exists() and not (dest / "SKILL.md").exists()
     assert run(capsys, "remove", "open-skill-router", "--agent", "codex")[0] == 1  # no longer ours
     assert run(capsys, "remove", "../../etc", "--agent", "codex")[0] == 2
+
+
+def test_update_command(capsys, tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    assert "no skills installed" in run(capsys, "update")[1]
+    run(capsys, "install", "open-skill-learn", "--agent", "codex")
+    code, out = run(capsys, "update", "--agent", "codex", "--dry-run")
+    assert code == 0 and out.startswith("up to date: open-skill-learn for codex")
+    assert run(capsys, "update", "--agent", "nope")[0] == 2
