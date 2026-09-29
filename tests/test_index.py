@@ -85,3 +85,10 @@ def test_search_indexes_locale_triggers():
     reg.skills["superpowers/test-driven-development"]["triggers_i18n"] = {"es": ["prueba primero"]}
     conn = index.build_index(reg, inst)
     assert index.search(conn, "escribe la prueba primero")[0][0] == "superpowers/test-driven-development"
+
+
+def test_stopwords_come_from_the_taxonomy_and_its_locale_blocks():
+    tax = registry.load_taxonomy()
+    assert set(tax["stopwords"]) | set(tax["stopwords_i18n"]["vi"]) == index.STOP
+    assert all(w.isascii() for w in tax["stopwords"])
+    assert "para" in index.stopwords({**tax, "stopwords_i18n": {**tax["stopwords_i18n"], "es": ["para", "el"]}})

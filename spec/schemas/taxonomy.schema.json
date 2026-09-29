@@ -117,6 +117,27 @@
       },
       "description": "per-locale additions to the English list, keyed by BCP 47 language tag"
     },
+    "stopwords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stopwords_i18n": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!en(-|$))[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "per-locale additions to the English list, keyed by BCP 47 language tag"
+    },
     "role_families": {
       "type": "object",
       "additionalProperties": {

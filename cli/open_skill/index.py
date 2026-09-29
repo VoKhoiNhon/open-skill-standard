@@ -7,10 +7,14 @@ import sqlite3
 from . import registry
 
 TOKEN = re.compile(r"\w{2,}", re.UNICODE)
-STOP = set("""a an the to of in on for and or not is it this that these those with be are was as at by from into
-my our your we i you me us please can could should would will how what why when where which who do does did
-make get use using need want just also some any all new one
-và của cho là có các những một này đó với được trong không thì mà để khi như nào gì bị""".split())
+
+
+def stopwords(tax: dict) -> set[str]:
+    """Words search ignores in a request: the taxonomy's English stopwords plus every locale block (SPEC §3.1)."""
+    return set(registry.localized(tax, "stopwords"))
+
+
+STOP = stopwords(registry.load_taxonomy())
 
 TOKENIZE = "unicode61 remove_diacritics 2"  # lowercase, split on non-alphanumerics, drop accents: "Lỗi" → "loi"
 
