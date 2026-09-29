@@ -219,3 +219,17 @@ def test_env_file_read_flags(text):
 ])
 def test_env_file_read_ignores_ordinary_text(text):
     assert "env-file-read" not in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "security find-generic-password -s github -w",
+    "security dump-keychain -d ~/Library/Keychains/login.keychain-db",
+    "secret-tool lookup service github",
+    "cmdkey /list",
+])
+def test_credential_store_flags(text):
+    assert "credential-store" in fired(text)
+
+
+def test_credential_store_ignores_security_as_a_word():
+    assert "credential-store" not in fired("Read SECURITY.md for the security policy.")

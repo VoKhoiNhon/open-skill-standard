@@ -107,6 +107,13 @@ rule("env-file-read", "medium",
      "reads or sends a .env file, which usually holds API keys and passwords", ATTACK_CRED_FILES)
 
 
+rule("credential-store", "high",
+     r"\bsecurity\s+(find-generic-password|find-internet-password|dump-keychain)\b|\blogin\.keychain|\bsecret-tool\s+(lookup|search)\b"
+     r"|\bcmdkey\s+/list\b|\bvaultcmd\b|\.password-store\b|\bkwallet-query\b",
+     "reads the operating system's password store (Keychain, Secret Service, Windows Credential Manager)",
+     "https://attack.mitre.org/techniques/T1555/")
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
