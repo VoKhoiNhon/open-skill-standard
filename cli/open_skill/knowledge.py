@@ -1,5 +1,6 @@
 """The user layer (L2): profile, knowledge nodes, usage events, personal weights. Local files only."""
 
+import contextlib
 import datetime as dt
 import errno
 import hashlib
@@ -87,15 +88,32 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
         raise SensitiveText(f"refusing to store text that looks like {reason}")
     nid = _node_id(text)
     path = _kdir() / f"{nid}.md"
-    if path.exists():
-        meta, _ = frontmatter.parse(path.read_text())
-        meta["applies_to"] = list(dict.fromkeys([*meta.get("applies_to", []), *applies_to]))
-        meta["updated"] = dt.date.today().isoformat()
-    else:
-        meta = {"id": nid, "kind": "knowledge", "type": type_, "applies_to": list(applies_to), "source": source,
-                "created": dt.date.today().isoformat(), "summary": text.strip().splitlines()[0][:120]}
-    _write(meta, text)
+    with _locked():  # read-modify-write: two processes learning the same note must merge, not overwrite
+        if path.exists():
+            meta, _ = frontmatter.parse(path.read_text())
+            meta["applies_to"] = list(dict.fromkeys([*meta.get("applies_to", []), *applies_to]))
+            meta["updated"] = dt.date.today().isoformat()
+        else:
+            meta = {"id": nid, "kind": "knowledge", "type": type_, "applies_to": list(applies_to), "source": source,
+                    "created": dt.date.today().isoformat(), "summary": text.strip().splitlines()[0][:120]}
+        _write(meta, text)
     return nid
+
+
+@contextlib.contextmanager
+def _locked():
+    """Exclusive lock on ~/.open-skill/.lock for the length of a read-modify-write."""
+    with (home() / ".lock").open("a") as f:
+        try:
+            import fcntl
+        except ImportError:  # ponytail: no lock on Windows (no fcntl); use msvcrt.locking if concurrent writers appear there
+            yield
+            return
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
 
 
 NODE_ID = re.compile(r"[A-Za-z0-9][\w.-]*")  # a file name inside knowledge/, never a path
