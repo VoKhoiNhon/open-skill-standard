@@ -109,3 +109,18 @@ def test_vietnamese_readme_is_a_structural_translation():
     assert vi_levels == en_levels, "README.vi.md needs the same sections as README.md"
     assert vi_blocks == en_blocks, "README.vi.md needs the same command and output blocks as README.md"
     assert "[Tiếng Việt](README.vi.md)" in en.split("\n## ")[0] and "[English](README.md)" in vi.split("\n## ")[0]
+
+
+def _images(text: str) -> tuple[list[str], list[str]]:
+    """Every image path in order (<img src> and <picture> <source srcset>), and the alt text of each <img>."""
+    paths = re.findall(r'<(?:img [^>]*src|source [^>]*srcset)="([^"]+)"', text)
+    alts = [(re.search(r'alt="([^"]*)"', tag) or [None, ""])[1] for tag in re.findall(r"<img [^>]*>", text)]
+    return paths, alts
+
+
+def test_readme_images_exist_have_alt_text_and_match_between_the_readmes():
+    (en, en_alts), (vi, vi_alts) = (_images((REPO / n).read_text()) for n in ("README.md", "README.vi.md"))
+    for path in en + vi:
+        assert path.startswith(".github/assets/") and (REPO / path).is_file(), f"missing image {path}"
+    assert all(a.strip() for a in en_alts + vi_alts), "every <img> needs alt text"
+    assert en == vi, "README.vi.md needs the same images in the same order as README.md"
