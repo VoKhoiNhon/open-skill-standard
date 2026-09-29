@@ -25,7 +25,7 @@ Runs the shared data and AI platform: compute, catalog, access, cost, and agent 
 | verify | `superpowers/test-driven-development` — Write the failing test first, then the minimal code, for any feature or bug fix<br>`superpowers/verification-before-completion` — Run the real checks and read their output before claiming work is done | `codegraph/affected`<br>`spec-kit/converge` |
 | review | `claude-code-builtin/security-review` — Security review of pending changes<br>`claude-code-builtin/code-review` — Review the current diff or a PR for correctness bugs<br>`ponytail/ponytail-audit` — Whole-repository over-engineering audit | `codegraph/impact` |
 | release | `bmad-method/bmad-correct-course` — Assess the impact of a significant change mid-sprint and propose a course correction<br>`knowledge-work-engineering/deploy-checklist` — Pre-deployment verification for releases, migrations and flags | — |
-| operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix<br>`claude-code-builtin/schedule` — Scheduled cloud agents on a cron | `claude-code-builtin/fewer-permission-prompts` |
+| operate | `superpowers/systematic-debugging` — Find the root cause of a bug, failing test or unexpected behavior before proposing a fix | `claude-code-builtin/fewer-permission-prompts`<br>`claude-code-builtin/schedule` |
 | learn | `knowledge-work-data/data-context-extractor` — Build a company-specific data knowledge skill from analysts' tribal knowledge<br>`open-skill/open-skill-learn` — Remember lessons and preferences so future routes use them | — |
 
 ## Starter knowledge

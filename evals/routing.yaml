@@ -155,6 +155,8 @@ cases:
      include: [anthropic-skills/skill-creator]}
   - {id: platform-spec-kit, role: data-ai-platform-engineer, task: "add a skill for SQL review",
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
+  - {id: platform-broken, role: data-ai-platform-engineer, task: "the shared skill pack is broken after the upgrade",
+     first: superpowers/systematic-debugging}
   - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
