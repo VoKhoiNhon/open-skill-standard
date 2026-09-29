@@ -1989,6 +1989,100 @@
    "description": "Original v1 taste skill kept for compatibility"
   },
   {
+   "id": "vercel-agent-skills/composition-patterns",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "build",
+    "review"
+   ],
+   "installed": false,
+   "description": "React composition patterns for component libraries - compound components, context providers, fewer boolean props"
+  },
+  {
+   "id": "vercel-agent-skills/deploy-to-vercel",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false,
+   "description": "Deploy an app to Vercel and return the preview or production URL"
+  },
+  {
+   "id": "vercel-agent-skills/react-best-practices",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "build",
+    "review"
+   ],
+   "installed": false,
+   "description": "Prioritized React and Next.js performance rules - request waterfalls, bundle size, server work, re-renders"
+  },
+  {
+   "id": "vercel-agent-skills/react-native-skills",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "build",
+    "review"
+   ],
+   "installed": false,
+   "description": "React Native and Expo performance rules - lists, animations, native modules"
+  },
+  {
+   "id": "vercel-agent-skills/react-view-transitions",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false,
+   "description": "Page and element animations with the React View Transition API, including Next.js route changes"
+  },
+  {
+   "id": "vercel-agent-skills/vercel-cli-with-tokens",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "release",
+    "operate"
+   ],
+   "installed": false,
+   "description": "Drive the Vercel CLI with an access token instead of an interactive login - deploys, env vars, domains"
+  },
+  {
+   "id": "vercel-agent-skills/vercel-optimize",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "operate"
+   ],
+   "installed": false,
+   "description": "Metric-first cost and performance review of a deployed Vercel project, ending in ranked, file-grounded recommendations"
+  },
+  {
+   "id": "vercel-agent-skills/web-design-guidelines",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "review"
+   ],
+   "installed": false,
+   "description": "Check UI code against a published web interface checklist (accessibility, focus, forms, performance); fetches the rules at run time"
+  },
+  {
+   "id": "vercel-agent-skills/writing-guidelines",
+   "kind": "skill",
+   "source": "vercel-agent-skills",
+   "phases": [
+    "review"
+   ],
+   "installed": false,
+   "description": "Check docs and prose against a published writing handbook (voice, tone, style); fetches the rules at run time"
+  },
+  {
    "id": "role:ai-engineer",
    "kind": "role",
    "name": "AI Engineer",
@@ -3042,6 +3136,26 @@
    "from": "taste-skill/imagegen-frontend-web",
    "to": "artifact:ux-design",
    "type": "produces"
+  },
+  {
+   "from": "vercel-agent-skills/vercel-cli-with-tokens",
+   "to": "tool:vercel",
+   "type": "requires"
+  },
+  {
+   "from": "vercel-agent-skills/vercel-optimize",
+   "to": "tool:vercel",
+   "type": "requires"
+  },
+  {
+   "from": "vercel-agent-skills/web-design-guidelines",
+   "to": "knowledge-work-design/accessibility-review",
+   "type": "alternative-to"
+  },
+  {
+   "from": "vercel-agent-skills/web-design-guidelines",
+   "to": "knowledge-work-design/design-critique",
+   "type": "alternative-to"
   },
   {
    "from": "role:ai-engineer",

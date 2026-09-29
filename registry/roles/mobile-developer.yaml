@@ -53,6 +53,7 @@ phases:
     alternatives:
     - bmad-method/bmad-build
     - superpowers/executing-plans
+    - vercel-agent-skills/react-native-skills
   verify:
     primary:
     - claude-code-builtin/run
