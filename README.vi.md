@@ -2,7 +2,9 @@
 
 **Một router, một skill graph, 28 vai trò IT.** Đây là một chuẩn mở, không phụ thuộc agent, để chọn đúng Agent Skill cho từng việc. Repo kèm bản triển khai tham chiếu, nối các bộ superpowers, BMad Method, spec-kit, codegraph, skill của Anthropic và nhiều nguồn khác mà không sao chép nội dung của bộ nào.
 
-[English](README.md) · [Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
+[English](README.md) · **Tiếng Việt**
+
+[Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
 
 ## Vì sao cần
 
@@ -35,7 +37,8 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.6.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
 
 # 3. Trong agent, ở bất kỳ project nào
-/open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
+/open-skill-router add a pipeline that loads orders into the warehouse
+# yêu cầu bằng tiếng Việt cũng được: /open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
 ```
 
 `open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu.
@@ -62,7 +65,7 @@ Mỗi agent còn đọc thêm vài thư mục khác (ví dụ Cursor, Copilot, O
 open-skill agents                                     # agent nào đã cài, mỗi agent thấy những skill nào
 open-skill install open-skill-router --agent codex    # một skill lõi, hoặc đường dẫn tới thư mục skill bất kỳ
 open-skill install ./my-skill --agent cursor --project . --symlink
-open-skill route "<việc cần làm>" --agent codex       # chỉ các skill Codex thấy, đúng tên Codex dùng để gọi
+open-skill route "<task>" --agent codex               # chỉ các skill Codex thấy, đúng tên Codex dùng để gọi
 open-skill update                                     # cập nhật các skill lõi bạn đã cài theo phiên bản CLI này
 open-skill remove open-skill-router --agent codex
 ```
@@ -70,6 +73,19 @@ open-skill remove open-skill-router --agent codex
 `install` không bao giờ ghi đè skill mà nó không tự cài. Nó ghi lại mọi thư mục nó tạo, kèm mã băm của từng file, vào `~/.open-skill/installed.json`; `remove` và `update` chỉ đụng tới những thư mục đó, và để nguyên mọi file bạn đã sửa hoặc thêm.
 
 ## Router hoạt động thế nào
+
+```text
+registry (adapters, roles, models) ─┐
+installed skills on this machine ───┼─► in-memory graph + SQLite FTS5 index
+your profile, notes, history ───────┘
+                       │
+open-skill route "<task>" --project . --model <id>
+  1. project state: .specify/ or _bmad/ (native framework), artifacts, role signals
+  2. role mix → target phase → phase window (role packs can define their own)
+  3. per phase: installed candidates, scored by role pack, role weights, text, artifact flow, your history
+  4. rules: one build workflow; native framework wins; requirements met; model step limit
+  5. output: chain + reasons + your applicable notes + missing skills + model notes
+```
 
 1. **Đọc trạng thái project:** có `.specify/` hay `_bmad/` không (framework bản địa), có những artefact nào, tín hiệu nào gợi ý vai trò.
 2. **Xác định vai trò, phase đích và các phase cần đi qua.** Role pack có thể tự khai báo chuỗi phase riêng, ví dụ Data Analyst là `build → verify → release`.
@@ -80,6 +96,18 @@ open-skill remove open-skill-router --agent codex
    - skill phải đủ điều kiện (ví dụ project đã init);
    - giới hạn số bước theo model đang chạy.
 5. **Đầu ra:** chuỗi skill kèm lý do, các ghi chú của bạn liên quan, skill còn thiếu kèm lệnh cài, và ghi chú prompt riêng cho model.
+
+Một route thật (data engineer, project spec-kit chưa cài các skill speckit, Claude Opus 5.5):
+
+```text
+1. [plan]   superpowers:writing-plans               — primary for data-engineer; consumes spec
+2. [build]  superpowers:subagent-driven-development — primary for data-engineer; consumes plan
+3. [verify] data:explore-data                       — primary for data-engineer
+4. [review] code-review                             — primary for data-engineer
+missing: spec-kit/implement (not installed) → specify init --here --integration claude
+missing: codegraph/impact (needs .codegraph in the project) → codegraph init
+model note: Deliver what was asked at the intended scope; …
+```
 
 ## Xem và hỏi ngược skill graph
 
@@ -93,6 +121,8 @@ phase window: plan → build → verify → review (medium build task: starts at
 1. [plan] superpowers:writing-plans  score=2.5  — phase plan; role prior 2.00 (primary for data-engineer); text 1.00; consumes spec
 2. [build] superpowers:subagent-driven-development  score=2.5  — …; consumes plan
    runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/write-query 0.9, knowledge-work-data/sql-queries 0.7
+3. [verify] data:explore-data  score=2.0  — …
+   runner-ups: knowledge-work-data/validate-data 2.0 (close call), open-skill/open-skill-standards 2.0, …
 ```
 
 Khi không có từ khoá phase nào khớp, dòng phase ghi `phase: build (guessed, no signal)` và JSON có `"phase_from": "guessed"`. Agent đã đọc cuộc hội thoại nên tự truyền `--phase` (và `--size`); dò từ khoá chỉ là phương án dự phòng.
@@ -103,6 +133,9 @@ Khi không có từ khoá phase nào khớp, dòng phase ghi `phase: build (gues
 $ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers:executing-plans
 superpowers/executing-plans is not in the chain for: add a pipeline that loads orders
   - [build] score 0.375 lost to superpowers/subagent-driven-development (2.5)
+$ open-skill route "add a pipeline that loads orders" --role data-engineer --why-not superpowers/brainstorming
+superpowers/brainstorming is not in the chain for: add a pipeline that loads orders
+  - acts in discover, specify; this task's phase window is plan, build, verify, review
 ```
 
 **Có những gì?** `search` lọc theo `--role`, `--phase`, `--source` và `--installed`; bỏ trống câu tìm thì liệt kê mọi skill qua được bộ lọc:
@@ -111,6 +144,7 @@ superpowers/executing-plans is not in the chain for: add a pipeline that loads o
 $ open-skill search --role data-engineer --phase verify --installed
       -  knowledge-work-data/explore-data
       -  knowledge-work-data/validate-data
+      -  superpowers/test-driven-development
       …
 ```
 
@@ -127,6 +161,25 @@ $ open-skill search --role data-engineer --phase verify --installed
 | Sản phẩm & delivery | product manager, business analyst, UX designer, technical writer, scrum master |
 
 Mỗi role pack ghi rủi ro đặc thù của vai trò, các nguyên tắc (dùng làm constitution cho spec-kit), tín hiệu nhận diện project, và skill primary/alternative cho từng phase.
+
+## Các framework được tích hợp
+
+Adapter mô tả skill của từng nguồn dưới dạng metadata và trỏ tới trình cài đặt chính thức; repo không chép nội dung của nguồn nào.
+
+| Nguồn | Vai trò trong chuỗi | Giấy phép |
+|---|---|---|
+| [superpowers](https://github.com/obra/superpowers) | Kỷ luật thực thi: duyệt thiết kế, kế hoạch, TDD, debug, xác minh | MIT |
+| [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) | Bạn đồng hành tư duy, persona, artefact lập kế hoạch, build vừa cỡ (cần `bmad setup`) | MIT, nhãn hiệu |
+| [spec-kit](https://github.com/github/spec-kit) | Spec bền vững → plan → tasks → implement → converge (cần `specify init`) | MIT |
+| [codegraph](https://github.com/colbymchenry/codegraph) | Đồ thị tri thức về code: đường gọi hàm, tác động, test bị ảnh hưởng | MIT |
+| [Anthropic skills](https://github.com/anthropics/skills) | Tài liệu, viết skill, MCP server, kiểm thử web, thiết kế frontend | theo từng skill |
+| [Knowledge-work plugins](https://github.com/anthropics/knowledge-work-plugins) | Dữ liệu, kỹ thuật, quản lý sản phẩm, thiết kế | Apache-2.0 |
+| [Context7](https://github.com/upstash/context7) | Tài liệu thư viện mới nhất | MIT |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | Giải pháp tối giản và review chống over-engineering | MIT |
+| [taste-skill](https://github.com/leonxlnx/taste-skill) | Chất lượng thị giác của frontend | MIT |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Vòng đời kỹ thuật: spec, chia task, lát mỏng, observability, hardening, migration, launch | MIT |
+| [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | Quy tắc React, Next.js và React Native, review UI và văn phong, deploy Vercel và tối ưu chi phí | MIT |
+| Skill có sẵn của Claude Code | code-review, security-review, run, claude-api, schedule… | — |
 
 ## Thích ứng theo model
 
@@ -151,7 +204,7 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 Skill chạy với quyền của agent, nên hãy xem xét một skill trước khi tin nó. `open-skill audit` hỗ trợ việc đó: lệnh đọc mọi file trong thư mục skill (SKILL.md, references, scripts, assets) và báo những dòng cần người xem lại. Lệnh không bao giờ chạy, sửa, hay đi theo liên kết ra khỏi các file được kiểm tra.
 
 ```bash
-open-skill audit ./skill-vua-tai            # một thư mục, trước khi cài
+open-skill audit ./downloaded-skill        # một thư mục, trước khi cài
 open-skill audit --installed               # mọi skill đã cài, nhóm theo nguồn
 open-skill audit --installed --format json # cho công cụ khác
 ```
@@ -185,9 +238,30 @@ open-skill upgrade             # backup, nâng schema dữ liệu, đồng bộ 
 
 **Skill nội bộ của công ty** được đặt trong một **overlay L1**: một repo riêng có cùng cấu trúc, nạp qua `--overlay`. Bạn không cần fork repo này và cũng không phải đưa gì nội bộ lên public.
 
+## CLI
+
+```text
+open-skill route "<task>" [--project .] [--agent a] [--role r] [--size s] [--phase p] [--model m] [--explain | --why-not <skill>]
+open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed] [--agent a]
+open-skill doctor                   open-skill scan [--agent a] [--memory]
+open-skill agents [--project .]     open-skill install <skill|folder> --agent a [--project .] [--symlink] [--dry-run]
+open-skill remove <skill> --agent a [--project .] [--dry-run]    open-skill update [--agent a] [--dry-run]
+open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
+open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
+open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
+open-skill audit [paths] [--installed] [--format json] [--strict]
+open-skill adapter draft|check --source <name> --from <upstream checkout>
+```
+
 ## Đóng góp
 
 Bạn có thể thêm adapter, role pack hoặc hồ sơ model; xem [CONTRIBUTING.md](CONTRIBUTING.md). Mỗi thay đổi đều chạy: unit test, routing eval cho mọi vai trò, validate schema, lint skill, kiểm tra file sinh tự động, và privacy guard.
+
+Chính repo này cũng được phát triển theo hướng spec-driven: xem `.specify/memory/constitution.md` và `specs/`.
+
+## Lời cảm ơn
+
+Dự án dựa trên ý tưởng và công sức của superpowers (Jesse Vincent), BMad Method (BMad Code, LLC), spec-kit (GitHub), codegraph (Colby McHenry), Agent Skills và plugin của Anthropic, Context7 (Upstash), ponytail, taste-skill, agent-skills của Addy Osmani và agent-skills của Vercel. Xem [NOTICE](NOTICE).
 
 ## Giấy phép
 

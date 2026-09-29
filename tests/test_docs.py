@@ -81,3 +81,31 @@ def _vietnamese_prose(path: Path) -> list[int]:
 def test_spec_and_changelog_prose_is_english():
     for name in ("spec/SPEC.md", "CHANGELOG.md", "CONTRIBUTING.md"):
         assert not _vietnamese_prose(REPO / name), f"{name}: put Vietnamese examples in code spans"
+
+
+def _structure(text: str) -> tuple[list[int], list[tuple[str, list[str]]]]:
+    """Heading levels outside code, and each fenced block's language and lines without comments (comments and
+    prose are translated; commands and output are not)."""
+    levels, blocks, fence = [], [], None
+    for line in text.splitlines():
+        if line.startswith("```"):
+            if fence is None:
+                fence = (line[3:].strip(), [])
+            else:
+                blocks.append(fence)
+                fence = None
+        elif fence is not None:
+            code = re.sub(r"\s+# .*$", "", line) if fence[0] == "bash" else line.rstrip()
+            if code and not code.lstrip().startswith("#"):
+                fence[1].append(code)
+        elif re.match(r"#{1,6} ", line):
+            levels.append(len(line.split()[0]))
+    return levels, blocks
+
+
+def test_vietnamese_readme_is_a_structural_translation():
+    en, vi = (REPO / "README.md").read_text(), (REPO / "README.vi.md").read_text()
+    (en_levels, en_blocks), (vi_levels, vi_blocks) = _structure(en), _structure(vi)
+    assert vi_levels == en_levels, "README.vi.md needs the same sections as README.md"
+    assert vi_blocks == en_blocks, "README.vi.md needs the same command and output blocks as README.md"
+    assert "[Tiếng Việt](README.vi.md)" in en.split("\n## ")[0] and "[English](README.md)" in vi.split("\n## ")[0]
