@@ -25,20 +25,23 @@ skills:
     produces: [idea-brief]
     requires: ["project:_bmad"]
     task_size: [medium, large]
-    triggers: [idea, "pressure-test", "stress-test", hypothesis, giả thuyết, ý tưởng]
+    triggers: [idea, "pressure-test", "stress-test", hypothesis]
+    triggers_i18n: {vi: [giả thuyết, ý tưởng]}
   - name: bmad-brainstorming
     description: Divergent brainstorming session with 60+ creative techniques
     phases: [discover]
     produces: [idea-brief]
     requires: ["project:_bmad"]
     task_size: [medium, large]
-    triggers: [brainstorm, ideate, "many ideas", ý tưởng]
+    triggers: [brainstorm, ideate, "many ideas"]
+    triggers_i18n: {vi: [ý tưởng]}
   - name: bmad-advanced-elicitation
     description: Make the model critique and refine its own output - pre-mortem, red team, socratic, first principles
     phases: [verify, review]
     requires: ["project:_bmad"]
     task_size: [medium, large]
-    triggers: ["red team", "pre-mortem", critique, phản biện]
+    triggers: ["red team", "pre-mortem", critique]
+    triggers_i18n: {vi: [phản biện]}
   - name: bmad-party-mode
     description: Roundtable discussion between several agent personas or custom personas
     phases: [discover, review]
@@ -51,7 +54,8 @@ skills:
     produces: [research-report]
     requires: ["project:_bmad"]
     task_size: [medium, large]
-    triggers: [research, compare, "choose between", nghiên cứu, so sánh]
+    triggers: [research, compare, "choose between"]
+    triggers_i18n: {vi: [nghiên cứu, so sánh]}
   - name: bmad-prfaq
     description: Working-backwards press release and FAQ to test a product concept
     phases: [discover, specify]
@@ -85,7 +89,8 @@ skills:
     produces: [adr]
     requires: ["project:_bmad"]
     task_size: [medium, large]
-    triggers: [architecture, adr, "solution design", kiến trúc]
+    triggers: [architecture, adr, "solution design"]
+    triggers_i18n: {vi: [kiến trúc]}
   - name: bmad-ux
     description: Capture the UX vision in DESIGN.md and EXPERIENCE.md
     phases: [plan]

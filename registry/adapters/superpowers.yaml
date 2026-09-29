@@ -17,14 +17,16 @@ skills:
     phases: [discover, specify]
     produces: [spec]
     task_size: [medium, large]
-    triggers: [design, "approved design", brainstorm, thiết kế]
+    triggers: [design, "approved design", brainstorm]
+    triggers_i18n: {vi: [thiết kế]}
   - name: writing-plans
     description: Turn a spec into a bite-sized, test-first implementation plan
     phases: [plan]
     consumes: [spec]
     produces: [plan, tasks]
     task_size: [medium, large]
-    triggers: ["implementation plan", "write the plan", kế hoạch triển khai]
+    triggers: ["implementation plan", "write the plan"]
+    triggers_i18n: {vi: [kế hoạch triển khai]}
   - name: subagent-driven-development
     description: Execute a plan task by task with fresh subagents and review between tasks
     phases: [build]
@@ -46,13 +48,15 @@ skills:
     phases: [build, verify]
     produces: [test-suite, code-change]
     task_size: [small, medium, large]
-    triggers: [tdd, "test first", "unit test", "viết test trước"]
+    triggers: [tdd, "test first", "unit test"]
+    triggers_i18n: {vi: [viết test trước]}
   - name: systematic-debugging
     description: Find the root cause of a bug, failing test or unexpected behavior before proposing a fix
     phases: [operate]
     produces: [runbook]
     task_size: [small, medium, large]
-    triggers: [bug, debug, "root cause", failing, lỗi]
+    triggers: [bug, debug, "root cause", failing]
+    triggers_i18n: {vi: [lỗi]}
   - name: verification-before-completion
     description: Run the real checks and read their output before claiming work is done
     phases: [verify, release]

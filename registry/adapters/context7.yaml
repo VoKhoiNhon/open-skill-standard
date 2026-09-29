@@ -13,7 +13,8 @@ skills:
     description: Fetch current library and API documentation before writing code against it
     phases: [research, build]
     task_size: [small, medium, large]
-    triggers: [library, framework, sdk, api, docs, documentation, version, tài liệu thư viện]
+    triggers: [library, framework, sdk, api, docs, documentation, version]
+    triggers_i18n: {vi: [tài liệu thư viện]}
   - name: context7-cli
     description: Use the ctx7 CLI for docs and skill management
     phases: [research]

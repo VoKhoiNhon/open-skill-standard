@@ -21,7 +21,8 @@ skills:
     phases: [plan, review]
     requires: ["project:.codegraph"]
     task_size: [medium, large]
-    triggers: [impact, "what breaks", "blast radius", ảnh hưởng]
+    triggers: [impact, "what breaks", "blast radius"]
+    triggers_i18n: {vi: [ảnh hưởng]}
   - name: affected
     kind: tool
     description: Test files affected by changed source files (codegraph affected)

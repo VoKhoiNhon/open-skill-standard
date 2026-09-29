@@ -17,7 +17,8 @@ skills:
     roles: {ai-engineer: 1.0, data-ai-platform-engineer: 0.9}
     produces: [eval-suite]
     task_size: [small, medium, large]
-    triggers: [skill, "create a skill", eval, "tạo skill"]
+    triggers: [skill, "create a skill", eval]
+    triggers_i18n: {vi: [tạo skill]}
   - name: mcp-builder
     description: Build high-quality MCP servers
     phases: [build]
@@ -36,7 +37,8 @@ skills:
     phases: [build]
     roles: {frontend-developer: 1.0, fullstack-developer: 0.8, ux-designer: 0.8}
     task_size: [small, medium, large]
-    triggers: [ui, frontend, "landing page", design, giao diện]
+    triggers: [ui, frontend, "landing page", design]
+    triggers_i18n: {vi: [giao diện]}
   - name: web-artifacts-builder
     description: Multi-component HTML artifacts with modern frontend tooling
     phases: [build]

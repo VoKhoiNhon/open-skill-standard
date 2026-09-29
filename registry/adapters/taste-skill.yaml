@@ -14,7 +14,8 @@ skills:
     phases: [build]
     roles: {frontend-developer: 1.0, fullstack-developer: 0.8, ux-designer: 0.8, game-developer: 0.4}
     task_size: [small, medium, large]
-    triggers: [ui, landing, "landing page", portfolio, beautiful, giao diện đẹp]
+    triggers: [ui, landing, "landing page", portfolio, beautiful]
+    triggers_i18n: {vi: [giao diện đẹp]}
   - name: redesign-skill
     description: Upgrade an existing site or app to premium visual quality
     phases: [build, review]
