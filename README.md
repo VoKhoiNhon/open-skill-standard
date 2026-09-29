@@ -22,7 +22,7 @@ Open Skill Standard adds the missing layer: metadata about **which role a skill 
 | `open-skill-intel` skill | Sends each question to the best source: codegraph, Context7, schemas, the web, your notes, the skill graph |
 | `open-skill-learn` skill | Remembers your lessons and preferences so future routes use them |
 | `open-skill` CLI | `route`, `search`, `scan`, `doctor`, `build`, `validate`, `lint`, `init`, `learn`, `feedback`… |
-| Registry | 14 adapters describing 150+ upstream skills and tools, 28 role packs, 9 model profiles |
+| Registry | 15 adapters describing 180+ upstream skills and tools, 28 role packs, 9 model profiles |
 
 ## Quick start
 
@@ -162,6 +162,7 @@ Adapters describe upstream skills as metadata and point to the official installe
 | [Context7](https://github.com/upstash/context7) | Current library documentation | MIT |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Minimal solutions and over-engineering reviews | MIT |
 | [taste-skill](https://github.com/leonxlnx/taste-skill) | Frontend visual quality | MIT |
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Engineering lifecycle: specs, task breakdown, thin slices, observability, hardening, migrations, launch | MIT |
 | Claude Code built-ins | code-review, security-review, run, claude-api, schedule… | — |
 
 ## Adapts to the model
@@ -233,7 +234,7 @@ This repository is itself developed spec-driven: see `.specify/memory/constituti
 
 ## Acknowledgements
 
-Built on ideas and work from superpowers (Jesse Vincent), BMad Method (BMad Code, LLC), spec-kit (GitHub), codegraph (Colby McHenry), Anthropic's Agent Skills and plugins, Context7 (Upstash), ponytail and taste-skill. See [NOTICE](NOTICE).
+Built on ideas and work from superpowers (Jesse Vincent), BMad Method (BMad Code, LLC), spec-kit (GitHub), codegraph (Colby McHenry), Anthropic's Agent Skills and plugins, Context7 (Upstash), ponytail, taste-skill and Addy Osmani's agent-skills. See [NOTICE](NOTICE).
 
 ## License
 

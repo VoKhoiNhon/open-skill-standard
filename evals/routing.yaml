@@ -88,6 +88,12 @@ cases:
      first: knowledge-work-engineering/incident-response}
   - {id: sre-spec-kit, role: site-reliability-engineer, task: "add alerts for the payment API latency",
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
+  - {id: sre-observability, role: site-reliability-engineer, task: "add alerts and tracing for the payment API latency",
+     include: [addy-agent-skills/observability-and-instrumentation], exclude: [superpowers/subagent-driven-development]}
+  - {id: sre-vietnamese-observability, role: site-reliability-engineer, task: "thêm cảnh báo và giám sát độ trễ API thanh toán",
+     include: [addy-agent-skills/observability-and-instrumentation]}
+  - {id: sre-build-generic, role: site-reliability-engineer, task: "add a retry queue for failed payments",
+     include: [superpowers/subagent-driven-development]}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
   - {id: cloud-cost, role: cloud-engineer, task: "our cloud cost doubled this month",
@@ -110,6 +116,10 @@ cases:
      phases: [review], include: [claude-code-builtin/security-review]}
   - {id: security-spec-kit, role: security-engineer, task: "add CSRF protection to the forms",
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement, claude-code-builtin/security-review]}
+  - {id: security-hardening, role: security-engineer, task: "harden the session handling against OWASP issues",
+     include: [addy-agent-skills/security-and-hardening, claude-code-builtin/security-review]}
+  - {id: security-csrf, role: security-engineer, task: "add CSRF protection to the forms",
+     include: [addy-agent-skills/security-and-hardening]}
   - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
      include: [knowledge-work-data/sql-queries]}
   - {id: dba-slow, role: database-administrator, task: "the orders database is slow since yesterday",
@@ -120,6 +130,9 @@ cases:
      include: [knowledge-work-data/write-query]}
   - {id: dba-upgrade-plan, role: database-administrator, task: "plan the upgrade to the new database major version",
      phases: [plan], exclude: [superpowers/subagent-driven-development]}
+  - {id: dba-zero-downtime-migration, role: database-administrator,
+     task: "migrate the orders schema to split the address column without downtime",
+     include: [addy-agent-skills/deprecation-and-migration, knowledge-work-data/write-query]}
   - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
      include: [superpowers/subagent-driven-development]}
   - {id: sysadmin-spec-kit, role: system-administrator, task: "add log rotation to the web servers",

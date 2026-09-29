@@ -22,7 +22,7 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 | Skill `open-skill-intel` | Đưa mỗi câu hỏi tới nguồn tốt nhất: codegraph, Context7, schema, web, ghi chú của bạn, skill graph |
 | Skill `open-skill-learn` | Ghi nhớ bài học và thói quen để các lần route sau dùng |
 | CLI `open-skill` | `route`, `search`, `scan`, `doctor`, `build`, `validate`, `lint`, `init`, `learn`, `feedback`… |
-| Registry | 14 adapter mô tả hơn 150 skill và tool upstream, 28 role pack, 9 hồ sơ model |
+| Registry | 15 adapter mô tả hơn 180 skill và tool upstream, 28 role pack, 9 hồ sơ model |
 
 ## Bắt đầu nhanh
 

@@ -1,5 +1,8 @@
 graph LR
   subgraph discover
+    addy_agent_skills_idea_refine["addy-agent-skills/idea-refine"]
+    addy_agent_skills_interview_me["addy-agent-skills/interview-me"]
+    addy_agent_skills_using_agent_skills["addy-agent-skills/using-agent-skills"]
     bmad_method_bmad["bmad-method/bmad"]
     bmad_method_bmad_brainstorming["bmad-method/bmad-brainstorming"]
     bmad_method_bmad_forge_idea["bmad-method/bmad-forge-idea"]
@@ -15,6 +18,7 @@ graph LR
     superpowers_using_superpowers["superpowers/using-superpowers"]
   end
   subgraph research
+    addy_agent_skills_source_driven_development["addy-agent-skills/source-driven-development"]
     anthropic_skills_claude_api["anthropic-skills/claude-api"]
     bmad_method_bmad_agent_analyst["bmad-method/bmad-agent-analyst"]
     bmad_method_bmad_deep_recon["bmad-method/bmad-deep-recon"]
@@ -32,6 +36,8 @@ graph LR
     spec_kit_assess_research["spec-kit/assess-research"]
   end
   subgraph specify
+    addy_agent_skills_constraint_driven_development["addy-agent-skills/constraint-driven-development"]
+    addy_agent_skills_spec_driven_development["addy-agent-skills/spec-driven-development"]
     anthropic_skills_doc_coauthoring["anthropic-skills/doc-coauthoring"]
     bmad_method_bmad_agent_pm["bmad-method/bmad-agent-pm"]
     bmad_method_bmad_prd["bmad-method/bmad-prd"]
@@ -44,6 +50,10 @@ graph LR
     spec_kit_specify["spec-kit/specify"]
   end
   subgraph plan
+    addy_agent_skills_api_and_interface_design["addy-agent-skills/api-and-interface-design"]
+    addy_agent_skills_deprecation_and_migration["addy-agent-skills/deprecation-and-migration"]
+    addy_agent_skills_documentation_and_adrs["addy-agent-skills/documentation-and-adrs"]
+    addy_agent_skills_planning_and_task_breakdown["addy-agent-skills/planning-and-task-breakdown"]
     bmad_method_bmad_agent_architect["bmad-method/bmad-agent-architect"]
     bmad_method_bmad_agent_ux_designer["bmad-method/bmad-agent-ux-designer"]
     bmad_method_bmad_architecture["bmad-method/bmad-architecture"]
@@ -70,6 +80,12 @@ graph LR
     taste_skill_stitch_skill["taste-skill/stitch-skill"]
   end
   subgraph build
+    addy_agent_skills_ci_cd_and_automation["addy-agent-skills/ci-cd-and-automation"]
+    addy_agent_skills_frontend_ui_engineering["addy-agent-skills/frontend-ui-engineering"]
+    addy_agent_skills_git_workflow_and_versioning["addy-agent-skills/git-workflow-and-versioning"]
+    addy_agent_skills_incremental_implementation["addy-agent-skills/incremental-implementation"]
+    addy_agent_skills_observability_and_instrumentation["addy-agent-skills/observability-and-instrumentation"]
+    addy_agent_skills_test_driven_development["addy-agent-skills/test-driven-development"]
     anthropic_skills_algorithmic_art["anthropic-skills/algorithmic-art"]
     anthropic_skills_canvas_design["anthropic-skills/canvas-design"]
     anthropic_skills_frontend_design["anthropic-skills/frontend-design"]
@@ -106,6 +122,7 @@ graph LR
     taste_skill_taste_skill_v1["taste-skill/taste-skill-v1"]
   end
   subgraph verify
+    addy_agent_skills_browser_testing_with_devtools["addy-agent-skills/browser-testing-with-devtools"]
     anthropic_skills_webapp_testing["anthropic-skills/webapp-testing"]
     bmad_method_bmad_advanced_elicitation["bmad-method/bmad-advanced-elicitation"]
     bmad_method_bmad_qa_generate_e2e_tests["bmad-method/bmad-qa-generate-e2e-tests"]
@@ -121,6 +138,10 @@ graph LR
     superpowers_verification_before_completion["superpowers/verification-before-completion"]
   end
   subgraph review
+    addy_agent_skills_code_review_and_quality["addy-agent-skills/code-review-and-quality"]
+    addy_agent_skills_code_simplification["addy-agent-skills/code-simplification"]
+    addy_agent_skills_doubt_driven_development["addy-agent-skills/doubt-driven-development"]
+    addy_agent_skills_security_and_hardening["addy-agent-skills/security-and-hardening"]
     anthropic_skills_discernment_nudge["anthropic-skills/discernment-nudge"]
     bmad_method_bmad_code_review["bmad-method/bmad-code-review"]
     bmad_method_bmad_review["bmad-method/bmad-review"]
@@ -138,6 +159,7 @@ graph LR
     superpowers_requesting_code_review["superpowers/requesting-code-review"]
   end
   subgraph release
+    addy_agent_skills_shipping_and_launch["addy-agent-skills/shipping-and-launch"]
     anthropic_skills_brand_guidelines["anthropic-skills/brand-guidelines"]
     anthropic_skills_docx["anthropic-skills/docx"]
     anthropic_skills_internal_comms["anthropic-skills/internal-comms"]
@@ -155,6 +177,8 @@ graph LR
     superpowers_finishing_a_development_branch["superpowers/finishing-a-development-branch"]
   end
   subgraph operate
+    addy_agent_skills_debugging_and_error_recovery["addy-agent-skills/debugging-and-error-recovery"]
+    addy_agent_skills_performance_optimization["addy-agent-skills/performance-optimization"]
     claude_code_builtin_fewer_permission_prompts["claude-code-builtin/fewer-permission-prompts"]
     claude_code_builtin_loop["claude-code-builtin/loop"]
     claude_code_builtin_schedule["claude-code-builtin/schedule"]
@@ -164,6 +188,7 @@ graph LR
     superpowers_systematic_debugging["superpowers/systematic-debugging"]
   end
   subgraph learn
+    addy_agent_skills_context_engineering["addy-agent-skills/context-engineering"]
     anthropic_skills_academy_guide["anthropic-skills/academy-guide"]
     bmad_method_bmad_project_context["bmad-method/bmad-project-context"]
     bmad_method_bmad_retrospective["bmad-method/bmad-retrospective"]
@@ -176,6 +201,17 @@ graph LR
     ponytail_ponytail_help["ponytail/ponytail-help"]
     superpowers_diagnosing_superpowers["superpowers/diagnosing-superpowers"]
   end
+  addy_agent_skills_api_and_interface_design --> artifact_adr((adr))
+  addy_agent_skills_debugging_and_error_recovery --> artifact_runbook((runbook))
+  addy_agent_skills_documentation_and_adrs --> artifact_adr((adr))
+  addy_agent_skills_frontend_ui_engineering --> artifact_code_change((code-change))
+  addy_agent_skills_idea_refine --> artifact_idea_brief((idea-brief))
+  addy_agent_skills_incremental_implementation --> artifact_code_change((code-change))
+  addy_agent_skills_planning_and_task_breakdown --> artifact_plan((plan))
+  addy_agent_skills_planning_and_task_breakdown --> artifact_tasks((tasks))
+  addy_agent_skills_spec_driven_development --> artifact_spec((spec))
+  addy_agent_skills_test_driven_development --> artifact_test_suite((test-suite))
+  addy_agent_skills_test_driven_development --> artifact_code_change((code-change))
   anthropic_skills_skill_creator --> artifact_eval_suite((eval-suite))
   anthropic_skills_webapp_testing --> artifact_test_suite((test-suite))
   bmad_method_bmad_architecture --> artifact_adr((adr))

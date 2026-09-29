@@ -44,6 +44,7 @@ phases:
     alternatives:
     - bmad-method/bmad-ticket
     - knowledge-work-engineering/system-design
+    - addy-agent-skills/deprecation-and-migration
   build:
     primary:
     - knowledge-work-data/sql-queries

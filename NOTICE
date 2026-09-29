@@ -21,6 +21,7 @@ Referenced projects:
 - Context7 — https://github.com/upstash/context7 — MIT — Upstash
 - ponytail — https://github.com/DietrichGebert/ponytail — MIT
 - taste-skill — https://github.com/leonxlnx/taste-skill — MIT
+- agent-skills — https://github.com/addyosmani/agent-skills — MIT — Addy Osmani
 
 Prompting notes in registry/models/ summarize Anthropic's public prompting guidance in this
 project's own words and link to the source pages. Claude and Anthropic are trademarks of

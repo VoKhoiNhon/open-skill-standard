@@ -23,6 +23,7 @@ jobs:
           - {source: ponytail, repo: DietrichGebert/ponytail, dir: skills}
           - {source: taste-skill, repo: leonxlnx/taste-skill, dir: skills}
           - {source: context7, repo: upstash/context7, dir: "."}
+          - {source: addy-agent-skills, repo: addyosmani/agent-skills, dir: skills}
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
