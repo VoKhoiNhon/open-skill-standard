@@ -62,6 +62,12 @@ cases:
   - {id: game-vietnamese, role: game-developer, task: "thêm chế độ chơi nhiều người", include: [claude-code-builtin/run]}
   - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
      include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
+  - {id: qa-flaky, role: qa-engineer, task: "debug the flaky checkout tests",
+     first: superpowers/systematic-debugging, include: [anthropic-skills/webapp-testing]}
+  - {id: qa-vietnamese, role: qa-engineer, task: "viết test tự động cho luồng đăng ký",
+     include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
+  - {id: qa-bmad, role: qa-engineer, task: "add tests for the refund feature", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-qa-generate-e2e-tests]}
   - {id: devops, role: devops-engineer, task: "add a CI pipeline that builds and deploys the container",
      include: [superpowers/subagent-driven-development]}
   - {id: sre-incident, role: site-reliability-engineer, task: "the API has an outage and error rate is spiking",
