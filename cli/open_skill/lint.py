@@ -36,7 +36,7 @@ PATTERNS = [
      "Setting temperature, top_p or top_k returns a 400 error on Claude Sonnet 5; describe the variety you want instead.",
      SONNET5 + "#tone-and-writing-style"),
 ]
-REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|don'?t nitpick)")
+REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|(don['’]?t|do not) nitpick)")
 SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
 SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 # Extensions some agents read (Claude Code documents these); everything else is probably a typo.
@@ -191,7 +191,7 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
     for rule_id, _, rx, msg, _ in PATTERNS:
         if rx.search(body):
             add(rule_id, msg)
-    if re.search(r"(?i)review", name + " " + desc) and REVIEW_FILTER.search(body):
+    if re.search(r"(?i)\breview", name + " " + desc) and REVIEW_FILTER.search(body):
         add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.", SONNET5)
     if sum(1 for line in prose(body).splitlines() if SHOUT.search(line)) > 5:
         add("shouting", "Explain why instead of capitalized MUST/NEVER; current models overreact to aggressive emphasis.")

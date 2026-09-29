@@ -327,3 +327,12 @@ def test_hardcoded_model_ids(body, fires):
 def test_hardcoded_model_cites_this_standard():
     (f,) = [f for f in lint.lint_text(doc("Use claude-opus-5.")) if f.rule == "hardcoded-model"]
     assert "open-skill-standard" in f.source and "SPEC.md" in f.source
+
+
+@pytest.mark.parametrize("body", ["Don’t nitpick style.", "Do not nitpick.", "Only report high severity bugs.", "Be conservative."])
+def test_review_filtering_phrasings(body):
+    assert "review-filtering" in rules(doc(body, name="code-review-pass", desc="Reviews a diff."))
+
+
+def test_review_filtering_needs_a_review_skill_not_a_preview_one():
+    assert "review-filtering" not in rules(doc("Be conservative with memory.", name="image-preview", desc="Preview images."))
