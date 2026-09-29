@@ -40,9 +40,9 @@ PATTERNS = [
 REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|(don['’]?t|do not) nitpick)")
 SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
 SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
-# Extensions some agents read (Claude Code documents these); everything else is probably a typo.
-AGENT_FIELDS = {"when_to_use", "argument-hint", "disable-model-invocation", "user-invocable", "model", "effort",
-                "context", "agent", "hooks", "paths", "version"}
+# Extensions Claude Code documents in its frontmatter reference; everything else is probably a typo.
+AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
+                "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"}
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
 FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
 
@@ -83,7 +83,8 @@ rule("name-matches-folder", "error", "`name` equals the name of the folder holdi
      SKILLS_REF)
 rule("frontmatter-description", "error", "`description` is a non-blank string of at most 1024 characters", SPEC)
 rule("description-angle-brackets", "error", "`description` has no `<` or `>`, which Anthropic's packager rejects", QUICK_VALIDATE)
-rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or a documented agent extension", SPEC)
+rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or one Claude Code documents",
+     CLAUDE_SKILLS + "#frontmatter-reference")
 rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
 rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
 rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
@@ -117,9 +118,9 @@ class Finding:
     severity: str = "error"
 
 
-def _finding(path, rule_id: str, message: str, source: str | None = None) -> Finding:
+def _finding(path, rule_id: str, message: str) -> Finding:
     r = RULES[rule_id]
-    return Finding(str(path), rule_id, message, source or r.source, r.severity)
+    return Finding(str(path), rule_id, message, r.source, r.severity)
 
 
 def _not_text(meta: dict, key: str) -> str | None:
@@ -159,23 +160,23 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
     elif "<" in desc or ">" in desc:
         add("description-angle-brackets", "description must not contain < or >; Anthropic's packager rejects it")
     for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS):
-        add("unknown-field", f"'{key}' is not an Agent Skills field; agents will ignore it (put custom data under metadata)", SPEC)
+        add("unknown-field", f"'{key}' is neither an Agent Skills field nor one Claude Code documents; agents ignore it (put custom data under metadata)")
     if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):
-        add("field-compatibility", "compatibility must be a string of 1-500 characters", SPEC)
+        add("field-compatibility", "compatibility must be a string of 1-500 characters")
     md = meta.get("metadata")
     if "metadata" in meta and not (isinstance(md, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in md.items())):
-        add("field-metadata", "metadata must map string keys to string values (quote numbers like \"1.0\")", SPEC)
+        add("field-metadata", "metadata must map string keys to string values (quote numbers like \"1.0\")")
     if "allowed-tools" in meta and not isinstance(meta["allowed-tools"], str):
-        add("field-allowed-tools", "allowed-tools should be one space-separated string", SPEC)
+        add("field-allowed-tools", "allowed-tools should be one space-separated string")
     if "license" in meta and not isinstance(meta["license"], str):
-        add("field-license", "license should be a short string or the name of a bundled license file", SPEC)
+        add("field-license", "license should be a short string or the name of a bundled license file")
 
 
 def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
     out: list[Finding] = []
 
-    def add(rule_id, msg, src=None):
-        out.append(_finding(path, rule_id, msg, src))
+    def add(rule_id, msg):
+        out.append(_finding(path, rule_id, msg))
 
     try:
         meta, body = frontmatter.split(text)
@@ -190,12 +191,12 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
     if tokens > 5000:  # the spec recommends under 5000 tokens for instructions
         add("body-tokens", f"instructions are about {tokens} tokens; keep SKILL.md under ~5000 and move detail to references/")
     if len(text.splitlines()) > 500:
-        add("length", "SKILL.md over 500 lines; move detail into reference files", BEST)
+        add("length", "SKILL.md over 500 lines; move detail into reference files")
     for rule_id, _, rx, msg, _ in PATTERNS:
         if rx.search(body):
             add(rule_id, msg)
     if re.search(r"(?i)\breview", name + " " + desc) and REVIEW_FILTER.search(body):
-        add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.", SONNET5)
+        add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.")
     if sum(1 for line in prose(body).splitlines() if SHOUT.search(line)) > 5:
         add("shouting", "Explain why instead of capitalized MUST/NEVER; current models overreact to aggressive emphasis.")
     return out

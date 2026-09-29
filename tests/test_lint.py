@@ -366,3 +366,27 @@ def test_missing_reference_cases(tmp_path, body, expected):
     found = lint.lint_file(d / "SKILL.md")
     assert [f.rule for f in found] == expected
     assert all(f.severity == lint.RULES[f.rule].severity for f in found)
+
+
+# Every field in the Claude Code frontmatter reference (code.claude.com/docs/en/skills#frontmatter-reference).
+CLAUDE_CODE_FIELDS = ["when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
+                      "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"]
+
+
+@pytest.mark.parametrize("key", CLAUDE_CODE_FIELDS)
+def test_documented_claude_code_fields_are_known(key):
+    assert "unknown-field" not in rules(fm(f"{key}: x"))
+
+
+@pytest.mark.parametrize("key", ["version", "homepage", "triggers", "descripton"])
+def test_undocumented_fields_warn(key):
+    # The spec's own example keeps version under metadata; no agent reads a top-level one.
+    assert rules(fm(f"{key}: x")) == ["unknown-field"]
+
+
+def test_every_finding_cites_its_rule_source():
+    text = fm("version: 1\nlicense: {a: b}\nallowed-tools: [Read]", "Only report high-severity bugs. " + "MUST\n" * 6 + "\n" * 500)
+    found = lint.lint_text(text.replace("good-skill", "review-bot"), folder="other")
+    assert len({f.rule for f in found}) >= 6
+    for f in found:
+        assert f.source == lint.RULES[f.rule].source, f.rule
