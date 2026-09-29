@@ -98,6 +98,14 @@ cases:
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: security, role: security-engineer, task: "review the login flow for security issues",
      phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: security-leak, role: security-engineer, task: "a secret was leaked in the repo, handle the incident",
+     first: knowledge-work-engineering/incident-response}
+  - {id: security-research, role: security-engineer, task: "research SAST tools to compare for the monorepo",
+     phases: [research]}
+  - {id: security-vietnamese-review, role: security-engineer, task: "rà soát bảo mật luồng đăng nhập",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: security-spec-kit, role: security-engineer, task: "add CSRF protection to the forms",
+     files: [.specify/memory/constitution.md], include: [spec-kit/implement, claude-code-builtin/security-review]}
   - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
      include: [knowledge-work-data/sql-queries]}
   - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
