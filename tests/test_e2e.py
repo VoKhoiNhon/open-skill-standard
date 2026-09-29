@@ -472,6 +472,13 @@ def test_counts_must_be_positive(cli):
     assert "positive" in cli.run("search", "tests", "--limit", "-1", code=2).stderr
     assert "positive" in cli.run("eval", "triggers", "--agent", "claude", "--runs", "0", code=2).stderr
 
+
+def test_install_into_a_missing_project_is_refused(cli):
+    # Bug: a mistyped --project was created, skill folders and all.
+    typo = cli.tmp / "projetc"
+    _clean_error(cli.run("install", "open-skill-router", "--agent", "claude-code", "--project", str(typo), code=2))
+    assert not typo.exists()
+
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
 def _parser_surface() -> set[str]:

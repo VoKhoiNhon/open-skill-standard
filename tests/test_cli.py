@@ -406,6 +406,8 @@ def test_install_errors(capsys, tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     assert run(capsys, "install", "open-skill-router", "--agent", "nope")[0] == 2
     assert run(capsys, "install", "no-such-skill", "--agent", "codex")[0] == 2
+    assert run(capsys, "install", "open-skill-learn", "--agent", "codex", "--project", str(tmp_path / "p"))[0] == 2
+    (tmp_path / "p").mkdir()
     code, _ = run(capsys, "install", "open-skill-learn", "--agent", "codex", "--project", str(tmp_path / "p"), "--symlink")
     assert code == 0 and (tmp_path / "p/.agents/skills/open-skill-learn").is_symlink()
 

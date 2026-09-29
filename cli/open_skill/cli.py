@@ -140,7 +140,7 @@ def cmd_install(args):
     if agent is None:
         return 2
     try:
-        p = install.plan(install.resolve_source(args.skill), agent, Path(args.project) if args.project else None,
+        p = install.plan(install.resolve_source(args.skill), agent, paths.folder(args.project) if args.project else None,
                          "symlink" if args.symlink else "copy")
     except ValueError as e:
         print(e, file=sys.stderr)

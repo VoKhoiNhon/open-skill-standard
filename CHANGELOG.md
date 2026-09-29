@@ -21,6 +21,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- `install --project` must name an existing folder; a mistyped path used to be created along with the skill folders.
 - `search --limit` and `eval triggers --runs` must be positive: `--limit -1` silently dropped the last hit and `--runs 0` crashed.
 - `graph --out` creates the folders it needs, like `export` does.
 - `init --role name=weight` with a weight that is not a positive number exits 2 instead of crashing (or storing a negative weight).
