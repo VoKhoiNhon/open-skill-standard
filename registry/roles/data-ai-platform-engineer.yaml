@@ -40,7 +40,6 @@ phases:
     - bmad-method/bmad-architecture
     - knowledge-work-engineering/architecture
     alternatives:
-    - bmad-method/bmad-advanced-elicitation
     - superpowers/writing-plans
     - spec-kit/plan
   build:
@@ -64,6 +63,7 @@ phases:
     - ponytail/ponytail-audit
     alternatives:
     - codegraph/impact
+    - bmad-method/bmad-advanced-elicitation
   release:
     primary:
     - bmad-method/bmad-correct-course

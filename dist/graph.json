@@ -5094,11 +5094,6 @@
   },
   {
    "from": "role:security-engineer",
-   "to": "bmad-method/bmad-advanced-elicitation",
-   "type": "recommends"
-  },
-  {
-   "from": "role:security-engineer",
    "to": "superpowers/subagent-driven-development",
    "type": "recommends"
   },

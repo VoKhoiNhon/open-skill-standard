@@ -42,7 +42,6 @@ phases:
     - superpowers/writing-plans
     - bmad-method/bmad-architecture
     alternatives:
-    - bmad-method/bmad-advanced-elicitation
     - spec-kit/plan
   build:
     primary:
@@ -65,6 +64,7 @@ phases:
     - claude-code-builtin/code-review
     alternatives:
     - bmad-method/bmad-review
+    - bmad-method/bmad-advanced-elicitation
   release:
     primary:
     - superpowers/finishing-a-development-branch
