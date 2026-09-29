@@ -32,5 +32,9 @@ if __name__ == "__main__":
     render = section
     if args and args[0] == "title":
         render, args = title, args[1:]
-    ver = args[0].removeprefix("v")
-    sys.stdout.write(render(Path(args[1] if len(args) > 1 else "CHANGELOG.md").read_text(), ver) + ("\n" if render is title else ""))
+    ver, path = args[0].removeprefix("v"), Path(args[1] if len(args) > 1 else "CHANGELOG.md")
+    try:
+        out = render(path.read_text(), ver)
+    except KeyError:
+        sys.exit(f"::error::{path.name} has no section for {ver}; add ## [{ver}] - YYYY-MM-DD before tagging (see RELEASING.md)")
+    sys.stdout.write(out + ("\n" if render is title else ""))
