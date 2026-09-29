@@ -25,3 +25,17 @@ def test_atomic_write_keeps_old_content_on_failure(tmp_path, monkeypatch):
         userdata.atomic_write(p, "partial")
     assert p.read_text() == "safe"
     assert [x.name for x in tmp_path.iterdir()] == ["b.txt"]
+
+
+def test_fresh_home_is_current(tmp_path):
+    assert userdata.data_version(tmp_path / "new") == userdata.SCHEMA_VERSION
+
+
+def test_unversioned_existing_layout_is_version_zero(tmp_path):
+    (tmp_path / "knowledge").mkdir()
+    assert userdata.data_version(tmp_path) == 0
+
+
+def test_version_file_round_trip(tmp_path):
+    userdata.write_version(tmp_path, 7)
+    assert userdata.data_version(tmp_path) == 7

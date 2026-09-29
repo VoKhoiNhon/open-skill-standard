@@ -19,3 +19,21 @@ def atomic_write(path: Path, text: str) -> None:
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
         raise
+
+
+SCHEMA_VERSION = 1
+VERSION_FILE = "VERSION"
+_MARKERS = ("profile.yaml", "knowledge", "events.jsonl")
+
+
+def data_version(home: Path) -> int:
+    """Schema version of an existing user layer; 0 for layouts written before versioning existed."""
+    home = Path(home)
+    vf = home / VERSION_FILE
+    if vf.is_file():
+        return int(vf.read_text().strip() or 0)
+    return 0 if any((home / m).exists() for m in _MARKERS) else SCHEMA_VERSION
+
+
+def write_version(home: Path, version: int = SCHEMA_VERSION) -> None:
+    atomic_write(Path(home) / VERSION_FILE, f"{version}\n")
