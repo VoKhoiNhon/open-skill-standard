@@ -172,7 +172,7 @@ rule("broad-allowed-tools", "medium",
 
 rule("shell-at-load", "low", r"(^|\s)!`[^`]+`|^\s*```!",
      "runs a shell command while the skill loads, before the agent or the user sees the text; check what it runs",
-     "https://code.claude.com/docs/en/skills#inject-dynamic-context")
+     "https://code.claude.com/docs/en/skills#inject-dynamic-context", only=r"(^|[/\\])(SKILL\.md|commands[/\\][^/\\]+\.md)$")
 
 
 def _files(root: Path):

@@ -413,3 +413,13 @@ def test_hidden_comment_only_applies_where_comments_are_hidden(tmp_path):
         (tmp_path / name).write_text(body)
     hits = sorted(Path(f.file).name for f in audit.audit_paths([tmp_path]) if f.rule == "hidden-comment")
     assert hits == ["SKILL.md", "guide.mdx", "page.html"]
+
+
+def test_shell_at_load_only_where_the_agent_runs_it(tmp_path):
+    # Only SKILL.md and command files are preprocessed; a reference file documenting the syntax runs nothing.
+    line = "- Diff: !`git diff HEAD`\n"
+    for rel in ("SKILL.md", "commands/review.md", "references/component-schemas.md", "README.md", "notes.txt"):
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(line)
+    hits = sorted(str(Path(f.file).relative_to(tmp_path)) for f in audit.audit_paths([tmp_path]) if f.rule == "shell-at-load")
+    assert hits == ["SKILL.md", "commands/review.md"]
