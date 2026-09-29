@@ -34,6 +34,12 @@ cases:
   - {id: mobile, role: mobile-developer, task: "add offline sync to the notes screen", include: [claude-code-builtin/run]}
   - {id: mobile-crash, role: mobile-developer, task: "the app crashes on launch on Android 14",
      first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
+  - {id: mobile-hang, role: mobile-developer, task: "the app hangs when the network drops",
+     first: superpowers/systematic-debugging, include: [claude-code-builtin/run]}
+  - {id: mobile-review, role: mobile-developer, task: "review the pull request for push notifications",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: mobile-bmad, role: mobile-developer, task: "add a settings screen", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: embedded, role: embedded-engineer, task: "add a temperature sensor driver over I2C",
      include: [superpowers/test-driven-development]}
   - {id: embedded-spec-kit, role: embedded-engineer, task: "add a bootloader update over UART",
