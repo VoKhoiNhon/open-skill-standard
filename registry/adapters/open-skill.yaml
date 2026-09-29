@@ -16,7 +16,7 @@ skills:
     description: Pick and order the right installed skills for a task in any project and role
     phases: [discover]
     task_size: [medium, large]
-    triggers_i18n: {vi: [bắt đầu, quy trình]}
+    triggers_i18n: {vi: [bắt đầu, quy trình, dùng skill]}
   - name: open-skill-standards
     description: Definition-of-done checklists, general and per role
     phases: [verify, review]
