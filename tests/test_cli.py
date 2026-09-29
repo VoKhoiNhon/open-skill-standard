@@ -125,3 +125,9 @@ def test_playbook_renders_seed_objects_as_text():
     reg.roles["data-engineer"]["seeds"] = [{"id": "merge-key", "text": "Use MERGE on the key."}, "Legacy seed."]
     text = generate.role_playbook(reg, "data-engineer")
     assert "- Use MERGE on the key." in text and "- Legacy seed." in text and "merge-key" not in text
+
+
+def test_init_with_the_real_registry_seeds(capsys, tmp_path):
+    code = cli.main(["init", "--role", "data-engineer"])
+    assert code == 0
+    assert list((tmp_path / "h" / "knowledge").glob("*.md"))
