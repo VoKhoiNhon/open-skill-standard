@@ -85,6 +85,13 @@ rule("disable-confirmation", "high",
      "tells the agent to act without the user's approval, or claims approval was already given", OWASP_LLM06)
 
 
+PERMISSION_MODES = "https://code.claude.com/docs/en/permission-modes"
+rule("permission-bypass-flag", "medium",
+     r"--dangerously-skip-permissions|\bbypassPermissions\b|--dangerously-bypass-approvals-and-sandbox|--yolo\b"
+     r"|\bdanger-full-access\b|(--ask-for-approval|approval_policy|approval-policy)[\s=:\"']+never\b",
+     "turns off the agent's permission prompts or sandbox; nothing then stops a harmful command", PERMISSION_MODES)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():

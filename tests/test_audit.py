@@ -168,3 +168,19 @@ def test_disable_confirmation_flags(text):
 ])
 def test_disable_confirmation_ignores_ordinary_text(text):
     assert "disable-confirmation" not in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "claude --dangerously-skip-permissions -p 'fix it'",
+    '{"permissions": {"defaultMode": "bypassPermissions"}}',
+    "codex --dangerously-bypass-approvals-and-sandbox",
+    'sandbox_mode = "danger-full-access"',
+    'approval_policy = "never"',
+    "codex exec --ask-for-approval never",
+])
+def test_permission_bypass_flag_flags(text):
+    assert "permission-bypass-flag" in fired(text)
+
+
+def test_permission_bypass_flag_ignores_safe_modes():
+    assert "permission-bypass-flag" not in fired('sandbox_mode = "workspace-write"\napproval_policy = "on-request"')
