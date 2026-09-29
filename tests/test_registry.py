@@ -193,3 +193,17 @@ def test_validate_reports(tmp_path, case, rel, path, value, raw, expected):
     _edit(root, rel, path, value, raw)
     errors = registry.validate(registry.load(root))
     assert any(expected in e for e in errors), errors
+def test_bug_validate_rejects_a_role_entry_outside_the_skills_phases(tmp_path):
+    # Eight role pack entries named a skill for a phase it does not act in; the router never considers them there.
+    import shutil
+    root = tmp_path / "r"
+    shutil.copytree(FIX / "repo", root)
+    p = root / "registry/roles/data-engineer.yaml"
+    doc = yaml.safe_load(p.read_text())
+    sid = doc["phases"]["build"]["primary"][0]
+    skill = registry.load(root).skills[sid]
+    wrong = next(ph for ph in ("discover", "research", "release", "learn") if ph not in skill["phases"])
+    doc["phases"].setdefault(wrong, {}).setdefault("primary", []).append(sid)
+    p.write_text(yaml.safe_dump(doc))
+    errors = registry.validate(registry.load(root))
+    assert any(f"{wrong}.primary lists {sid}, which acts in" in e for e in errors)
