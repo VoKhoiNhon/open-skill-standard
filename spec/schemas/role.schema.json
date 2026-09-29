@@ -122,7 +122,28 @@
     "seeds": {
       "type": "array",
       "items": {
-        "type": "string"
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "text"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        ]
       }
     },
     "build_window": {
