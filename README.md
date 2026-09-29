@@ -170,11 +170,12 @@ Organizations can add private skills and house rules as an **L1 overlay** (a sep
 ## CLI
 
 ```text
-open-skill route "<task>" [--project .] [--role r] [--size s] [--model m] [--explain]
-open-skill search "<need>"          open-skill doctor           open-skill scan [--memory]
+open-skill route "<task>" [--project .] [--role r] [--size s] [--model m] [--explain | --why-not <skill>]
+open-skill search ["<need>"] [--role r] [--phase p] [--source s] [--installed]
+open-skill doctor                   open-skill scan [--memory]
 open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
 open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
-open-skill validate | lint [paths] | build [--check] | graph [--format json]
+open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 ```
 
