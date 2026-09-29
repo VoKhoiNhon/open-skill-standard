@@ -71,6 +71,19 @@ open-skill remove open-skill-router --agent codex
 
 ## Router hoạt động thế nào
 
+```text
+registry (adapters, roles, models) ─┐
+installed skills on this machine ───┼─► in-memory graph + SQLite FTS5 index
+your profile, notes, history ───────┘
+                       │
+open-skill route "<task>" --project . --model <id>
+  1. project state: .specify/ or _bmad/ (native framework), artifacts, role signals
+  2. role mix → target phase → phase window (role packs can define their own)
+  3. per phase: installed candidates, scored by role pack, role weights, text, artifact flow, your history
+  4. rules: one build workflow; native framework wins; requirements met; model step limit
+  5. output: chain + reasons + your applicable notes + missing skills + model notes
+```
+
 1. **Đọc trạng thái project:** có `.specify/` hay `_bmad/` không (framework bản địa), có những artefact nào, tín hiệu nào gợi ý vai trò.
 2. **Xác định vai trò, phase đích và các phase cần đi qua.** Role pack có thể tự khai báo chuỗi phase riêng, ví dụ Data Analyst là `build → verify → release`.
 3. **Chấm điểm ứng viên đã cài ở từng phase**, dựa trên: role pack, trọng số theo vai trò, độ khớp văn bản, luồng artefact, và lịch sử dùng của bạn.
@@ -80,6 +93,18 @@ open-skill remove open-skill-router --agent codex
    - skill phải đủ điều kiện (ví dụ project đã init);
    - giới hạn số bước theo model đang chạy.
 5. **Đầu ra:** chuỗi skill kèm lý do, các ghi chú của bạn liên quan, skill còn thiếu kèm lệnh cài, và ghi chú prompt riêng cho model.
+
+Một route thật (data engineer, project spec-kit chưa cài các skill speckit, Claude Opus 5.5):
+
+```text
+1. [plan]   superpowers:writing-plans               — primary for data-engineer; consumes spec
+2. [build]  superpowers:subagent-driven-development — primary for data-engineer; consumes plan
+3. [verify] data:explore-data                       — primary for data-engineer
+4. [review] code-review                             — primary for data-engineer
+missing: spec-kit/implement (not installed) → specify init --here --integration claude
+missing: codegraph/impact (needs .codegraph in the project) → codegraph init
+model note: Deliver what was asked at the intended scope; …
+```
 
 ## Xem và hỏi ngược skill graph
 
