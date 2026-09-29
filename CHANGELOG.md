@@ -23,6 +23,7 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 ### Fixed
 - Backup names sort in creation order; retired seeds are reported once.
+- The privacy filter no longer mistakes `package@version` pins for email addresses.
 
 ## [0.1.0] - 2026-09-29
 
