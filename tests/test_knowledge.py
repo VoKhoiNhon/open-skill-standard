@@ -244,3 +244,20 @@ def test_bug_feedback_naming_a_proposed_step_by_its_id_counts_as_run(home):
     knowledge.record({"type": "proposed", "route_id": "r1", "chain": [{"id": "s/a", "invoke": "a"}]})
     knowledge.record({"type": "feedback", "route_id": "r1", "ran": ["s/a"], "outcome": "ok"})
     assert knowledge.personal_weights()["s/a"] > 0
+
+
+def test_bug_reading_notes_on_a_fresh_home_made_the_first_write_look_like_an_upgrade(home, capsys):
+    # load_knowledge() used to create an empty knowledge/ folder, so the next write saw an unversioned layout,
+    # "migrated" it and printed "upgraded your data" on a machine that had never run open-skill.
+    from open_skill import userdata
+    assert knowledge.load_knowledge() == []
+    knowledge.record({"type": "proposed", "route_id": "r-1", "task": "t", "chain": []})
+    assert "upgraded your data" not in capsys.readouterr().err
+    assert userdata.data_version(home) == userdata.SCHEMA_VERSION
+    assert not userdata.list_backups(home)
+
+
+def test_bug_seed_dry_run_created_folders_on_a_fresh_home(home):
+    assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1, dry_run=True) == [
+        "would add data-engineer/merge", "would add data-engineer/nulls"]
+    assert not home.exists()
