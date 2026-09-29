@@ -1,4 +1,4 @@
-# Seed ids shipped in releases up to v0.6.0, with the text_hash of each wording they shipped with.
+# Seed ids shipped in releases up to v0.7.0, with the text_hash of each wording they shipped with.
 # A shipped id is never renamed (SPEC §5.1): see test_released_seed_ids_are_never_renamed.
 # Append ids when a release ships new seeds; never edit or remove a line.
 ai-engineer/cap-number-agent-iterations-tool: [401b9e2ad277]
@@ -88,3 +88,4 @@ technical-writer/start-page-what-reader-will: [d0b200aa9362]
 ux-designer/check-contrast-choosing-palette: [4c30c57d270b]
 ux-designer/design-error-empty-states-first: [153ea5a3dbcf]
 ux-designer/test-copy-reading-aloud: [69b1745e60b1]
+fullstack-developer/end-to-end-test-across-layers: [b4f4fa18edf0]

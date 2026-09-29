@@ -1,6 +1,6 @@
 [project]
 name = "open-skill-standard"
-version = "0.6.0"
+version = "0.7.0"
 description = "Open, agent-agnostic standard and router for Agent Skills across IT roles"
 readme = "README.md"
 license = "MIT"

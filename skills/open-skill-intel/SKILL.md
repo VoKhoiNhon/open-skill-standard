@@ -24,4 +24,4 @@ Get the needed fact with the fewest calls instead of guessing. Each kind of ques
 
 Stop at the first source that answers; check a second one only when sources disagree or the fact is about to decide something hard to undo. Answer briefly with the source of each fact (file and line, table, URL). If the answer decides the next step, say what it is, or hand back to `open-skill-router`.
 
-`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.6.0 open-skill`.
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.0 open-skill`.
