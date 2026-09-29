@@ -132,6 +132,14 @@ cases:
      include: [superpowers/subagent-driven-development]}
   - {id: data-engineer, role: data-engineer, task: "add a pipeline that loads orders into the warehouse",
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
+  - {id: data-engineer-debug, role: data-engineer, task: "debug the duplicate keys in the nightly orders load",
+     first: superpowers/systematic-debugging, exclude: [knowledge-work-data/create-viz]}
+  - {id: data-engineer-review-dag, role: data-engineer, task: "review the pull request that changes the orders DAG",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: data-engineer-reconcile, role: data-engineer, task: "reconcile the orders table with the source system",
+     phases: [verify], include: [knowledge-work-data/explore-data]}
+  - {id: data-engineer-spec-kit, role: data-engineer, task: "add a customer dimension",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: analytics-engineer, role: analytics-engineer, task: "add a revenue model with tests",
      include: [knowledge-work-data/write-query]}
   - {id: analytics-engineer-spec-kit, role: analytics-engineer, task: "add a revenue model with tests",
