@@ -233,6 +233,14 @@ cases:
      files: [.specify/memory/constitution.md], include: [spec-kit/specify]}
   - {id: business-analyst, role: business-analyst, task: "write requirements for the refund process",
      include: [knowledge-work-product-management/write-spec]}
+  - {id: business-analyst-stories, role: business-analyst, task: "write user stories with acceptance criteria for refunds",
+     include: [knowledge-work-product-management/write-spec]}
+  - {id: business-analyst-vietnamese, role: business-analyst, task: "viết tài liệu yêu cầu nghiệp vụ cho quy trình hoàn tiền",
+     phases: [specify], include: [knowledge-work-product-management/write-spec]}
+  - {id: business-analyst-research, role: business-analyst, task: "research how competitors handle refunds",
+     phases: [research]}
+  - {id: business-analyst-bmad, role: business-analyst, task: "write requirements for the refund process",
+     files: [_bmad/config.toml], include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
   - {id: tech-writer, role: technical-writer, task: "write docs for the public API",
      include: [knowledge-work-engineering/documentation]}
