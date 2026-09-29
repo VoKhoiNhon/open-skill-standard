@@ -116,3 +116,14 @@ def test_writes_refused_when_data_is_newer(home):
 def test_first_write_stamps_version(home):
     knowledge.learn("a lesson", ["role:*"])
     assert (home / "VERSION").exists()
+
+
+def test_old_layout_is_migrated_with_backup_before_first_write(home, capsys):
+    from open_skill import userdata
+    (home / "knowledge").mkdir(parents=True)
+    (home / "knowledge" / "k-old.md").write_text("---\nid: k-old\ntype: pitfall\nsource: seed\napplies_to: [role:qa-engineer]\n---\nOld seed text\n")
+    knowledge.learn("A new lesson", ["role:qa-engineer"])
+    assert userdata.data_version(home) == userdata.SCHEMA_VERSION
+    assert userdata.list_backups(home)
+    assert "upgraded your data" in capsys.readouterr().err
+    assert (home / "knowledge" / "k-old.md").read_text().endswith("Old seed text\n")

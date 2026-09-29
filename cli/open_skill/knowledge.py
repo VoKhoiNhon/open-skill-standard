@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -30,7 +31,11 @@ def home() -> Path:
 
 
 def _prepare() -> None:
-    """Every write goes through here: never let an older CLI write over newer data."""
+    """Every write goes through here: upgrade older data (with a backup) and never write over newer data."""
+    if userdata.pending(home()):
+        actions = userdata.migrate(home())
+        if actions:
+            print("open-skill: upgraded your data in " + str(home()) + "\n" + "\n".join(actions), file=sys.stderr)
     userdata.ensure_writable(home())
 
 
