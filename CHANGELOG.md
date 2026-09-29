@@ -15,6 +15,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill agents [--project DIR] [--json]` lists the known agents, which are installed on this machine, how many skills each sees and where an install for it goes; `doctor` shows the detected agents.
 - Routing evals for the engineering and quality-ops roles: bug, crash and incident reports, reviews, research, postmortems, Vietnamese phrasing, and spec-kit and BMad projects.
 - `open-skill search` filters: `--role`, `--phase`, `--source` and `--installed`, applied before `--limit`; without a query it lists every skill the filters keep.
+- Routing evals for the data and AI roles: broken pipelines, models and reports, DAG and dbt reviews, reconciliation, dashboards, research, Vietnamese phrasing, and spec-kit and BMad projects.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
@@ -25,6 +26,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - Embedded builds in spec-kit projects use `spec-kit/implement` instead of subagent-driven development.
 - In spec-kit projects, cloud, security and SRE work plans with `spec-kit/plan`, and sysadmin work builds with `spec-kit/implement`.
 - The Vietnamese "sự cố" (incident) leads to incident response rather than debugging.
+- Analytics engineers build with the project's native framework (`spec-kit/implement`, `bmad-build`); AI engineers build with `bmad-build` in BMad projects; platform engineers plan with `spec-kit/plan` in spec-kit projects.
+- Problem reports for data analysts, ML engineers and platform engineers start with debugging instead of proposing a scheduled agent.
 
 ## [0.5.0] - 2026-09-29
 
