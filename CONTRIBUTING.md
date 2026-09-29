@@ -60,6 +60,23 @@ Descriptions are English only. Queries in another language carry `locale: <tag>`
 
 English is the project's language: README.md, the SPEC, skills, CLI output, comments and test names. `README.vi.md` is a Vietnamese translation of README.md. When you change a section, a command or an example output in README.md, change it in README.vi.md too (in English if you do not write Vietnamese; a reviewer can translate the prose). A test checks that both have the same headings and the same command and output blocks.
 
+## README images
+
+The images in `.github/assets/` come from `scripts/render_assets.py`, never from a drawing tool:
+
+- The diagrams (`architecture`, `routing`, `lifecycle`, `safety`, each with a `-dark` twin) are drawn from the registry, the taxonomy and the router's constants.
+- The terminal captures (`route-*`, `doctor`, `audit`, `upgrade`) are real CLI output on a fixture machine the script builds in a temp dir, with a clean `HOME`, `OPEN_SKILL_HOME` and `PATH`. Temp paths, route ids and the version are masked.
+
+CI regenerates both kinds and fails when they differ (`--check`). A change to the registry, the router or CLI output can therefore need `uv run python scripts/render_assets.py` and a commit of the rewritten SVGs.
+
+The graph viewer screenshots (`graph-viewer.png`, `graph-viewer-dark.png`) need a browser, so CI does not check them. Refresh them by hand when the viewer or the registry changes visibly:
+
+```bash
+uv run python scripts/render_assets.py --screenshots   # uses Chrome, Chromium or Edge; set CHROME=/path/to/browser
+```
+
+Look at both PNGs before committing (each should stay under 300 KB), and keep images free of local paths, user names and anything company-specific; the privacy guard checks SVG text but cannot read a PNG.
+
 ## Releases
 
 See [RELEASING.md](RELEASING.md).
