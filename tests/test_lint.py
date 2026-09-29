@@ -134,3 +134,9 @@ def test_repository_marketplace_is_valid():
     from pathlib import Path
     root = Path(__file__).parents[1]
     assert lint.lint_marketplace(root / ".claude-plugin" / "marketplace.json") == []
+
+
+def test_marketplace_source_escape_and_impersonation(tmp_path):
+    doc_ = {"name": "anthropic-official-tools", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
+    found = [(f.rule, f.severity) for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
+    assert found == [("marketplace-source", "error"), ("marketplace-name", "warning")]

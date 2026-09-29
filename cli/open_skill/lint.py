@@ -160,4 +160,10 @@ def lint_marketplace(path: Path) -> list[Finding]:
         for key in ("name", "source"):
             if key not in p:
                 add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
+        src = p.get("source")
+        if isinstance(src, str) and ".." in Path(src).parts:
+            add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
+    name = str(doc.get("name", "")).lower()
+    if any(w in name for w in ("anthropic", "claude-plugins-official", "official")):
+        add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace", "warning")
     return out
