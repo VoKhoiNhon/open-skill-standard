@@ -12,6 +12,7 @@ REQUIRED = [
     "open_skill/_data/registry/agents/claude-code.yaml",
     "open_skill/_data/skills/open-skill-router/SKILL.md",
     "open_skill/_data/evals/routing.yaml",
+    "open_skill/_data/evals/routing-holdout.yaml",
 ]
 
 
