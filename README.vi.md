@@ -195,7 +195,7 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 Skill chạy với quyền của agent, nên hãy xem xét một skill trước khi tin nó. `open-skill audit` hỗ trợ việc đó: lệnh đọc mọi file trong thư mục skill (SKILL.md, references, scripts, assets) và báo những dòng cần người xem lại. Lệnh không bao giờ chạy, sửa, hay đi theo liên kết ra khỏi các file được kiểm tra.
 
 ```bash
-open-skill audit ./skill-vua-tai            # một thư mục, trước khi cài
+open-skill audit ./downloaded-skill        # một thư mục, trước khi cài
 open-skill audit --installed               # mọi skill đã cài, nhóm theo nguồn
 open-skill audit --installed --format json # cho công cụ khác
 ```
@@ -247,6 +247,12 @@ open-skill adapter draft|check --source <name> --from <upstream checkout>
 ## Đóng góp
 
 Bạn có thể thêm adapter, role pack hoặc hồ sơ model; xem [CONTRIBUTING.md](CONTRIBUTING.md). Mỗi thay đổi đều chạy: unit test, routing eval cho mọi vai trò, validate schema, lint skill, kiểm tra file sinh tự động, và privacy guard.
+
+Chính repo này cũng được phát triển theo hướng spec-driven: xem `.specify/memory/constitution.md` và `specs/`.
+
+## Lời cảm ơn
+
+Dự án dựa trên ý tưởng và công sức của superpowers (Jesse Vincent), BMad Method (BMad Code, LLC), spec-kit (GitHub), codegraph (Colby McHenry), Agent Skills và plugin của Anthropic, Context7 (Upstash), ponytail, taste-skill, agent-skills của Addy Osmani và agent-skills của Vercel. Xem [NOTICE](NOTICE).
 
 ## Giấy phép
 
