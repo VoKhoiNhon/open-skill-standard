@@ -171,6 +171,7 @@ skills:
     task_size: [small, medium]
     triggers: ["rules file", "agents.md", "claude.md", context]
   - name: using-agent-skills
+    kind: meta
     description: Meta skill - decide which of the collection's skills applies to the work at hand
     phases: [discover]
     task_size: [small]

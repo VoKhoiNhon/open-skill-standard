@@ -89,6 +89,7 @@ skills:
     task_size: [small, medium, large]
     triggers: [skill, SKILL.md, "agent skill"]
   - name: using-superpowers
+    kind: meta
     description: Session bootstrap that makes the agent check for relevant skills
     phases: [discover]
     task_size: [small]

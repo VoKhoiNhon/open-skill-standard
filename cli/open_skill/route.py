@@ -205,6 +205,9 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         for sid, inst in by_id.items():
             manifest = reg.skills.get(sid)
             if manifest:
+                if manifest.get("kind") == "meta":
+                    decide(phase, sid, "meta")
+                    continue
                 if phase not in manifest.get("phases", []):
                     decide(phase, sid, "wrong-phase", phases=manifest.get("phases", []))
                     continue
@@ -347,6 +350,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
 def _reason_text(d: dict, size: str) -> str:
     p, code = d["phase"], d["outcome"]
     return {
+        "meta": lambda: "a meta skill (a router, session bootstrap or metadata record), never a chain step",
         "wrong-size": lambda: f"made for {', '.join(d.get('sizes', []))} tasks; this one is {size}",
         "requirement-unmet": lambda: f"needs {', '.join(d.get('needs', []))} in the project",
         "no-phase-keywords": lambda: f"no manifest, and its description has no {p} keywords",

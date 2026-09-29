@@ -191,10 +191,12 @@ skills:
     requires: ["project:_bmad"]
     task_size: [medium, large]
   - name: bmod-core-tools
+    kind: meta
     description: Module metadata record, never invoked directly
     phases: [discover]
     task_size: [small]
   - name: bmod-method
+    kind: meta
     description: Module metadata record, never invoked directly
     phases: [discover]
     task_size: [small]

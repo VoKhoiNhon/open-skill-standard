@@ -104,7 +104,8 @@
           "kind": {
             "enum": [
               "skill",
-              "tool"
+              "tool",
+              "meta"
             ]
           },
           "description": {

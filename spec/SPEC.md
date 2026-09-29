@@ -65,7 +65,7 @@ JSON Schemas generated from the taxonomy live in `spec/schemas/` and are normati
 
 An adapter MUST contain `source`, `upstream`, `license` and `skills`. It SHOULD contain `install` (commands copied verbatim from the upstream README) and `detect` rules. It MUST NOT contain upstream skill bodies.
 
-Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words, in English), `kind` (skill or tool), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers` (English), `triggers_i18n` (§3.1), `portability`.
+Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words, in English), `kind` (skill, tool, or meta for a router, session bootstrap or metadata record, which a router MUST NOT place in a route), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers` (English), `triggers_i18n` (§3.1), `portability`.
 
 Skill identifiers are `<source>/<name>`.
 

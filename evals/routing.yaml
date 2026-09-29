@@ -304,3 +304,10 @@ cases:
      max_steps: 3, last_phase: review}
   - {id: do-directly, role: fullstack-developer, task: "fix typo in README", advice: "do directly"}
   - {id: vietnamese, role: data-engineer, task: "thêm pipeline nạp dữ liệu đơn hàng", include: [knowledge-work-data/explore-data]}
+  # Meta skills (routers, session bootstraps, metadata records) are never chain steps.
+  - {id: meta-bmad-module-record, role: fullstack-developer, task: "what should the core tools module do", phase: discover, size: small,
+     exclude: [bmad-method/bmod-core-tools, bmad-method/bmod-method]}
+  - {id: meta-session-bootstrap, role: fullstack-developer, task: "check which skills are relevant before starting this session", phase: discover,
+     size: small, exclude: [superpowers/using-superpowers, addy-agent-skills/using-agent-skills]}
+  - {id: meta-router-does-not-route-to-itself, role: fullstack-developer, task: "pick and order the right skills for this task", phase: discover,
+     exclude: [open-skill/open-skill-router]}

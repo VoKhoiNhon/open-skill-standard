@@ -18,6 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 - The first route on a new machine no longer prints "upgraded your data" and runs a migration: reading notes created an empty `knowledge/` folder that made a fresh `~/.open-skill` look like an old layout. Dry runs no longer create folders either.
+- Meta skills are never chain steps: BMad's `bmod-*` metadata records ("never invoke this skill"), superpowers' `using-superpowers` and addy's `using-agent-skills` session bootstraps, and `open-skill-router` itself were placed for discover tasks such as "what should the core tools module do". Adapter skills may set `kind: meta` (SPEC §4.1); `--why-not` names it.
 - codegraph tools are routed when the `codegraph` CLI is on `PATH` and the project has `.codegraph/`; before, nothing could mark them installed, so they only ever appeared under `missing`. Adapters may set `available_cmd` (SPEC §4.1).
 - Anthropic's skills installed as Claude Code plugins get the plugin name they are invoked by: every plugin of `anthropics/skills` copies the whole repository, so `document-skills` claimed `frontend-design` as `document-skills:frontend-design`. Detect rules may list `names` (SPEC §4.2), and the `claude-api`, `academy-guide` and `discernment-nudge` plugins are detected too.
 - Role playbooks state the role's `build_window` ("Build tasks for this role walk discover → research → specify → plan"), so the router skill's manual path follows the same phases as the CLI for the 11 roles that have one.

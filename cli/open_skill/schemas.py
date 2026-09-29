@@ -37,7 +37,7 @@ def adapter_schema(tax: dict) -> dict:
         "additionalProperties": False,
         "properties": {
             "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9:_-]*$"},
-            "kind": {"enum": ["skill", "tool"]},
+            "kind": {"enum": ["skill", "tool", "meta"]},
             "description": {"type": "string"},
             "roles": {
                 "type": "object",
