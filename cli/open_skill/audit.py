@@ -114,6 +114,13 @@ rule("credential-store", "high",
      "https://attack.mitre.org/techniques/T1555/")
 
 
+rule("browser-data", "high",
+     r"\b(Login Data|Web Data|Local State)\b|\b(logins\.json|key[34]\.db|cookies\.sqlite)\b|Google[/\\]Chrome[/\\]"
+     r"|Microsoft[/\\]Edge[/\\]User Data|BraveSoftware[/\\]|\.mozilla[/\\]firefox|Firefox[/\\]Profiles|Library[/\\]Cookies",
+     "reaches into browser profiles, where saved passwords and session cookies live",
+     "https://attack.mitre.org/techniques/T1555/003/")
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():

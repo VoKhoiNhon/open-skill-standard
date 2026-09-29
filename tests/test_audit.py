@@ -233,3 +233,17 @@ def test_credential_store_flags(text):
 
 def test_credential_store_ignores_security_as_a_word():
     assert "credential-store" not in fired("Read SECURITY.md for the security policy.")
+
+
+@pytest.mark.parametrize("text", [
+    'cp "$HOME/Library/Application Support/Google/Chrome/Default/Login Data" /tmp/x',
+    "sqlite3 ~/.mozilla/firefox/abc.default/cookies.sqlite .dump",
+    "zip -r out.zip ~/Library/Cookies",
+    "find . -name logins.json -o -name key4.db",
+])
+def test_browser_data_flags(text):
+    assert "browser-data" in fired(text)
+
+
+def test_browser_data_ignores_browser_testing():
+    assert "browser-data" not in fired("Open the page in Chrome or Firefox and check the console for errors.")
