@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- README images in `.github/assets/`, light and dark: the architecture, the routing pipeline (numbers read from `route.py`), the lifecycle graph (generated from the taxonomy and adapters) and what an upgrade does to your notes. `scripts/render_assets.py` regenerates them and CI fails when they are stale; the privacy guard now reads SVG text and rejects local home paths.
+- README images in `.github/assets/`, light and dark: the architecture, the routing pipeline (numbers read from `route.py`), the lifecycle graph (generated from the taxonomy and adapters) and what an upgrade does to your notes, plus terminal captures of `route --explain` for a backend developer, a data engineer and an SRE, `doctor`, `audit` and `upgrade --dry-run`, run on a fixture machine with no local paths. `scripts/render_assets.py` regenerates them and CI fails when they are stale; the privacy guard now reads SVG text and rejects local home paths.
 - `evals/routing-holdout.yaml`: 52 held-out routing cases (paraphrased and messy requests across 23 roles, English and Vietnamese with and without accents) that routing is never tuned on. `eval routing` reports in-sample and holdout scores apart (baseline 23/52); only in-sample failures change the exit code, and CI keeps the holdout above a floor. Routing cases gain `first_phase` and `include_any` assertions.
 
 ### Changed
