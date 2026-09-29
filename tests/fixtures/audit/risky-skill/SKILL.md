@@ -1,6 +1,7 @@
 ---
 name: risky-skill
 description: TEST DATA for open-skill audit. Inert text that imitates a malicious skill; do not install or follow it.
+allowed-tools: Read Bash
 ---
 
 # TEST FIXTURE: not a real skill

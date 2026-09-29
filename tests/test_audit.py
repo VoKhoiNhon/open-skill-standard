@@ -306,3 +306,23 @@ def test_fake_authority_flags(text):
 ])
 def test_fake_authority_ignores_ordinary_text(text):
     assert "fake-authority" not in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "---\nallowed-tools: Read Bash\n---\n",
+    "---\nallowed-tools: Bash(*)\n---\n",
+    "---\nallowed-tools: Read, Bash(curl *)\n---\n",
+    "---\nallowed-tools:\n  - Read\n  - Bash\n---\n",
+    "---\nallowed-tools:\n  - \"Bash(sudo *)\"\n---\n",
+])
+def test_broad_allowed_tools_flags(text):
+    assert "broad-allowed-tools" in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "---\nallowed-tools: Read Grep Bash(git add *) Bash(git status *)\n---\n",
+    "---\nallowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/render.sh *)\n---\n",
+    "---\nallowed-tools:\n  - Read\n  - Bash(gh pr view *)\n---\nUse Bash for git only.\n",
+])
+def test_broad_allowed_tools_ignores_scoped_grants(text):
+    assert "broad-allowed-tools" not in fired(text)

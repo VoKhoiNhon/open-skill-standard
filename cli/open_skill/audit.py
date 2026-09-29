@@ -149,6 +149,14 @@ rule("fake-authority", "high",
      "impersonates the system, the agent vendor or an administrator to gain authority over the agent", OWASP_LLM01)
 
 
+# allowed-tools pre-approves tools for the turn that invokes the skill, whether or not the folder is trusted.
+BROAD_BASH = r"""(Bash["']?[ \t]*(,|$)|Bash\b(?![("'])|Bash\(\s*\*\s*\)|Bash\((curl|wget|sudo|rm|sh|bash|eval|python3?|node)\b)"""
+rule("broad-allowed-tools", "medium",
+     rf"(?m)^allowed-tools[ \t]*:[^\n]*?{BROAD_BASH}|^allowed-tools[ \t]*:[ \t]*\n(?:[ \t]+-[^\n]*\n)*?[ \t]+-[ \t]*[\"']?{BROAD_BASH}",
+     "allowed-tools pre-approves any shell command, or a download, delete or interpreter command, without a prompt",
+     "https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill", whole=True)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
