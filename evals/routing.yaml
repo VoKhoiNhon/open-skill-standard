@@ -21,6 +21,8 @@ cases:
   - {id: backend-incident, role: backend-developer, task: "the export endpoint is failing with a 500 error",
      first: superpowers/systematic-debugging, include: [superpowers/test-driven-development],
      exclude: [superpowers/writing-plans]}
+  - {id: backend-error-handling, role: backend-developer, task: "add error handling to the checkout API",
+     include: [superpowers/writing-plans], exclude: [superpowers/systematic-debugging]}
   - {id: backend-review-migration, role: backend-developer, task: "review the migration that splits the users table",
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: backend-research, role: backend-developer, task: "research message queues to compare for order events",
@@ -33,6 +35,8 @@ cases:
      include: [superpowers/subagent-driven-development, anthropic-skills/webapp-testing], exclude: [taste-skill/taste-skill]}
   - {id: fullstack-bug, role: fullstack-developer, task: "login is broken after the session change",
      first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
+  - {id: fullstack-vietnamese-typo, role: fullstack-developer, task: "sửa lỗi chính tả trong trang đăng nhập",
+     advice: do directly}
   - {id: fullstack-vietnamese-auth, role: fullstack-developer, task: "thêm chức năng đặt lại mật khẩu",
      include: [claude-code-builtin/security-review, anthropic-skills/webapp-testing]}
   - {id: fullstack-spec-kit, role: fullstack-developer, task: "add team invitations", files: [.specify/memory/constitution.md],
@@ -80,6 +84,8 @@ cases:
      include: [superpowers/subagent-driven-development]}
   - {id: devops-debug, role: devops-engineer, task: "debug why the container fails its health checks",
      first: superpowers/systematic-debugging}
+  - {id: devops-pipeline-failing, role: devops-engineer, task: "the deploy pipeline is failing",
+     first: superpowers/systematic-debugging}
   - {id: devops-review-ci, role: devops-engineer, task: "review the pull request that changes the CI workflow",
      phases: [review], include: [claude-code-builtin/security-review]}
   - {id: devops-vietnamese, role: devops-engineer, task: "thêm pipeline CI build và deploy container",
@@ -89,6 +95,8 @@ cases:
   - {id: sre-incident, role: site-reliability-engineer, task: "the API has an outage and error rate is spiking",
      first: knowledge-work-engineering/incident-response}
   - {id: sre-postmortem, role: site-reliability-engineer, task: "run the postmortem for yesterday's outage",
+     phases: [learn], include: [knowledge-work-engineering/incident-response]}
+  - {id: sre-write-postmortem, role: site-reliability-engineer, task: "write a postmortem for yesterday's outage",
      phases: [learn], include: [knowledge-work-engineering/incident-response]}
   - {id: sre-review-runbook, role: site-reliability-engineer, task: "review the runbook for the database failover",
      phases: [review]}
@@ -155,6 +163,10 @@ cases:
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
   - {id: data-engineer-debug, role: data-engineer, task: "debug the duplicate keys in the nightly orders load",
      first: superpowers/systematic-debugging, exclude: [knowledge-work-data/create-viz]}
+  - {id: data-engineer-pipeline-failing, role: data-engineer,
+     task: "the nightly orders pipeline is failing with duplicate keys", first: superpowers/systematic-debugging}
+  - {id: data-engineer-data-contract, role: data-engineer, task: "write a data contract for the orders table",
+     phases: [specify]}
   - {id: data-engineer-review-dag, role: data-engineer, task: "review the pull request that changes the orders DAG",
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: data-engineer-reconcile, role: data-engineer, task: "reconcile the orders table with the source system",
@@ -226,12 +238,16 @@ cases:
      phases: [research]}
   - {id: architect-vietnamese, role: software-architect, task: "thiết kế kiến trúc cho hệ thống đặt hàng",
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
+  - {id: architect-adr, role: software-architect, task: "write an ADR for moving to a message queue",
+     phases: [plan]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: tech-lead-vietnamese-review, role: tech-lead, task: "rà soát pull request cho module thanh toán",
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: tech-lead-bmad, role: tech-lead, task: "add bulk export", files: [_bmad/config.toml],
      include: [bmad-method/bmad-build, bmad-method/bmad-code-review], exclude: [superpowers/subagent-driven-development]}
+  - {id: tech-lead-broken-build, role: tech-lead, task: "the release build is broken on main",
+     first: superpowers/systematic-debugging}
   - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
      first: knowledge-work-product-management/sprint-planning}
   - {id: eng-manager-bmad, role: engineering-manager, task: "plan the next sprint", files: [_bmad/config.toml],

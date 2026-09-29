@@ -62,6 +62,7 @@ English-first and audited: the whole repository is written for an international 
 - Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", and Vietnamese `không chạy`, `ngừng hoạt động`, `từ hôm qua` and more). Routing holdout: 23/52 → 36/52.
 - `export` on a fresh `~/.open-skill` no longer creates an empty `knowledge/` folder either, so it too cannot make the home look like an old layout.
 - `build --check` compares the search index `dist/index.db` row by row too; the shipped index had gone stale (it still folded `đ` the old way) without CI noticing, and is rebuilt.
+- Keyword routing no longer lets generic verbs decide a tie: "write a postmortem" targets learn, "write a data contract" specify and "write an ADR" plan. Symptoms (failing, broken, crash, hangs, debug) now beat build and release words, so "the deploy pipeline is failing" starts with debugging (operate). Topic words do not: alert, monitor, cost, and also error and `lỗi` ("add error handling", `lỗi chính tả`). "write tests" and "add a model with tests" stay build. Taxonomy phases may list `generic` and `symptoms` keywords, with `_i18n` blocks like `keywords`; `update` and `cập nhật` are new generic build verbs.
 
 ## [0.6.0] - 2026-09-29
 
