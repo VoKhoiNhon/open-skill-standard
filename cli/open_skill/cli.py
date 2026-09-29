@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, userdata
+from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -131,6 +131,10 @@ def cmd_doctor(args):
         print(f"  ! same skill name from several sources: {', '.join(v)}")
     if not (knowledge.home() / "profile.yaml").exists():
         print("  · no profile yet → open-skill init")
+    if userdata.pending(knowledge.home()):
+        print(f"  ! your data uses schema {userdata.data_version(knowledge.home())} → open-skill upgrade")
+    if knowledge.proposals():
+        print(f"  ! {len(knowledge.proposals())} seed update(s) to review → open-skill seeds diff")
     return 0
 
 
@@ -257,6 +261,51 @@ def _seed_decision(args):
     return 0
 
 
+def cmd_upgrade(args):
+    if args.rollback:
+        try:
+            print(upgrade.rollback())
+        except FileNotFoundError as e:
+            print(e, file=sys.stderr)
+            return 1
+        return 0
+    reg = _registry(args)
+    seeds = {rid: r.get("seeds", []) for rid, r in reg.roles.items()}
+    actions = upgrade.upgrade(seeds, dry_run=args.dry_run)
+    print(("dry run, nothing changed:\n" if args.dry_run else "") + ("\n".join(actions) or "already up to date"))
+    return 0
+
+
+def cmd_status(args):
+    home = knowledge.home()
+    v = userdata.data_version(home)
+    prof = knowledge.load_profile()
+    info = {
+        "open_skill": __version__,
+        "registry": str(paths.data_root()),
+        "home": str(home),
+        "data_schema": v,
+        "cli_schema": userdata.SCHEMA_VERSION,
+        "pending_migrations": len(userdata.pending(home)),
+        "roles": prof.get("roles", {}),
+        "notes": len(knowledge.load_knowledge()) if (home / "knowledge").exists() else 0,
+        "seed_updates_to_review": len(knowledge.proposals()),
+        "backups": len(userdata.list_backups(home)),
+    }
+    if args.json:
+        _print(info)
+    else:
+        for k, val in info.items():
+            print(f"{k:24} {val}")
+        if v > userdata.SCHEMA_VERSION:
+            print("! your data is newer than this CLI; upgrade open-skill before writing")
+        elif info["pending_migrations"]:
+            print("! run: open-skill upgrade")
+        if info["seed_updates_to_review"]:
+            print("! review: open-skill seeds diff")
+    return 0
+
+
 def _upstream_skills(src_dir: Path) -> dict[str, str]:
     found = {}
     for p in sorted(Path(src_dir).rglob("SKILL.md")):
@@ -362,6 +411,13 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("seed_id", nargs="?", help="for diff/accept/keep: one seed id (default: all waiting)")
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(fn=cmd_seeds)
+    s = sub.add_parser("upgrade", help="after pulling a new release: migrate your data and sync starter knowledge safely")
+    s.add_argument("--dry-run", action="store_true")
+    s.add_argument("--rollback", action="store_true", help="restore the state from before the last upgrade")
+    s.set_defaults(fn=cmd_upgrade)
+    s = sub.add_parser("status", help="versions of the CLI and your data, and anything waiting for you")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(fn=cmd_status)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
     s.add_argument("action", choices=["draft", "check"])
     s.add_argument("--source", required=True)

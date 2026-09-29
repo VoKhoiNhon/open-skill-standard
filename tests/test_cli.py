@@ -151,3 +151,28 @@ def test_seeds_review_commands(capsys, tmp_path):
     code, out = run(capsys, "seeds", "keep", "data-engineer/n")
     assert "kept your version" in out
     assert "no seed updates waiting" in run(capsys, "seeds", "accept")[1]
+
+
+def test_upgrade_command_and_rollback(capsys, tmp_path):
+    run(capsys, "init", "--role", "data-engineer")
+    code, out = run(capsys, "upgrade", "--dry-run")
+    assert code == 0 and "dry run" in out
+    code, out = run(capsys, "upgrade")
+    assert code == 0 and "backed up to" in out
+    code, out = run(capsys, "upgrade", "--rollback")
+    assert code == 0 and out.startswith("restored")
+
+
+def test_status_reports_versions_and_pending_work(capsys, tmp_path):
+    (tmp_path / "h" / "knowledge").mkdir(parents=True)
+    code, out = run(capsys, "status")
+    assert code == 0 and "data_schema              0" in out and "open-skill upgrade" in out
+    code, out = run(capsys, "status", "--json")
+    info = json.loads(out)
+    assert info["pending_migrations"] == 1 and info["cli_schema"] >= 1
+
+
+def test_doctor_points_to_upgrade_and_reviews(capsys, tmp_path):
+    (tmp_path / "h" / "knowledge").mkdir(parents=True)
+    code, out = run(capsys, "doctor")
+    assert "open-skill upgrade" in out
