@@ -47,7 +47,6 @@ phases:
   build:
     primary:
     - knowledge-work-data/statistical-analysis
-    - knowledge-work-data/explore-data
     - superpowers/test-driven-development
     alternatives:
     - knowledge-work-data/analyze
@@ -55,8 +54,6 @@ phases:
     primary:
     - knowledge-work-data/validate-data
     - bmad-method/bmad-advanced-elicitation
-    alternatives:
-    - bmad-method/bmad-party-mode
   review:
     primary:
     - claude-code-builtin/code-review
@@ -65,6 +62,7 @@ phases:
     - bmad-method/bmad-code-review
     - ponytail/ponytail-review
     - knowledge-work-engineering/code-review
+    - bmad-method/bmad-party-mode
   release:
     primary:
     - knowledge-work-data/create-viz

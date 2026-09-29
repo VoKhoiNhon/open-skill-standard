@@ -311,3 +311,35 @@ cases:
      size: small, exclude: [superpowers/using-superpowers, addy-agent-skills/using-agent-skills]}
   - {id: meta-router-does-not-route-to-itself, role: fullstack-developer, task: "pick and order the right skills for this task", phase: discover,
      exclude: [open-skill/open-skill-router]}
+  - {id: learn-a-lesson-of-any-size, role: data-engineer, task: "remember that backfills run in bounded batches from now on",
+     phase: learn, include: [open-skill/open-skill-learn]}
+  - {id: be-release-branch, role: backend-developer, task: "the export feature is done and tested, merge the branch", phase: release, include: [superpowers/finishing-a-development-branch]}
+  - {id: fs-spec-kit-tasks, role: fullstack-developer, task: "break the plan into tasks", phase: plan, files: [.specify/memory/constitution.md, specs/001-invites/plan.md], include: [spec-kit/tasks]}
+  - {id: fe-taste, role: frontend-developer, task: "build a landing page that does not look templated", phase: build, include: [taste-skill/taste-skill]}
+  - {id: game-bmad-brainstorm, role: game-developer, task: "brainstorm mechanics for a co-op puzzle level", phase: discover, files: [_bmad/config.toml], include: [bmad-method/bmad-brainstorming]}
+  - {id: sre-explore, role: site-reliability-engineer, task: "how does the retry logic in the job runner work", phase: research, files: [.codegraph/codegraph.db], include: [codegraph/explore]}
+  - {id: qa-affected, role: qa-engineer, task: "find the test files affected by my changed source files", phase: verify, files: [.codegraph/codegraph.db], include: [codegraph/affected]}
+  - {id: sec-code-review, role: security-engineer, task: "review this change for performance and correctness, N+1 queries and error handling gaps", phase: review, include: [knowledge-work-engineering/code-review]}
+  - {id: ai-claude-api, role: ai-engineer, task: "look up prompt caching limits in the Claude API docs", phase: research, include_any: [anthropic-skills/claude-api, claude-code-builtin/claude-api]}
+  - {id: ae-data-context, role: analytics-engineer, task: "capture the analysts' tribal knowledge about our warehouse tables as a data context skill", phase: learn, include: [knowledge-work-data/data-context-extractor]}
+  - {id: platform-correct-course, role: data-ai-platform-engineer, task: "the vendor dropped support mid-sprint, assess the impact and propose a course correction", phase: plan, size: large, files: [_bmad/config.toml], include: [bmad-method/bmad-correct-course]}
+  - {id: platform-update-config, role: data-ai-platform-engineer, task: "configure agent settings hooks and permissions for the platform repo", phase: operate, size: small, include: [claude-code-builtin/update-config]}
+  - {id: de-standards-verify, role: data-engineer, task: "check the pipeline change against the definition of done before merging", phase: verify, include: [open-skill/open-skill-standards]}
+  - {id: ds-bmad-spec, role: data-scientist, task: "condense the churn study notes into a short spec", phase: specify, files: [_bmad/config.toml], include: [bmad-method/bmad-spec]}
+  - {id: da-release-dashboard, role: data-analyst, task: "publish the weekly revenue numbers as an interactive dashboard with KPI cards", phase: release, include: [knowledge-work-data/build-dashboard]}
+  - {id: ml-verify-model, role: ml-engineer, task: "run significance tests on the new ranking model's offline results", phase: verify, include: [knowledge-work-data/statistical-analysis]}
+  - {id: arch-impact, role: software-architect, task: "estimate the blast radius of changing the billing service interface", phase: plan, files: [.codegraph/codegraph.db], include: [codegraph/impact]}
+  - {id: arch-ponytail-audit, role: software-architect, task: "audit the whole repository for over-engineering", phase: review, size: large, include: [ponytail/ponytail-audit]}
+  - {id: em-internal-comms, role: engineering-manager, task: "write the internal update announcing the reorg to the team", phase: release, include: [anthropic-skills/internal-comms]}
+  - {id: tl-project-context, role: tech-lead, task: "set up the AGENTS.md instructions for this repository", phase: learn, files: [_bmad/config.toml], include: [bmad-method/bmad-project-context]}
+  - {id: tl-walkthrough, role: tech-lead, task: "guide me through a walkthrough of this commit", phase: review, files: [_bmad/config.toml], include: [bmad-method/bmad-walkthrough]}
+  - {id: tl-receiving-review, role: tech-lead, task: "evaluate the review feedback on my pull request before acting on it", phase: review, include: [superpowers/receiving-code-review]}
+  - {id: ba-checklist, role: business-analyst, task: "generate a requirements quality checklist for the refund feature", phase: verify, size: large, files: [.specify/memory/constitution.md], include: [spec-kit/checklist]}
+  - {id: ba-analyze, role: business-analyst, task: "cross-check spec, plan and tasks for consistency before implementing", phase: verify, size: large, files: [.specify/memory/constitution.md, specs/001/spec.md], include: [spec-kit/analyze]}
+  - {id: pm-prfaq, role: product-manager, task: "write a working-backwards press release and FAQ for the new product", phase: discover, size: large, files: [_bmad/config.toml], include: [bmad-method/bmad-prfaq]}
+  - {id: pm-metrics-review, role: product-manager, task: "review this month's activation and retention metrics", phase: verify, include: [knowledge-work-product-management/metrics-review]}
+  - {id: tw-doc-coauthoring, role: technical-writer, task: "co-author the documentation proposal for the search API in a structured workflow", phase: specify, include: [anthropic-skills/doc-coauthoring]}
+  - {id: tw-ux-copy, role: technical-writer, task: "users are confused by the import screen error messages and empty states, rewrite that microcopy", phase: operate, include: [knowledge-work-design/ux-copy]}
+  - {id: ux-design-critique, role: ux-designer, task: "critique this mockup for hierarchy and consistency", phase: review, include: [knowledge-work-design/design-critique]}
+  - {id: ux-research-synthesis, role: ux-designer, task: "synthesize the usability test notes into themes and recommendations", phase: research, include: [knowledge-work-design/research-synthesis]}
+  - {id: sm-release-update, role: scrum-master, task: "send the stakeholders a status update on the sprint", phase: release, include: [knowledge-work-product-management/stakeholder-update]}

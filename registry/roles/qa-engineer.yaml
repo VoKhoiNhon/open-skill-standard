@@ -50,8 +50,6 @@ phases:
     - superpowers/writing-plans
   build:
     primary:
-    - bmad-method/bmad-qa-generate-e2e-tests
-    - anthropic-skills/webapp-testing
     - superpowers/test-driven-development
   verify:
     primary:
@@ -60,6 +58,7 @@ phases:
     - superpowers/verification-before-completion
     alternatives:
     - spec-kit/converge
+    - bmad-method/bmad-qa-generate-e2e-tests
   review:
     primary:
     - claude-code-builtin/code-review

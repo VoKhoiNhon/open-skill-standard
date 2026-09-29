@@ -21,15 +21,20 @@ def load_routing_cases(path: Path | None = None, name: str = "routing.yaml") -> 
     return yaml.safe_load(path.read_text())["cases"]
 
 
-def run_case(case: dict, reg, installed) -> list[str]:
-    """Run one routing case in a scratch project; return the list of failed expectations (empty = pass)."""
+def route_case(case: dict, reg, installed) -> dict:
+    """The route for one case, in a scratch project holding the case's `files`."""
     with tempfile.TemporaryDirectory() as tmp:
         proj = Path(tmp)
         for f in case.get("files", []):
             (proj / f).parent.mkdir(parents=True, exist_ok=True)
             (proj / f).write_text("x")
-        r = route.route(case["task"], proj, reg, installed, role=case.get("role"), size=case.get("size"),
-                        phase=case.get("phase"), model=case.get("model"), record=False)
+        return route.route(case["task"], proj, reg, installed, role=case.get("role"), size=case.get("size"),
+                           phase=case.get("phase"), model=case.get("model"), record=False)
+
+
+def run_case(case: dict, reg, installed) -> list[str]:
+    """Run one routing case in a scratch project; return the list of failed expectations (empty = pass)."""
+    r = route_case(case, reg, installed)
     ids = [s["id"] for s in r["chain"]]
     shown = " → ".join(f"{s['phase']}:{s['id']}" for s in r["chain"]) or str(r["advice"])
     fails = [f"{sid} missing from {shown}" for sid in case.get("include", []) if sid not in ids]

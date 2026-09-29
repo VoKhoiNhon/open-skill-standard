@@ -160,6 +160,9 @@ def validate(reg: Registry) -> list[str]:
                 for ref in _list((entry if isinstance(entry, dict) else {}).get(key)):
                     if ref not in known:
                         errors.append(f"role {rid}: {phase}.{key} references unknown skill {ref}")
+                    elif phase not in reg.skills[ref].get("phases", []):
+                        errors.append(f"role {rid}: {phase}.{key} lists {ref}, which acts in "
+                                      f"{', '.join(reg.skills[ref].get('phases', []))}; the router never places it here")
     for rid, r in reg.roles.items():
         handoff = r.get("handoff") if isinstance(r.get("handoff"), dict) else {}
         for when, target in handoff.items():  # the schema allows any taxonomy role; the playbook links to its pack

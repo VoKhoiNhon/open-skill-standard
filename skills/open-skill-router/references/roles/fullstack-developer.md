@@ -30,7 +30,7 @@ Delivers features end to end across UI, API and database.
 
 ## Starter knowledge
 
-- When a contract changes, update the client and the tests in the same change.
+- Run one end-to-end test through the UI and the API before calling a cross-layer change done.
 - Do not add a dependency for what a few lines can do.
 - Reproduce a bug with a failing test before fixing it.
 
