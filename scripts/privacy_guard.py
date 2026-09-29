@@ -1,27 +1,32 @@
-"""CI guard: user-layer files never tracked; no secrets, personal data or local paths in public content.
+"""CI guard: user-layer files never tracked; no secrets, personal data or local paths in any public text file.
 
 SVG images are checked by their text (labels, captures, alt text), not their geometry.
 """
 
+import os
 import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parents[1] / "cli"))
-from open_skill.knowledge import looks_sensitive  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "cli"))
+from open_skill.knowledge import SENSITIVE  # noqa: E402
 
 FORBIDDEN_PATHS = (".open-skill/", "events.jsonl", "profile.yaml")
-SCANNED = ("registry/", "skills/", "spec/", "evals/", "specs/", ".github/assets/", "README.md", "README.vi.md")
+# Every tracked text file is public; tests are skipped because they hold fake secrets on purpose.
+SKIPPED = ("tests/", "uv.lock")
+TEXT = (".md", ".yaml", ".yml", ".json", ".py", ".sh", ".toml", ".txt", ".mmd", ".cfg", ".ini", "")
 ALLOW = {"email": ("noreply", "users.noreply.github.com")}
 LOCAL_PATH = re.compile(r"(?<![\w~])(/Users/|/home/)[A-Za-z0-9._-]+|\b[A-Za-z]:\\Users\\")  # a machine's home folder
 
 
 def _reason(line: str) -> str | None:
-    reason = looks_sensitive(line)
-    if reason and not any(a in line for a in ALLOW.get(reason, ())):
-        return reason
+    """The first kind of sensitive text on the line; an allowed match (a noreply address) excuses only itself."""
+    for name, rx in SENSITIVE:
+        if any(not any(a in m.group() for a in ALLOW.get(name, ())) for m in rx.finditer(line)):
+            return name
     return "local-path" if LOCAL_PATH.search(line) else None
 
 
@@ -33,11 +38,11 @@ def _svg_text(path: str) -> list[str]:
 def check(files: list[str]) -> list[str]:
     problems = [f"tracked user-layer file: {f}" for f in files if any(p in f for p in FORBIDDEN_PATHS)]
     for f in files:
-        if not f.startswith(SCANNED):
+        if f.startswith(SKIPPED):
             continue
         if f.endswith(".svg"):
             problems += [f"{f}: text looks like {r}" for r in map(_reason, _svg_text(f)) if r]
-        elif f.endswith((".md", ".yaml", ".yml", ".json")):
+        elif Path(f).suffix in TEXT:
             for n, line in enumerate(Path(f).read_text(errors="replace").splitlines(), 1):
                 reason = _reason(line)
                 if reason:
@@ -45,8 +50,18 @@ def check(files: list[str]) -> list[str]:
     return problems
 
 
-if __name__ == "__main__":
-    files = subprocess.run(["git", "ls-files"], capture_output=True, text=True, check=True).stdout.split()
-    problems = check(files)
+def tracked(root: Path) -> list[str]:
+    """Tracked paths relative to root; -z keeps spaces and non-ASCII names exactly as they are."""
+    out = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True).stdout
+    return [f for f in out.split("\0") if f]
+
+
+def main(root: Path = ROOT) -> int:
+    os.chdir(root)  # check() reads paths relative to the repository root, wherever the script is run from
+    problems = check(tracked(root))
     print("\n".join(problems) or "privacy guard: clean")
-    sys.exit(1 if problems else 0)
+    return 1 if problems else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

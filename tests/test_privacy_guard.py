@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).parents[1]
 spec = importlib.util.spec_from_file_location("privacy_guard", ROOT / "scripts" / "privacy_guard.py")
 pg = importlib.util.module_from_spec(spec)
@@ -36,3 +38,53 @@ def test_readme_home_path_is_flagged(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "README.md").write_text("run it from /home/bob/work\n")
     assert pg.check(["README.md"]) == ["README.md:1: looks like local-path"]
+
+
+def _repo(tmp_path, files: dict[str, str]):
+    import subprocess
+    for rel, text in files.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(text)
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    return tmp_path
+
+
+def test_tracked_lists_names_with_spaces_and_accents(tmp_path):
+    # `git ls-files` quotes non-ASCII names and split() broke names at spaces, so those files were never scanned.
+    root = _repo(tmp_path, {"skills/tiếng việt/SKILL.md": "x", "skills/a b.md": "y", "README.md": "z"})
+    assert sorted(pg.tracked(root)) == ["README.md", "skills/a b.md", "skills/tiếng việt/SKILL.md"]
+
+
+def test_main_scans_from_the_repository_root(tmp_path, monkeypatch, capsys):
+    # Run from a subfolder, paths no longer started with skills/ and nothing was scanned.
+    root = _repo(tmp_path, {"skills/x/SKILL.md": "mail alice@corp.example\n"})
+    monkeypatch.chdir(root / "skills")
+    assert pg.main(root) == 1
+    assert "skills/x/SKILL.md:1: looks like email" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("line,reason", [
+    ("Co-Authored-By: Someone <123+someone@users.noreply.github.com>", None),
+    ("noreply@anthropic.com", None),
+    ("contact alice@corp.example or noreply@anthropic.com", "email"),   # one allowed address used to clear the line
+    ("pin open-skill@0.6.0 and pkg@1.2.3", None),
+    ("see /Users/alice/work", "local-path"),
+    ("see ~/Users/shared", None),
+    ("password: hunter2", "password"),
+])
+def test_reason_per_line(line, reason):
+    assert pg._reason(line) == reason
+
+
+@pytest.mark.parametrize("rel,flagged", [
+    ("CHANGELOG.md", True), ("CONTRIBUTING.md", True), (".github/workflows/ci.yml", True),
+    ("cli/open_skill/x.py", True), ("scripts/tool.sh", True), ("NOTICE", True), ("pyproject.toml", True),
+    ("tests/test_x.py", False),        # tests hold fake secrets on purpose
+    ("dist/index.db", False),          # binary
+])
+def test_every_public_text_file_is_scanned(tmp_path, monkeypatch, rel, flagged):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / rel).write_text("maintainer: alice@corp.example\n")
+    assert bool(pg.check([rel])) is flagged

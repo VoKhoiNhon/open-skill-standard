@@ -9,7 +9,8 @@ from pathlib import Path
 
 
 def section(text: str, version: str) -> str:
-    m = re.search(rf"(?ms)^## \[{re.escape(version)}\][^\n]*\n(.*?)(?=^## \[|\Z)", text)
+    # A section ends at the next version heading or at the link references closing the file.
+    m = re.search(rf"(?ms)^## \[{re.escape(version)}\][^\n]*\n(.*?)(?=^## \[|^\[[^\]\n]+\]: |\Z)", text)
     if not m:
         raise KeyError(f"no CHANGELOG section for {version}")
     return m.group(1).strip() + "\n"
@@ -21,8 +22,10 @@ def title(text: str, version: str) -> str:
     theme = re.split(r":|\.$", first, maxsplit=1)[0].strip()
     if not theme or theme.startswith("#"):
         return f"v{version}"
-    # ponytail: lowercases a leading capital unless it starts an acronym ("CI"); a leading proper noun gets lowercased too.
-    if theme[1:2].islower():
+    # Lowercase an ordinary capitalized first word, not an acronym (CI) or a brand with inner capitals (GitHub).
+    # ponytail: a plain proper noun ("Python") still gets lowercased; keep a list of names if that starts to matter.
+    first = theme.split()[0]
+    if first[1:].islower():
         theme = theme[0].lower() + theme[1:]
     return f"v{version} — {theme}"
 

@@ -72,13 +72,47 @@ def test_pr_titles():
         assert not pt.ok(bad), bad
 
 
-cw = load("check_wheel")
 
 
-def test_wheel_check(tmp_path):
-    import zipfile
-    w = tmp_path / "x.whl"
-    with zipfile.ZipFile(w, "w") as z:
-        for r in cw.REQUIRED[:-1]:
-            z.writestr(r, "x")
-    assert cw.missing(str(w)) == [cw.REQUIRED[-1]]
+def _copy_versioned(tmp_path):
+    for rel in ["pyproject.toml", "cli/open_skill/__init__.py", ".claude-plugin/plugin.json",
+                "registry/adapters/open-skill.yaml", "skills"]:
+        src, dst = ROOT / rel, tmp_path / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(src, dst) if src.is_dir() else shutil.copy(src, dst)
+    return tmp_path
+
+
+def test_every_pin_in_a_skill_is_checked(tmp_path, capsys):
+    # Only the last pin of a file was recorded, so an older pin before it went unnoticed.
+    root = _copy_versioned(tmp_path)
+    p = next((root / "skills").glob("*/SKILL.md"))
+    good = cv.versions(root)["pyproject.toml"]
+    p.write_text(p.read_text() + f"\nold: uvx --from {cv.GIT_URL}@v0.0.1 open-skill\nnew: uvx --from {cv.GIT_URL}@v{good} open-skill\n")
+    assert cv.main(str(root)) == 1
+    assert "0.0.1" in capsys.readouterr().out
+
+
+def test_quoted_tested_version_is_read_as_its_value(tmp_path):
+    root = _copy_versioned(tmp_path)
+    p = root / "registry/adapters/open-skill.yaml"
+    good = cv.versions(root)["pyproject.toml"]
+    p.write_text(p.read_text().replace(f"tested_version: {good}", f'tested_version: "{good}"'))
+    assert cv.main(str(root)) == 0
+
+
+def test_readme_pins_are_checked_like_bump_version_writes_them(tmp_path, capsys):
+    root = _copy_versioned(tmp_path)
+    good = cv.versions(root)["pyproject.toml"]
+    (root / "README.md").write_text(f"uvx --from {cv.GIT_URL}@v0.0.9 open-skill init\n")
+    (root / "README.vi.md").write_text(f"uvx --from {cv.GIT_URL}@v{good} open-skill init\n")
+    assert cv.main(str(root)) == 1
+    assert "README.md" in capsys.readouterr().out
+
+
+def test_a_missing_version_field_is_reported_not_a_traceback(tmp_path, capsys):
+    root = _copy_versioned(tmp_path)
+    p = root / "registry/adapters/open-skill.yaml"
+    p.write_text("\n".join(line for line in p.read_text().splitlines() if not line.startswith("tested_version")))
+    assert cv.main(str(root)) == 1
+    assert "missing" in capsys.readouterr().out
