@@ -177,6 +177,7 @@ VALIDATION_CASES = [
     ("adapter skills is null", SP, ["skills"], None, None, "skills"),
     # These passed silently:
     ("duplicate skill in one file", SP, ["skills", 1, "name"], "brainstorming", None, "defines skill brainstorming twice"),
+    ("model inheritance cycle", "models/generic.yaml", ["inherits"], "claude-opus-5", None, "inheritance cycle"),
 ]
 
 

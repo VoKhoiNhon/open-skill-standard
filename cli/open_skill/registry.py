@@ -154,4 +154,10 @@ def validate(reg: Registry) -> list[str]:
         parent = m.get("inherits")
         if parent and parent not in reg.models:
             errors.append(f"model {mid}: inherits unknown profile {parent}")
+        chain = [mid]
+        while (parent := reg.models.get(chain[-1], {}).get("inherits")) and parent in reg.models:
+            if parent in chain:  # resolving any model in the loop would raise, so every route would fail
+                errors.append(f"model {mid}: inheritance cycle {' -> '.join(chain + [parent])}")
+                break
+            chain.append(parent)
     return errors
