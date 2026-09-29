@@ -390,3 +390,23 @@ def test_every_finding_cites_its_rule_source():
     assert len({f.rule for f in found}) >= 6
     for f in found:
         assert f.source == lint.RULES[f.rule].source, f.rule
+
+
+@pytest.mark.parametrize("manifest,expected", [
+    ({"name": "tools", "version": "1.2.3", "description": "d"}, []),
+    ({"name": "tools", "version": "2026.09", "description": "d"}, ["plugin-version"]),  # accepted, not semver
+    ({"name": "My_Tools", "description": "d"}, ["plugin-name-style"]),                   # loads, but not kebab-case
+    ({"name": "my tools", "description": "d"}, ["plugin-name"]),
+    ({"name": "a@b", "description": "d"}, ["plugin-name"]),
+    ({"name": "a/b", "description": "d"}, ["plugin-name"]),
+    ({"name": "a‮b", "description": "d"}, ["plugin-name"]),                          # bidi override
+    ({"description": "d"}, ["plugin-name"]),
+    ({"name": 7, "description": "d"}, ["plugin-name"]),
+    ({"name": "công-cụ", "description": "d"}, ["plugin-name-style"]),
+    ([1, 2], ["manifest-json"]),
+])
+def test_plugin_manifest_cases(tmp_path, manifest, expected):
+    found = lint.lint_plugin(write_json(tmp_path, "plugin.json", manifest))
+    assert [f.rule for f in found] == expected
+    assert all(f.source == lint.RULES[f.rule].source for f in found)
+    assert all(f.source.startswith(lint.PLUGIN_DOCS) for f in found if f.rule.startswith("plugin-"))

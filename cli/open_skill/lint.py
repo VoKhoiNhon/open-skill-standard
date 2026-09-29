@@ -73,6 +73,7 @@ def rule(id: str, severity: str, checks: str, source: str) -> None:
 
 
 MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+PLUGIN_DOCS = "https://code.claude.com/docs/en/plugins-reference"
 rule("frontmatter", "error", "SKILL.md starts with a closed block of YAML frontmatter that is a mapping", SPEC)
 rule("frontmatter-name", "error", "`name` is a string of 1-64 lowercase letters, digits and single hyphens, not starting or"
      " ending with a hyphen; letters outside a-z are allowed as the reference validator allows them", SPEC)
@@ -104,9 +105,12 @@ rule("marketplace-field", "error", "marketplace.json has `name`, `owner` and `pl
 rule("marketplace-plugin", "error", "every marketplace plugin entry has `name` and `source`", MARKETPLACE_DOCS)
 rule("marketplace-source", "error", "a relative plugin `source` does not leave the marketplace with `..`", MARKETPLACE_DOCS)
 rule("marketplace-name", "warning", "the marketplace name does not look like an official Anthropic marketplace", MARKETPLACE_DOCS)
-rule("plugin-name", "error", "plugin.json `name` is kebab-case", MARKETPLACE_DOCS)
-rule("plugin-version", "error", "plugin.json `version`, when present, is semantic (x.y.z)", MARKETPLACE_DOCS)
-rule("plugin-description", "warning", "plugin.json has a `description`", MARKETPLACE_DOCS)
+rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
+     PLUGIN_DOCS + "#name")
+rule("plugin-name-style", "warning", "plugin.json `name` is kebab-case, as Claude Code recommends", PLUGIN_DOCS + "#name")
+rule("plugin-version", "warning", "plugin.json `version`, when present, is semantic (x.y.z); Claude Code accepts any string",
+     PLUGIN_DOCS + "#version")
+rule("plugin-description", "warning", "plugin.json has a `description`", PLUGIN_DOCS)
 
 
 @dataclass
@@ -299,18 +303,34 @@ def lint_marketplace(path: Path) -> list[Finding]:
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 
 
-def lint_plugin(path: Path) -> list[Finding]:
-    """.claude-plugin/plugin.json: a kebab-case name, and a semantic version when one is given."""
+# What Claude Code rejects in a plugin or marketplace name: whitespace, @ and :, path separators, control and bidi characters.
+BAD_NAME_CHARS = re.compile(r"[\s@:/\\\x00-\x1f\x7f\u200e\u200f\u202a-\u202e\u2066-\u2069]")
+
+
+def _load_manifest(path: Path):
+    """(object, None) for a JSON object, else (None, why)."""
     import json
 
-    path = Path(path)
     try:
-        doc = json.loads(path.read_text())
+        doc = json.loads(path.read_text(errors="replace"))
     except json.JSONDecodeError as e:
-        return [_finding(path, "manifest-json", f"invalid JSON: {e}")]
+        return None, f"invalid JSON: {e}"
+    return (doc, None) if isinstance(doc, dict) else (None, "the manifest must be a JSON object")
+
+
+def lint_plugin(path: Path) -> list[Finding]:
+    """.claude-plugin/plugin.json, as Claude Code's plugins reference describes it."""
+    path = Path(path)
+    doc, why = _load_manifest(path)
+    if why:
+        return [_finding(path, "manifest-json", why)]
     out = []
-    if not NAME_RX.match(str(doc.get("name", ""))):
-        out.append(_finding(path, "plugin-name", "plugin name must be kebab-case"))
+    name = doc.get("name")
+    if not isinstance(name, str) or not name or BAD_NAME_CHARS.search(name):
+        out.append(_finding(path, "plugin-name", f"plugin name {name!r} must be a non-empty string without spaces, @, :, "
+                                                 "slashes or control characters"))
+    elif not NAME_RX.match(name):
+        out.append(_finding(path, "plugin-name-style", f"plugin name '{name}' is not kebab-case (my-plugin)"))
     if "version" in doc and not SEMVER.match(str(doc["version"])):
         out.append(_finding(path, "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)"))
     if not doc.get("description"):
