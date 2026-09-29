@@ -88,6 +88,24 @@ def test_lexical_report_has_a_slice_per_locale():
     assert rep["train"]["tp"] == 2  # the slice is also part of the whole
 
 
+def test_proxy_reads_the_registry_locale_words_for_queries_in_that_locale():
+    d = {"pdf-tools": "Extract text and tables from PDF files.", "sql-helper": "Write SQL queries for warehouses."}
+    words = {"pdf-tools": {"vi": ["trích xuất", "bảng"]}, "sql-helper": {"vi": ["truy vấn"]}}
+    sets = {"pdf-tools": [{"q": "trích xuất bảng từ báo cáo", "trigger": True, "locale": "vi"},
+                          {"q": "bảng tables", "trigger": True},  # English queries see the description only
+                          {"q": "viết truy vấn doanh thu", "trigger": False, "locale": "vi"}]}
+    plain = evals.trigger_report_lexical(sets, d)["pdf-tools"]["locales"]["vi"]
+    both = evals.trigger_report_lexical(sets, d, locale_words=words)["pdf-tools"]
+    assert plain["train"]["tp"] + plain["validation"]["tp"] == 0
+    vi = both["locales"]["vi"]
+    assert vi["train"]["tp"] + vi["validation"]["tp"] == 1 and vi["train"]["fp"] + vi["validation"]["fp"] == 0
+    assert evals.lexical_triggers("bảng tables", d) == ["pdf-tools"]
+
+
+def test_locale_triggers_come_from_the_registry():
+    assert evals.locale_triggers(REG)["open-skill-learn"]["vi"]
+
+
 def test_trigger_query_locale_is_a_language_tag(tmp_path):
     (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, locale: Vietnamese}\n")
     with pytest.raises(ValueError):
@@ -99,7 +117,9 @@ def test_trigger_query_locale_is_a_language_tag(tmp_path):
 # Regression floors for the lexical proxy, just under the current scores so losing one query fails:
 # skill -> (precision, recall) on the tuning queries. Raise them when descriptions improve, never lower them silently.
 TUNE_FLOORS = {
-    "open-skill-intel": (0.75, 0.35),
+    # 0.35 -> 0.30 when Vietnamese queries began to read every skill's vi words: codegraph/impact's "ảnh hưởng"
+    # now outranks intel on an accent-free impact question, as it does in search.
+    "open-skill-intel": (0.75, 0.30),
     "open-skill-learn": (0.95, 0.75),
     "open-skill-router": (0.95, 0.55),
     "open-skill-standards": (0.95, 0.75),
@@ -118,7 +138,7 @@ HOLDOUT_FLOORS = {
 
 def _core_trigger_report():
     return evals.trigger_report_lexical(evals.load_trigger_sets(ROOT / "evals" / "triggers"),
-                                        evals.skill_descriptions(REG, ROOT / "skills"))
+                                        evals.skill_descriptions(REG, ROOT / "skills"), locale_words=evals.locale_triggers(REG))
 
 
 def test_core_skills_trigger_proxy_meets_floor():

@@ -100,6 +100,11 @@ def skill_descriptions(reg, skills_dir: Path | None = None) -> dict[str, str]:
     return out
 
 
+def locale_triggers(reg) -> dict[str, dict[str, list[str]]]:
+    """skill name -> the registry's triggers_i18n: how people ask for the skill in each language (SPEC §3.1)."""
+    return {sid.split("/", 1)[1]: s["triggers_i18n"] for sid, s in reg.skills.items() if s.get("triggers_i18n")}
+
+
 def lexical_triggers(query: str, descriptions: dict[str, str], top_k: int = 3, ratio: float = 0.5) -> list[str]:
     """Deterministic stand-in for an agent's choice: skills in the top k by BM25 and within `ratio` of the best."""
     import sqlite3
@@ -157,13 +162,22 @@ def suggest_terms(labels: list[dict], fired: list[bool], description: str, min_c
             "false_alarms": sorted(alarms.items(), key=lambda x: (-x[1], x[0]))}
 
 
-def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str], suggest: bool = False) -> dict[str, dict]:
+def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str], suggest: bool = False,
+                           locale_words: dict[str, dict[str, list[str]]] | None = None) -> dict[str, dict]:
     """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report, plus
-    `locales`: the same split per non-English locale; with `suggest`, also suggest_terms() for the train queries."""
-    report = {}
+    `locales`: the same split per non-English locale; with `suggest`, also suggest_terms() for the train queries.
+    `locale_words` (locale_triggers()) is what the proxy reads besides the description for non-English queries."""
+    report, words = {}, locale_words or {}
+
+    def seen(loc: str) -> dict[str, str]:
+        # A model reads an English description and understands a request in any language; the proxy cannot
+        # translate, so for a query in another locale it also reads each skill's words for that locale.
+        return {n: " ".join([d, *words.get(n, {}).get(loc, [])]) for n, d in descriptions.items()}
+
     for skill, queries in sets.items():
         train, val = split_queries(queries)
-        fired = {q["q"]: skill in lexical_triggers(q["q"], descriptions) for q in queries}
+        fired = {q["q"]: skill in lexical_triggers(q["q"], seen(q["locale"]) if q.get("locale", "en") != "en" else descriptions)
+                 for q in queries}
         report[skill] = {part: trigger_metrics(qs, [fired[q["q"]] for q in qs])
                          for part, qs in (("train", train), ("validation", val))}
         report[skill]["locales"] = {  # the same metrics on the queries of each language other than English
