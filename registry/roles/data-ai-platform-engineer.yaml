@@ -42,6 +42,7 @@ phases:
     alternatives:
     - bmad-method/bmad-advanced-elicitation
     - superpowers/writing-plans
+    - spec-kit/plan
   build:
     primary:
     - superpowers/subagent-driven-development

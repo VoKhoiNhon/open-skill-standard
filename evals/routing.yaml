@@ -153,6 +153,8 @@ cases:
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: platform, role: data-ai-platform-engineer, task: "roll out a shared skill pack to all teams",
      include: [anthropic-skills/skill-creator]}
+  - {id: platform-spec-kit, role: data-ai-platform-engineer, task: "add a skill for SQL review",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
