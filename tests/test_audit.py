@@ -523,3 +523,8 @@ def test_utf16_text_is_audited_not_skipped_as_binary(toy_rule, tmp_path, encodin
     bom = {"utf-16-le": b"\xff\xfe", "utf-16-be": b"\xfe\xff"}.get(encoding, b"")
     (tmp_path / "notes.md").write_bytes(bom + "fine\ndanger\n".encode(encoding))
     assert [(f.rule, f.line) for f in audit.audit_paths([tmp_path])] == [("toy", 2)]
+
+
+def test_secret_files_ignores_public_keys():
+    assert "secret-files" not in fired("Add id_ed25519.pub to GitHub under Settings > SSH keys.")
+    assert "secret-files" in fired("scp id_ed25519 host:/tmp")

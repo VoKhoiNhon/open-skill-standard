@@ -120,7 +120,7 @@ rule("permission-bypass-flag", "medium",
 
 ATTACK_CRED_FILES = "https://attack.mitre.org/techniques/T1552/001/"
 rule("secret-files", "medium",
-     r"(~|\$HOME|\$\{HOME\}|%USERPROFILE%)[/\\]\.ssh\b|\bid_(rsa|dsa|ecdsa|ed25519)\b|\.aws[/\\](credentials|config)\b"
+     r"(~|\$HOME|\$\{HOME\}|%USERPROFILE%)[/\\]\.ssh\b|\bid_(rsa|dsa|ecdsa|ed25519)\b(?!\.pub)|\.aws[/\\](credentials|config)\b"
      r"|\.(netrc|pypirc|npmrc|git-credentials)\b|\.docker[/\\]config\.json|\.kube[/\\]config\b|\.gnupg\b"
      r"|application_default_credentials\.json|gcloud[/\\]credentials|\.config[/\\]gh[/\\]hosts\.yml|\.azure[/\\]\w*token",
      "points at SSH keys or cloud and package-registry credentials; a skill rarely needs to read them", ATTACK_CRED_FILES)
