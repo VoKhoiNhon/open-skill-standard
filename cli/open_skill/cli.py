@@ -138,6 +138,10 @@ def cmd_doctor(args):
         hint = "" if n else f"  → {next(iter((a.get('install') or {}).values()), 'see ' + a.get('upstream', ''))}"
         print(f"  {'✓' if n else '·'} {src:22} {n:3} installed / {len(a['skills'])} described{hint}")
     print(f"  harvested (no manifest): {by_src.get('harvested', 0)}")
+    rep = lint.health(installed)
+    errs = sum(r["errors"] for r in rep.values())
+    warns = sum(r["warnings"] for r in rep.values())
+    print(f"  skill health: {errs} error(s), {warns} warning(s) across installed skills → open-skill lint --installed")
     names: dict[str, list[str]] = {}
     for i in installed:
         names.setdefault(i.invoke.split(":")[-1], []).append(i.invoke)

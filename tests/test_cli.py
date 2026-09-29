@@ -194,3 +194,7 @@ def test_lint_installed_report(capsys):
     assert code == 0 and "superpowers" in out and "harvested" in out
     code, out = run(capsys, "lint", "--installed", "--format", "json")
     assert json.loads(out)["superpowers"]["skills"] >= 1
+
+
+def test_doctor_reports_skill_health(capsys):
+    assert "skill health:" in run(capsys, "doctor")[1]
