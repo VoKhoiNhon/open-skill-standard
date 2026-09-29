@@ -56,6 +56,10 @@ A skill's `description` decides when agents load it. To change one, run `uv run 
 
 Descriptions are English only. Queries in another language carry `locale: <tag>` and are reported as a slice per language (floors in `LOCALE_FLOORS`); for them the proxy also reads each skill's `triggers_i18n` for that language, since it cannot translate. When a slice drops, improve the English wording or the locale block in the registry, never the description with words in that language.
 
+## Documentation languages
+
+English is the project's language: README.md, the SPEC, skills, CLI output, comments and test names. `README.vi.md` is a Vietnamese translation of README.md. When you change a section, a command or an example output in README.md, change it in README.vi.md too (in English if you do not write Vietnamese; a reviewer can translate the prose). A test checks that both have the same headings and the same command and output blocks.
+
 ## Releases
 
 See [RELEASING.md](RELEASING.md).
