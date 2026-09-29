@@ -18,7 +18,7 @@ def test_upgrade_from_v0_layout(home):
     actions = upgrade.upgrade(SEEDS)
     assert actions[0].startswith("backed up to") and "added qa-engineer/flaky" in actions
     assert userdata.data_version(home) == userdata.SCHEMA_VERSION
-    assert (home / "knowledge" / "k-mine.md").read_text().endswith("Mine.\n")
+    assert (home / "knowledge" / "k-mine.md").read_text(encoding="utf-8").endswith("Mine.\n")
     assert upgrade.upgrade(SEEDS) == []
 
 

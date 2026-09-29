@@ -98,7 +98,7 @@ def test_knowledge_attached_and_event_recorded(tmp_path):
     knowledge.learn("Backfills duplicated rows with INSERT", ["role:data-engineer"])
     r = route.route("add a pipeline", proj(tmp_path, "x.py"), REG, ALL, role="data-engineer")
     assert any("Backfills" in k["text"] for k in r["knowledge"])
-    events = (knowledge.home() / "events.jsonl").read_text()
+    events = (knowledge.home() / "events.jsonl").read_text(encoding="utf-8")
     assert r["route_id"] in events
 
 

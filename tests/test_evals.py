@@ -274,7 +274,7 @@ HOLDOUT_PATH = ROOT / "evals" / "routing-holdout.yaml"
 
 def test_routing_holdout_is_separate_from_the_tuned_cases():
     holdout = evals.load_routing_cases(HOLDOUT_PATH)
-    assert len(holdout) >= 40 and "DO NOT TUNE" in HOLDOUT_PATH.read_text()
+    assert len(holdout) >= 40 and "DO NOT TUNE" in HOLDOUT_PATH.read_text(encoding="utf-8")
     assert len({c["id"] for c in holdout}) == len(holdout)
     assert not {c["id"] for c in holdout} & {c["id"] for c in CASES}
     assert not {(c["role"], c["task"]) for c in holdout} & {(c.get("role"), c["task"]) for c in CASES}
