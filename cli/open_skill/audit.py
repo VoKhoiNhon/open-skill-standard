@@ -11,6 +11,7 @@ from pathlib import Path
 
 DISCLAIMER = "heuristic review: every finding needs a human look, and a clean report does not mean a skill is safe"
 SEVERITIES = ("high", "medium", "low")
+ANTHROPIC_SKILLS = "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations"
 
 
 @dataclass
@@ -69,6 +70,13 @@ rule("override-instructions", "high",
      "tries to override the user's or the system's instructions", OWASP_LLM01)
 
 
+rule("conceal-from-user", "high",
+     r"\b(do not|don't|never|without)\s+(tell|inform|notify|mention|alert|warn)(ing)?\s+(this\s+|it\s+|that\s+|anything\s+)?"
+     r"(to\s+)?(the\s+)?user|\bhide\s+(this|it|that|the\s+\w+)\s+from\s+the\s+user|\bthe\s+user\s+(must|should|will)"
+     r"\s*(not|n't|never)\s+(know|see|notice|find out)|\bsilently\s+(run|execute|install|download|send|upload|delete|post)",
+     "asks the agent to hide what it does from the user", ANTHROPIC_SKILLS)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
@@ -84,7 +92,6 @@ rule("link-outside-skill", "high", None,
      "a symbolic link points outside the skill folder; following it could read or run files the skill does not ship",
      CWE_LINK)
 
-ANTHROPIC_SKILLS = "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations"
 rule("native-executable", "medium", None,
      "a compiled program ships with the skill; it cannot be reviewed as text, so only run it from a source you trust",
      ANTHROPIC_SKILLS)
