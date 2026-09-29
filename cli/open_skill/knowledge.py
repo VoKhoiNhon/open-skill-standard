@@ -186,3 +186,87 @@ def import_agent_memory(root: Path | None = None) -> int:
         learn(text, ["role:*"], type_=MEMORY_TYPES.get(mtype, "preference"), source="agent-memory")
         count += 1
     return count
+
+
+DISMISSED = "seeds-dismissed.txt"
+
+
+def dismissed_seeds() -> set[str]:
+    p = home() / DISMISSED
+    return {line.strip() for line in p.read_text().splitlines() if line.strip()} if p.exists() else set()
+
+
+def _seed_notes() -> list[tuple]:
+    """(path, meta, body) for every note that came from a seed."""
+    out = []
+    for p in sorted(_kdir().glob("*.md")):
+        fm, body = userdata._split_note(p.read_text(encoding="utf-8"))
+        meta = yaml.safe_load(fm) if fm else None
+        if isinstance(meta, dict) and meta.get("source") == "seed":
+            out.append((p, meta, body))
+    return out
+
+
+def _save(p: Path, meta: dict, body: str) -> None:
+    userdata.atomic_write(p, "---\n" + yaml.safe_dump(meta, sort_keys=False, allow_unicode=True) + "---\n" + body)
+
+
+def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str]:
+    """Bring seed notes in line with the registry without ever overriding the user.
+
+    New seeds are added; seeds the user never edited follow upstream wording; edited seeds are kept;
+    seeds the user forgot are not re-created; seeds no longer shipped are kept and reported.
+    """
+    if not dry_run:
+        _prepare()
+    verb = (lambda w: f"would {w}") if dry_run else (lambda w: w + ("d" if w.endswith("e") else "ed"))
+    gone = dismissed_seeds()
+    notes = _seed_notes()
+    by_id = {m.get("seed_id"): (p, m, b) for p, m, b in notes if m.get("seed_id")}
+    actions = []
+    for role in roles:
+        shipped = [s if isinstance(s, dict) else {"id": None, "text": s} for s in seeds.get(role, [])]
+        for s in shipped:
+            if not s["id"]:
+                continue
+            sid, text = f"{role}/{s['id']}", s["text"].strip()
+            if sid in gone:
+                continue
+            note = by_id.get(sid)
+            if note is None:  # a pre-id seed note with identical text is adopted, not duplicated
+                for p, m, b in notes:
+                    if not m.get("seed_id") and f"role:{role}" in m.get("applies_to", []) and userdata.text_hash(b) == userdata.text_hash(text):
+                        note = (p, m, b)
+                        m["seed_id"] = sid
+                        m.setdefault("seed_hash", userdata.text_hash(b))
+                        actions.append(f"{verb('link')} {sid} to {p.name}")
+                        if not dry_run:
+                            _save(p, m, b)
+                        break
+            if note is None:
+                actions.append(f"{verb('add')} {sid}")
+                if not dry_run:
+                    nid = learn(text, [f"role:{role}"], type_="pitfall", source="seed")
+                    p = _kdir() / f"{nid}.md"
+                    fm, b = userdata._split_note(p.read_text(encoding="utf-8"))
+                    m = yaml.safe_load(fm)
+                    m.update({"schema": userdata.SCHEMA_VERSION, "seed_id": sid, "seed_hash": userdata.text_hash(text)})
+                    _save(p, m, b)
+                continue
+            p, m, b = note
+            current = userdata.text_hash(b)
+            if current == userdata.text_hash(text):
+                continue
+            if m.get("seed_hash") == current:
+                actions.append(f"{verb('update')} {sid} (you had not edited it)")
+                if not dry_run:
+                    m["seed_hash"] = userdata.text_hash(text)
+                    _save(p, m, text + "\n")
+            else:
+                actions.append(f"kept your edit of {sid}")
+        shipped_ids = {f"{role}/{s['id']}" for s in shipped if s["id"]}
+        for p, m, b in notes:
+            sid = m.get("seed_id", "")
+            if sid.startswith(f"{role}/") and sid not in shipped_ids:
+                actions.append(f"kept {sid}: no longer shipped upstream")
+    return actions

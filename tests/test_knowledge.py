@@ -127,3 +127,56 @@ def test_old_layout_is_migrated_with_backup_before_first_write(home, capsys):
     assert userdata.list_backups(home)
     assert "upgraded your data" in capsys.readouterr().err
     assert (home / "knowledge" / "k-old.md").read_text().endswith("Old seed text\n")
+
+
+SEEDS_V1 = {"data-engineer": [{"id": "merge", "text": "Use MERGE on the key."},
+                              {"id": "nulls", "text": "Check nulls on keys."}]}
+
+
+def _note(sid):
+    for n in knowledge.load_knowledge():
+        if n.get("seed_id") == sid:
+            return n
+
+
+def test_sync_adds_then_is_idempotent(home):
+    added = knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    assert added == ["added data-engineer/merge", "added data-engineer/nulls"]
+    assert _note("data-engineer/merge")["text"] == "Use MERGE on the key."
+    assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1) == []
+
+
+def test_sync_updates_untouched_but_keeps_user_edits(home):
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text())
+    edited.write_text(edited.read_text().replace("Check nulls on keys.", "Check nulls AND duplicates on keys (my rule)."))
+    v2 = {"data-engineer": [{"id": "merge", "text": "Use MERGE on the business key."},
+                            {"id": "nulls", "text": "Check nulls on primary keys."}]}
+    actions = knowledge.sync_seeds(["data-engineer"], v2)
+    assert "updated data-engineer/merge (you had not edited it)" in actions
+    assert "kept your edit of data-engineer/nulls" in actions
+    assert _note("data-engineer/merge")["text"] == "Use MERGE on the business key."
+    assert "(my rule)" in _note("data-engineer/nulls")["text"]
+
+
+def test_sync_respects_dismissed_and_reports_retired(home):
+    knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    (home / knowledge.DISMISSED).write_text("data-engineer/nulls\n")
+    knowledge.forget(_note("data-engineer/nulls")["id"])
+    v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on keys."}]}
+    actions = knowledge.sync_seeds(["data-engineer"], v2)
+    assert _note("data-engineer/nulls") is None
+    assert "kept data-engineer/merge: no longer shipped upstream" in actions
+
+
+def test_sync_adopts_pre_id_seed_notes(home):
+    knowledge.learn("Use MERGE on the key.", ["role:data-engineer"], type_="pitfall", source="seed")
+    actions = knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
+    assert any(a.startswith("linked data-engineer/merge") for a in actions)
+    assert len([n for n in knowledge.load_knowledge() if "MERGE" in n["text"]]) == 1
+
+
+def test_sync_dry_run_writes_nothing(home):
+    actions = knowledge.sync_seeds(["data-engineer"], SEEDS_V1, dry_run=True)
+    assert actions == ["would add data-engineer/merge", "would add data-engineer/nulls"]
+    assert not (home / "knowledge").exists() or not list((home / "knowledge").glob("*.md"))
