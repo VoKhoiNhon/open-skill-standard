@@ -149,6 +149,10 @@ def validate(reg: Registry) -> list[str]:
                     if ref not in known:
                         errors.append(f"role {rid}: {phase}.{key} references unknown skill {ref}")
     for rid, r in reg.roles.items():
+        handoff = r.get("handoff") if isinstance(r.get("handoff"), dict) else {}
+        for when, target in handoff.items():  # the schema allows any taxonomy role; the playbook links to its pack
+            if target not in reg.roles:
+                errors.append(f"role {rid}: {when} hands off to {target}, which has no role pack")
         seeds = _list(r.get("seeds"))
         ids = [s["id"] for s in seeds if isinstance(s, dict) and "id" in s]
         if any(isinstance(s, str) for s in seeds):

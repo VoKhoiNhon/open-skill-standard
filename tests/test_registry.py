@@ -179,6 +179,7 @@ VALIDATION_CASES = [
     ("duplicate skill in one file", SP, ["skills", 1, "name"], "brainstorming", None, "defines skill brainstorming twice"),
     ("model inheritance cycle", "models/generic.yaml", ["inherits"], "claude-opus-5", None, "inheritance cycle"),
     ("detect names an unknown agent", SP, ["detect", 0, "agent"], "no-such-agent", None, "unknown agent no-such-agent"),
+    ("handoff to a role without a pack", DE, ["handoff"], {"review": "security-engineer"}, None, "hands off to security-engineer"),
 ]
 
 
