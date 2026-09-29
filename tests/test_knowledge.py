@@ -161,8 +161,8 @@ def test_sync_updates_untouched_but_keeps_user_edits(home):
 
 def test_sync_respects_dismissed_and_reports_retired(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
-    (home / knowledge.DISMISSED).write_text("data-engineer/nulls\n")
     knowledge.forget(_note("data-engineer/nulls")["id"])
+    assert "data-engineer/nulls" in knowledge.dismissed_seeds()
     v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on keys."}]}
     actions = knowledge.sync_seeds(["data-engineer"], v2)
     assert _note("data-engineer/nulls") is None

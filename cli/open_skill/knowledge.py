@@ -89,6 +89,10 @@ def forget(node_id: str) -> bool:
     path = _kdir() / f"{node_id}.md"
     if not path.exists():
         return False
+    meta, _ = frontmatter.parse(path.read_text())
+    if meta.get("seed_id"):  # remember the choice so seed sync never brings it back
+        with (home() / DISMISSED).open("a") as f:
+            f.write(meta["seed_id"] + "\n")
     path.unlink()
     return True
 
