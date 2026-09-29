@@ -126,6 +126,9 @@ cases:
      include: [knowledge-work-data/write-query]}
   - {id: dba-upgrade-plan, role: database-administrator, task: "plan the upgrade to the new database major version",
      phases: [plan], exclude: [superpowers/subagent-driven-development]}
+  - {id: dba-zero-downtime-migration, role: database-administrator,
+     task: "migrate the orders schema to split the address column without downtime",
+     include: [addy-agent-skills/deprecation-and-migration, knowledge-work-data/write-query]}
   - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
      include: [superpowers/subagent-driven-development]}
   - {id: sysadmin-spec-kit, role: system-administrator, task: "add log rotation to the web servers",
