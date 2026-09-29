@@ -33,3 +33,19 @@ def test_relocation_matches_whole_segments(tmp_path, monkeypatch):
 def test_project_folders_need_a_project(tmp_path):
     assert agents.folders(AGENT, "project") == []
     assert agents.folders(AGENT, "project", tmp_path) == [tmp_path.resolve() / ".demo/skills"]
+
+
+def test_detected_when_any_detect_path_exists(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    agent = {**AGENT, "detect": [{"path": "~/.demo"}, {"path": "~/.demo-alt"}]}
+    monkeypatch.delenv("DEMO_HOME", raising=False)
+    assert agents.detected(agent) is False
+    (tmp_path / ".demo-alt").mkdir()
+    assert agents.detected(agent) is True
+
+
+def test_detected_follows_relocation(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / "moved").mkdir()
+    monkeypatch.setenv("DEMO_HOME", str(tmp_path / "moved"))
+    assert agents.detected({**AGENT, "detect": [{"path": "~/.demo"}]}) is True
