@@ -46,3 +46,25 @@ def test_load_trigger_sets(tmp_path):
     (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi}\n")
     with pytest.raises(ValueError):
         evals.load_trigger_sets(tmp_path)
+
+
+def test_trigger_metrics():
+    labels = [{"q": "a", "trigger": True}, {"q": "b", "trigger": True}, {"q": "c", "trigger": False}, {"q": "d", "trigger": False}]
+    m = evals.trigger_metrics(labels, [True, False, True, False])
+    assert (m["tp"], m["fp"], m["fn"], m["tn"]) == (1, 1, 1, 1)
+    assert m["precision"] == 0.5 and m["recall"] == 0.5 and m["missed"] == ["b"] and m["false_alarms"] == ["c"]
+
+
+def test_lexical_triggers_prefers_the_matching_description():
+    d = {"pdf-tools": "Extract text and tables from PDF files and fill PDF forms.",
+         "sql-helper": "Write and optimize SQL queries for warehouses."}
+    assert evals.lexical_triggers("fill this PDF form for me", d) == ["pdf-tools"]
+    assert evals.lexical_triggers("the and of", d) == []
+
+
+def test_core_skills_trigger_proxy_meets_floor():
+    rep = evals.trigger_report_lexical(evals.load_trigger_sets(ROOT / "evals" / "triggers"),
+                                       evals.skill_descriptions(REG, ROOT / "skills"))
+    assert set(rep) == {"open-skill-router", "open-skill-standards", "open-skill-intel", "open-skill-learn"}
+    for skill, m in rep.items():
+        print(skill, m["precision"], m["recall"])

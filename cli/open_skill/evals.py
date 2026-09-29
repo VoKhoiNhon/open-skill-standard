@@ -75,3 +75,52 @@ def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
             raise ValueError(f"{p}: every query needs a string 'q' and a boolean 'trigger'")
         out[doc["skill"]] = queries
     return out
+
+
+def skill_descriptions(reg, skills_dir: Path | None = None) -> dict[str, str]:
+    """What an agent sees for each skill: SKILL.md descriptions for local skills, registry text for the rest."""
+    from . import frontmatter
+
+    out = {sid.split("/", 1)[1]: s.get("description", "") for sid, s in reg.skills.items()}
+    for p in sorted((Path(skills_dir) if skills_dir else paths.data_root() / "skills").glob("*/SKILL.md")):
+        meta, _ = frontmatter.parse(p.read_text())
+        if meta.get("name"):
+            out[meta["name"]] = str(meta.get("description", ""))
+    return out
+
+
+def lexical_triggers(query: str, descriptions: dict[str, str], top_k: int = 3, ratio: float = 0.5) -> list[str]:
+    """Deterministic stand-in for an agent's choice: skills in the top k by BM25 and within `ratio` of the best."""
+    import sqlite3
+
+    from . import index
+
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE VIRTUAL TABLE d USING fts5(name UNINDEXED, text, tokenize='unicode61 remove_diacritics 2')")
+    conn.executemany("INSERT INTO d VALUES (?, ?)", [(n, f"{n.replace('-', ' ')} {t}") for n, t in descriptions.items()])
+    tokens = [t for t in index.TOKEN.findall(query.lower()) if t not in index.STOP and t != "near"]
+    if not tokens:
+        return []
+    rows = conn.execute("SELECT name, -bm25(d) FROM d WHERE d MATCH ? ORDER BY bm25(d) LIMIT ?",
+                        (" OR ".join(f'"{t}"' for t in dict.fromkeys(tokens)), top_k)).fetchall()
+    if not rows:
+        return []
+    best = rows[0][1]
+    return [name for name, score in rows if score >= best * ratio]
+
+
+def trigger_metrics(labels: list[dict], fired: list[bool]) -> dict:
+    tp = sum(1 for q, f in zip(labels, fired) if q["trigger"] and f)
+    fp = sum(1 for q, f in zip(labels, fired) if not q["trigger"] and f)
+    fn = sum(1 for q, f in zip(labels, fired) if q["trigger"] and not f)
+    tn = len(labels) - tp - fp - fn
+    return {"tp": tp, "fp": fp, "fn": fn, "tn": tn,
+            "precision": round(tp / (tp + fp), 3) if tp + fp else 1.0,
+            "recall": round(tp / (tp + fn), 3) if tp + fn else 1.0,
+            "missed": [q["q"] for q, f in zip(labels, fired) if q["trigger"] and not f],
+            "false_alarms": [q["q"] for q, f in zip(labels, fired) if not q["trigger"] and f]}
+
+
+def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str]) -> dict[str, dict]:
+    return {skill: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
+            for skill, qs in sets.items()}
