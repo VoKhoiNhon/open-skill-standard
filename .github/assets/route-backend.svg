@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="790" height="624" viewBox="0 0 790 624" role="img" aria-label="open-skill route --explain · backend-developer: open-skill route &quot;add an endpoint that exports invoices as CSV&quot; --role backend-developer --explain" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5">
+<rect x="0.5" y="0.5" width="789" height="623" rx="10" fill="#161b22" stroke="#30363d"/>
+<circle cx="20" cy="18" r="5.5" fill="#ff5f57"/>
+<circle cx="38" cy="18" r="5.5" fill="#febc2e"/>
+<circle cx="56" cy="18" r="5.5" fill="#28c840"/>
+<text x="395" y="22.5" text-anchor="middle" fill="#8b949e" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif" font-size="12">open-skill route --explain · backend-developer</text>
+<text x="20" y="48" fill="#e6edf3" font-weight="600" textLength="750" lengthAdjust="spacingAndGlyphs"><tspan fill="#3fb950">$</tspan> open-skill route "add an endpoint that exports invoices as CSV" --role backend-developer --explain</text>
+<text x="20" y="66" fill="#c9d1d9" textLength="472.5" lengthAdjust="spacingAndGlyphs">route r-&lt;id&gt;  role=backend-developer  size=medium  target=build</text>
+<text x="20" y="84" fill="#c9d1d9" textLength="300" lengthAdjust="spacingAndGlyphs">project native=none artifacts=test-suite</text>
+<text x="20" y="102" fill="#c9d1d9" textLength="337.5" lengthAdjust="spacingAndGlyphs">model profile=generic (default) effort=medium</text>
+<text x="20" y="120" fill="#c9d1d9" textLength="352.5" lengthAdjust="spacingAndGlyphs">target build from phase keywords: add, endpoint</text>
+<text x="20" y="138" fill="#c9d1d9" textLength="315" lengthAdjust="spacingAndGlyphs">size medium: no size keywords, the default</text>
+<text x="20" y="156" fill="#c9d1d9" textLength="720" lengthAdjust="spacingAndGlyphs">phase window: plan → build → verify → review (medium build task: starts at plan, then verify and</text>
+<text x="20" y="174" fill="#c9d1d9" textLength="67.5" lengthAdjust="spacingAndGlyphs">  review)</text>
+<text x="20" y="192" fill="#79c0ff" textLength="675" lengthAdjust="spacingAndGlyphs">1. [plan] superpowers:writing-plans  score=2.0  — phase plan; role prior 2.00 (primary for</text>
+<text x="20" y="210" fill="#79c0ff" textLength="232.5" lengthAdjust="spacingAndGlyphs">  backend-developer); text 1.00</text>
+<text x="20" y="228" fill="#8b949e" textLength="435" lengthAdjust="spacingAndGlyphs">   runner-ups: knowledge-work-engineering/architecture 0.7</text>
+<text x="20" y="246" fill="#79c0ff" textLength="697.5" lengthAdjust="spacingAndGlyphs">2. [build] superpowers:subagent-driven-development  score=2.5  — phase build; role prior 2.00</text>
+<text x="20" y="264" fill="#79c0ff" textLength="442.5" lengthAdjust="spacingAndGlyphs">  (primary for backend-developer); text 1.00; consumes plan</text>
+<text x="20" y="282" fill="#8b949e" textLength="630" lengthAdjust="spacingAndGlyphs">   runner-ups: superpowers/test-driven-development 2.0, anthropic-skills/xlsx 0.943,</text>
+<text x="20" y="300" fill="#8b949e" textLength="285" lengthAdjust="spacingAndGlyphs">     superpowers/executing-plans 0.875</text>
+<text x="20" y="318" fill="#79c0ff" textLength="750" lengthAdjust="spacingAndGlyphs">3. [verify] superpowers:test-driven-development  score=2.0  — phase verify; role prior 2.00 (primary</text>
+<text x="20" y="336" fill="#79c0ff" textLength="262.5" lengthAdjust="spacingAndGlyphs">  for backend-developer); text 1.00</text>
+<text x="20" y="354" fill="#8b949e" textLength="742.5" lengthAdjust="spacingAndGlyphs">   runner-ups: superpowers/verification-before-completion 2.0 (close call), claude-code-builtin/run</text>
+<text x="20" y="372" fill="#8b949e" textLength="60" lengthAdjust="spacingAndGlyphs">     0.8</text>
+<text x="20" y="390" fill="#79c0ff" textLength="750" lengthAdjust="spacingAndGlyphs">4. [review] code-review  score=2.0  — phase review; role prior 2.00 (primary for backend-developer);</text>
+<text x="20" y="408" fill="#79c0ff" textLength="82.5" lengthAdjust="spacingAndGlyphs">  text 1.00</text>
+<text x="20" y="426" fill="#8b949e" textLength="510" lengthAdjust="spacingAndGlyphs">   runner-ups: claude-code-builtin/security-review 2.0 (close call),</text>
+<text x="20" y="444" fill="#8b949e" textLength="577.5" lengthAdjust="spacingAndGlyphs">     knowledge-work-engineering/code-review 0.8, ponytail/ponytail-review 0.7</text>
+<text x="20" y="462" fill="#e3b341" textLength="727.5" lengthAdjust="spacingAndGlyphs">missing: spec-kit/plan (needs .specify in the project) → specify init --here --integration claude</text>
+<text x="20" y="480" fill="#e3b341" textLength="712.5" lengthAdjust="spacingAndGlyphs">missing: spec-kit/implement (needs .specify in the project) → specify init --here --integration</text>
+<text x="20" y="498" fill="#e3b341" textLength="60" lengthAdjust="spacingAndGlyphs">  claude</text>
+<text x="20" y="516" fill="#8b949e" textLength="705" lengthAdjust="spacingAndGlyphs">model note: Act once you have enough information; when weighing options, give a recommendation</text>
+<text x="20" y="534" fill="#8b949e" textLength="165" lengthAdjust="spacingAndGlyphs">  instead of a survey.</text>
+<text x="20" y="552" fill="#8b949e" textLength="750" lengthAdjust="spacingAndGlyphs">model note: Keep changes to what the task asks for; mention other improvements at the end instead of</text>
+<text x="20" y="570" fill="#8b949e" textLength="105" lengthAdjust="spacingAndGlyphs">  making them.</text>
+<text x="20" y="588" fill="#8b949e" textLength="735" lengthAdjust="spacingAndGlyphs">model note: Before reporting progress, point to the tool result that shows it; say plainly what is</text>
+<text x="20" y="606" fill="#8b949e" textLength="112.5" lengthAdjust="spacingAndGlyphs">  not verified.</text>
+</svg>
