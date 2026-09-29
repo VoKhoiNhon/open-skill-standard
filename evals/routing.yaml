@@ -88,6 +88,14 @@ cases:
      first: knowledge-work-engineering/incident-response}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
      include: [claude-code-builtin/security-review]}
+  - {id: cloud-cost, role: cloud-engineer, task: "our cloud cost doubled this month",
+     first: superpowers/systematic-debugging, exclude: [superpowers/writing-plans]}
+  - {id: cloud-review-terraform, role: cloud-engineer, task: "review the terraform plan for the VPC change",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: cloud-vietnamese, role: cloud-engineer, task: "thêm cụm kubernetes bằng terraform",
+     include: [knowledge-work-engineering/architecture, claude-code-builtin/security-review]}
+  - {id: cloud-bmad, role: cloud-engineer, task: "add a private bucket", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: security, role: security-engineer, task: "review the login flow for security issues",
      phases: [review], include: [claude-code-builtin/security-review]}
   - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
