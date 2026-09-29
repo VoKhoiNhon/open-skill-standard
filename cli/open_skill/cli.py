@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, evals, frontmatter, generate, graph_html, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, agents, evals, frontmatter, generate, graph_html, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -64,6 +64,30 @@ def cmd_scan(args):
         for i in items:
             print(f"{i.invoke:45} {i.id:45} {','.join(i.agents)}{'  (inferred)' if i.inferred else ''}")
         print(f"{len(items)} skill(s)")
+    return 0
+
+
+def _agent_rows(reg, project: Path | None) -> list[dict]:
+    installed = scan.scan(reg, project)
+    rows = []
+    for aid, a in sorted(reg.agents.items()):
+        glob, proj = agents.folders(a, "global"), agents.folders(a, "project", project)
+        rows.append({"id": aid, "name": a.get("name", aid), "detected": agents.detected(a),
+                     "skills": sum(aid in i.agents for i in installed), "docs": a.get("docs"),
+                     "install_to": {"global": str(glob[0]) if glob else None, "project": str(proj[0]) if proj else None},
+                     "reads": [str(p) for p in glob + proj]})
+    return rows
+
+
+def cmd_agents(args):
+    rows = _agent_rows(_registry(args), Path(args.project) if args.project else None)
+    if args.json:
+        _print(rows)
+        return 0
+    for r in rows:
+        where = r["install_to"]["project"] or r["install_to"]["global"]
+        print(f"{'✓' if r['detected'] else '·'} {r['id']:16} {r['name'][:28]:28} {r['skills']:3} skill(s)  {where}")
+    print(f"{sum(r['detected'] for r in rows)} of {len(rows)} agent(s) detected")
     return 0
 
 
@@ -162,6 +186,9 @@ def cmd_doctor(args):
     for i in installed:
         by_src[i.id.split("/")[0]] = by_src.get(i.id.split("/")[0], 0) + 1
     print(f"open-skill {__version__}  registry={paths.data_root()}  home={knowledge.home()}")
+    found = [a for a in reg.agents.values() if agents.detected(a)]
+    seen = ", ".join(f"{a['id']} ({sum(a['id'] in i.agents for i in installed)} skills)" for a in found)
+    print(f"  agents: {seen or 'none detected'} → open-skill agents")
     for src, a in sorted(reg.adapters.items()):
         n = by_src.get(src, 0)
         hint = "" if n else f"  → {next(iter((a.get('install') or {}).values()), 'see ' + a.get('upstream', ''))}"
@@ -451,6 +478,10 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--memory", action="store_true", help="import Claude Code memory files into knowledge")
     s.add_argument("--agent", help="only skills this agent sees, by the names it invokes them (see registry/agents)")
     s.set_defaults(fn=cmd_scan)
+    s = sub.add_parser("agents", help="coding agents on this machine, the skills each sees and where installs go")
+    s.add_argument("--project", help="also show the project skill folder of each agent")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(fn=cmd_agents)
     s = sub.add_parser("build", help="regenerate playbooks, schemas and dist/")
     s.add_argument("--root")
     s.add_argument("--check", action="store_true", help="exit 1 if generated files are stale")

@@ -87,6 +87,7 @@ def test_validate_scan_doctor_graph(capsys):
     assert "superpowers:test-driven-development" in out
     code, out = run(capsys, "doctor")
     assert "superpowers" in out and "no profile yet" in out
+    assert "agents: claude-code (" in out and "codex (" in out and "demo-agent" not in out
     code, out = run(capsys, "graph")
     assert out.startswith("graph LR")
 
@@ -255,3 +256,17 @@ def test_scan_agent_filter_and_unknown_agent(capsys):
     code, out = run(capsys, "scan")
     assert "claude-code,codex" in out  # agents column
     assert run(capsys, "scan", "--agent", "nope")[0] == 2
+
+
+def test_agents_lists_detected_agents_and_their_skills(capsys):
+    code, out = run(capsys, "agents")
+    rows = {line.split()[1]: line for line in out.splitlines() if line[:1] in "✓·"}
+    assert code == 0
+    assert rows["claude-code"].startswith("✓") and rows["codex"].startswith("✓")
+    assert rows["demo-agent"].startswith("·")
+    code, out = run(capsys, "agents", "--json")
+    by_id = {a["id"]: a for a in json.loads(out)}
+    assert by_id["codex"]["detected"] is True and by_id["codex"]["skills"] >= 2
+    assert by_id["codex"]["install_to"]["global"].endswith(".agents/skills")
+    assert by_id["codex"]["install_to"]["project"] is None  # no --project given
+    assert by_id["demo-agent"]["docs"].startswith("https://")

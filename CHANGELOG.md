@@ -12,6 +12,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill route "<task>" --why-not <skill>` explains why a skill is not in the chain: not installed, wrong phase or size, requirement unmet, conflict with a chosen skill, below the minimum score, lower score than the winner (both scores), dropped by the model step limit, or done directly. `route.route(..., decisions=True)` exposes every candidate decision; the default output is unchanged.
 - Agent targets in `registry/agents/`: Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot (CLI, coding agent, VS Code), OpenCode, Goose, Windsurf and Amp, with their global and project skill folders, how to detect each one and the documentation URL behind every path (SPEC §4.6).
 - `open-skill scan` looks in the skill folders of every agent target and lists each skill once with the agents that see it; `scan --agent <id>` shows one agent's view under the names it invokes skills by. Detect rules may use `{skills}` and `{project_skills}` for every agent's folders, and may name an `agent` (SPEC §4.2).
+- `open-skill agents [--project DIR] [--json]` lists the known agents, which are installed on this machine, how many skills each sees and where an install for it goes; `doctor` shows the detected agents.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.

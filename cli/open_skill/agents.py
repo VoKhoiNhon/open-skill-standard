@@ -22,3 +22,8 @@ def folders(agent: dict, scope: str, project: Path | None = None) -> list[Path]:
     if project is None:
         return []
     return [Path(project).resolve() / f["path"] for f in agent.get("project", [])]
+
+
+def detected(agent: dict) -> bool:
+    """Installed on this machine: any detect path exists (after relocation)."""
+    return any(expand(agent, d["path"]).exists() for d in agent.get("detect", []))
