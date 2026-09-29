@@ -181,6 +181,12 @@ cases:
      include: [superpowers/subagent-driven-development]}
   - {id: ai-engineer-bmad, role: ai-engineer, task: "add a summarization endpoint", files: [_bmad/config.toml],
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: ai-engineer-debug, role: ai-engineer, task: "debug why the agent keeps calling the wrong tool",
+     first: superpowers/systematic-debugging}
+  - {id: ai-engineer-review, role: ai-engineer, task: "review the pull request for the agent tools",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: ai-engineer-vietnamese, role: ai-engineer, task: "thêm đánh giá cho chatbot RAG",
+     include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: platform, role: data-ai-platform-engineer, task: "roll out a shared skill pack to all teams",
      include: [anthropic-skills/skill-creator]}
   - {id: platform-spec-kit, role: data-ai-platform-engineer, task: "add a skill for SQL review",
