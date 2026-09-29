@@ -7,7 +7,7 @@ description: Saves the user's lessons, preferences, glossary terms and project f
 
 Current models do better work when they can read lessons from earlier sessions. This skill keeps those lessons as small local files that `open-skill route` attaches to future chains.
 
-`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard open-skill`.
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.2.0 open-skill`.
 
 ## Save
 
