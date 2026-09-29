@@ -207,6 +207,10 @@ cases:
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
      phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: tech-lead-vietnamese-review, role: tech-lead, task: "rà soát pull request cho module thanh toán",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: tech-lead-bmad, role: tech-lead, task: "add bulk export", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build, bmad-method/bmad-code-review], exclude: [superpowers/subagent-driven-development]}
   - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
      first: knowledge-work-product-management/sprint-planning}
   - {id: eng-manager-bmad, role: engineering-manager, task: "plan the next sprint", files: [_bmad/config.toml],
