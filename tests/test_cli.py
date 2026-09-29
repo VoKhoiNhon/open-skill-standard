@@ -503,3 +503,19 @@ def test_bug_learn_refusal_names_the_cli_flag(capsys):
 def test_lint_missing_path_exits_2_without_a_traceback(capsys, tmp_path):
     code = cli.main(["lint", str(tmp_path / "nope")])
     assert code == 2 and "no such file or folder" in capsys.readouterr().err
+
+
+def test_bug_explain_printed_python_reprs():
+    # --explain showed role={'data-engineer': 0.7, ...}, artifacts=['spec'] and ask the user: ['a', 'b'].
+    r = {"route_id": "r-1", "role": {"data-engineer": 0.7, "data-analyst": 0.3}, "size": "medium",
+         "target_phase": "build", "phase_from": "keywords", "advice": None, "missing": [], "knowledge": [],
+         "project": {"native": None, "artifacts": ["spec", "test-suite"]},
+         "model": {"profile": "generic", "matched_by": "default", "effort": "medium", "addenda": []},
+         "chain": [{"phase": "build", "invoke": "a", "score": 2.0, "why": "w", "ask": ["src/a", "src/b"]}]}
+    out = cli._explain(r).splitlines()
+    assert out[0] == "route r-1  role=data-engineer 0.7, data-analyst 0.3  size=medium  target=build"
+    assert out[1] == "project native=none artifacts=spec, test-suite"
+    assert out[4] == "   close call on the main step, ask the user: src/a or src/b"
+    r.update(role={"data-engineer": 1.0}, project={"native": "spec-kit", "artifacts": []})
+    assert cli._explain(r).splitlines()[:2] == ["route r-1  role=data-engineer  size=medium  target=build",
+                                                "project native=spec-kit artifacts=none"]
