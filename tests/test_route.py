@@ -162,8 +162,10 @@ def test_install_hint_fits_the_agent():
     assert route._install_hint(both) == "/plugin install x@demo"
     assert route._install_hint(both, "claude-code") == "/plugin install x@demo"
     assert route._install_hint(both, "codex") == "npx skills add demo/x -g"
-    only_plugin = {"source": "demo", "name": "x", "install": {"claude-plugin": "/plugin install x@demo"}}
-    assert route._install_hint(only_plugin, "codex") == "/plugin install x@demo"
+    only_plugin = {"source": "demo", "name": "x", "upstream": "https://example.org/demo",
+                   "install": {"claude-plugin": "/plugin install x@demo"}}
+    assert route._install_hint(only_plugin, "codex") == "see https://example.org/demo (no install command for codex)"
+    assert route._install_hint(only_plugin, "claude-code") == "/plugin install x@demo"
     init = {"source": "demo", "name": "x", "install": {"skills-cli": "npx skills add demo/x", "project-init": "demo init"}}
     assert route._install_hint(init, "codex") == "demo init"
     core = {"source": "open-skill", "name": "open-skill-router", "install": {"claude-plugin": "/plugin install o"}}

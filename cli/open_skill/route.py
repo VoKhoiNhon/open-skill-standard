@@ -121,6 +121,8 @@ def _install_hint(skill: dict, agent: str | None = None) -> str:
         other = [v for k, v in inst.items() if not k.startswith("claude")]
         if other:
             return other[0]
+        if inst:  # only Claude Code commands; they would not work in this agent
+            return f"see {skill.get('upstream') or skill['source']} (no install command for {agent})"
     return next(iter(inst.values()), f"install {skill['source']}")
 
 
