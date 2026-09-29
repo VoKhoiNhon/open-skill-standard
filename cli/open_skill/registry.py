@@ -64,6 +64,15 @@ def load(root: Path | None = None, overlays=()) -> Registry:
     root = Path(root) if root else paths.data_root()
     reg = Registry(taxonomy=load_taxonomy(root))
     for layer in [root / "registry", *map(Path, overlays)]:
+        seen: dict[str, Path] = {}
+
+        def claim(key: str, p: Path) -> None:
+            """Overlays override by id on purpose; two files of one layer with one id are a mistake."""
+            if key in seen:
+                reg.problems.append(f"{key.replace(':', ' ', 1)} is defined in both {seen[key]} and {p}")
+            seen[key] = p
+            reg.files[key] = str(p)
+
         for p in _yaml_files(layer / "adapters"):
             doc = _read(p)
             src = doc.get("source", p.stem)
@@ -80,22 +89,22 @@ def load(root: Path | None = None, overlays=()) -> Registry:
                     broken.append(s)
             base.update({k: v for k, v in doc.items() if k != "skills"})
             base["skills"] = list(by_name.values()) + broken
-            reg.files[f"adapter:{src}"] = str(p)
+            claim(f"adapter:{src}", p)
         for p in _yaml_files(layer / "roles"):
             doc = _read(p)
             rid = doc.get("id", p.stem)
             reg.roles.setdefault(rid, {}).update(doc)
-            reg.files[f"role:{rid}"] = str(p)
+            claim(f"role:{rid}", p)
         for p in _yaml_files(layer / "models"):
             doc = _read(p)
             mid = doc.get("id", p.stem)
             reg.models.setdefault(mid, {}).update(doc)
-            reg.files[f"model:{mid}"] = str(p)
+            claim(f"model:{mid}", p)
         for p in _yaml_files(layer / "agents"):
             doc = _read(p)
             aid = doc.get("id", p.stem)
             reg.agents.setdefault(aid, {}).update(doc)
-            reg.files[f"agent:{aid}"] = str(p)
+            claim(f"agent:{aid}", p)
     for src, a in reg.adapters.items():
         for s in filter(_named, a.get("skills", [])):
             m = {k: a[k] for k in INHERITED if k in a}
