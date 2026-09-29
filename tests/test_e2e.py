@@ -244,8 +244,7 @@ def test_graph(cli):
     assert cli.run("graph").stdout.startswith("graph LR")
     g = cli.json("graph", "--format", "json")
     _check_shape("graph --format json", g)
-    page = cli.tmp / "out dir" / "graph.html"
-    page.parent.mkdir()
+    page = cli.tmp / "out dir" / "new folder" / "graph.html"  # bug: --out into a new folder crashed
     assert cli.run("graph", "--format", "html", "--out", str(page)).stdout.startswith("wrote")
     assert page.read_text(encoding="utf-8").lstrip().lower().startswith("<!doctype html")
 

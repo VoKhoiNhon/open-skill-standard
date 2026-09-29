@@ -310,6 +310,7 @@ def cmd_graph(args):
         g = index.graph_json(reg, scan.scan(reg))
         text = graph_html.graph_html(g) if args.format == "html" else json.dumps(g, indent=2, ensure_ascii=False) + "\n"
     if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(text, encoding="utf-8")
         print(f"wrote {args.out}")
     else:
