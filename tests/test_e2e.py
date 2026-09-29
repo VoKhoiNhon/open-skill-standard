@@ -397,6 +397,9 @@ def test_eval_triggers(cli):
     rep = cli.json("eval", "triggers", "--cases", str(FIX / "triggers"), "--format", "json")
     _check_shape("eval triggers --format json", rep)
     assert "consider the concept" in cli.run("eval", "triggers", "--suggest").stdout
+    empty = cli.tmp / "empty-bin"
+    empty.mkdir()
+    cli.env["PATH"] = str(empty)  # a claude CLI on the machine running the tests must not be called
     assert "claude CLI is not on PATH" in cli.run("eval", "triggers", "--agent", "claude", code=2).stderr
 
 
