@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, agents, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -47,6 +47,28 @@ def cmd_lint(args):
             print(f"{f.path}: {f.severity} [{f.rule}] {f.message} ({f.source})")
         print(f"{len(errors)} error(s), {len(findings) - len(errors)} warning(s)")
     return 1 if errors or (args.strict and findings) else 0
+
+
+def _audit_report(groups: dict) -> str:
+    lines = []
+    for group, found in groups.items():
+        lines.append(f"== {group}")
+        for f in found:
+            lines += [f"  {f.severity:6} [{f.rule}] {f.file}:{f.line}", f"         {f.excerpt}",
+                      f"         {f.message} ({f.source})"]
+    c = audit.summary([f for found in groups.values() for f in found])
+    lines += [f"{c['high']} high, {c['medium']} medium, {c['low']} low", audit.DISCLAIMER]
+    return "\n".join(lines)
+
+
+def cmd_audit(args):
+    missing = [p for p in args.paths if not Path(p).exists()]
+    if missing:
+        print(f"no such file or folder: {', '.join(missing)}", file=sys.stderr)
+        return 2
+    groups = {p: audit.audit_paths([p]) for p in args.paths}
+    print(_audit_report(groups))
+    return 0
 
 
 def cmd_scan(args):
@@ -533,6 +555,9 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--installed", action="store_true", help="health report of every installed skill, by source")
     s.add_argument("--format", choices=["text", "json"], default="text")
     s.set_defaults(fn=cmd_lint)
+    s = sub.add_parser("audit", help="heuristic security review of skill folders; reads files, never runs them")
+    s.add_argument("paths", nargs="*", help="skill folders or files")
+    s.set_defaults(fn=cmd_audit)
     s = sub.add_parser("scan", help="list installed skills")
     s.add_argument("--project")
     s.add_argument("--json", action="store_true")
