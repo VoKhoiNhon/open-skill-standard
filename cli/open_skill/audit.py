@@ -100,6 +100,13 @@ rule("secret-files", "medium",
      "points at SSH keys or cloud and package-registry credentials; a skill rarely needs to read them", ATTACK_CRED_FILES)
 
 
+# Writing one ("copy .env.example to .env") is ordinary setup, so a ".env" right after "to" is skipped.
+rule("env-file-read", "medium",
+     r"\b(cat|less|more|head|tail|type|read|print|dump|send|upload|post|copy|cp|scp|base64|xxd|curl)\b[^\n]{0,40}"
+     r"(?<![\w.-])(?<!to )\.env(?!\.(example|sample|template))(\.[\w-]+)?\b",
+     "reads or sends a .env file, which usually holds API keys and passwords", ATTACK_CRED_FILES)
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
