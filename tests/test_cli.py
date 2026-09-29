@@ -224,6 +224,17 @@ def test_playbook_renders_seed_objects_as_text():
     assert "- Use MERGE on the key." in text and "- Legacy seed." in text and "merge-key" not in text
 
 
+def test_bug_playbooks_state_the_roles_build_window():
+    # The router skill's manual path reads the playbook, which never said that, e.g., a product manager's
+    # build request walks discover → research → specify → plan instead of plan → build → verify → review.
+    from open_skill import generate, registry
+    reg = registry.load()
+    windows = {rid: r["build_window"] for rid, r in reg.roles.items() if r.get("build_window")}
+    assert windows
+    for rid, window in windows.items():
+        assert "Build tasks for this role walk " + " → ".join(window) in generate.role_playbook(reg, rid), rid
+
+
 def test_init_with_the_real_registry_seeds(capsys, tmp_path):
     code = cli.main(["init", "--role", "data-engineer"])
     assert code == 0

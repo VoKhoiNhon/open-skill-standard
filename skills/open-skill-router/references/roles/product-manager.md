@@ -15,6 +15,8 @@ Decides what to build and why, and measures whether it worked.
 
 ## Skills by phase
 
+Build tasks for this role walk discover → research → specify → plan, instead of plan → build → verify → review.
+
 | Phase | Primary | Alternatives |
 |---|---|---|
 | discover | `knowledge-work-product-management/product-brainstorming` — Explore problem spaces and challenge assumptions as a thinking partner<br>`bmad-method/bmad-forge-idea` — Pressure-test a half-formed idea with personas until it can be acted on or dropped<br>`bmad-method/bmad-prfaq` — Working-backwards press release and FAQ to test a product concept | `bmad-method/bmad-party-mode` |

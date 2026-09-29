@@ -15,6 +15,8 @@ Frames questions as hypotheses and answers them with statistics and models.
 
 ## Skills by phase
 
+Build tasks for this role walk discover → research → build → verify → release, instead of plan → build → verify → review.
+
 | Phase | Primary | Alternatives |
 |---|---|---|
 | discover | `bmad-method/bmad-forge-idea` — Pressure-test a half-formed idea with personas until it can be acted on or dropped<br>`superpowers/brainstorming` — Converge an idea into an approved design through one-question-at-a-time dialogue before building | `bmad-method/bmad-brainstorming` |

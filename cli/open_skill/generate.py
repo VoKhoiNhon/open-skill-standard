@@ -19,7 +19,11 @@ def role_playbook(reg, rid: str) -> str:
     lines = [NOTE.format(id=rid), "", f"# {r['name']} playbook", "", r["summary"], "",
              f"**Characteristic risk:** {r['risk']}", "", "## Principles", ""]
     lines += [f"- {c}" for c in r["constitution"]]
-    lines += ["", "## Skills by phase", "", "| Phase | Primary | Alternatives |", "|---|---|---|"]
+    lines += ["", "## Skills by phase", ""]
+    if r.get("build_window"):
+        lines += [f"Build tasks for this role walk {' → '.join(r['build_window'])}, "
+                  "instead of plan → build → verify → review.", ""]
+    lines += ["| Phase | Primary | Alternatives |", "|---|---|---|"]
     order = [p["id"] for p in reg.taxonomy["phases"]]
     for ph in order:
         entry = (r.get("phases") or {}).get(ph)

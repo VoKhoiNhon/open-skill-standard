@@ -13,6 +13,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- Role playbooks state the role's `build_window` ("Build tasks for this role walk discover → research → specify → plan"), so the router skill's manual path follows the same phases as the CLI for the 11 roles that have one.
 - `learn` refusing text that looks like a secret or personal data names the `--force` flag instead of the Python argument `force=True`.
 - A note scoped to a skill by the name the agent invokes it by (`skill:superpowers:writing-plans`, as the chain shows it) is attached to routes, not only one scoped by skill id.
 - `learn --applies-to` rejects scopes no route can match (an unknown kind, role id or phase id) instead of saving a note that never applies, and resolves `project:` paths the way `route` does, so `project:.` or a symlinked path matches.

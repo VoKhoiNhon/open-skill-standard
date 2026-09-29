@@ -15,6 +15,8 @@ Answers business questions with data and communicates what the numbers mean.
 
 ## Skills by phase
 
+Build tasks for this role walk build → verify → release, instead of plan → build → verify → review.
+
 | Phase | Primary | Alternatives |
 |---|---|---|
 | discover | `bmad-method/bmad-forge-idea` — Pressure-test a half-formed idea with personas until it can be acted on or dropped<br>`knowledge-work-product-management/product-brainstorming` — Explore problem spaces and challenge assumptions as a thinking partner | — |
