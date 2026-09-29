@@ -62,7 +62,7 @@ def test_builtin_adapter_available_only_under_its_env(reg, monkeypatch):
 def test_claude_code_rules_tag_the_agent(reg):
     tdd = by_invoke(scan.scan(reg))["superpowers:test-driven-development"]
     assert tdd.agent == "claude-code"
-    assert tdd.agents == {"claude-code": "superpowers:test-driven-development"}
+    assert tdd.agents["claude-code"] == "superpowers:test-driven-development"
 
 
 def test_rule_may_name_its_agent(reg, tmp_path, monkeypatch):
@@ -73,3 +73,26 @@ def test_rule_may_name_its_agent(reg, tmp_path, monkeypatch):
     reg.adapters["superpowers"]["detect"] = [{"glob": "~/.demo/skills/{name}/SKILL.md", "invoke": "{name}", "agent": "demo-agent"}]
     got = by_invoke(scan.scan(reg))["brainstorming"]
     assert got.agent == "demo-agent" and got.agents == {"demo-agent": "brainstorming"}
+
+
+def test_same_skill_in_two_agents_is_listed_once(reg):
+    items = [i for i in scan.scan(reg) if i.id == "superpowers/test-driven-development"]
+    assert len(items) == 1
+    tdd = items[0]
+    assert tdd.agent == "claude-code" and tdd.invoke == "superpowers:test-driven-development"
+    assert tdd.agents == {"claude-code": "superpowers:test-driven-development", "codex": "test-driven-development"}
+
+
+def test_project_skills_placeholder_covers_other_agents(reg):
+    got = by_invoke(scan.scan(reg, project=FIX / "project"))
+    assert got["speckit-tasks"].id == "spec-kit/tasks" and got["speckit-tasks"].agent == "codex"
+    assert got["speckit-plan"].agents == {"claude-code": "speckit-plan"}
+
+
+def test_relocated_agent_home_is_scanned(reg, tmp_path, monkeypatch):
+    skill = tmp_path / "codex-home/skills/brainstorming/SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text("---\nname: brainstorming\ndescription: d\n---\n")
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex-home"))
+    got = by_invoke(scan.scan(reg))["brainstorming"]
+    assert got.id == "superpowers/brainstorming" and got.agents == {"codex": "brainstorming"}

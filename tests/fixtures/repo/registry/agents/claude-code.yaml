@@ -1,0 +1,6 @@
+id: claude-code
+name: Claude Code
+docs: https://code.claude.com/docs/en/skills
+global: [{path: "~/.claude/skills", source: "https://code.claude.com/docs/en/skills"}]
+project: [{path: ".claude/skills", source: "https://code.claude.com/docs/en/skills"}]
+detect: [{path: "~/.claude", source: "https://code.claude.com/docs/en/skills"}]

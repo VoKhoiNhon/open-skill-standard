@@ -3,7 +3,7 @@ upstream: https://github.com/github/spec-kit
 license: MIT
 install: {project-init: "specify init --here --integration claude"}
 detect:
-  - {glob: "{project}/.claude/skills/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
+  - {glob: "{project_skills}/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
 skills:
   - name: specify
     description: Create the feature specification

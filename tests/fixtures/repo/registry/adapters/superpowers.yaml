@@ -4,7 +4,7 @@ license: MIT
 install: {skills-cli: "npx skills add obra/superpowers -g"}
 detect:
   - {glob: "~/.claude/plugins/cache/*/superpowers/*/skills/{name}/SKILL.md", invoke: "superpowers:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex]
 skills:
   - name: brainstorming

@@ -67,51 +67,69 @@ def _describe(path: Path) -> tuple[str, str]:
     return str(meta.get("name") or path.parent.name), str(meta.get("description") or "")
 
 
+def _targets(pattern: str, project: Path | None, reg, agent: str) -> list[tuple[str, list[str]]]:
+    """(glob, agents that read it). `{skills}` and `{project_skills}` fan out over every agent's skill folders;
+    a folder several agents share is globbed once, its owners (the agents listing it first) ahead of the rest."""
+    for placeholder, scope in (("{skills}", "global"), ("{project_skills}", "project")):
+        if pattern.startswith(placeholder):
+            dirs: dict[str, list[tuple[int, str]]] = {}
+            for aid, a in reg.agents.items():
+                for rank, d in enumerate(agents.folders(a, scope, project)):
+                    dirs.setdefault(str(d), []).append((rank, aid))
+            return [(d + pattern[len(placeholder):], [aid for _, aid in sorted(ids)]) for d, ids in dirs.items()]
+    pat = _expand(pattern, project, reg.agents.get(agent))
+    return [(pat, [agent])] if pat else []
+
+
+def _add(found: dict, key: str, item: Installed, seen_by: list[str]) -> None:
+    """One entry per skill; another agent seeing it only adds that agent's invocation."""
+    if key not in found:
+        item.agent, item.agents = seen_by[0], {}
+        found[key] = item
+    for aid in seen_by:
+        found[key].agents.setdefault(aid, item.invoke)
+
+
 def scan(reg, project: Path | None = None) -> list[Installed]:
-    found: dict[str, Installed] = {}
+    found: dict[str, Installed] = {}  # registry id (or invocation, for harvested skills) -> entry
     claimed: set[Path] = set()
     for src, adapter in reg.adapters.items():
         known = {s["name"] for s in adapter.get("skills", [])}
         for rule in adapter.get("detect", []):
-            aid = rule.get("agent", DEFAULT_AGENT)
-            pat = _expand(rule["glob"], project, reg.agents.get(aid))
-            if not pat:
-                continue
-            rx = _regex(pat)
             # A rule may claim skills the adapter does not list only if its path is specific
             # to this source (source name in the path, or a prefix like "speckit-{name}").
             specific = f"/{src}/" in rule["glob"] or not re.search(r"/\{name\}(/|$)", rule["glob"])
-            for path in _latest_versions(_glob(pat)):
-                m = rx.match(str(path))
-                if not m:
-                    continue
-                name = m.group("name")
-                if name not in known and not specific:
-                    continue
-                sid = f"{src}/{name}"
-                claimed.add(path.resolve())
-                if any(i.id == sid for i in found.values()):
-                    continue  # an earlier rule already found this skill
-                _, desc = _describe(path)
-                inv = rule["invoke"].format(name=name)
-                found[inv] = Installed(sid, inv, str(path), desc, name not in known, aid, {aid: inv})
+            for pat, seen_by in _targets(rule["glob"], project, reg, rule.get("agent", DEFAULT_AGENT)):
+                rx = _regex(pat)
+                for path in _latest_versions(_glob(pat)):
+                    m = rx.match(str(path))
+                    if not m:
+                        continue
+                    name = m.group("name")
+                    if name not in known and not specific:
+                        continue
+                    sid = f"{src}/{name}"
+                    claimed.add(path.resolve())
+                    inv = rule["invoke"].format(name=name)
+                    # The first rule that finds a skill wins its path and, per agent, its invocation.
+                    _add(found, sid, Installed(sid, inv, str(path), _describe(path)[1], name not in known), seen_by)
     for src, adapter in reg.adapters.items():
         env = adapter.get("available_env")
         if env and os.environ.get(env):
             for s in adapter.get("skills", []):
-                inv = s.get("invoke", s["name"])
-                found.setdefault(inv, Installed(f"{src}/{s['name']}", inv, f"builtin:{env}", s.get("description", ""), False,
-                                                 DEFAULT_AGENT, {DEFAULT_AGENT: inv}))
+                sid, inv = f"{src}/{s['name']}", s.get("invoke", s["name"])
+                _add(found, sid, Installed(sid, inv, f"builtin:{env}", s.get("description", ""), False), [DEFAULT_AGENT])
+    taken = {(a, inv) for i in found.values() for a, inv in i.agents.items()}
     for pattern in GENERIC:
-        pat = _expand(pattern, project)
-        if not pat:
-            continue
-        for path in _latest_versions(_glob(pat)):
-            if path.resolve() in claimed:
-                continue
-            name, desc = _describe(path)
-            parts = path.parts
-            inv = f"{parts[parts.index('skills') - 2]}:{name}" if "cache" in parts else name
-            if inv not in found:
-                found[inv] = Installed(f"harvested/{name}", inv, str(path), desc, True, DEFAULT_AGENT, {DEFAULT_AGENT: inv})
+        for pat, seen_by in _targets(pattern, project, reg, DEFAULT_AGENT):
+            for path in _latest_versions(_glob(pat)):
+                if path.resolve() in claimed:
+                    continue
+                name, desc = _describe(path)
+                parts = path.parts
+                inv = f"{parts[parts.index('skills') - 2]}:{name}" if "cache" in parts else name
+                free = [a for a in seen_by if (a, inv) not in taken]
+                if free:
+                    _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True), free)
+                    taken |= {(a, inv) for a in free}
     return sorted(found.values(), key=lambda i: i.invoke)
