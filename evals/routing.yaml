@@ -25,6 +25,12 @@ cases:
      include: [superpowers/writing-plans, superpowers/subagent-driven-development]}
   - {id: fullstack, role: fullstack-developer, task: "add user profile editing across the UI and API",
      include: [superpowers/subagent-driven-development, anthropic-skills/webapp-testing], exclude: [taste-skill/taste-skill]}
+  - {id: fullstack-bug, role: fullstack-developer, task: "login is broken after the session change",
+     first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
+  - {id: fullstack-vietnamese-auth, role: fullstack-developer, task: "thêm chức năng đặt lại mật khẩu",
+     include: [claude-code-builtin/security-review, anthropic-skills/webapp-testing]}
+  - {id: fullstack-spec-kit, role: fullstack-developer, task: "add team invitations", files: [.specify/memory/constitution.md],
+     include: [spec-kit/plan, spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: mobile, role: mobile-developer, task: "add offline sync to the notes screen", include: [claude-code-builtin/run]}
   - {id: mobile-crash, role: mobile-developer, task: "the app crashes on launch on Android 14",
      first: superpowers/systematic-debugging, exclude: [superpowers/brainstorming]}
