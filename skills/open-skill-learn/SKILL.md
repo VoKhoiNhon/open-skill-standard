@@ -1,0 +1,34 @@
+---
+name: open-skill-learn
+description: Saves the user's lessons, preferences, glossary terms and project facts into their local skill graph so future routing and work use them; also forgets or exports them. Use when the user says "remember", "from now on", "note that", "don't do X again", "ghi nhớ", "bài học", corrects how you worked, or when an incident or mistake teaches something worth keeping.
+---
+
+# Open Skill Learn
+
+Current models do better work when they can read lessons from earlier sessions. This skill keeps those lessons as small local files that `open-skill route` attaches to future chains.
+
+`open-skill` means the CLI; if it is not on PATH use `uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard open-skill`.
+
+## Save
+
+One fact per note, written so it still makes sense months later. Record corrections and approaches the user confirmed, with the reason when it matters.
+
+```bash
+open-skill learn "<one fact>" --applies-to <scopes> --type lesson|preference|pitfall|glossary|project-fact
+```
+
+Scopes tell the router when the note applies; combine as needed, comma separated:
+`skill:<id>` (for example `skill:bmad-method/bmad-build`), `role:<role-id>`, `project:<absolute path>`, `phase:<phase>`, or `role:*` for everything.
+
+Saving the same text again updates the existing note instead of duplicating it. Don't save what the repository or chat history already records. The CLI refuses text that looks like a secret, token, email or phone number; keep credentials and personal data out of notes entirely.
+
+## Forget, review, move
+
+- `ls ~/.open-skill/knowledge/` lists notes; each is a plain Markdown file the user can edit.
+- `open-skill forget <note-id>` deletes one; delete notes that turned out to be wrong.
+- `open-skill export <file.zip>` copies profile and notes to another machine (usage history stays local).
+- `open-skill scan --memory` imports Claude Code memory files as notes, read-only.
+
+## First use
+
+If `~/.open-skill/profile.yaml` does not exist, suggest `open-skill init --role <role>[=weight]`; it saves the user's roles and seeds starter notes for them.
