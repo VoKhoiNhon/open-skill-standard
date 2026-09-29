@@ -5,7 +5,7 @@ trademark_note: "BMad and BMAD-METHOD are trademarks of BMad Code, LLC. Referenc
 tested_version: 6.13.0
 summary: Agile AI-driven development - thinking partners, personas, planning artifacts, right-sized build and review.
 install:
-  skills-cli: "npx skills add bmad-code-org/BMAD-METHOD -g"
+  skills-cli: "npx skills add bmad-code-org/BMAD-METHOD"
   claude-plugin: "/plugin marketplace add bmad-code-org/bmad-plugins"
   project-init: "ask the bmad skill to run `bmad setup` in this project"
 detect:
@@ -191,10 +191,12 @@ skills:
     requires: ["project:_bmad"]
     task_size: [medium, large]
   - name: bmod-core-tools
+    kind: meta
     description: Module metadata record, never invoked directly
     phases: [discover]
     task_size: [small]
   - name: bmod-method
+    kind: meta
     description: Module metadata record, never invoked directly
     phases: [discover]
     task_size: [small]

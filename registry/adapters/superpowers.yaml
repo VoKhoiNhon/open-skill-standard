@@ -6,11 +6,16 @@ summary: Execution discipline - design approval, plans, TDD, systematic debuggin
 install:
   claude-plugin: "/plugin install superpowers@claude-plugins-official"
   claude-plugin-marketplace: "/plugin marketplace add obra/superpowers-marketplace && /plugin install superpowers@superpowers-marketplace"
+  plugin@cursor: "/add-plugin superpowers"
+  extension@gemini-cli: "gemini extensions install https://github.com/obra/superpowers"
+  plugin@github-copilot: "copilot plugin marketplace add obra/superpowers-marketplace && copilot plugin install superpowers@superpowers-marketplace"
 detect:
+  # Gemini CLI loads extensions from ~/.gemini/extensions and their skills from skills/ (geminicli.com/docs/extensions/reference).
+  - {glob: "~/.gemini/extensions/superpowers/skills/{name}/SKILL.md", invoke: "{name}", agent: gemini-cli}
   - {glob: "~/.claude/plugins/cache/*/superpowers/*/skills/{name}/SKILL.md", invoke: "superpowers:{name}"}
   - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
   - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}
-portability: [claude-code, codex, cursor, copilot]
+portability: [claude-code, codex, cursor, copilot, gemini]
 skills:
   - name: brainstorming
     description: Converge an idea into an approved design through one-question-at-a-time dialogue before building
@@ -89,6 +94,7 @@ skills:
     task_size: [small, medium, large]
     triggers: [skill, SKILL.md, "agent skill"]
   - name: using-superpowers
+    kind: meta
     description: Session bootstrap that makes the agent check for relevant skills
     phases: [discover]
     task_size: [small]

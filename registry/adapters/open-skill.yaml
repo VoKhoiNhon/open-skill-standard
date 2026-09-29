@@ -13,6 +13,7 @@ detect:
 portability: [claude-code, codex, cursor, copilot, gemini]
 skills:
   - name: open-skill-router
+    kind: meta
     description: Pick and order the right installed skills for a task in any project and role
     phases: [discover]
     task_size: [medium, large]

@@ -37,7 +37,7 @@ def adapter_schema(tax: dict) -> dict:
         "additionalProperties": False,
         "properties": {
             "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9:_-]*$"},
-            "kind": {"enum": ["skill", "tool"]},
+            "kind": {"enum": ["skill", "tool", "meta"]},
             "description": {"type": "string"},
             "roles": {
                 "type": "object",
@@ -72,6 +72,7 @@ def adapter_schema(tax: dict) -> dict:
             "tested_version": {"type": ["string", "null"]},
             "summary": {"type": "string"},
             "available_env": {"type": "string", "description": "skills count as installed when this env var is set"},
+            "available_cmd": {"type": "string", "description": "skills count as installed, for every agent, when this command is on PATH"},
             "install": {"type": "object", "additionalProperties": {"type": "string"}},
             "detect": _arr(
                 {
@@ -79,7 +80,9 @@ def adapter_schema(tax: dict) -> dict:
                     "required": ["glob", "invoke"],
                     "additionalProperties": False,
                     "properties": {"glob": {"type": "string"}, "invoke": {"type": "string"},
-                                   "agent": {"type": "string", "pattern": KEBAB, "description": "agent id, default claude-code"}},
+                                   "agent": {"type": "string", "pattern": KEBAB, "description": "agent id, default claude-code"},
+                                   "names": _arr({"type": "string"}, minItems=1,
+                                                 description="the only skill names this rule claims")},
                 }
             ),
             "portability": _arr({"type": "string"}),

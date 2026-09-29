@@ -173,6 +173,37 @@ def test_install_hint_fits_the_agent():
     assert route._install_hint(core) == "/plugin install o"
 
 
+def test_bug_a_project_init_hint_uses_the_agents_own_variant():
+    # spec-kit's init takes an --integration key per agent; every agent was told `--integration claude`.
+    kit = {"source": "spec-kit", "name": "plan", "upstream": "https://github.com/github/spec-kit",
+           "install": {"cli": "uv tool install specify-cli", "project-init": "specify init --here --integration claude",
+                       "project-init@codex": "specify init --here --integration codex"}}
+    assert route._install_hint(kit) == "specify init --here --integration claude"
+    assert route._install_hint(kit, "claude-code") == "specify init --here --integration claude"
+    assert route._install_hint(kit, "codex") == "specify init --here --integration codex"
+    assert route._install_hint(kit, "windsurf") == "see https://github.com/github/spec-kit (no project-init for windsurf)"
+
+
+def test_bug_an_agents_own_install_command_wins():
+    # superpowers' README has commands for Cursor, Gemini CLI and Copilot CLI; those agents got "see upstream".
+    sp = {"source": "superpowers", "name": "x", "upstream": "https://github.com/obra/superpowers",
+          "install": {"claude-plugin": "/plugin install superpowers@claude-plugins-official",
+                      "extension@gemini-cli": "gemini extensions install https://github.com/obra/superpowers"}}
+    assert route._install_hint(sp, "gemini-cli") == "gemini extensions install https://github.com/obra/superpowers"
+    assert route._install_hint(sp) == "/plugin install superpowers@claude-plugins-official"
+    assert route._install_hint(sp, "codex").startswith("see https://github.com/obra/superpowers")
+
+
+def test_bug_claude_code_builtins_are_not_missing_for_other_agents(tmp_path):
+    # Built-ins exist only inside Claude Code; codex was told to "install claude-code-builtin".
+    r = route.route("review the change to the billing module", proj(tmp_path), registry.load(), [],
+                    role="backend-developer", record=False, agent="codex")
+    assert not [m for m in r["missing"] if m["id"].startswith("claude-code-builtin/")]
+    r = route.route("review the change to the billing module", proj(tmp_path), registry.load(), [],
+                    role="backend-developer", record=False, agent="claude-code")
+    assert [m for m in r["missing"] if m["id"].startswith("claude-code-builtin/")]
+
+
 def test_missing_skill_hints_use_the_agent(tmp_path):
     import copy
     reg = copy.deepcopy(REG)

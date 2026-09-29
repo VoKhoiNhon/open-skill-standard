@@ -24,6 +24,6 @@ skills:
     phases: [research]
     task_size: [small, medium]
   - name: context7-docs
-    description: Documentation lookup skill for other agents
+    description: Fetch current library documentation, packaged for the Pi coding agent
     phases: [research]
     task_size: [small, medium]

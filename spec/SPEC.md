@@ -63,19 +63,19 @@ JSON Schemas generated from the taxonomy live in `spec/schemas/` and are normati
 
 ### 4.1 Adapter (`registry/adapters/<source>.yaml`)
 
-An adapter MUST contain `source`, `upstream`, `license` and `skills`. It SHOULD contain `install` (commands copied verbatim from the upstream README) and `detect` rules. It MUST NOT contain upstream skill bodies.
+An adapter MUST contain `source`, `upstream`, `license` and `skills`. It SHOULD contain `install` (commands copied verbatim from the upstream README) and `detect` rules. An `install` key MAY end in `@<agent id>` for that agent's variant of the command; once a key has variants, the plain key is for Claude Code and an agent with no variant has none. It MUST NOT contain upstream skill bodies.
 
-Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words, in English), `kind` (skill or tool), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers` (English), `triggers_i18n` (§3.1), `portability`.
+Each skill entry MUST have `name` (the folder name agents invoke) and `phases`, and MAY have `description` (a short summary in the adapter author's own words, in English), `kind` (skill, tool, or meta for a router, session bootstrap or metadata record, which a router MUST NOT place in a route), `roles` (weights 0–1), `produces`, `consumes`, `alternatives`, `conflicts`, `precedes`, `requires`, `task_size`, `triggers` (English), `triggers_i18n` (§3.1), `portability`.
 
 Skill identifiers are `<source>/<name>`.
 
 `requires` entries take the forms `tool:<name>`, `skill:<id>`, or `project:<relative path>`. A skill whose `project:` requirement is not met MUST NOT be placed in a route; it MAY be reported as missing with an install hint.
 
-`available_env` names an environment variable whose presence makes every skill of the adapter count as installed (for skills built into an agent).
+`available_env` names an environment variable whose presence makes every skill of the adapter count as installed (for skills built into an agent). `available_cmd` names a command whose presence on `PATH` makes every skill of the adapter count as installed for every agent (for tools such as a code graph CLI); a skill's `invoke` then says how to call it.
 
 ### 4.2 Detect rules
 
-A detect rule is `{glob, invoke}` and MAY name the `agent` (an agent target id, §4.6) whose folders it describes; the default is `claude-code`. The glob MAY contain `~` (home), `{project}` (project root) and `{name}` (one path segment, the skill name). It MAY start with `{skills}` (every user-level skill folder of every agent target) or `{project_skills}` (every project skill folder of every agent target, under the project root); such a rule applies to each folder for the agents that read it. `invoke` is a template producing the name the agent calls. Rules are evaluated in order; the first rule that finds a skill wins its path and, for each agent, its invocation name. A rule whose `{name}` segment has no source-specific prefix or path component MUST only claim names listed in the adapter.
+A detect rule is `{glob, invoke}` and MAY name the `agent` (an agent target id, §4.6) whose folders it describes; the default is `claude-code`. The glob MAY contain `~` (home), `{project}` (project root) and `{name}` (one path segment, the skill name). It MAY start with `{skills}` (every user-level skill folder of every agent target) or `{project_skills}` (every project skill folder of every agent target, under the project root); such a rule applies to each folder for the agents that read it. `invoke` is a template producing the name the agent calls. Rules are evaluated in order; the first rule that finds a skill wins its path and, for each agent, its invocation name. A rule whose `{name}` segment has no source-specific prefix or path component MUST only claim names listed in the adapter. A rule MAY list `names`; it then claims only those names, for plugins whose folders hold more skills than they expose.
 
 An implementation MUST report a skill that several agents see once, with the name each agent invokes it by. A folder that several agents read belongs first to the agent that lists it first. Relocation variables (§4.6) apply to the folders of their agent.
 

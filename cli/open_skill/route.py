@@ -134,14 +134,25 @@ def _unsatisfied(skill: dict, proj: dict) -> list[str]:
 
 
 def _install_hint(skill: dict, agent: str | None = None) -> str:
-    """A project init first; for an agent other than Claude Code, a command that is not a Claude plugin one."""
+    """A project init first; for an agent other than Claude Code, a command that is not a Claude plugin one.
+    `<key>@<agent>` is that agent's variant of `<key>`; once a key has variants, an agent without one has none."""
     if agent and skill["source"] == "open-skill":
         return f"open-skill install {skill['name']} --agent {agent}"
-    inst = skill.get("install") or {}
+    every = skill.get("install") or {}
+    inst = {k: v for k, v in every.items() if "@" not in k}
     for k, v in inst.items():
         if "init" in k:
+            if not agent or agent == "claude-code":
+                return v
+            if f"{k}@{agent}" in every:
+                return every[f"{k}@{agent}"]
+            if any(key.startswith(f"{k}@") for key in every):
+                return f"see {skill.get('upstream') or skill['source']} (no {k} for {agent})"
             return v
     if agent and agent != "claude-code":
+        mine = [v for k, v in every.items() if k.endswith(f"@{agent}")]
+        if mine:
+            return mine[0]
         other = [v for k, v in inst.items() if not k.startswith("claude")]
         if other:
             return other[0]
@@ -205,6 +216,9 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         for sid, inst in by_id.items():
             manifest = reg.skills.get(sid)
             if manifest:
+                if manifest.get("kind") == "meta":
+                    decide(phase, sid, "meta")
+                    continue
                 if phase not in manifest.get("phases", []):
                     decide(phase, sid, "wrong-phase", phases=manifest.get("phases", []))
                     continue
@@ -278,6 +292,8 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                 manifest = reg.skills.get(sid)
                 if not manifest or sid in chosen or sid in missing:
                     continue
+                if agent and agent != "claude-code" and reg.adapters.get(manifest["source"], {}).get("available_env"):
+                    continue  # built into Claude Code; nothing to install for another agent
                 reason = "not installed" if sid not in by_id else None
                 unmet = _unsatisfied(manifest, proj)
                 if unmet:
@@ -347,6 +363,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
 def _reason_text(d: dict, size: str) -> str:
     p, code = d["phase"], d["outcome"]
     return {
+        "meta": lambda: "a meta skill (a router, session bootstrap or metadata record), never a chain step",
         "wrong-size": lambda: f"made for {', '.join(d.get('sizes', []))} tasks; this one is {size}",
         "requirement-unmet": lambda: f"needs {', '.join(d.get('needs', []))} in the project",
         "no-phase-keywords": lambda: f"no manifest, and its description has no {p} keywords",

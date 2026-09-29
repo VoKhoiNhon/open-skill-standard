@@ -39,6 +39,10 @@
       "type": "string",
       "description": "skills count as installed when this env var is set"
     },
+    "available_cmd": {
+      "type": "string",
+      "description": "skills count as installed, for every agent, when this command is on PATH"
+    },
     "install": {
       "type": "object",
       "additionalProperties": {
@@ -65,6 +69,14 @@
             "type": "string",
             "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
             "description": "agent id, default claude-code"
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "the only skill names this rule claims"
           }
         }
       }
@@ -92,7 +104,8 @@
           "kind": {
             "enum": [
               "skill",
-              "tool"
+              "tool",
+              "meta"
             ]
           },
           "description": {
