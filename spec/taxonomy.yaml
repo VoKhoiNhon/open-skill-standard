@@ -1,0 +1,74 @@
+# Open Skill Standard v0.1 — taxonomy (normative)
+version: "0.1"
+
+# Lifecycle phases, in order. Keywords drive target-phase detection in `route`;
+# add keywords in any language (multilingual matching is a goal of the standard).
+phases:
+  - id: discover
+    keywords: [idea, ideas, brainstorm, ideate, "pressure-test", concept, explore, "what if", should we, ý tưởng, brainstorming, suy nghĩ, phản biện]
+  - id: research
+    keywords: [research, compare, benchmark, "market research", survey, "literature", investigate, evaluate options, nghiên cứu, so sánh, tìm hiểu, khảo sát]
+  - id: specify
+    keywords: [spec, specification, requirements, prd, "user story", "acceptance criteria", "data contract", đặc tả, "yêu cầu nghiệp vụ", "tài liệu yêu cầu"]
+  - id: plan
+    keywords: [plan, design, architecture, adr, roadmap, breakdown, estimate, "task list", kế hoạch, thiết kế, kiến trúc, chia việc]
+  - id: build
+    keywords: [build, implement, create, add, develop, code, write, feature, pipeline, endpoint, migrate, refactor, fix, integrate, xây, làm, thêm, viết, triển khai, tính năng, sửa]
+  - id: verify
+    keywords: [test, tests, verify, validate, qa, "e2e", check, reconcile, profiling, kiểm thử, kiểm tra, đối soát, xác minh]
+  - id: review
+    keywords: [review, audit, "pull request", pr, "code review", critique, rà soát, đánh giá code]
+  - id: release
+    keywords: [release, deploy, ship, publish, rollout, merge, phát hành, triển khai lên, deploy lên]
+  - id: operate
+    keywords: [incident, outage, alert, monitor, "on-call", debug, error, failing, broken, slow, cost, sự cố, lỗi, giám sát, chậm, chi phí]
+  - id: learn
+    keywords: [retro, retrospective, postmortem, "lessons learned", remember, "note that", bài học, rút kinh nghiệm, ghi nhớ]
+
+# Artifact types and the repository globs that reveal them.
+artifacts:
+  idea-brief: ["**/idea-brief*.md", "**/brief*.md"]
+  research-report: ["**/research*.md", "docs/research/**"]
+  prd: ["**/prd.md", "**/PRD.md", "**/prd-*.md", "**/prds/*.md"]
+  spec: ["specs/*/spec.md", "**/SPEC.md", "**/spec.md", "docs/**/specs/*.md"]
+  plan: ["specs/*/plan.md", "**/plans/*.md", "**/PLAN.md", "**/plan.md"]
+  tasks: ["specs/*/tasks.md", "**/tasks.md"]
+  adr: ["docs/adr/*.md", "**/adr/*.md", "**/decisions/*.md"]
+  ux-design: ["**/DESIGN.md", "**/EXPERIENCE.md", "**/ux*.md"]
+  code-change: []
+  test-suite: ["tests/**", "test/**", "**/*_test.*", "**/*.test.*", "**/*.spec.*"]
+  data-profile: ["**/data-profile*.md", "**/profiling/**"]
+  data-contract: ["**/datacontract*.yaml", "**/*.odcs.yaml", "**/contracts/*.yaml"]
+  pipeline: ["dbt_project.yml", "**/dags/**", "databricks.yml", "**/pipelines/**"]
+  analysis-report: ["**/analysis*.md", "**/reports/**"]
+  dashboard: ["**/dashboards/**"]
+  model-card: ["**/model-card*.md", "**/MODEL_CARD.md"]
+  eval-suite: ["evals/**", "**/evals/**"]
+  runbook: ["**/runbook*.md", "**/runbooks/**"]
+  retro: ["**/retro*.md", "**/postmortem*.md"]
+
+edges: [produces, consumes, precedes, alternative-to, conflicts-with, requires, applies-to, recommends]
+
+task_sizes: [small, medium, large]
+
+# Keywords that hint at task size (used when --size is not given).
+size_keywords:
+  large: [app, application, system, platform, product, "new project", "from scratch", greenfield, mvp, ứng dụng, hệ thống, nền tảng, dự án mới, từ đầu]
+  small: [typo, rename, "one-line", "one line", small, tiny, quick, minor, bump, lỗi chính tả, đổi tên, nhỏ, nhanh]
+
+role_families:
+  engineering: [frontend-developer, backend-developer, fullstack-developer, mobile-developer, embedded-engineer, game-developer]
+  quality-ops: [qa-engineer, devops-engineer, site-reliability-engineer, cloud-engineer, security-engineer, database-administrator, system-administrator]
+  data-ai: [data-engineer, analytics-engineer, data-analyst, data-scientist, ml-engineer, ai-engineer, data-ai-platform-engineer]
+  architecture-leadership: [software-architect, tech-lead, engineering-manager]
+  product-delivery: [product-manager, business-analyst, ux-designer, technical-writer, scrum-master]
+
+# Project markers of frameworks that own the build workflow; earlier entries win.
+native_markers:
+  - {framework: spec-kit, paths: [".specify"]}
+  - {framework: bmad-method, paths: ["_bmad"]}
+
+tool_markers:
+  codegraph: [".codegraph"]
+
+knowledge_types: [preference, lesson, glossary, project-fact, pitfall]
