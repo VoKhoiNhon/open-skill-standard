@@ -320,3 +320,11 @@ cases:
   - {id: sre-explore, role: site-reliability-engineer, task: "how does the retry logic in the job runner work", phase: research, files: [.codegraph/codegraph.db], include: [codegraph/explore]}
   - {id: qa-affected, role: qa-engineer, task: "find the test files affected by my changed source files", phase: verify, files: [.codegraph/codegraph.db], include: [codegraph/affected]}
   - {id: sec-code-review, role: security-engineer, task: "review this change for performance and correctness, N+1 queries and error handling gaps", phase: review, include: [knowledge-work-engineering/code-review]}
+  - {id: ai-claude-api, role: ai-engineer, task: "look up prompt caching limits in the Claude API docs", phase: research, include_any: [anthropic-skills/claude-api, claude-code-builtin/claude-api]}
+  - {id: ae-data-context, role: analytics-engineer, task: "capture the analysts' tribal knowledge about our warehouse tables as a data context skill", phase: learn, include: [knowledge-work-data/data-context-extractor]}
+  - {id: platform-correct-course, role: data-ai-platform-engineer, task: "the vendor dropped support mid-sprint, assess the impact and propose a course correction", phase: plan, size: large, files: [_bmad/config.toml], include: [bmad-method/bmad-correct-course]}
+  - {id: platform-update-config, role: data-ai-platform-engineer, task: "configure agent settings hooks and permissions for the platform repo", phase: operate, size: small, include: [claude-code-builtin/update-config]}
+  - {id: de-standards-verify, role: data-engineer, task: "check the pipeline change against the definition of done before merging", phase: verify, include: [open-skill/open-skill-standards]}
+  - {id: ds-bmad-spec, role: data-scientist, task: "condense the churn study notes into a short spec", phase: specify, files: [_bmad/config.toml], include: [bmad-method/bmad-spec]}
+  - {id: da-release-dashboard, role: data-analyst, task: "publish the weekly revenue numbers as an interactive dashboard with KPI cards", phase: release, include: [knowledge-work-data/build-dashboard]}
+  - {id: ml-verify-model, role: ml-engineer, task: "run significance tests on the new ranking model's offline results", phase: verify, include: [knowledge-work-data/statistical-analysis]}
