@@ -103,7 +103,7 @@ def forget(node_id: str) -> bool:
 
 def load_knowledge() -> list[dict]:
     out = []
-    for p in sorted(_kdir().glob("*.md")):
+    for p in sorted((home() / "knowledge").glob("*.md")):  # reading never creates the folder (see _prepare)
         meta, body = frontmatter.parse(p.read_text())
         if meta.get("id"):
             out.append({**meta, "text": body.strip()})
@@ -225,7 +225,7 @@ def dismissed_seeds() -> set[str]:
 def _seed_notes() -> list[tuple]:
     """(path, meta, body) for every note that came from a seed."""
     out = []
-    for p in sorted(_kdir().glob("*.md")):
+    for p in sorted((home() / "knowledge").glob("*.md")):
         fm, body = userdata._split_note(p.read_text(encoding="utf-8"))
         meta = yaml.safe_load(fm) if fm else None
         if isinstance(meta, dict) and meta.get("source") == "seed":
