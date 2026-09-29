@@ -20,14 +20,17 @@ skills:
     description: Definition-of-done checklists, general and per role
     phases: [verify, review]
     task_size: [small, medium, large]
-    triggers: [standards, checklist, "definition of done", "best practice", quy chuẩn]
+    triggers: [standards, checklist, "definition of done", "best practice"]
+    triggers_i18n: {vi: [quy chuẩn]}
   - name: open-skill-intel
     description: Route a question to the best information source before acting
     phases: [research]
     task_size: [small, medium, large]
-    triggers: ["how does", "where is", "what is", schema, docs, "which skill", tra cứu]
+    triggers: ["how does", "where is", "what is", schema, docs, "which skill"]
+    triggers_i18n: {vi: [tra cứu]}
   - name: open-skill-learn
     description: Remember lessons and preferences so future routes use them
     phases: [learn]
     task_size: [small]
-    triggers: [remember, lesson, "note that", "from now on", ghi nhớ, bài học]
+    triggers: [remember, lesson, "note that", "from now on"]
+    triggers_i18n: {vi: [ghi nhớ, bài học]}
