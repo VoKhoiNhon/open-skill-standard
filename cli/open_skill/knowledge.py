@@ -100,9 +100,10 @@ def forget(node_id: str) -> bool:
     if not path.exists():
         return False
     meta, _ = frontmatter.parse(path.read_text())
-    if meta.get("seed_id"):  # remember the choice so seed sync never brings it back
+    if meta.get("seed_id"):  # remember the choice so seed sync never brings it back, and drop its pending update
         with (home() / DISMISSED).open("a") as f:
             f.write(meta["seed_id"] + "\n")
+        _proposal_path(meta["seed_id"]).unlink(missing_ok=True)
     path.unlink()
     return True
 

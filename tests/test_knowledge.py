@@ -334,3 +334,20 @@ def test_forget_never_deletes_files_outside_the_notes_folder(home, tmp_path):
     for bad in ("../../x", str(victim.with_suffix("")), "", ".", "sub/x"):
         assert knowledge.forget(bad) is False
     assert victim.exists() and len(knowledge.load_knowledge()) == 1
+
+
+def _edited_seed_with_proposal(home) -> dict:
+    knowledge.sync_seeds(["data-engineer"], {"data-engineer": [SEEDS_V1["data-engineer"][1]]})
+    note = _note("data-engineer/nulls")
+    p = home / "knowledge" / f"{note['id']}.md"
+    p.write_text(p.read_text().replace("Check nulls on keys.", "Check nulls, my way."))
+    knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]})
+    assert "data-engineer/nulls" in knowledge.proposals()
+    return note
+
+
+def test_forgetting_a_seed_drops_its_pending_update(home):
+    # Bug: the proposal outlived the note, so status kept asking for a review and `seeds accept` crashed (KeyError).
+    note = _edited_seed_with_proposal(home)
+    assert knowledge.forget(note["id"])
+    assert knowledge.proposals() == {}
