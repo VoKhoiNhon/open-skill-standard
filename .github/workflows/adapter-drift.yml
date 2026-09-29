@@ -25,7 +25,7 @@ jobs:
           - {source: context7, repo: upstash/context7, dir: "."}
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: git clone --depth 1 https://github.com/${{ matrix.repo }} upstream
       - id: diff
         run: uv run open-skill adapter check --source ${{ matrix.source }} --from upstream/${{ matrix.dir }} | tee drift.txt
