@@ -20,3 +20,16 @@ queries:
   - {q: "look up the pandas merge documentation", trigger: false}
   - {q: "run the tests and fix what fails", trigger: false}
   - {q: "phân tích vì sao doanh thu tuần này giảm", trigger: false}
+  # Held out: never read these while tuning the description; they only show whether a change generalizes.
+  - {q: "ugh, you used npm again. this repo uses pnpm, keep that in mind next time", trigger: true, holdout: true}
+  - {q: "a partir de ahora, escribe los mensajes de commit en inglés aunque te hable en español", trigger: true, holdout: true}
+  - {q: "add to my glossary: GMV means gross merchandise value before refunds", trigger: true, holdout: true}
+  - {q: "that note about no deploys on Friday is outdated, delete it", trigger: true, holdout: true}
+  - {q: "từ giờ trở đi, luôn chạy dbt test sau khi sửa model nhé", trigger: true, holdout: true}
+  - {q: "yesterday's outage came from an unbounded backfill; keep that lesson so it never happens again", trigger: true, holdout: true}
+  - {q: "remind me at 5pm to send the weekly report", trigger: false, holdout: true}
+  - {q: "what do my saved notes say about the orders table", trigger: false, holdout: true}
+  - {q: "write a lessons-learned section for the incident postmortem in postmortems/2026-09-db.md", trigger: false, holdout: true}
+  - {q: "forget that last change, revert config.py to how it was", trigger: false, holdout: true}
+  - {q: "cập nhật CHANGELOG cho bản release mới", trigger: false, holdout: true}
+  - {q: "never use global state in this function, rewrite it with a parameter", trigger: false, holdout: true}
