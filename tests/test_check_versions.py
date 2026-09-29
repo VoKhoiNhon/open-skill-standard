@@ -51,3 +51,15 @@ def test_pr_titles():
         assert pt.ok(good), good
     for bad in ["Add x", "feat:missing space", "feature: x", "feat(Scope): x", "fix: "]:
         assert not pt.ok(bad), bad
+
+
+cw = load("check_wheel")
+
+
+def test_wheel_check(tmp_path):
+    import zipfile
+    w = tmp_path / "x.whl"
+    with zipfile.ZipFile(w, "w") as z:
+        for r in cw.REQUIRED[:-1]:
+            z.writestr(r, "x")
+    assert cw.missing(str(w)) == [cw.REQUIRED[-1]]

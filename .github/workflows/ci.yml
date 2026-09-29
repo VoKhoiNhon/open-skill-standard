@@ -7,10 +7,19 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          - {os: macos-latest, python: "3.13"}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
       - run: uv sync
       - name: Unit tests and routing evals
         run: uv run pytest -q
@@ -24,3 +33,17 @@ jobs:
         run: uv run python scripts/check_versions.py
       - name: Privacy guard
         run: uv run python scripts/privacy_guard.py
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build
+      - name: Wheel ships its data
+        run: python3 scripts/check_wheel.py dist/*.whl
+      - name: Installed wheel works outside the repository
+        run: |
+          cd "$RUNNER_TEMP"
+          uvx --from "$GITHUB_WORKSPACE"/dist/*.whl open-skill validate
+          uvx --from "$GITHUB_WORKSPACE"/dist/*.whl open-skill route "add a pipeline that loads orders" --role data-engineer --project . --no-record > route.json
+          python3 -c "import json; r = json.load(open('route.json')); assert r['role'] == {'data-engineer': 1.0}"
