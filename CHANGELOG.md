@@ -25,6 +25,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `route --agent <id>` and `search --agent <id>` use only the skills that agent sees, under the names it invokes them by (plugin names such as `superpowers:test-driven-development` are Claude Code only). Missing-skill hints fit the agent: `open-skill install … --agent <id>` for core skills, and a non-plugin install command outside Claude Code when the adapter has one. The router skill passes `--agent`.
 
 ### Changed
+- The open-skill-router, open-skill-standards and open-skill-learn descriptions say when to use them more plainly (the order of skills and work with several steps; checks before calling work done, ADRs and commit messages; notes scoped to a role, project or skill). Lexical proxy recall on tuning queries 0.60 → 0.70, 0.70 → 0.80 and 0.70 → 0.90; holdout scores unchanged except one learn false alarm fewer.
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
 - Releases are titled `vX.Y.Z — <theme>` automatically, from the first line of the CHANGELOG section (`scripts/changelog.py title`).
 - README and README.vi: a "See and question the graph" section with example output for `route --explain`, `route --why-not`, search filters and the HTML graph; the CLI reference lists the new flags.
