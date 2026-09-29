@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Open Skill Standard agent target",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "docs",
+    "global",
+    "detect"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "docs": {
+      "type": "string",
+      "pattern": "^https://[^\\s]+$"
+    },
+    "global": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(~/|/)"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^https://[^\\s]+$"
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "user-level skill folders, install target first"
+    },
+    "project": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(?!~|/)(?!.*(^|/)\\.\\.(/|$)).+$"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^https://[^\\s]+$"
+          }
+        }
+      },
+      "description": "skill folders relative to the project root, install target first"
+    },
+    "detect": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(~/|/)"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^https://[^\\s]+$"
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "the agent counts as installed when any path exists"
+    },
+    "relocate": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "var",
+          "replaces",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "var": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "replaces": {
+            "type": "string",
+            "pattern": "^(~/|/)"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^https://[^\\s]+$"
+          }
+        }
+      },
+      "description": "an env var that, when set, replaces a path prefix"
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

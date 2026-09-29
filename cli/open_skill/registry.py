@@ -1,4 +1,4 @@
-"""Load and validate the YAML registry (adapters, role packs, model profiles)."""
+"""Load and validate the YAML registry (adapters, role packs, model profiles, agent targets)."""
 
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -18,6 +18,7 @@ class Registry:
     skills: dict[str, dict] = field(default_factory=dict)
     roles: dict[str, dict] = field(default_factory=dict)
     models: dict[str, dict] = field(default_factory=dict)
+    agents: dict[str, dict] = field(default_factory=dict)  # coding agents and the folders they load skills from
     files: dict[str, str] = field(default_factory=dict)  # "<kind>:<id>" -> file path, for error messages
 
 
@@ -64,6 +65,11 @@ def load(root: Path | None = None, overlays=()) -> Registry:
             mid = doc.get("id", p.stem)
             reg.models.setdefault(mid, {}).update(doc)
             reg.files[f"model:{mid}"] = str(p)
+        for p in _yaml_files(layer / "agents"):
+            doc = _read(p)
+            aid = doc.get("id", p.stem)
+            reg.agents.setdefault(aid, {}).update(doc)
+            reg.files[f"agent:{aid}"] = str(p)
     for src, a in reg.adapters.items():
         for s in a.get("skills", []):
             m = {k: a[k] for k in INHERITED if k in a}
@@ -92,6 +98,8 @@ def validate(reg: Registry) -> list[str]:
         errors += _schema_errors(r, sch["role"], reg.files.get(f"role:{rid}", rid))
     for mid, m in reg.models.items():
         errors += _schema_errors(m, sch["model"], reg.files.get(f"model:{mid}", mid))
+    for aid, a in reg.agents.items():
+        errors += _schema_errors(a, sch["agent"], reg.files.get(f"agent:{aid}", aid))
 
     known = set(reg.skills)
     for sid, s in reg.skills.items():

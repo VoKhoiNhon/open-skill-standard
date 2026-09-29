@@ -1,0 +1,16 @@
+id: amp
+name: Amp
+docs: https://ampcode.com/docs/customize/skills
+global:
+  - {path: "~/.config/agents/skills", source: "https://ampcode.com/docs/customize/skills"}
+  - {path: "~/.agents/skills", source: "https://ampcode.com/docs/customize/skills"}
+  - {path: "~/.config/amp/skills", source: "https://ampcode.com/docs/customize/skills"}
+  - {path: "~/.claude/skills", source: "https://ampcode.com/docs/customize/skills"}
+project:
+  - {path: ".agents/skills", source: "https://ampcode.com/docs/customize/skills"}
+  - {path: ".claude/skills", source: "https://ampcode.com/docs/customize/skills"}
+detect:
+  - {path: "~/.config/amp", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L96"}
+relocate:
+  - {var: XDG_CONFIG_HOME, replaces: "~/.config", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L9"}
+notes: The model picks skills from their name and description.

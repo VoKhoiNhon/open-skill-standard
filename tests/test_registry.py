@@ -66,3 +66,22 @@ def test_validate_requires_seed_ids(tmp_path):
     errors = registry.validate(registry.load(root))
     assert any("every seed needs an id" in e for e in errors)
     assert any("duplicate seed ids" in e for e in errors)
+
+
+def test_agents_load_and_overlay_merges_by_id():
+    reg = registry.load(FIX / "repo")
+    assert reg.agents["demo-agent"]["global"][0]["path"] == "~/.demo/skills"
+    reg = registry.load(FIX / "repo", overlays=[FIX / "overlay"])
+    assert reg.agents["demo-agent"]["notes"] == "Overridden by org"
+    assert reg.agents["demo-agent"]["name"] == "Demo Agent"
+
+
+def test_validate_reports_agent_path_without_source(tmp_path):
+    import shutil
+    root = tmp_path / "r"
+    shutil.copytree(FIX / "repo" / "registry", root / "registry")
+    (root / "registry/agents/bad.yaml").write_text(
+        "id: bad\nname: Bad\ndocs: https://example.org\nglobal: [{path: ~/.bad/skills}]\n"
+        "detect: [{path: ~/.bad, source: https://example.org}]\n")
+    errors = registry.validate(registry.load(root))
+    assert any("agents/bad.yaml" in e and "source" in e for e in errors)

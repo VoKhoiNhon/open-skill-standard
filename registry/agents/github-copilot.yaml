@@ -1,0 +1,14 @@
+id: github-copilot
+name: GitHub Copilot (CLI, coding agent, VS Code)
+docs: https://docs.github.com/en/copilot/concepts/agents/about-agent-skills
+global:
+  - {path: "~/.copilot/skills", source: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"}
+  - {path: "~/.agents/skills", source: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"}
+  - {path: "~/.claude/skills", source: "https://code.visualstudio.com/docs/copilot/customization/agent-skills"}
+project:
+  - {path: ".github/skills", source: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"}
+  - {path: ".claude/skills", source: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"}
+  - {path: ".agents/skills", source: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"}
+detect:
+  - {path: "~/.copilot", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L375"}
+notes: Copilot CLI and VS Code invoke a skill as /skill-name; the coding agent picks skills itself. VS Code also reads ~/.claude/skills.
