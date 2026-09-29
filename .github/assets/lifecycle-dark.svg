@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="724" viewBox="0 0 960 724" role="img" aria-label="Lifecycle graph: the 10 phases and 19 artifacts of the taxonomy, with the artifacts skills in each phase produce and consume">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-size:13px;fill:#e6edf3}.m{fill:#9198a1}.b{font-weight:600}.s{font-size:11.5px}.h{font-size:15px;font-weight:600}.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;font-size:12px}.box{fill:#151b23;stroke:#3d444d;stroke-width:1}.dash{fill:none;stroke:#3d444d;stroke-width:1;stroke-dasharray:4 3}.edge{fill:none;stroke:#9198a1;stroke-width:1.4}.blue{fill:#0f2542;stroke:#4493f8;stroke-width:1.2}.t-blue{fill:#4493f8}.e-blue{fill:none;stroke:#4493f8}#arrow-blue path{fill:#4493f8}.green{fill:#11281a;stroke:#3fb950;stroke-width:1.2}.t-green{fill:#3fb950}.e-green{fill:none;stroke:#3fb950}#arrow-green path{fill:#3fb950}.orange{fill:#2e1c10;stroke:#db6d28;stroke-width:1.2}.t-orange{fill:#db6d28}.e-orange{fill:none;stroke:#db6d28}#arrow-orange path{fill:#db6d28}.purple{fill:#241a38;stroke:#ab7df8;stroke-width:1.2}.t-purple{fill:#ab7df8}.e-purple{fill:none;stroke:#ab7df8}#arrow-purple path{fill:#ab7df8}.red{fill:#3a1716;stroke:#f85149;stroke-width:1.2}.t-red{fill:#f85149}.e-red{fill:none;stroke:#f85149}#arrow-red path{fill:#f85149}#arrow path{fill:#9198a1}</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text x="40" y="36" class="h">Produced in phase</text>
+<text x="480" y="36" class="h" text-anchor="middle">Artifact (19)</text>
+<text x="920" y="36" class="h" text-anchor="end">Consumed in phase</text>
+<text x="40" y="54" class="m s">a skill acting in the phase writes it</text>
+<text x="920" y="54" class="m s" text-anchor="end">a skill acting in the phase reads it</text>
+<path d="M210 318C302.5 318 302.5 468 395 468" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 318C302.5 318 302.5 318 395 318" class="e-blue" stroke-width="3.6" marker-end="url(#arrow-blue)"/>
+<path d="M210 318C302.5 318 302.5 558 395 558" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 318C302.5 318 302.5 348 395 348" class="e-blue" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<path d="M210 78C302.5 78 302.5 78 395 78" class="e-blue" stroke-width="3.1" marker-end="url(#arrow-blue)"/>
+<path d="M210 78C302.5 78 302.5 168 395 168" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 618C302.5 618 302.5 468 395 468" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 618C302.5 618 302.5 618 395 618" class="e-blue" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<path d="M210 618C302.5 618 302.5 588 395 588" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 558C302.5 558 302.5 618 395 618" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 558C302.5 558 302.5 588 395 588" class="e-blue" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+<path d="M210 258C302.5 258 302.5 258 395 258" class="e-blue" stroke-width="2.9" marker-end="url(#arrow-blue)"/>
+<path d="M210 258C302.5 258 302.5 198 395 198" class="e-blue" stroke-width="2.9" marker-end="url(#arrow-blue)"/>
+<path d="M210 258C302.5 258 302.5 228 395 228" class="e-blue" stroke-width="2.9" marker-end="url(#arrow-blue)"/>
+<path d="M210 258C302.5 258 302.5 288 395 288" class="e-blue" stroke-width="2.7" marker-end="url(#arrow-blue)"/>
+<path d="M210 498C302.5 498 302.5 258 395 258" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 498C302.5 498 302.5 468 395 468" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 498C302.5 498 302.5 498 395 498" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 138C302.5 138 302.5 378 395 378" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 138C302.5 138 302.5 108 395 108" class="e-blue" stroke-width="2.9" marker-end="url(#arrow-blue)"/>
+<path d="M210 198C302.5 198 302.5 78 395 78" class="e-blue" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<path d="M210 198C302.5 198 302.5 138 395 138" class="e-blue" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<path d="M210 198C302.5 198 302.5 168 395 168" class="e-blue" stroke-width="2.9" marker-end="url(#arrow-blue)"/>
+<path d="M210 378C302.5 378 302.5 468 395 468" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 378C302.5 378 302.5 318 395 318" class="e-blue" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<path d="M210 378C302.5 378 302.5 378 395 378" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 378C302.5 378 302.5 558 395 558" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 378C302.5 378 302.5 198 395 198" class="e-blue" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+<path d="M210 378C302.5 378 302.5 348 395 348" class="e-blue" stroke-width="2.7" marker-end="url(#arrow-blue)"/>
+<path d="M565 198C657.5 198 657.5 318 750 318" class="e-orange" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+<path d="M565 198C657.5 198 657.5 258 750 258" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M565 198C657.5 198 657.5 378 750 378" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M565 138C657.5 138 657.5 258 750 258" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M565 168C657.5 168 657.5 258 750 258" class="e-orange" stroke-width="3.3" marker-end="url(#arrow-orange)"/>
+<path d="M565 168C657.5 168 657.5 198 750 198" class="e-orange" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
+<path d="M565 168C657.5 168 657.5 378 750 378" class="e-orange" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+<path d="M565 228C657.5 228 657.5 318 750 318" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M565 228C657.5 228 657.5 258 750 258" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M565 228C657.5 228 657.5 498 750 498" class="e-orange" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
+<path d="M565 228C657.5 228 657.5 378 750 378" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<rect x="40" y="64" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="82.5" class="b">1. discover</text>
+<text x="200" y="82.5" class="m s" text-anchor="end">17 skills</text>
+<rect x="40" y="124" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="142.5" class="b">2. research</text>
+<text x="200" y="142.5" class="m s" text-anchor="end">18 skills</text>
+<rect x="40" y="184" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="202.5" class="b">3. specify</text>
+<text x="200" y="202.5" class="m s" text-anchor="end">16 skills</text>
+<rect x="40" y="244" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="262.5" class="b">4. plan</text>
+<text x="200" y="262.5" class="m s" text-anchor="end">32 skills</text>
+<rect x="40" y="304" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="322.5" class="b">5. build</text>
+<text x="200" y="322.5" class="m s" text-anchor="end">53 skills</text>
+<rect x="40" y="364" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="382.5" class="b">6. verify</text>
+<text x="200" y="382.5" class="m s" text-anchor="end">23 skills</text>
+<rect x="40" y="424" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="442.5" class="b">7. review</text>
+<text x="200" y="442.5" class="m s" text-anchor="end">33 skills</text>
+<rect x="40" y="484" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="502.5" class="b">8. release</text>
+<text x="200" y="502.5" class="m s" text-anchor="end">25 skills</text>
+<rect x="40" y="544" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="562.5" class="b">9. operate</text>
+<text x="200" y="562.5" class="m s" text-anchor="end">14 skills</text>
+<rect x="40" y="604" width="170" height="28" rx="6" class="blue"/>
+<text x="52" y="622.5" class="b">10. learn</text>
+<text x="200" y="622.5" class="m s" text-anchor="end">15 skills</text>
+<rect x="750" y="64" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="82.5" class="b">1. discover</text>
+<text x="910" y="82.5" class="m s" text-anchor="end">17 skills</text>
+<rect x="750" y="124" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="142.5" class="b">2. research</text>
+<text x="910" y="142.5" class="m s" text-anchor="end">18 skills</text>
+<rect x="750" y="184" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="202.5" class="b">3. specify</text>
+<text x="910" y="202.5" class="m s" text-anchor="end">16 skills</text>
+<rect x="750" y="244" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="262.5" class="b">4. plan</text>
+<text x="910" y="262.5" class="m s" text-anchor="end">32 skills</text>
+<rect x="750" y="304" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="322.5" class="b">5. build</text>
+<text x="910" y="322.5" class="m s" text-anchor="end">53 skills</text>
+<rect x="750" y="364" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="382.5" class="b">6. verify</text>
+<text x="910" y="382.5" class="m s" text-anchor="end">23 skills</text>
+<rect x="750" y="424" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="442.5" class="b">7. review</text>
+<text x="910" y="442.5" class="m s" text-anchor="end">33 skills</text>
+<rect x="750" y="484" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="502.5" class="b">8. release</text>
+<text x="910" y="502.5" class="m s" text-anchor="end">25 skills</text>
+<rect x="750" y="544" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="562.5" class="b">9. operate</text>
+<text x="910" y="562.5" class="m s" text-anchor="end">14 skills</text>
+<rect x="750" y="604" width="170" height="28" rx="6" class="orange"/>
+<text x="762" y="622.5" class="b">10. learn</text>
+<text x="910" y="622.5" class="m s" text-anchor="end">15 skills</text>
+<rect x="395" y="67" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="82.5" text-anchor="middle">idea-brief</text>
+<rect x="395" y="97" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="112.5" text-anchor="middle">research-report</text>
+<rect x="395" y="127" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="142.5" text-anchor="middle">prd</text>
+<rect x="395" y="157" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="172.5" text-anchor="middle">spec</text>
+<rect x="395" y="187" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="202.5" text-anchor="middle">plan</text>
+<rect x="395" y="217" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="232.5" text-anchor="middle">tasks</text>
+<rect x="395" y="247" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="262.5" text-anchor="middle">adr</text>
+<rect x="395" y="277" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="292.5" text-anchor="middle">ux-design</text>
+<rect x="395" y="307" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="322.5" text-anchor="middle">code-change</text>
+<rect x="395" y="337" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="352.5" text-anchor="middle">test-suite</text>
+<rect x="395" y="367" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="382.5" text-anchor="middle">data-profile</text>
+<rect x="395" y="397" width="170" height="22" rx="11" class="dash"/>
+<text x="480" y="412.5" class="m" text-anchor="middle">data-contract</text>
+<rect x="395" y="427" width="170" height="22" rx="11" class="dash"/>
+<text x="480" y="442.5" class="m" text-anchor="middle">pipeline</text>
+<rect x="395" y="457" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="472.5" text-anchor="middle">analysis-report</text>
+<rect x="395" y="487" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="502.5" text-anchor="middle">dashboard</text>
+<rect x="395" y="517" width="170" height="22" rx="11" class="dash"/>
+<text x="480" y="532.5" class="m" text-anchor="middle">model-card</text>
+<rect x="395" y="547" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="562.5" text-anchor="middle">eval-suite</text>
+<rect x="395" y="577" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="592.5" text-anchor="middle">runbook</text>
+<rect x="395" y="607" width="170" height="22" rx="11" class="box"/>
+<text x="480" y="622.5" text-anchor="middle">retro</text>
+<path d="M40 662C57 662 57 662 74 662" class="e-blue" stroke-width="2" marker-end="url(#arrow-blue)"/>
+<text x="84" y="666.5" class="s">produces</text>
+<path d="M170 662C187 662 187 662 204 662" class="e-orange" stroke-width="2" marker-end="url(#arrow-orange)"/>
+<text x="214" y="666.5" class="s">consumes</text>
+<text x="290" y="666.5" class="m s">line width grows with the number of skills</text>
+<rect x="580" y="653" width="34" height="18" rx="9" class="dash"/>
+<text x="624" y="666.5" class="m s">found in repository files only; no skill writes or reads it</text>
+<text x="944" y="712" class="m s" text-anchor="end">generated from spec/taxonomy.yaml and registry/adapters by scripts/render_assets.py</text>
+</svg>
