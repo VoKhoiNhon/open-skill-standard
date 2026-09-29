@@ -18,6 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 - The first route on a new machine no longer prints "upgraded your data" and runs a migration: reading notes created an empty `knowledge/` folder that made a fresh `~/.open-skill` look like an old layout. Dry runs no longer create folders either.
+- Four adapter descriptions now say what the upstream skill does: `brand-guidelines` applies Anthropic's own brand (not any brand), `academy-guide` points to Claude Academy courses, `discernment-nudge` asks the user to check an answer before acting on it, and Context7's `context7-docs` is its Pi package.
 - BMad's skills CLI install is copied verbatim from its README (`npx skills add bmad-code-org/BMAD-METHOD`, run in the project); the adapter had added `-g`.
 - superpowers: the install commands its README gives for Cursor, Gemini CLI and GitHub Copilot CLI are offered to those agents (they were told to see upstream), and skills from the Gemini CLI extension (`~/.gemini/extensions/superpowers`) are detected. An agent's own `<key>@<agent>` command wins over the generic ones.
 - Missing-skill hints fit the agent: spec-kit's `specify init` names the agent's integration key (`--integration codex`, `cursor-agent`, `gemini`, `copilot`…) instead of always `claude`, and points to upstream for an agent spec-kit does not support; Claude Code built-ins are no longer listed as missing for other agents with the hint "install claude-code-builtin". `install` keys may end in `@<agent>` (SPEC §4.1).

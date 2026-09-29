@@ -390,7 +390,7 @@
     "learn"
    ],
    "installed": false,
-   "description": "Guided learning content"
+   "description": "After answering how to use Claude, point to matching Claude Academy courses and tutorials"
   },
   {
    "id": "anthropic-skills/algorithmic-art",
@@ -410,7 +410,7 @@
     "release"
    ],
    "installed": false,
-   "description": "Apply a brand's colors and typography"
+   "description": "Apply Anthropic's own brand colors and typography to an artifact"
   },
   {
    "id": "anthropic-skills/canvas-design",
@@ -441,7 +441,7 @@
     "review"
    ],
    "installed": false,
-   "description": "Prompts for careful judgment"
+   "description": "After an answer the user may act on, nudge them to check its assumptions and evidence"
   },
   {
    "id": "anthropic-skills/doc-coauthoring",
@@ -1035,7 +1035,7 @@
     "research"
    ],
    "installed": false,
-   "description": "Documentation lookup skill for other agents"
+   "description": "Fetch current library documentation, packaged for the Pi coding agent"
   },
   {
    "id": "context7/context7-mcp",

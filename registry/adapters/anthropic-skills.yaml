@@ -95,7 +95,7 @@ skills:
     phases: [release]
     task_size: [small]
   - name: brand-guidelines
-    description: Apply a brand's colors and typography
+    description: Apply Anthropic's own brand colors and typography to an artifact
     phases: [release]
     task_size: [small]
   - name: canvas-design
@@ -111,10 +111,10 @@ skills:
     phases: [release]
     task_size: [small]
   - name: academy-guide
-    description: Guided learning content
+    description: After answering how to use Claude, point to matching Claude Academy courses and tutorials
     phases: [learn]
     task_size: [small]
   - name: discernment-nudge
-    description: Prompts for careful judgment
+    description: After an answer the user may act on, nudge them to check its assumptions and evidence
     phases: [review]
     task_size: [small]
