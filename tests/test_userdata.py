@@ -71,3 +71,10 @@ def test_backup_zips_layer_but_not_other_backups(tmp_path):
 
 def test_backup_of_empty_home_is_none(tmp_path):
     assert userdata.backup(tmp_path / "empty") is None
+
+
+
+def test_backup_names_sort_in_creation_order(tmp_path):
+    home = _layer(tmp_path / "h")
+    made = [userdata.backup(home, "auto") for _ in range(5)]
+    assert sorted(made) == made and len(set(made)) == 5
