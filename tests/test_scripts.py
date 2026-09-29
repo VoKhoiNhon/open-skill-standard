@@ -39,3 +39,49 @@ PR_TITLES = [
 @pytest.mark.parametrize("text,ok", PR_TITLES)
 def test_pr_title(text, ok):
     assert title.ok(text) is ok
+
+
+cl = load("changelog")
+LOG = """# Changelog
+
+## [Unreleased]
+
+## [0.2.0] - 2026-01-02
+
+Routing by role: the router reads role packs.
+
+### Added
+- b
+
+## [0.1.0] - 2026-01-01
+
+GitHub releases for every tag.
+
+- a
+
+[Unreleased]: https://example.org/compare/v0.2.0...HEAD
+[0.2.0]: https://example.org/compare/v0.1.0...v0.2.0
+[0.1.0]: https://example.org/releases/tag/v0.1.0
+"""
+
+
+@pytest.mark.parametrize("version,has,lacks", [
+    ("0.2.0", ["Routing by role", "- b"], ["## [", "- a"]),
+    ("0.1.0", ["GitHub releases", "- a"], ["[0.1.0]:", "[Unreleased]:"]),   # the link references are not notes
+])
+def test_changelog_section(version, has, lacks):
+    body = cl.section(LOG, version)
+    assert all(h in body for h in has) and not any(x in body for x in lacks)
+
+
+@pytest.mark.parametrize("version,expected", [
+    ("0.2.0", "v0.2.0 — routing by role"),
+    ("0.1.0", "v0.1.0 — GitHub releases for every tag"),   # a brand keeps its capitals
+])
+def test_changelog_title(version, expected):
+    assert cl.title(LOG, version) == expected
+
+
+def test_changelog_missing_section():
+    with pytest.raises(KeyError):
+        cl.section(LOG, "9.9.9")
