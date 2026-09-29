@@ -278,3 +278,15 @@ def test_length_counts_lines_not_newlines(lines, fires, eol):
 ], ids=["english-long", "english-short", "cjk-long", "cjk-short"])
 def test_body_tokens_estimate_counts_non_latin_text(body, fires):
     assert ("body-tokens" in rules(doc(body))) is fires
+
+
+def test_shouting_ignores_code_blocks():
+    code = "```python\n" + "logging.log(logging.CRITICAL, 'x')\n" * 6 + "```\n"
+    assert "shouting" not in rules(doc(code))
+    assert "shouting" not in rules(doc("~~~\n" + "IMPORTANT = 1\n" * 6 + "~~~\n"))
+    assert "shouting" in rules(doc(code + "MUST a\nMUST b\nNEVER c\nALWAYS d\nCRITICAL e\nIMPORTANT f\n"))
+
+
+def test_shouting_cites_the_guidance_that_says_to_dial_it_back():
+    (f,) = [f for f in lint.lint_text(doc("MUST a\nMUST b\nNEVER c\nALWAYS d\nCRITICAL e\nIMPORTANT f\n"))]
+    assert f.source.startswith(lint.PRACTICES)

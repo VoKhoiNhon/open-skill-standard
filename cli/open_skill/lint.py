@@ -38,6 +38,14 @@ SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "a
 AGENT_FIELDS = {"when_to_use", "argument-hint", "disable-model-invocation", "user-invocable", "model", "effort",
                 "context", "agent", "hooks", "paths", "version"}
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
+FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
+
+
+def prose(body: str) -> str:
+    """The body with fenced code blocks blanked out, keeping line numbers."""
+    return FENCE.sub(lambda m: "\n" * m.group().count("\n"), body)
+
+
 NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # no leading, trailing or double hyphens (Agent Skills spec)
 
 
@@ -79,7 +87,8 @@ rule("length", "warning", "SKILL.md is under 500 lines", BEST)
 for _id, _sev, _rx, _msg, _src in PATTERNS:
     rule(_id, _sev, _msg, _src)
 rule("review-filtering", "warning", "a review skill does not tell the model to report only severe findings", SONNET5)
-rule("shouting", "warning", "no more than five lines use capitalized MUST, NEVER, ALWAYS, CRITICAL or IMPORTANT", FABLE5)
+rule("shouting", "warning", "no more than five lines outside code blocks use capitalized MUST, NEVER, ALWAYS, CRITICAL or IMPORTANT",
+     PRACTICES + "#tool-usage")
 rule("missing-reference", "error", "every relative file the body links to or names exists", SPEC)
 rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
 rule("marketplace-field", "error", "marketplace.json has `name`, `owner` and `plugins`", MARKETPLACE_DOCS)
@@ -179,8 +188,8 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
             add(rule_id, msg)
     if re.search(r"(?i)review", name + " " + desc) and REVIEW_FILTER.search(body):
         add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.", SONNET5)
-    if sum(1 for line in body.splitlines() if SHOUT.search(line)) > 5:
-        add("shouting", "Explain why instead of capitalized MUST/NEVER; current models follow brief instructions.", FABLE5)
+    if sum(1 for line in prose(body).splitlines() if SHOUT.search(line)) > 5:
+        add("shouting", "Explain why instead of capitalized MUST/NEVER; current models overreact to aggressive emphasis.")
     return out
 
 
