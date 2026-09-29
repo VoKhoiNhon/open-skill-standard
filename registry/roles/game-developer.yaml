@@ -82,6 +82,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Profile a representative scene before and after a change.
-- Keep gameplay rules testable without the renderer.
-- Record the engine version with the project.
+- id: profile-representative-scene-change
+  text: Profile a representative scene before and after a change.
+- id: keep-gameplay-rules-testable-without
+  text: Keep gameplay rules testable without the renderer.
+- id: record-engine-version-project
+  text: Record the engine version with the project.

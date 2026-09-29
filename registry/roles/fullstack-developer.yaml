@@ -84,6 +84,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- When a contract changes, update the client and the tests in the same change.
-- Do not add a dependency for what a few lines can do.
-- Reproduce a bug with a failing test before fixing it.
+- id: contract-changes-update-client-tests
+  text: When a contract changes, update the client and the tests in the same change.
+- id: do-add-dependency-what-few
+  text: Do not add a dependency for what a few lines can do.
+- id: reproduce-bug-failing-test-fixing
+  text: Reproduce a bug with a failing test before fixing it.
