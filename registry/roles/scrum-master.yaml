@@ -1,0 +1,88 @@
+id: scrum-master
+name: Scrum Master / Agile Coach
+family: product-delivery
+summary: Facilitates planning, flow and continuous improvement for delivery teams.
+risk: 'Ceremonies without outcomes: work that looks planned but does not flow.'
+constitution:
+- Sprint goals are outcomes the team can explain.
+- Blockers are raised the day they appear.
+- Retrospectives produce few, owned, followed-up actions.
+- Flow metrics (cycle time, WIP) are visible.
+signals:
+- '**/sprint*.md'
+- '**/retro*.md'
+- '**/board*.md'
+build_window:
+- plan
+- release
+- learn
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - knowledge-work-product-management/sprint-planning
+    - bmad-method/bmad-ticket
+    alternatives:
+    - bmad-method/bmad-correct-course
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-product-management/stakeholder-update
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - bmad-method/bmad-retrospective
+    - knowledge-work-engineering/standup
+    alternatives:
+    - open-skill/open-skill-learn
+seeds:
+- Limit work in progress before adding process.
+- Bring last retro's actions to the next retro.
+- Make one change at a time and measure it.

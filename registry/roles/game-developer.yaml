@@ -1,0 +1,87 @@
+id: game-developer
+name: Game Developer
+family: engineering
+summary: Builds gameplay, tools and rendering for games in engines or frameworks.
+risk: Frame-time regressions and gameplay bugs that only show up in play.
+constitution:
+- Each target platform has a frame-time budget that is checked.
+- Features are playtested before they are called done.
+- Deterministic game logic is separated from rendering.
+- Large assets are versioned with LFS or the engine's asset system.
+signals:
+- project.godot
+- '**/*.gd'
+- '**/*.uproject'
+- ProjectSettings/**
+- '**/*.unity'
+phases:
+  discover:
+    primary:
+    - bmad-method/bmad-brainstorming
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-forge-idea
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - claude-code-builtin/run
+    - superpowers/verification-before-completion
+    alternatives:
+    - superpowers/test-driven-development
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - superpowers/finishing-a-development-branch
+    alternatives:
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Profile a representative scene before and after a change.
+- Keep gameplay rules testable without the renderer.
+- Record the engine version with the project.

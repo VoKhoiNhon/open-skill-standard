@@ -1,0 +1,89 @@
+id: fullstack-developer
+name: Full-stack Developer
+family: engineering
+summary: Delivers features end to end across UI, API and database.
+risk: 'Many layers and fast-moving libraries: a change passes tests in one layer and breaks another.'
+constitution:
+- API contracts are explicit; client and server change together.
+- Migrations have a way back.
+- Basic accessibility on every screen.
+- The app runs and the main flow is exercised before the work is called done.
+signals:
+- package.json
+- '**/api/**'
+- '**/migrations/**'
+- docker-compose.yml
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-prd
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-architecture
+    - bmad-method/bmad-ux
+    - bmad-method/bmad-ticket
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - taste-skill/taste-skill
+  verify:
+    primary:
+    - claude-code-builtin/run
+    - anthropic-skills/webapp-testing
+    - superpowers/verification-before-completion
+    alternatives:
+    - bmad-method/bmad-qa-generate-e2e-tests
+    - codegraph/affected
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - claude-code-builtin/security-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+  release:
+    primary:
+    - superpowers/finishing-a-development-branch
+    alternatives:
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- When a contract changes, update the client and the tests in the same change.
+- Do not add a dependency for what a few lines can do.
+- Reproduce a bug with a failing test before fixing it.

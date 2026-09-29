@@ -1,0 +1,85 @@
+id: data-analyst
+name: Data Analyst
+family: data-ai
+summary: Answers business questions with data and communicates what the numbers mean.
+risk: 'Decisions ride on the numbers: a wrong denominator becomes a wrong decision.'
+constitution:
+- Every number states its source table, layer and time range.
+- Metric definitions are explicit, including the denominator.
+- Analyses are QA'd before they are sent.
+- No personal identifiers in reports.
+signals:
+- '**/*.sql'
+- '**/*.ipynb'
+- '**/reports/**'
+- '**/dashboards/**'
+build_window:
+- build
+- verify
+- release
+phases:
+  discover:
+    primary:
+    - bmad-method/bmad-forge-idea
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    alternatives:
+    - knowledge-work-data/explore-data
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - knowledge-work-data/analyze
+    - knowledge-work-data/write-query
+    alternatives:
+    - knowledge-work-data/sql-queries
+    - anthropic-skills/xlsx
+  verify:
+    primary:
+    - knowledge-work-data/validate-data
+    - bmad-method/bmad-advanced-elicitation
+    alternatives:
+    - knowledge-work-data/statistical-analysis
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-data/create-viz
+    - knowledge-work-data/build-dashboard
+    alternatives:
+    - anthropic-skills/pptx
+    - anthropic-skills/xlsx
+    - anthropic-skills/docx
+  operate:
+    primary:
+    - claude-code-builtin/schedule
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Write down the denominator of every rate.
+- Bar charts start at zero.
+- Compare with the official dashboard and state the difference.

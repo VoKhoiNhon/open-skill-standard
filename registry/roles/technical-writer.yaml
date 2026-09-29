@@ -1,0 +1,84 @@
+id: technical-writer
+name: Technical Writer
+family: product-delivery
+summary: Writes and maintains documentation that lets people use and change a system.
+risk: Documentation that is wrong, stale or written for the author instead of the reader.
+constitution:
+- Every page has a stated reader and task.
+- Examples are tested against the current version.
+- Docs change in the same pull request as the behavior.
+- Plain language over jargon.
+signals:
+- docs/**
+- mkdocs.yml
+- docusaurus.config.*
+- '**/*.mdx'
+build_window:
+- research
+- release
+- review
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - codegraph/explore
+    - context7/context7-mcp
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - knowledge-work-design/ux-copy
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - bmad-method/bmad-review
+    alternatives:
+    - knowledge-work-design/design-critique
+  release:
+    primary:
+    - knowledge-work-engineering/documentation
+    - anthropic-skills/doc-coauthoring
+    alternatives:
+    - anthropic-skills/docx
+    - anthropic-skills/pdf
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Start each page with what the reader will be able to do.
+- Run every code sample before publishing.
+- Link to the source of truth instead of copying it.

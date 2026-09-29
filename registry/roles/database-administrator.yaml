@@ -1,0 +1,82 @@
+id: database-administrator
+name: Database Administrator
+family: quality-ops
+summary: Keeps databases correct, fast, backed up and secure.
+risk: Locking, data loss or slow queries caused by schema changes.
+constitution:
+- Migrations are rehearsed on a production-sized copy.
+- Backups are restored in drills, not only taken.
+- Index and query changes are measured before and after.
+- Access uses least-privilege roles.
+signals:
+- '**/migrations/**'
+- '**/*.sql'
+- schema.prisma
+- liquibase*
+- flyway*
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - knowledge-work-data/sql-queries
+    - knowledge-work-data/write-query
+    alternatives:
+    - superpowers/test-driven-development
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - knowledge-work-data/sql-queries
+    - claude-code-builtin/code-review
+    alternatives:
+    - bmad-method/bmad-review
+  release:
+    primary:
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/incident-response
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Add columns as nullable first, backfill, then add the constraint.
+- Check the query plan before and after an index change.
+- Test a restore every quarter.

@@ -1,0 +1,87 @@
+id: ml-engineer
+name: ML Engineer / MLOps
+family: data-ai
+summary: 'Takes models to production: training pipelines, feature stores, serving and monitoring.'
+risk: Models that degrade silently after deployment through drift or training/serving skew.
+constitution:
+- 'Training is reproducible: data version, seed and config are recorded.'
+- Offline and online features are computed the same way.
+- Production models are monitored for drift and performance.
+- Every release has a model card.
+signals:
+- '**/train*.py'
+- mlflow*
+- dvc.yaml
+- '**/feature_store/**'
+- bentofile.yaml
+- '**/serving/**'
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - knowledge-work-engineering/system-design
+    - superpowers/writing-plans
+    alternatives:
+    - spec-kit/plan
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - knowledge-work-data/statistical-analysis
+    - knowledge-work-data/validate-data
+    alternatives:
+    - superpowers/verification-before-completion
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-engineering/deploy-checklist
+    alternatives:
+    - superpowers/finishing-a-development-branch
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    - claude-code-builtin/schedule
+    alternatives:
+    - knowledge-work-engineering/incident-response
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Log the feature values used at prediction time.
+- Shadow a new model before it serves traffic.
+- Alert on input drift, not only on accuracy.

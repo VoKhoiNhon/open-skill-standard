@@ -1,0 +1,88 @@
+id: mobile-developer
+name: Mobile Developer
+family: engineering
+summary: Builds native or cross-platform apps for phones and tablets.
+risk: Behavior that differs across OS versions, devices and offline conditions.
+constitution:
+- Test on the smallest supported device and the oldest supported OS.
+- Offline and slow networks are handled, not assumed away.
+- Platform guidelines and permission prompts are respected.
+- Releases go out as staged rollouts.
+signals:
+- Podfile
+- '**/*.xcodeproj/**'
+- android/**
+- ios/**
+- pubspec.yaml
+- app.json
+- build.gradle.kts
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - knowledge-work-design/design-handoff
+    alternatives:
+    - taste-skill/imagegen-frontend-mobile
+    - spec-kit/plan
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - claude-code-builtin/run
+    - superpowers/verification-before-completion
+    alternatives:
+    - knowledge-work-design/accessibility-review
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-engineering/deploy-checklist
+    - superpowers/finishing-a-development-branch
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Check behavior with airplane mode on before release.
+- Ask for a permission at the moment it is needed, with context.
+- Keep the minimum supported OS in the project README.

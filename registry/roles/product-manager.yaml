@@ -1,0 +1,89 @@
+id: product-manager
+name: Product Manager
+family: product-delivery
+summary: Decides what to build and why, and measures whether it worked.
+risk: Building the wrong thing well.
+constitution:
+- Problems are validated with evidence before solutions are specified.
+- Specs state the user, the problem, success metrics and non-goals.
+- Roadmaps show outcomes, not only features.
+- Launched work is measured against its success metric.
+signals:
+- '**/prd*.md'
+- '**/roadmap*.md'
+- '**/specs/**'
+build_window:
+- discover
+- research
+- specify
+- plan
+phases:
+  discover:
+    primary:
+    - knowledge-work-product-management/product-brainstorming
+    - bmad-method/bmad-forge-idea
+    - bmad-method/bmad-prfaq
+    alternatives:
+    - bmad-method/bmad-party-mode
+  research:
+    primary:
+    - knowledge-work-product-management/competitive-brief
+    - knowledge-work-product-management/synthesize-research
+    - bmad-method/bmad-deep-recon
+    alternatives:
+    - knowledge-work-design/user-research
+  specify:
+    primary:
+    - knowledge-work-product-management/write-spec
+    - bmad-method/bmad-prd
+    - spec-kit/specify
+    alternatives:
+    - bmad-method/bmad-product-brief
+    - spec-kit/clarify
+  plan:
+    primary:
+    - knowledge-work-product-management/roadmap-update
+    - bmad-method/bmad-ticket
+    alternatives:
+    - knowledge-work-product-management/sprint-planning
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - knowledge-work-product-management/metrics-review
+    - knowledge-work-data/analyze
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-product-management/stakeholder-update
+    alternatives:
+    - anthropic-skills/pptx
+    - anthropic-skills/docx
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Write the non-goals before the goals.
+- Name the metric that would prove the feature failed.
+- Talk to five users before writing the spec.

@@ -1,0 +1,92 @@
+id: data-scientist
+name: Data Scientist
+family: data-ai
+summary: Frames questions as hypotheses and answers them with statistics and models.
+risk: Answering the wrong question, or leakage that makes a model look better than it is.
+constitution:
+- A simple baseline comes first.
+- Splits respect time when the data has time.
+- Uncertainty is reported with every estimate.
+- Seed, data snapshot and parameters are recorded.
+signals:
+- '**/*.ipynb'
+- '**/notebooks/**'
+- '**/experiments/**'
+- requirements.txt
+build_window:
+- discover
+- research
+- build
+- verify
+- release
+phases:
+  discover:
+    primary:
+    - bmad-method/bmad-forge-idea
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-brainstorming
+  research:
+    primary:
+    - bmad-method/bmad-deep-recon
+    - knowledge-work-data/explore-data
+    alternatives:
+    - open-skill/open-skill-intel
+  specify:
+    primary:
+    - bmad-method/bmad-spec
+    - spec-kit/specify
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - knowledge-work-data/statistical-analysis
+    - knowledge-work-data/explore-data
+    - superpowers/test-driven-development
+    alternatives:
+    - knowledge-work-data/analyze
+  verify:
+    primary:
+    - knowledge-work-data/validate-data
+    - bmad-method/bmad-advanced-elicitation
+    alternatives:
+    - bmad-method/bmad-party-mode
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-data/create-viz
+    - knowledge-work-data/build-dashboard
+    alternatives:
+    - anthropic-skills/pptx
+    - anthropic-skills/docx
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Features may only use information available before the prediction time.
+- Always compare against a naive model.
+- Record the seed and the data snapshot with every result.
+handoff:
+  production pipeline: data-engineer
+  model serving: ml-engineer
