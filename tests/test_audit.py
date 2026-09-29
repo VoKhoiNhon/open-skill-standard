@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 import pytest
 
@@ -91,3 +92,15 @@ def test_special_files_are_skipped_without_opening(toy_rule, tmp_path):
 
     os.mkfifo(tmp_path / "pipe")  # opening a FIFO for reading would block the audit forever
     assert audit.audit_paths([tmp_path]) == []
+
+
+FIXTURES = Path(__file__).parent / "fixtures" / "audit"
+
+
+def test_clean_fixture_skill_has_no_findings():
+    assert audit.audit_paths([FIXTURES / "clean-skill"]) == []
+
+
+def test_every_line_rule_matches_the_risky_fixture():
+    fired = {f.rule for f in audit.audit_paths([FIXTURES / "risky-skill"])}
+    assert {r.id for r in audit.RULES.values() if r.pattern} <= fired
