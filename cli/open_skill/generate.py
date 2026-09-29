@@ -1,6 +1,7 @@
 """Generated, human-readable files: role playbooks, constitution fragments, schemas, dist outputs."""
 
 import json
+import sqlite3
 from pathlib import Path
 
 from . import index, schemas
@@ -89,5 +90,19 @@ def write_all(reg, root: Path) -> list[Path]:
     return written
 
 
+def _index_rows(conn) -> list[tuple]:
+    try:
+        return sorted(conn.execute("SELECT id, text FROM skills"))
+    finally:
+        conn.close()
+
+
 def stale(reg, root: Path) -> list[Path]:
-    return [p for p, text in outputs(reg, root).items() if not p.exists() or p.read_text() != text]
+    """Generated files that differ from what `build` would write, the search index compared row by row."""
+    out = [p for p, text in outputs(reg, root).items() if not p.exists() or p.read_text() != text]
+    db = Path(root) / "dist" / "index.db"
+    try:
+        current = db.is_file() and _index_rows(sqlite3.connect(db)) == _index_rows(index.build_index(reg))
+    except sqlite3.Error:
+        current = False
+    return out + ([] if current else [db])
