@@ -191,7 +191,9 @@ def cmd_build(args):
 
 def cmd_search(args):
     reg = _registry(args)
-    installed = scan.scan(reg, Path(args.project) if args.project else None)
+    if args.agent and _agent_arg(reg, args.agent) is None:
+        return 2
+    installed = scan.scan(reg, Path(args.project) if args.project else None, agent=args.agent)
     have = {i.id for i in installed}
     known = {"role": set(reg.roles), "phase": {p["id"] for p in reg.taxonomy["phases"]},
              "source": set(reg.adapters) | {i.id.split("/")[0] for i in installed}}
@@ -646,6 +648,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--phase", help="only skills that act in this phase")
     s.add_argument("--source", help="only skills from this adapter source (or 'harvested')")
     s.add_argument("--installed", action="store_true", help="only skills installed on this machine")
+    s.add_argument("--agent", help="count as installed only the skills this agent sees")
     s.set_defaults(fn=cmd_search)
     s = sub.add_parser("route", help="choose and order skills for a task")
     s.add_argument("task")

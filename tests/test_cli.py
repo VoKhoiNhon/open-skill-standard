@@ -396,3 +396,12 @@ def test_route_agent_uses_names_valid_for_that_agent(capsys, tmp_path):
     r = json.loads(run(capsys, *base, "--agent", "demo-agent")[1])
     assert r["chain"] == []  # demo-agent sees none of these skills
     assert run(capsys, *base, "--agent", "nope")[0] == 2
+
+
+def test_search_agent_counts_only_that_agents_skills_as_installed(capsys):
+    code, out = run(capsys, "search", "--installed", "--source", "superpowers", "--agent", "codex")
+    assert code == 0 and "superpowers/test-driven-development" in out
+    code, out = run(capsys, "search", "--installed", "--source", "harvested", "--agent", "codex")
+    assert "harvested/my-internal-skill" not in out  # only in ~/.claude/skills
+    assert "harvested/my-internal-skill" in run(capsys, "search", "--installed", "--source", "harvested")[1]
+    assert run(capsys, "search", "x", "--agent", "nope")[0] == 2
