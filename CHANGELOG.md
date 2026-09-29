@@ -123,6 +123,7 @@ Multi-agent support, a security audit and graph explanations: install and scan s
 - `bmad-ticket`, `bmad-architecture` and `bmad-prd` handle medium tasks, so BMad projects plan sprints, architecture and PRDs with BMad instead of an unrelated BMad persona or a generic skill.
 - Technical writers review docs with code review instead of design critique outside BMad projects.
 - A later detect rule of the same adapter no longer claims a path an earlier rule already found, so a prefix rule such as `{skills}/vendor-{name}` does not add a duplicate inferred skill.
+- taste-skill skills installed with `npx skills add`, which names each folder after its frontmatter `name` (`design-taste-frontend`, `minimalist-ui`, ...), are detected under their registry ids instead of being harvested as unknown skills. Adapter skills may set `installed_as` for such a folder name (SPEC §4.1, §4.2).
 
 ## [0.5.0] - 2026-09-29
 

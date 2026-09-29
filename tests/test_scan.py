@@ -150,3 +150,13 @@ def test_describe_ignores_non_string_frontmatter(tmp_path):
     (tmp_path / "odd").mkdir()
     (tmp_path / "odd" / "SKILL.md").write_text(f"---\nname: ~\n{bomb}\n---\nbody")
     assert scan._describe(tmp_path / "odd" / "SKILL.md") == ("odd", "")
+
+
+def test_skill_installed_under_its_frontmatter_name_maps_to_its_registry_id(tmp_path, monkeypatch):
+    # `npx skills add` names the folder after the frontmatter `name`, not the upstream folder "taste-skill".
+    skill = tmp_path / ".claude/skills/design-taste-frontend/SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text("---\nname: design-taste-frontend\ndescription: d\n---\n")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    got = by_invoke(scan.scan(registry.load()))["design-taste-frontend"]
+    assert got.id == "taste-skill/taste-skill" and got.inferred is False
