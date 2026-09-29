@@ -65,3 +65,19 @@ def test_code_comments_and_test_names_are_english():
     """Vietnamese belongs in locale data (spec/taxonomy.yaml, registry vi blocks) and in test inputs, not in code."""
     files = [*sorted((REPO / "cli").rglob("*.py")), *sorted((REPO / "scripts").glob("*.py")), *sorted((REPO / "tests").glob("*.py"))]
     assert not [hit for p in files for hit in _vietnamese_outside_test_inputs(p)]
+
+
+def _vietnamese_prose(path: Path) -> list[int]:
+    """Lines with Vietnamese outside fenced code blocks and code spans, where examples of the vi locale belong."""
+    out, fenced = [], False
+    for n, line in enumerate(path.read_text().splitlines(), 1):
+        if line.startswith("```"):
+            fenced = not fenced
+        elif not fenced and VIETNAMESE.search(re.sub(r"`[^`]*`", "", line)):
+            out.append(n)
+    return out
+
+
+def test_spec_and_changelog_prose_is_english():
+    for name in ("spec/SPEC.md", "CHANGELOG.md", "CONTRIBUTING.md"):
+        assert not _vietnamese_prose(REPO / name), f"{name}: put Vietnamese examples in code spans"
