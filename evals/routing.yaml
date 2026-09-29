@@ -173,6 +173,10 @@ cases:
      include: [knowledge-work-engineering/deploy-checklist]}
   - {id: ml-latency, role: ml-engineer, task: "the model latency is slow in production",
      first: superpowers/systematic-debugging}
+  - {id: ml-review, role: ml-engineer, task: "review the training pipeline pull request",
+     phases: [review], include: [claude-code-builtin/code-review]}
+  - {id: ml-vietnamese-drift, role: ml-engineer, task: "thêm giám sát drift cho mô hình",
+     include: [knowledge-work-data/validate-data]}
   - {id: ai-engineer, role: ai-engineer, task: "build a RAG chatbot over our docs with evals",
      include: [superpowers/subagent-driven-development]}
   - {id: ai-engineer-bmad, role: ai-engineer, task: "add a summarization endpoint", files: [_bmad/config.toml],
