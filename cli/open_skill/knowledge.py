@@ -191,6 +191,21 @@ def import_agent_memory(root: Path | None = None) -> int:
 
 
 DISMISSED = "seeds-dismissed.txt"
+PROPOSALS = "seed-updates"
+
+
+def _proposal_path(seed_id: str) -> Path:
+    return home() / PROPOSALS / (seed_id.replace("/", "__") + ".md")
+
+
+def proposals() -> dict[str, str]:
+    """seed id -> upstream text waiting for the user's decision."""
+    out = {}
+    for p in sorted((home() / PROPOSALS).glob("*.md")) if (home() / PROPOSALS).exists() else []:
+        meta, body = frontmatter.parse(p.read_text())
+        if meta.get("seed_id"):
+            out[meta["seed_id"]] = body.strip()
+    return out
 
 
 def dismissed_seeds() -> set[str]:
@@ -264,11 +279,55 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
                 if not dry_run:
                     m["seed_hash"] = userdata.text_hash(text)
                     _save(p, m, text + "\n")
-            else:
-                actions.append(f"kept your edit of {sid}")
+            elif m.get("seed_hash") != userdata.text_hash(text) and m.get("acknowledged_upstream") != userdata.text_hash(text):
+                # The user edited it and upstream changed too: keep theirs, park upstream's next to it (like .dpkg-new).
+                actions.append(f"kept your edit of {sid}; upstream wording saved for review (open-skill seeds diff {sid})")
+                if not dry_run:
+                    userdata.atomic_write(_proposal_path(sid), f"---\nseed_id: {sid}\nupstream_hash: {userdata.text_hash(text)}\n---\n{text}\n")
         shipped_ids = {f"{role}/{s['id']}" for s in shipped if s["id"]}
         for p, m, b in notes:
             sid = m.get("seed_id", "")
-            if sid.startswith(f"{role}/") and sid not in shipped_ids:
+            if not sid.startswith(f"{role}/"):
+                continue
+            if sid not in shipped_ids and not m.get("retired"):  # report once, then remember
                 actions.append(f"kept {sid}: no longer shipped upstream")
+                if not dry_run:
+                    m["retired"] = True
+                    _save(p, m, b)
+            elif sid in shipped_ids and m.get("retired") and not dry_run:
+                m.pop("retired")
+                _save(p, m, b)
     return actions
+
+
+def _seed_note(seed_id: str):
+    return next(((p, m, b) for p, m, b in _seed_notes() if m.get("seed_id") == seed_id), None)
+
+
+def accept_proposal(seed_id: str) -> Path | None:
+    """Replace the user's version with upstream's proposal, after a backup. Returns the backup path."""
+    _prepare()
+    text = proposals().get(seed_id)
+    note = _seed_note(seed_id)
+    if text is None or note is None:
+        raise KeyError(seed_id)
+    saved = userdata.backup(home(), "seed-accept")
+    p, m, _ = note
+    m["seed_hash"] = userdata.text_hash(text)
+    m.pop("acknowledged_upstream", None)
+    _save(p, m, text + "\n")
+    _proposal_path(seed_id).unlink()
+    return saved
+
+
+def keep_mine(seed_id: str) -> None:
+    """Keep the user's version and stop proposing this particular upstream wording."""
+    _prepare()
+    text = proposals().get(seed_id)
+    note = _seed_note(seed_id)
+    if text is None or note is None:
+        raise KeyError(seed_id)
+    p, m, b = note
+    m["acknowledged_upstream"] = userdata.text_hash(text)
+    _save(p, m, b)
+    _proposal_path(seed_id).unlink()

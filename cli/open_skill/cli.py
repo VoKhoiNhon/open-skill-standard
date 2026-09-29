@@ -219,6 +219,8 @@ def cmd_migrate(args):
 
 
 def cmd_seeds(args):
+    if args.action in ("diff", "accept", "keep"):
+        return _seed_decision(args)
     reg = _registry(args)
     roles = list(knowledge.load_profile().get("roles", {}))
     if not roles:
@@ -227,6 +229,31 @@ def cmd_seeds(args):
     seeds = {rid: r.get("seeds", []) for rid, r in reg.roles.items()}
     actions = knowledge.sync_seeds(roles, seeds, dry_run=args.dry_run)
     print("\n".join(actions) if actions else "starter knowledge is up to date")
+    return 0
+
+
+def _seed_decision(args):
+    import difflib
+
+    pending = knowledge.proposals()
+    ids = [args.seed_id] if args.seed_id else sorted(pending)
+    if not ids:
+        print("no seed updates waiting for review")
+        return 0
+    for sid in ids:
+        if sid not in pending:
+            print(f"no proposal for {sid}", file=sys.stderr)
+            return 1
+        if args.action == "diff":
+            note = next((n for n in knowledge.load_knowledge() if n.get("seed_id") == sid), {"text": ""})
+            diff = difflib.unified_diff(note["text"].splitlines(), pending[sid].splitlines(),
+                                        f"{sid} (yours)", f"{sid} (upstream)", lineterm="")
+            print("\n".join(diff))
+        elif args.action == "accept":
+            print(f"accepted upstream wording for {sid}; your version is in {knowledge.accept_proposal(sid)}")
+        else:
+            knowledge.keep_mine(sid)
+            print(f"kept your version of {sid}")
     return 0
 
 
@@ -331,7 +358,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--dry-run", action="store_true", help="show what would change without changing anything")
     s.set_defaults(fn=cmd_migrate)
     s = sub.add_parser("seeds", help="sync starter knowledge for your roles; your edits are never overwritten")
-    s.add_argument("action", choices=["sync"])
+    s.add_argument("action", choices=["sync", "diff", "accept", "keep"])
+    s.add_argument("seed_id", nargs="?", help="for diff/accept/keep: one seed id (default: all waiting)")
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(fn=cmd_seeds)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
