@@ -5000,6 +5000,11 @@
   },
   {
    "from": "role:security-engineer",
+   "to": "addy-agent-skills/security-and-hardening",
+   "type": "recommends"
+  },
+  {
+   "from": "role:security-engineer",
    "to": "superpowers/verification-before-completion",
    "type": "recommends"
   },

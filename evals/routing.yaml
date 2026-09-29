@@ -116,6 +116,10 @@ cases:
      phases: [review], include: [claude-code-builtin/security-review]}
   - {id: security-spec-kit, role: security-engineer, task: "add CSRF protection to the forms",
      files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement, claude-code-builtin/security-review]}
+  - {id: security-hardening, role: security-engineer, task: "harden the session handling against OWASP issues",
+     include: [addy-agent-skills/security-and-hardening, claude-code-builtin/security-review]}
+  - {id: security-csrf, role: security-engineer, task: "add CSRF protection to the forms",
+     include: [addy-agent-skills/security-and-hardening]}
   - {id: dba, role: database-administrator, task: "add an index to speed up the slow orders query",
      include: [knowledge-work-data/sql-queries]}
   - {id: dba-slow, role: database-administrator, task: "the orders database is slow since yesterday",

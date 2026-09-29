@@ -132,7 +132,7 @@ skills:
     roles: {security-engineer: 0.6, backend-developer: 0.5, fullstack-developer: 0.4, cloud-engineer: 0.4}
     alternatives: [claude-code-builtin/security-review]
     task_size: [small, medium, large]
-    triggers: [security, owasp, auth, login, vulnerability, hardening]
+    triggers: [security, owasp, auth, login, vulnerability, hardening, harden, csrf, xss, secrets]
   - name: git-workflow-and-versioning
     description: Atomic commits, branches and worktrees, conflict resolution, pull requests and semantic versioning
     phases: [build, release]
