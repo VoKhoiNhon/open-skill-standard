@@ -198,3 +198,9 @@ def test_lint_installed_report(capsys):
 
 def test_doctor_reports_skill_health(capsys):
     assert "skill health:" in run(capsys, "doctor")[1]
+
+
+def test_eval_routing_command(capsys):
+    code = cli.main(["eval", "routing"])
+    out = capsys.readouterr().out
+    assert code == 0 and "passed (100%)" in out and "data-engineer" in out
