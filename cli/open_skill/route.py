@@ -45,6 +45,12 @@ def _matched(text: str, keywords: list[str]) -> list[str]:
     return [k for k in keywords if _positions(text, [k])]
 
 
+def fit(prior: float, s: float) -> float:
+    """How well a skill fits a phase of this task, from its role prior and its text relevance s (BM25, >= 0).
+    Text relevance saturates (1 + 3s/(s+4), at most 4x), so strong text matches help but cannot outweigh the role."""
+    return prior * (1 + 3 * s / (s + 4))
+
+
 def _phase_order(tax) -> list[str]:
     return [p["id"] for p in tax["phases"]]
 
@@ -205,12 +211,11 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                 continue
             prior, note = role_prior(sid, phase, manifest)
             s = hits.get(sid, 0.0)
-            rel = 1 + 3 * s / (s + 4)  # saturating: strong text matches help, but cannot outweigh role and phase
             personal = weights.get(sid, 0.0)
             native = bool(manifest and proj["native"] and manifest["source"] == proj["native"])
             flow = bool(manifest and set(manifest.get("consumes", [])) & available)
-            score = rel * prior * (1 + personal) * (INFERRED_FACTOR if inst.inferred else 1.0) * (FLOW_BONUS if flow else 1.0)
-            why = [f"phase {phase}", f"role prior {prior:.2f}" + (f" ({note})" if note else ""), f"text {rel:.2f}"]
+            score = fit(prior, s) * (1 + personal) * (INFERRED_FACTOR if inst.inferred else 1.0) * (FLOW_BONUS if flow else 1.0)
+            why = [f"phase {phase}", f"role prior {prior:.2f}" + (f" ({note})" if note else ""), f"text {fit(1.0, s):.2f}"]
             if personal:
                 why.append(f"your history {personal:+.2f}")
             if native:
