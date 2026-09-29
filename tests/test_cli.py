@@ -139,3 +139,15 @@ def test_seeds_sync_command(capsys, tmp_path):
     code, out = run(capsys, "seeds", "sync", "--dry-run")
     assert code == 0 and "up to date" in out
 
+
+def test_seeds_review_commands(capsys, tmp_path):
+    from open_skill import knowledge
+    knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "n", "text": "Old."}]})
+    p = next((tmp_path / "h" / "knowledge").glob("*.md"))
+    p.write_text(p.read_text().replace("Old.", "Mine."))
+    knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "n", "text": "New."}]})
+    code, out = run(capsys, "seeds", "diff")
+    assert code == 0 and "-Mine." in out and "+New." in out
+    code, out = run(capsys, "seeds", "keep", "data-engineer/n")
+    assert "kept your version" in out
+    assert "no seed updates waiting" in run(capsys, "seeds", "accept")[1]
