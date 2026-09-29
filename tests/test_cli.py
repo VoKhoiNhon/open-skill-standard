@@ -247,3 +247,11 @@ def test_eval_triggers_agent_needs_claude(capsys, monkeypatch):
     monkeypatch.setattr(shutil, "which", lambda name: None)
     assert cli.main(["eval", "triggers", "--agent", "claude"]) == 2
     assert "claude CLI is not on PATH" in capsys.readouterr().err
+
+
+def test_scan_agent_filter_and_unknown_agent(capsys):
+    code, out = run(capsys, "scan", "--agent", "codex")
+    assert code == 0 and "test-driven-development" in out and "superpowers:" not in out
+    code, out = run(capsys, "scan")
+    assert "claude-code,codex" in out  # agents column
+    assert run(capsys, "scan", "--agent", "nope")[0] == 2
