@@ -1,0 +1,126 @@
+# Held-out routing evals: paraphrased, messy requests as people actually type them, in English and Vietnamese
+# with and without accents. Same format as routing.yaml (see its header).
+#
+# DO NOT TUNE AGAINST THESE CASES ONE BY ONE. They measure whether routing generalizes beyond the cases the
+# weights and keywords were tuned on. Do not add keywords, weights or role-pack entries to make a single case
+# pass, and do not edit a case's labels to match what the router does. Improve routing using routing.yaml and
+# your own examples, then read the holdout score to see whether the change generalized. CI only enforces a floor
+# just below the measured score (tests/test_evals.py), so a drop fails but a single case never becomes a target.
+#
+# Labels say what a good router should do, not what this one does today; several cases fail by design.
+cases:
+  # Bugs and regressions described by their symptom, often without a "bug" or "error" word.
+  - {id: fe-export-500, role: frontend-developer, task: "the export endpoint is failing with a 500 error",
+     first: superpowers/systematic-debugging}
+  - {id: fe-invoice-returns-nothing, role: frontend-developer,
+     task: "customers say invoice export returns nothing since yesterday", first_phase: operate}
+  - {id: fe-vi-invoice-error, role: frontend-developer, task: "xuất hóa đơn ra CSV đang bị lỗi", first_phase: operate}
+  - {id: fe-vi-noaccent-invoice-error, role: frontend-developer, task: "xuat hoa don ra CSV bi loi", first_phase: operate}
+  - {id: fe-nightly-job-slower, role: frontend-developer, task: "why is the nightly orders job 3x slower than last week?",
+     first_phase: operate}
+  - {id: be-orders-api-times-out, role: backend-developer, task: "orders API times out for our biggest customers",
+     first: superpowers/systematic-debugging}
+  - {id: be-vi-noaccent-not-running, role: backend-developer, task: "api dat hang khong chay tu sang nay",
+     first_phase: operate}
+  - {id: fs-vi-checkout-slow, role: fullstack-developer, task: "trang thanh toán chậm hẳn từ sau lần deploy hôm qua",
+     first_phase: operate}
+  - {id: de-sunday-no-rows, role: data-engineer, task: "the daily revenue table has no rows for Sunday",
+     first_phase: operate}
+  - {id: de-vi-pipeline-slower, role: data-engineer, task: "pipeline doanh thu dạo này chạy chậm gấp đôi",
+     first_phase: operate}
+  - {id: de-vi-noaccent-missing-data, role: data-engineer, task: "bang doanh thu bi thieu du lieu ngay hom qua",
+     first_phase: operate}
+  - {id: sre-p99-doubled, role: site-reliability-engineer, task: "p99 latency doubled after the last deploy",
+     first_phase: operate}
+  - {id: sre-pods-restarting, role: site-reliability-engineer, task: "pods keep restarting in staging, no idea why",
+     first_phase: operate}
+  - {id: devops-ci-stopped-working, role: devops-engineer, task: "the CI build stopped working after the node upgrade",
+     first_phase: operate}
+  - {id: mobile-push-no-longer-arrives, role: mobile-developer, task: "push notifications no longer arrive on iOS",
+     first: superpowers/systematic-debugging}
+  - {id: mobile-vi-noaccent-crash, role: mobile-developer, task: "app bi vang khi mo camera", first_phase: operate}
+  - {id: game-vi-lag, role: game-developer, task: "chơi được vài phút là game giật lag", first_phase: operate}
+  - {id: embedded-vi-noaccent-hang, role: embedded-engineer, task: "thiet bi bi treo sau khi cap nhat firmware",
+     first: superpowers/systematic-debugging}
+  - {id: qa-flaky-suite, role: qa-engineer, task: "the checkout suite has been flaky all week", first_phase: operate}
+  - {id: sec-password-spraying, role: security-engineer,
+     task: "someone is hitting the login endpoint with thousands of password attempts", first_phase: operate}
+  - {id: dba-slower-after-index, role: database-administrator,
+     task: "queries on the orders table got much slower after the index change", first_phase: operate}
+  - {id: ml-accuracy-dropped, role: ml-engineer, task: "model accuracy dropped since the last retrain",
+     first_phase: operate}
+  - {id: ai-wrong-language, role: ai-engineer, task: "the chatbot started answering in English instead of Vietnamese",
+     first_phase: operate}
+
+  # Design and UX asks: a design skill should be in the chain, not only a generic build workflow.
+  - {id: fe-dashboard-cluttered, role: frontend-developer, task: "make the dashboard feel less cluttered",
+     include_any: [anthropic-skills/frontend-design, taste-skill/taste-skill, taste-skill/redesign-skill,
+                   taste-skill/minimalist-skill, knowledge-work-design/design-critique]}
+  - {id: ux-onboarding-confusing, role: ux-designer, task: "the onboarding flow feels confusing, can you tidy it up",
+     include_any: [anthropic-skills/frontend-design, taste-skill/taste-skill, taste-skill/redesign-skill,
+                   knowledge-work-design/design-critique, bmad-method/bmad-ux]}
+  - {id: fe-vi-homepage-modern, role: frontend-developer, task: "làm lại giao diện trang chủ cho hiện đại hơn",
+     include_any: [anthropic-skills/frontend-design, taste-skill/taste-skill, taste-skill/redesign-skill]}
+  - {id: fe-vi-noaccent-homepage-tidy, role: frontend-developer, task: "lam lai giao dien trang chu cho gon hon",
+     include_any: [anthropic-skills/frontend-design, taste-skill/taste-skill, taste-skill/redesign-skill,
+                   taste-skill/minimalist-skill]}
+
+  # Small changes: do them directly.
+  - {id: fe-rename-no-plan, role: frontend-developer, task: "don't write a plan, just quickly rename foo to bar",
+     advice: do directly}
+  - {id: be-bump-lodash, role: backend-developer, task: "bump lodash to the latest patch, nothing else",
+     advice: do directly}
+  - {id: fs-vi-typo-footer, role: fullstack-developer, task: "sửa nhanh lỗi chính tả ở footer", advice: do directly}
+  - {id: fs-vi-noaccent-rename, role: fullstack-developer, task: "doi ten bien total thanh grand_total",
+     advice: do directly}
+
+  # Ideas, research and planning.
+  - {id: tl-rest-to-grpc, role: tech-lead, task: "should we migrate from REST to gRPC?",
+     first: superpowers/brainstorming}
+  - {id: pm-share-carts, role: product-manager, task: "what if we let users share carts with friends?",
+     first_phase: discover}
+  - {id: pm-vi-noaccent-loyalty, role: product-manager, task: "co nen them tinh nang tich diem khong?",
+     first_phase: discover}
+  - {id: arch-kafka-or-rabbit, role: software-architect, task: "Kafka or RabbitMQ for order events, which fits us better?",
+     first_phase: research}
+  - {id: ds-vi-prophet-arima, role: data-scientist, task: "tìm hiểu xem nên dùng Prophet hay ARIMA cho dự báo doanh số",
+     first_phase: research}
+  - {id: be-vi-noaccent-redis, role: backend-developer, task: "tim hieu cach dung Redis Streams cho hang doi",
+     first_phase: research}
+  - {id: em-billing-chunks, role: engineering-manager, task: "break the billing rewrite into two-week chunks for the team",
+     first_phase: plan}
+  - {id: tl-rough-plan-auth, role: tech-lead, task: "we need a rough plan before anyone touches the auth module",
+     first_phase: plan}
+
+  # Reviews.
+  - {id: be-look-over-pr, role: backend-developer, task: "can you look over my PR before I merge it",
+     first_phase: review}
+  - {id: sec-vi-noaccent-review, role: security-engineer, task: "ra soat bao mat module thanh toan", first_phase: review}
+  - {id: ux-mockup-feedback, role: ux-designer, task: "give feedback on these checkout mockups",
+     include_any: [knowledge-work-design/design-critique, knowledge-work-design/accessibility-review]}
+
+  # Releases and lessons.
+  - {id: devops-ship-tonight, role: devops-engineer, task: "push the new version to production tonight",
+     last_phase: release}
+  - {id: tw-vi-release-notes, role: technical-writer, task: "viết release notes cho bản 2.3",
+     include_any: [anthropic-skills/doc-coauthoring, knowledge-work-engineering/documentation,
+                   addy-agent-skills/documentation-and-adrs]}
+  - {id: sre-write-up-outage, role: site-reliability-engineer,
+     task: "write up what went wrong with Tuesday's outage so it doesn't happen again", first_phase: learn}
+  - {id: sm-vi-noaccent-retro, role: scrum-master, task: "tong ket rut kinh nghiem sprint vua roi", first_phase: learn}
+
+  # New work of different sizes.
+  - {id: be-vi-noaccent-warehouse-system, role: backend-developer, task: "xay dung he thong quan ly kho tu dau",
+     first_phase: specify}
+  - {id: be-loyalty-app-from-nothing, role: backend-developer, task: "we're starting a loyalty app from nothing",
+     first_phase: specify}
+  - {id: de-vi-noaccent-orders-pipeline, role: data-engineer, task: "them pipeline nap du lieu don hang vao kho",
+     first: superpowers/writing-plans}
+  - {id: fs-profile-photo, role: fullstack-developer, task: "let users upload a profile photo",
+     include: [superpowers/subagent-driven-development]}
+
+  # Checking work.
+  - {id: qa-vi-noaccent-signup-safari, role: qa-engineer, task: "kiem thu luong dang ky tren Safari",
+     first_phase: verify}
+  - {id: da-double-check-churn, role: data-analyst,
+     task: "double-check these churn numbers against last month's report", first_phase: verify}

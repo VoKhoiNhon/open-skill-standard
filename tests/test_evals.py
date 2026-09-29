@@ -196,3 +196,14 @@ def test_first_phase_and_include_any_assertions():
                            "include_any": ["superpowers/systematic-debugging", "nope/nope"]}, REG, ALL) == []
     fails = evals.run_case({**case, "first_phase": "plan", "include_any": ["nope/a", "nope/b"]}, REG, ALL)
     assert any("first phase should be plan" in f for f in fails) and any("one of nope/a, nope/b" in f for f in fails)
+
+
+HOLDOUT_PATH = ROOT / "evals" / "routing-holdout.yaml"
+
+
+def test_routing_holdout_is_separate_from_the_tuned_cases():
+    holdout = evals.load_routing_cases(HOLDOUT_PATH)
+    assert len(holdout) >= 40 and "DO NOT TUNE" in HOLDOUT_PATH.read_text()
+    assert len({c["id"] for c in holdout}) == len(holdout)
+    assert not {c["id"] for c in holdout} & {c["id"] for c in CASES}
+    assert not {(c["role"], c["task"]) for c in holdout} & {(c.get("role"), c["task"]) for c in CASES}
