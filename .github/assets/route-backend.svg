@@ -17,7 +17,7 @@
 <text x="20" y="228" fill="#8b949e" textLength="435" lengthAdjust="spacingAndGlyphs">   runner-ups: knowledge-work-engineering/architecture 0.7</text>
 <text x="20" y="246" fill="#79c0ff" textLength="697.5" lengthAdjust="spacingAndGlyphs">2. [build] superpowers:subagent-driven-development  score=2.5  — phase build; role prior 2.00</text>
 <text x="20" y="264" fill="#79c0ff" textLength="442.5" lengthAdjust="spacingAndGlyphs">  (primary for backend-developer); text 1.00; consumes plan</text>
-<text x="20" y="282" fill="#8b949e" textLength="630" lengthAdjust="spacingAndGlyphs">   runner-ups: superpowers/test-driven-development 2.0, anthropic-skills/xlsx 0.949,</text>
+<text x="20" y="282" fill="#8b949e" textLength="630" lengthAdjust="spacingAndGlyphs">   runner-ups: superpowers/test-driven-development 2.0, anthropic-skills/xlsx 0.943,</text>
 <text x="20" y="300" fill="#8b949e" textLength="285" lengthAdjust="spacingAndGlyphs">     superpowers/executing-plans 0.875</text>
 <text x="20" y="318" fill="#79c0ff" textLength="750" lengthAdjust="spacingAndGlyphs">3. [verify] superpowers:test-driven-development  score=2.0  — phase verify; role prior 2.00 (primary</text>
 <text x="20" y="336" fill="#79c0ff" textLength="262.5" lengthAdjust="spacingAndGlyphs">  for backend-developer); text 1.00</text>

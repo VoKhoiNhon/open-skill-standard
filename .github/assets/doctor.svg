@@ -8,7 +8,7 @@
 <text x="20" y="66" fill="#c9d1d9" textLength="427.5" lengthAdjust="spacingAndGlyphs">open-skill X.Y.Z  registry=&lt;checkout&gt;  home=~/.open-skill</text>
 <text x="20" y="84" fill="#c9d1d9" textLength="397.5" lengthAdjust="spacingAndGlyphs">  agents: claude-code (78 skills) → open-skill agents</text>
 <text x="20" y="102" fill="#e3b341" textLength="727.5" lengthAdjust="spacingAndGlyphs">  · addy-agent-skills        0 installed / 25 described  → npx skills add addyosmani/agent-skills</text>
-<text x="20" y="120" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ anthropic-skills         4 installed / 19 described</text>
+<text x="20" y="120" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ anthropic-skills        19 installed / 19 described</text>
 <text x="20" y="138" fill="#e3b341" textLength="742.5" lengthAdjust="spacingAndGlyphs">  · bmad-method              0 installed / 30 described  → npx skills add bmad-code-org/BMAD-METHOD</text>
 <text x="20" y="156" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ claude-code-builtin     10 installed / 10 described</text>
 <text x="20" y="174" fill="#e3b341" textLength="697.5" lengthAdjust="spacingAndGlyphs">  · codegraph                0 installed / 3 described  → npm i -g @colbymchenry/codegraph &amp;&amp;</text>
@@ -28,10 +28,10 @@
 <text x="20" y="426" fill="#e3b341" textLength="547.5" lengthAdjust="spacingAndGlyphs">  · taste-skill              0 installed / 13 described  → npx skills add</text>
 <text x="20" y="444" fill="#e3b341" textLength="322.5" lengthAdjust="spacingAndGlyphs">    https://github.com/Leonxlnx/taste-skill</text>
 <text x="20" y="462" fill="#e3b341" textLength="727.5" lengthAdjust="spacingAndGlyphs">  · vercel-agent-skills      0 installed / 9 described  → npx skills add vercel-labs/agent-skills</text>
-<text x="20" y="480" fill="#c9d1d9" textLength="217.5" lengthAdjust="spacingAndGlyphs">  harvested (no manifest): 15</text>
+<text x="20" y="480" fill="#c9d1d9" textLength="210" lengthAdjust="spacingAndGlyphs">  harvested (no manifest): 0</text>
 <text x="20" y="498" fill="#c9d1d9" textLength="705" lengthAdjust="spacingAndGlyphs">  skill health: 1 error(s), 0 warning(s) across installed skills → open-skill lint --installed</text>
 <text x="20" y="516" fill="#c9d1d9" textLength="630" lengthAdjust="spacingAndGlyphs">  security audit (heuristic): 0 high, 0 medium, 0 low → open-skill audit --installed</text>
-<text x="20" y="534" fill="#e3b341" textLength="600" lengthAdjust="spacingAndGlyphs">  ! same skill name from several sources: claude-api, document-skills:claude-api</text>
+<text x="20" y="534" fill="#e3b341" textLength="562.5" lengthAdjust="spacingAndGlyphs">  ! same skill name from several sources: claude-api, claude-api:claude-api</text>
 <text x="20" y="552" fill="#e3b341" textLength="585" lengthAdjust="spacingAndGlyphs">  ! same skill name from several sources: code-review, engineering:code-review</text>
 <text x="20" y="570" fill="#e3b341" textLength="270" lengthAdjust="spacingAndGlyphs">  · no profile yet → open-skill init</text>
 </svg>

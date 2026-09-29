@@ -293,8 +293,9 @@ def _fixture_machine(tmp: Path, reg) -> dict:
     home = tmp / "home"
     for src in FIXTURE_SOURCES:
         adapter = reg.adapters[src]
-        rule = next(r["glob"] for r in adapter["detect"] if "plugins/cache" in r["glob"] or r["glob"].startswith("{skills}"))
-        for s in adapter["skills"]:
+        for s in adapter["skills"]:  # the first plugin or user-folder rule that claims the skill
+            rule = next(r["glob"] for r in adapter["detect"] if ("plugins/cache" in r["glob"] or r["glob"].startswith(
+                "{skills}")) and s["name"] in r.get("names", [s["name"]]))
             path = rule.replace("{skills}", "~/.claude/skills").replace("{name}", s["name"])
             path = path.replace("/cache/*/", "/cache/fixture/").replace("/*/skills/", "/1.0.0/skills/")
             skill = home / path[2:]
