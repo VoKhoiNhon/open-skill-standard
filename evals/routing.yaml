@@ -163,6 +163,12 @@ cases:
      phases: [verify], include: [knowledge-work-data/validate-data]}
   - {id: data-scientist, role: data-scientist, task: "build a churn prediction model",
      include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
+  - {id: data-scientist-validate, role: data-scientist, task: "validate the churn model before launch",
+     phases: [verify], include: [knowledge-work-data/validate-data]}
+  - {id: data-scientist-research, role: data-scientist, task: "research uplift modeling approaches to compare",
+     phases: [research], exclude: [superpowers/subagent-driven-development]}
+  - {id: data-scientist-vietnamese, role: data-scientist, task: "xây mô hình dự báo nhu cầu",
+     include: [knowledge-work-data/statistical-analysis, knowledge-work-data/validate-data]}
   - {id: ml-engineer, role: ml-engineer, task: "deploy the churn model with drift monitoring",
      include: [knowledge-work-engineering/deploy-checklist]}
   - {id: ml-latency, role: ml-engineer, task: "the model latency is slow in production",
