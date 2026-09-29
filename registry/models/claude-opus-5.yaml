@@ -1,0 +1,13 @@
+id: claude-opus-5
+match: ["claude-opus-5", "claude-opus-5-20*"]
+family: opus
+inherits: generic
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5
+verified: "2026-09-29"
+traits: {self_verifies: true, subagent_eagerness: high, verbose_responses: true, literal_review_filters: true}
+effort: {small: low, medium: medium, large: xhigh}
+addenda:
+  - "Deliver what was asked at the intended scope; if a better approach exists, say so in a sentence and continue as asked."
+  - "Delegate to subagents only for large, independent work; do not use them to re-check your own work."
+  - "Lead the final message with the outcome, then supporting detail."
+avoid: [explicit_double_check, review_severity_filter, reasoning_in_response]

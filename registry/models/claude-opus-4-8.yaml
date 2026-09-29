@@ -1,0 +1,9 @@
+id: claude-opus-4-8
+match: ["claude-opus-4-8*"]
+family: opus
+inherits: generic
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8
+verified: false
+notes: Only the guide's summary was reviewed (response length, effort, tool triggering, literal instructions, subagents, frontend defaults).
+traits: {literal_instructions: true}
+avoid: [review_severity_filter]

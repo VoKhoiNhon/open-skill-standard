@@ -1,0 +1,13 @@
+id: claude-opus-5-5
+match: ["claude-opus-5-5*", "opus"]
+family: opus
+inherits: claude-opus-5
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5
+verified: "2026-09-29"
+notes: Effort names are recalibrated; medium here roughly matches high on Opus 5.
+traits: {early_stop_unattended: true}
+effort: {small: low, medium: medium, large: high}
+addenda:
+  - "Keep the task checklist current; while items remain open and nothing blocks them, continue instead of ending on a summary."
+  - "In tasks that span several sources, look through the relevant ones, including those the task does not name, before acting."
+avoid: [thinking_instructions_in_chat]

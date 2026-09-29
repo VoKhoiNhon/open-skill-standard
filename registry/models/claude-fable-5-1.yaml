@@ -1,0 +1,11 @@
+id: claude-fable-5-1
+match: ["claude-fable-5-1*", "claude-mythos-5-1*", "fable"]
+family: fable
+inherits: claude-fable-5
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1
+verified: "2026-09-29"
+traits: {low_effort_skips_search: true, less_formatting: true, serial_tool_calls_in_loops: true}
+addenda:
+  - "Request every tool call that does not depend on another's result in the same turn."
+  - "For names from fast-moving areas, search before answering, even at low effort."
+avoid: [anti_formatting_rules]
