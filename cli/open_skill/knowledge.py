@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from . import frontmatter, paths
+from . import frontmatter, paths, userdata
 
 HALF_LIFE_DAYS = 90
 WEIGHT_RANGE = (-0.9, 2.0)
@@ -52,7 +52,7 @@ def _node_id(text: str) -> str:
 
 def _write(meta: dict, text: str) -> None:
     body = "---\n" + yaml.safe_dump(meta, sort_keys=False, allow_unicode=True) + "---\n" + text.strip() + "\n"
-    (_kdir() / f"{meta['id']}.md").write_text(body)
+    userdata.atomic_write(_kdir() / f"{meta['id']}.md", body)
 
 
 def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool = False, source: str = "user") -> str:
@@ -93,7 +93,7 @@ def load_knowledge() -> list[dict]:
 def init(profile: dict, seeds: dict[str, list[str]]) -> Path:
     """Write profile.yaml and copy the seeds of the chosen roles into knowledge/."""
     home().mkdir(parents=True, exist_ok=True)
-    (home() / "profile.yaml").write_text(yaml.safe_dump(profile, sort_keys=False, allow_unicode=True))
+    userdata.atomic_write(home() / "profile.yaml", yaml.safe_dump(profile, sort_keys=False, allow_unicode=True))
     for role in profile.get("roles", {}):
         for s in seeds.get(role, []):
             learn(s, [f"role:{role}"], type_="pitfall", source="seed")
