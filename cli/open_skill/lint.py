@@ -14,6 +14,7 @@ SONNET5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineer
 SPEC = "https://agentskills.io/specification"
 SKILLS_REF = "https://github.com/agentskills/agentskills/blob/main/skills-ref/src/skills_ref/validator.py"
 QUICK_VALIDATE = "https://github.com/anthropics/skills/blob/main/skills/skill-creator/scripts/quick_validate.py"
+OSS_SPEC = "https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md#7-skill-writing-rules"
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
 
 PATTERNS = [
@@ -25,8 +26,8 @@ PATTERNS = [
      re.compile(r"(?i)\b(double[- ]check your|re-?verify (your|before)|verify (it|your work) again)"),
      "Current models self-verify; extra verification instructions cause over-verification.", OPUS5),
     ("hardcoded-model", "warning",
-     re.compile(r"(?i)\bclaude-(opus|sonnet|haiku|fable|mythos)-\d"),
-     "Model IDs belong in registry/models profiles, not in skills.", PRACTICES),
+     re.compile(r"(?i)\bclaude-((opus|sonnet|haiku|fable|mythos)-\d|\d(-\d+)?-(opus|sonnet|haiku)\b)"),
+     "Model IDs belong in registry/models profiles, not in skills, so a skill keeps working on the next model.", OSS_SPEC),
     ("legacy-params", "error",
      re.compile(r"(?i)\b(budget_tokens|prefill(ed)? (the )?(assistant|response))"),
      "Manual thinking budgets (budget_tokens) and assistant prefills return a 400 error on current models.", PRACTICES),

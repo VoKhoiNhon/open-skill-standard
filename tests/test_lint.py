@@ -311,3 +311,19 @@ def test_removed_api_parameters(body, rule):
 ])
 def test_sampling_params_ignore_mentions_without_a_value(body):
     assert "sampling-params" not in rules(doc(body))
+
+
+@pytest.mark.parametrize("body,fires", [
+    ("Use claude-opus-5-5 for planning.", True),
+    ("model: claude-3-5-sonnet-20241022", True),      # dated ids put the version first
+    ("anthropic.claude-3-haiku-20240307-v1:0 on Bedrock", True),
+    ("Install claude-code, then read claude-api docs and CLAUDE.md.", False),
+    ("Works on any Claude model.", False),
+])
+def test_hardcoded_model_ids(body, fires):
+    assert ("hardcoded-model" in rules(doc(body))) is fires
+
+
+def test_hardcoded_model_cites_this_standard():
+    (f,) = [f for f in lint.lint_text(doc("Use claude-opus-5.")) if f.rule == "hardcoded-model"]
+    assert "open-skill-standard" in f.source and "SPEC.md" in f.source
