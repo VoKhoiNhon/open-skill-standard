@@ -59,3 +59,18 @@ def test_wrap_keeps_every_line_within_the_terminal_width():
     assert len(parts) > 1 and all(len(p) <= ra.COLS for p in parts)
     assert all(p.startswith("     ") for p in parts[1:])
     assert " ".join(p.strip() for p in parts) == long.strip()
+
+
+def test_browser_comes_from_CHROME_first(tmp_path, monkeypatch):
+    fake = tmp_path / "my-chromium"
+    fake.write_text("")
+    monkeypatch.setenv("CHROME", str(fake))
+    assert ra._browser() == str(fake)
+    monkeypatch.setenv("CHROME", "")
+    monkeypatch.setattr(ra, "BROWSERS", [str(tmp_path / "missing")])
+    monkeypatch.setattr(ra.shutil, "which", lambda _: None)
+    assert ra._browser() is None
+
+
+def test_screenshots_are_not_part_of_check():
+    assert not [n for n in ra.render() if n.endswith(".png")]
