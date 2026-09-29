@@ -30,3 +30,14 @@ def test_router_manual_path_follows_the_playbooks_build_window():
     skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text()
     manual = skill.split("## Without the CLI")[1]
     assert "Build tasks for this role walk" in manual and "done directly" in manual
+
+
+# Letters only Vietnamese uses, plain and with tone marks; enough to spot Vietnamese text in files meant to be English.
+VIETNAMESE = re.compile("[ăâđêôơưĂÂĐÊÔƠƯ]|[aeiouy][̣̀́̃̉]|[ạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]", re.I)
+
+
+def test_skills_are_english_only():
+    """Vietnamese requests find the skills through the registry's vi blocks (SPEC §3.1), not their text."""
+    found = [f"{p.relative_to(REPO)}:{n}" for p in sorted((REPO / "skills").rglob("*.md"))
+             for n, line in enumerate(p.read_text().splitlines(), 1) if VIETNAMESE.search(line)]
+    assert not found, found
