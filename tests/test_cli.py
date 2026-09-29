@@ -405,3 +405,13 @@ def test_search_agent_counts_only_that_agents_skills_as_installed(capsys):
     assert "harvested/my-internal-skill" not in out  # only in ~/.claude/skills
     assert "harvested/my-internal-skill" in run(capsys, "search", "--installed", "--source", "harvested")[1]
     assert run(capsys, "search", "x", "--agent", "nope")[0] == 2
+
+
+def test_route_phase_flag(capsys, tmp_path):
+    (tmp_path / "p").mkdir()
+    base = ("route", "customers say the export returns nothing", "--project", str(tmp_path / "p"), "--no-record")
+    code, out = run(capsys, *base, "--phase", "operate")
+    assert code == 0 and json.loads(out)["target_phase"] == "operate" and json.loads(out)["phase_from"] == "given"
+    code, out = run(capsys, *base, "--phase", "operate", "--explain")
+    assert "target operate: given by the caller" in out
+    assert run(capsys, *base, "--phase", "deploy")[0] == 2

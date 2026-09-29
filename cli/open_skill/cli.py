@@ -223,8 +223,9 @@ def _explain(r) -> str:
     d = r.get("decisions")
     if d:
         ph, sz = d["phase"], d["size"]
-        lines.append(f"target {ph['target']} from phase keywords: {', '.join(ph['keywords'])}" if ph["keywords"]
-                     else f"target {ph['target']}: no phase keywords, the default")
+        lines.append({"given": f"target {ph['target']}: given by the caller",
+                      "keywords": f"target {ph['target']} from phase keywords: {', '.join(ph['keywords'])}",
+                      "guessed": f"target {ph['target']}: no phase keywords, the default"}[ph["from"]])
         lines.append({"given": f"size {sz['size']}: given",
                       "keywords": f"size {sz['size']} from size keywords: {', '.join(sz['keywords'])}",
                       "default": f"size {sz['size']}: no size keywords, the default"}[sz["from"]])
@@ -254,7 +255,7 @@ def _explain(r) -> str:
 def _why_not(args, reg, proj, installed) -> int:
     sid = next((i.id for i in installed if i.invoke == args.why_not), args.why_not)
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
-                    record=False, decisions=True)
+                    record=False, decisions=True, phase=args.phase)
     try:
         w = route.why_not(r, sid, reg, installed)
     except KeyError:
@@ -273,12 +274,16 @@ def cmd_route(args):
     reg = _registry(args)
     if args.agent and _agent_arg(reg, args.agent) is None:
         return 2
+    phases = [p["id"] for p in reg.taxonomy["phases"]]
+    if args.phase and args.phase not in phases:
+        print(f"unknown phase: {args.phase} (one of: {', '.join(phases)})", file=sys.stderr)
+        return 2
     proj = Path(args.project or ".")
     installed = scan.scan(reg, proj, agent=args.agent)
     if args.why_not:
         return _why_not(args, reg, proj, installed)
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
-                    record=not args.no_record, decisions=args.explain, agent=args.agent)
+                    record=not args.no_record, decisions=args.explain, agent=args.agent, phase=args.phase)
     _print(_explain(r) if args.explain else r, as_json=not args.explain)
     return 0
 
@@ -655,6 +660,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--project")
     s.add_argument("--role")
     s.add_argument("--size", choices=["small", "medium", "large"])
+    s.add_argument("--phase", help="target phase (a taxonomy phase id) when you know it; skips keyword detection")
     s.add_argument("--model")
     s.add_argument("--explain", action="store_true")
     s.add_argument("--no-record", action="store_true")
