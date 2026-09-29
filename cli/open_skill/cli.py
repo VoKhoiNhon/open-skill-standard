@@ -28,10 +28,14 @@ def cmd_validate(args):
 def cmd_lint(args):
     targets = args.paths or [str(paths.data_root() / "skills")]
     findings = lint.lint_paths(targets)
-    for f in findings:
-        print(f"{f.path}: [{f.rule}] {f.message} ({f.source})")
-    print(f"{len(findings)} finding(s)")
-    return 1 if findings else 0
+    errors = [f for f in findings if f.severity == "error"]
+    if args.format == "json":
+        _print([f.__dict__ for f in findings])
+    else:
+        for f in findings:
+            print(f"{f.path}: {f.severity} [{f.rule}] {f.message} ({f.source})")
+        print(f"{len(errors)} error(s), {len(findings) - len(errors)} warning(s)")
+    return 1 if errors or (args.strict and findings) else 0
 
 
 def cmd_scan(args):
@@ -341,8 +345,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("validate", help="check registry schemas and references").set_defaults(fn=cmd_validate)
-    s = sub.add_parser("lint", help="lint SKILL.md files")
+    s = sub.add_parser("lint", help="lint SKILL.md files against the Agent Skills spec and prompting guidance")
     s.add_argument("paths", nargs="*")
+    s.add_argument("--strict", action="store_true", help="fail on warnings too")
+    s.add_argument("--format", choices=["text", "json"], default="text")
     s.set_defaults(fn=cmd_lint)
     s = sub.add_parser("scan", help="list installed skills")
     s.add_argument("--project")

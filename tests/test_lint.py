@@ -42,3 +42,72 @@ def test_review_filter_only_applies_to_review_skills():
 def test_every_finding_cites_a_source():
     for f in lint.lint_text(doc("Double-check your work. Use budget_tokens.")):
         assert f.source.startswith("https://")
+
+
+def test_findings_carry_severity():
+    by_rule = {f.rule: f.severity for f in lint.lint_text(doc("Show your reasoning in the response. Double-check your answer."))}
+    assert by_rule == {"reasoning-in-response": "error", "redundant-verification": "warning"}
+
+
+@pytest.mark.parametrize("name", ["-pdf", "pdf-", "pdf--processing", "PDF-Processing", "pdf_processing"])
+def test_spec_name_rules(name):
+    assert "frontmatter-name" in rules(doc("x", name=name))
+
+
+def test_spec_name_accepts_valid_names():
+    for name in ["pdf-processing", "data-analysis", "code-review", "a1"]:
+        assert "frontmatter-name" not in rules(doc("x", name=name))
+
+
+def test_name_must_match_folder(tmp_path):
+    d = tmp_path / "pdf-tools"
+    d.mkdir()
+    (d / "SKILL.md").write_text(doc("x", name="pdf-processing"))
+    assert [f.rule for f in lint.lint_file(d / "SKILL.md")] == ["name-matches-folder"]
+    (d / "SKILL.md").write_text(doc("x", name="pdf-tools"))
+    assert lint.lint_file(d / "SKILL.md") == []
+
+
+def fm(extra: str, body: str = "x") -> str:
+    return f"---\nname: good-skill\ndescription: Does a thing.\n{extra}\n---\n{body}"
+
+
+@pytest.mark.parametrize("extra,rule", [
+    ("compatibility: ''", "field-compatibility"),
+    ("compatibility: " + "a" * 501, "field-compatibility"),
+    ("metadata:\n  version: 1.0", "field-metadata"),
+    ("metadata: [a, b]", "field-metadata"),
+    ("allowed-tools: [Read, Bash]", "field-allowed-tools"),
+    ("license: {name: MIT}", "field-license"),
+])
+def test_optional_field_rules(extra, rule):
+    assert rule in rules(fm(extra))
+
+
+def test_valid_optional_fields_pass():
+    extra = "license: Apache-2.0\ncompatibility: Requires git and uv\nmetadata:\n  author: example-org\n  version: \"1.0\"\nallowed-tools: Bash(git:*) Read"
+    assert rules(fm(extra)) == []
+
+
+def test_unknown_fields_warn_but_agent_extensions_do_not():
+    found = lint.lint_text(fm("descripton: typo\nwhen_to_use: when asked\nargument-hint: '[file]'"))
+    assert [(f.rule, f.severity) for f in found] == [("unknown-field", "warning")]
+    assert "descripton" in found[0].message
+
+
+def test_missing_references_are_errors(tmp_path):
+    d = tmp_path / "good-skill"
+    (d / "references").mkdir(parents=True)
+    (d / "references" / "guide.md").write_text("ok")
+    body = ("See [the guide](references/guide.md), [gone](references/gone.md), `scripts/run.py`, "
+            "[web](https://x.org/a), [anchor](#top), `references/roles/<role>.md`.")
+    (d / "SKILL.md").write_text(doc(body))
+    found = [(f.rule, f.message) for f in lint.lint_file(d / "SKILL.md")]
+    assert [r for r, _ in found] == ["missing-reference", "missing-reference"]
+    assert "references/gone.md" in found[0][1] and "scripts/run.py" in found[1][1]
+
+
+def test_long_body_warns_on_tokens():
+    found = lint.lint_text(doc("word " * 4200))
+    assert ("body-tokens", "warning") in [(f.rule, f.severity) for f in found]
+    assert "body-tokens" not in rules(doc("word " * 100))
