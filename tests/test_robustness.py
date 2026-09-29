@@ -108,3 +108,37 @@ def test_read_only_home_fails_writes_clearly_and_still_routes(home, read_only_ho
     out, err = capsys.readouterr()
     assert json.loads(out)["route_id"] and "not recorded" in err
     assert _snapshot(home) == read_only_home
+
+
+def _disk_full(*_a, **_k):
+    raise OSError(errno.ENOSPC, "No space left on device")
+
+
+def test_disk_full_while_saving_a_note_keeps_the_old_one(home, monkeypatch):
+    nid = knowledge.learn("Keep this.", ["role:*"])
+    before = _snapshot(home)
+    monkeypatch.setattr(os, "fsync", _disk_full)
+    with pytest.raises(OSError):
+        knowledge.learn("Keep this.", ["skill:x"])  # rewrites the same note with a wider scope
+    assert _snapshot(home) == before and nid
+
+
+def test_disk_full_during_a_backup_leaves_no_half_written_archive(home, monkeypatch):
+    # A partial zip stayed in backups/ under a final name, so `upgrade --rollback` would pick it as the newest.
+    import zipfile
+
+    knowledge.learn("One.", ["role:*"])
+    knowledge.learn("Two.", ["role:*"])
+    real = zipfile.ZipFile.write
+    calls = []
+
+    def write(self, *a, **k):
+        calls.append(a)
+        if len(calls) > 1:
+            _disk_full()
+        return real(self, *a, **k)
+
+    monkeypatch.setattr(zipfile.ZipFile, "write", write)
+    with pytest.raises(OSError):
+        userdata.backup(home, "pre-upgrade")
+    assert userdata.list_backups(home) == [] and list((home / "backups").iterdir()) == []

@@ -73,9 +73,15 @@ def backup(home: Path, label: str = "manual") -> Path | None:
         dest = home / BACKUP_DIR / f"{dt.datetime.now(dt.timezone.utc):%Y%m%dT%H%M%S%fZ}-{label}.zip"
         if not dest.exists():
             break
-    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in files:
-            z.write(p, p.relative_to(home).as_posix())
+    part = dest.with_name(f".{dest.name}.part")  # renamed once complete: backups/*.zip are always whole archives
+    try:
+        with zipfile.ZipFile(part, "w", zipfile.ZIP_DEFLATED) as z:
+            for p in files:
+                z.write(p, p.relative_to(home).as_posix())
+        os.replace(part, dest)
+    except BaseException:
+        part.unlink(missing_ok=True)
+        raise
     return dest
 
 
