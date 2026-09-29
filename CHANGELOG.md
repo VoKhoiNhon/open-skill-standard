@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Fixed
+- A model without its own profile falls back to the nearest profile of its family, the newest one not newer than the model (`claude-opus-5-1` → `claude-opus-5`; `claude-opus-4-7`, older than every profile, → `claude-opus-4-8`), instead of always the newest, whose effort names may be recalibrated; versions compare as numbers, not strings.
 - The privacy guard and wheel check ignore an inherited `GIT_DIR`, `GIT_WORK_TREE` and `GIT_INDEX_FILE`, so they read the folder they are given; under `git rebase --exec` or a hook, the privacy guard's tests used to run `git add` against the repository itself.
 
 ## [0.7.1] - 2026-09-29
