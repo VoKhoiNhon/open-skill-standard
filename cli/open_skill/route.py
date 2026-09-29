@@ -118,7 +118,7 @@ def _install_hint(skill: dict) -> str:
 
 
 def route(task: str, project_path: Path, reg, installed, role: str | None = None, size: str | None = None,
-          model: str | None = None, record: bool = True, decisions: bool = False) -> dict:
+          model: str | None = None, record: bool = True, decisions: bool = False, agent: str | None = None) -> dict:
     """decisions=True adds result["decisions"]: the phase window and the outcome of every candidate per phase."""
     tax = reg.taxonomy
     proj = project.inspect(Path(project_path), tax, reg.roles)
@@ -278,6 +278,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     result = {
         "route_id": rid,
         "task": task,
+        "agent": agent,
         "role": mix,
         "size": size,
         "target_phase": target,

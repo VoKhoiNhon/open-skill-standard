@@ -269,12 +269,14 @@ def _why_not(args, reg, proj, installed) -> int:
 
 def cmd_route(args):
     reg = _registry(args)
+    if args.agent and _agent_arg(reg, args.agent) is None:
+        return 2
     proj = Path(args.project or ".")
-    installed = scan.scan(reg, proj)
+    installed = scan.scan(reg, proj, agent=args.agent)
     if args.why_not:
         return _why_not(args, reg, proj, installed)
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
-                    record=not args.no_record, decisions=args.explain)
+                    record=not args.no_record, decisions=args.explain, agent=args.agent)
     _print(_explain(r) if args.explain else r, as_json=not args.explain)
     return 0
 
@@ -654,6 +656,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--explain", action="store_true")
     s.add_argument("--no-record", action="store_true")
     s.add_argument("--why-not", metavar="SKILL", help="explain why a skill (id or invoke name) is not in the chain")
+    s.add_argument("--agent", help="the agent you run in: route over the skills it sees, by the names it invokes them")
     s.set_defaults(fn=cmd_route)
     s = sub.add_parser("graph", help="export the skill graph")
     s.add_argument("--format", choices=["mermaid", "json", "html"], default="mermaid")
