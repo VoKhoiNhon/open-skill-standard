@@ -27,6 +27,8 @@ jobs:
         run: uv run open-skill validate
       - name: Lint skills (model-neutral prompting rules)
         run: uv run open-skill lint skills/ .claude-plugin/
+      - name: Security audit of this repository's skills
+        run: uv run open-skill audit skills/ .claude-plugin/ --strict
       - name: Generated files are up to date
         run: uv run open-skill build --check
       - name: One version everywhere
