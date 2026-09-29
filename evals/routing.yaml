@@ -334,3 +334,12 @@ cases:
   - {id: tl-project-context, role: tech-lead, task: "set up the AGENTS.md instructions for this repository", phase: learn, files: [_bmad/config.toml], include: [bmad-method/bmad-project-context]}
   - {id: tl-walkthrough, role: tech-lead, task: "guide me through a walkthrough of this commit", phase: review, files: [_bmad/config.toml], include: [bmad-method/bmad-walkthrough]}
   - {id: tl-receiving-review, role: tech-lead, task: "evaluate the review feedback on my pull request before acting on it", phase: review, include: [superpowers/receiving-code-review]}
+  - {id: ba-checklist, role: business-analyst, task: "generate a requirements quality checklist for the refund feature", phase: verify, size: large, files: [.specify/memory/constitution.md], include: [spec-kit/checklist]}
+  - {id: ba-analyze, role: business-analyst, task: "cross-check spec, plan and tasks for consistency before implementing", phase: verify, size: large, files: [.specify/memory/constitution.md, specs/001/spec.md], include: [spec-kit/analyze]}
+  - {id: pm-prfaq, role: product-manager, task: "write a working-backwards press release and FAQ for the new product", phase: discover, size: large, files: [_bmad/config.toml], include: [bmad-method/bmad-prfaq]}
+  - {id: pm-metrics-review, role: product-manager, task: "review this month's activation and retention metrics", phase: verify, include: [knowledge-work-product-management/metrics-review]}
+  - {id: tw-doc-coauthoring, role: technical-writer, task: "co-author the documentation proposal for the search API in a structured workflow", phase: specify, include: [anthropic-skills/doc-coauthoring]}
+  - {id: tw-ux-copy, role: technical-writer, task: "users are confused by the import screen error messages and empty states, rewrite that microcopy", phase: operate, include: [knowledge-work-design/ux-copy]}
+  - {id: ux-design-critique, role: ux-designer, task: "critique this mockup for hierarchy and consistency", phase: review, include: [knowledge-work-design/design-critique]}
+  - {id: ux-research-synthesis, role: ux-designer, task: "synthesize the usability test notes into themes and recommendations", phase: research, include: [knowledge-work-design/research-synthesis]}
+  - {id: sm-release-update, role: scrum-master, task: "send the stakeholders a status update on the sprint", phase: release, include: [knowledge-work-product-management/stakeholder-update]}
