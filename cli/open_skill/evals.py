@@ -154,3 +154,33 @@ def claude_runner(timeout: int = 180):
         return invoked_skills(out.stdout)
 
     return run
+
+
+def split_queries(queries: list[dict], train_share: float = 0.6) -> tuple[list[dict], list[dict]]:
+    """Stable train/validation split by query hash, stratified by label, so tuning cannot peek at validation."""
+    import hashlib
+
+    train, val = [], []
+    for label in (True, False):
+        group = sorted((q for q in queries if q["trigger"] is label), key=lambda q: hashlib.sha1(q["q"].encode()).hexdigest())
+        cut = round(len(group) * train_share)
+        train += group[:cut]
+        val += group[cut:]
+    return train, val
+
+
+def trigger_report_agent(sets: dict[str, list[dict]], runner, runs: int = 3, threshold: float = 0.5) -> dict[str, dict]:
+    """Run each query `runs` times; a skill counts as triggered when its invocation rate reaches `threshold`."""
+    report = {}
+    for skill, queries in sets.items():
+        rates = {}
+        for q in queries:
+            hits = sum(skill in runner(q["q"]) for _ in range(runs))
+            rates[q["q"]] = hits / runs
+        train, val = split_queries(queries)
+        report[skill] = {
+            "train": trigger_metrics(train, [rates[q["q"]] >= threshold for q in train]),
+            "validation": trigger_metrics(val, [rates[q["q"]] >= threshold for q in val]),
+            "rates": rates,
+        }
+    return report

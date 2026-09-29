@@ -83,3 +83,26 @@ def test_invoked_skills_parses_stream_json():
         "not json",
     ]
     assert evals.invoked_skills("\n".join(lines)) == {"open-skill-router"}
+
+
+def test_split_is_stable_and_stratified():
+    qs = [{"q": f"p{i}", "trigger": True} for i in range(10)] + [{"q": f"n{i}", "trigger": False} for i in range(10)]
+    train, val = evals.split_queries(qs)
+    assert len(train) == 12 and len(val) == 8
+    assert sum(q["trigger"] for q in train) == 6 and evals.split_queries(qs) == (train, val)
+
+
+def test_agent_report_uses_rates_and_threshold():
+    sets = {"s": [{"q": "yes", "trigger": True}, {"q": "no", "trigger": False}, {"q": "flaky", "trigger": True}]}
+    calls = {"flaky": 0}
+
+    def runner(q):
+        if q == "flaky":
+            calls["flaky"] += 1
+            return {"s"} if calls["flaky"] == 1 else set()  # fires 1 of 3 times: below 0.5
+        return {"s"} if q == "yes" else set()
+
+    rep = evals.trigger_report_agent(sets, runner, runs=3)
+    assert rep["s"]["rates"] == {"yes": 1.0, "no": 0.0, "flaky": 1 / 3}
+    both = rep["s"]["train"]["tp"] + rep["s"]["validation"]["tp"]
+    assert both == 1
