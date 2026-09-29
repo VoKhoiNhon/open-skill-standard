@@ -183,3 +183,20 @@ def test_findings_take_severity_from_the_rule_table(tmp_path):
     assert {f.rule for f in found} >= {"name-matches-folder", "missing-reference", "redundant-verification", "shouting"}
     for f in found:
         assert f.severity == lint.RULES[f.rule].severity, f.rule
+
+
+@pytest.mark.parametrize("text,why", [
+    ("no frontmatter at all\n", "start with"),
+    ("---\nname: good-skill\ndescription: x\n", "closing"),
+    ("---\nname: good-skill\ndescription: Dùng khi cần: kết nối dữ liệu\n---\nbody", "line 3"),  # unquoted ': '
+    ("---\n- a\n- b\n---\nbody", "mapping"),
+])
+def test_broken_frontmatter_is_named_instead_of_reporting_missing_fields(text, why):
+    found = lint.lint_text(text)
+    assert [f.rule for f in found] == ["frontmatter"]
+    assert why in found[0].message
+
+
+def test_quoted_colon_and_crlf_frontmatter_are_fine():
+    text = '---\r\nname: good-skill\r\ndescription: "Dùng khi cần: kết nối dữ liệu"\r\n---\r\nbody\r\n'
+    assert rules(text) == []

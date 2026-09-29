@@ -3,19 +3,29 @@
 import yaml
 
 
-def parse(text: str) -> tuple[dict, str]:
-    """Return (frontmatter, body). Malformed or missing frontmatter yields ({}, text)."""
+def split(text: str) -> tuple[dict, str]:
+    """Return (frontmatter, body), or raise ValueError saying what is wrong with the frontmatter."""
     norm = text.removeprefix("\ufeff").replace("\r\n", "\n")
     if not norm.startswith("---\n"):
-        return {}, text
+        raise ValueError("the file must start with a --- line and YAML frontmatter")
     end = norm.find("\n---", 3)  # from 3, so an empty block (---, ---) closes at once
     if end == -1:
-        return {}, text
+        raise ValueError("the frontmatter has no closing --- line")
     try:
         meta = yaml.safe_load(norm[4:end]) if end > 3 else {}
-    except yaml.YAMLError:
-        return {}, text
+    except yaml.YAMLError as e:
+        mark = getattr(e, "problem_mark", None)
+        where = f" at line {mark.line + 2}" if mark else ""  # +2: marks count from 0, after the opening ---
+        raise ValueError(f"the frontmatter is not valid YAML{where}: {getattr(e, 'problem', None) or e}"
+                         " (quote values that contain ': ')") from e
     if not isinstance(meta, dict):
+        raise ValueError("the frontmatter must be a YAML mapping of fields")
+    return meta, norm[end + 4 :].lstrip("\n")
+
+
+def parse(text: str) -> tuple[dict, str]:
+    """Return (frontmatter, body). Malformed or missing frontmatter yields ({}, text)."""
+    try:
+        return split(text)
+    except ValueError:
         return {}, text
-    body = norm[end + 4 :].lstrip("\n")
-    return meta, body

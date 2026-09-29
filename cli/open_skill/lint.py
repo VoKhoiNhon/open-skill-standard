@@ -56,6 +56,7 @@ def rule(id: str, severity: str, checks: str, source: str) -> None:
 
 
 MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+rule("frontmatter", "error", "SKILL.md starts with a closed block of YAML frontmatter that is a mapping", SPEC)
 rule("frontmatter-name", "error", "`name` is present, 1-64 lowercase letters, digits and single hyphens, and not 'claude' or 'anthropic'", BEST)
 rule("name-matches-folder", "error", "`name` equals the name of the folder holding SKILL.md", SPEC)
 rule("frontmatter-description", "error", "`description` is present, at most 1024 characters, with no angle brackets", BEST)
@@ -95,13 +96,7 @@ def _finding(path, rule_id: str, message: str, source: str | None = None) -> Fin
     return Finding(str(path), rule_id, message, source or r.source, r.severity)
 
 
-def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
-    out: list[Finding] = []
-    meta, body = frontmatter.parse(text)
-
-    def add(rule_id, msg, src=None):
-        out.append(_finding(path, rule_id, msg, src))
-
+def _check_fields(meta: dict, folder: str | None, add) -> None:
     name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
     if not name:
         add("frontmatter-name", "name is missing", BEST)
@@ -126,6 +121,22 @@ def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> lis
         add("field-allowed-tools", "allowed-tools should be one space-separated string", SPEC)
     if "license" in meta and not isinstance(meta["license"], str):
         add("field-license", "license should be a short string or the name of a bundled license file", SPEC)
+
+
+def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
+    out: list[Finding] = []
+
+    def add(rule_id, msg, src=None):
+        out.append(_finding(path, rule_id, msg, src))
+
+    try:
+        meta, body = frontmatter.split(text)
+    except ValueError as e:  # the field rules would only repeat "missing", so report the cause once
+        add("frontmatter", str(e))
+        meta, body = {}, text
+    else:
+        _check_fields(meta, folder, add)
+    name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
     if len(body) / 4 > 5000:  # rough token estimate; the spec recommends under 5000 tokens for instructions
         add("body-tokens", f"instructions are about {len(body) // 4} tokens; keep SKILL.md under ~5000 and move detail to references/", SPEC)
     if text.count("\n") + 1 > 500:
