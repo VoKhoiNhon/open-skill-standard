@@ -68,3 +68,11 @@ def test_compare_links_not_updated():
 def test_entries_left_under_unreleased():
     left = CHANGELOG.replace("## [Unreleased]\n", "## [Unreleased]\n\n### Added\n- z\n")
     assert any(p.startswith("entries left under [Unreleased]") for p in rc.changelog_problems(left, "1.1.0"))
+
+
+def test_version_must_be_the_newest_and_move_forward():
+    assert any("newest" in p for p in rc.changelog_problems(CHANGELOG, "1.0.0"))
+    backwards = CHANGELOG.replace("## [1.0.0] - 2026-09-01", "## [1.2.0] - 2026-09-01").replace(
+        "compare/v1.0.0...v1.1.0", "compare/v1.2.0...v1.1.0")
+    assert any("not newer than 1.2.0" in p for p in rc.changelog_problems(backwards, "1.1.0"))
+    assert rc.changelog_problems(CHANGELOG, "1.1") == ["not a semantic version: 1.1"]

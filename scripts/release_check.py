@@ -15,6 +15,8 @@ from check_versions import versions  # noqa: E402
 
 
 def changelog_problems(text: str, v: str) -> list[str]:
+    if not re.fullmatch(r"\d+\.\d+\.\d+", v):
+        return [f"not a semantic version: {v}"]
     try:
         body = section(text, v)
     except KeyError:
@@ -30,6 +32,10 @@ def changelog_problems(text: str, v: str) -> list[str]:
         out.append(f"[Unreleased] compare link must end in /compare/v{v}...HEAD")
     older = re.findall(r"(?m)^## \[(\d+\.\d+\.\d+)\]", text.split(f"## [{v}]", 1)[1])
     prev = older[0] if older else None
+    if re.findall(r"(?m)^## \[(\d+\.\d+\.\d+)\]", text)[0] != v:
+        out.append(f"[{v}] must be the newest CHANGELOG section, right under [Unreleased]")
+    if prev and tuple(map(int, v.split("."))) <= tuple(map(int, prev.split("."))):
+        out.append(f"{v} is not newer than {prev}, the previous release")
     want = f"/compare/v{prev}...v{v}" if prev else f"/releases/tag/v{v}"
     if not re.search(rf"(?m)^\[{re.escape(v)}\]: \S+{re.escape(want)}$", text):
         out.append(f"[{v}]: link missing or wrong; expected ...{want}")
