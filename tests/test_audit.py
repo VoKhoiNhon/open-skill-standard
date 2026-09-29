@@ -326,3 +326,13 @@ def test_broad_allowed_tools_flags(text):
 ])
 def test_broad_allowed_tools_ignores_scoped_grants(text):
     assert "broad-allowed-tools" not in fired(text)
+
+
+@pytest.mark.parametrize("text", ["- Diff: !`git diff HEAD`", "!`gh pr view`", "```!\ngit status\n```"])
+def test_shell_at_load_flags(text):
+    assert "shell-at-load" in fired(text)
+
+
+@pytest.mark.parametrize("text", ["Run `git diff` yourself.", "KEY=!`cmd` stays literal", "Great!`code` here"])
+def test_shell_at_load_ignores_literal_text(text):
+    assert "shell-at-load" not in fired(text)

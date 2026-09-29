@@ -157,6 +157,11 @@ rule("broad-allowed-tools", "medium",
      "https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill", whole=True)
 
 
+rule("shell-at-load", "low", r"(^|\s)!`[^`]+`|^\s*```!",
+     "runs a shell command while the skill loads, before the agent or the user sees the text; check what it runs",
+     "https://code.claude.com/docs/en/skills#inject-dynamic-context")
+
+
 def _files(root: Path):
     """Every file under root, links included but never followed, so a skill cannot point the audit elsewhere."""
     if not root.is_dir() or root.is_symlink():
