@@ -146,3 +146,9 @@ def test_plugin_json_rules(tmp_path):
     assert lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "tools", "version": "1.2.3", "description": "d"})) == []
     found = [f.rule for f in lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "My Tools", "version": "v1"}))]
     assert found == ["plugin-name", "plugin-version", "plugin-description"]
+
+
+def test_lint_paths_includes_manifests(tmp_path):
+    write_json(tmp_path, "plugin.json", {"name": "Bad Name"})
+    assert "plugin-name" in [f.rule for f in lint.lint_paths([tmp_path / ".claude-plugin"])]
+    assert "plugin-name" in [f.rule for f in lint.lint_paths([tmp_path])]

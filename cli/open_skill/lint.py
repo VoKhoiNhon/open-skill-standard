@@ -127,11 +127,22 @@ def lint_file(path: Path) -> list[Finding]:
 
 
 def lint_paths(paths) -> list[Finding]:
+    """Lint SKILL.md files and any Claude plugin manifests found under the given paths."""
     out = []
     for p in map(Path, paths):
         files = sorted(p.rglob("SKILL.md")) if p.is_dir() else [p]
+        manifests = sorted(p.rglob(".claude-plugin/*.json")) if p.is_dir() else []
+        if p.is_dir() and p.name == ".claude-plugin":
+            manifests = sorted(p.glob("*.json"))
         for f in files:
-            out += lint_file(f)
+            if f.name == "marketplace.json":
+                out += lint_marketplace(f)
+            elif f.name == "plugin.json":
+                out += lint_plugin(f)
+            else:
+                out += lint_file(f)
+        for m in manifests:
+            out += lint_marketplace(m) if m.name == "marketplace.json" else lint_plugin(m) if m.name == "plugin.json" else []
     return out
 
 
