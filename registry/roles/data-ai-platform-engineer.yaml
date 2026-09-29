@@ -1,0 +1,83 @@
+id: data-ai-platform-engineer
+name: Data / AI Platform Engineer
+family: data-ai
+summary: 'Runs the shared data and AI platform: compute, catalog, access, cost, and agent tooling for teams.'
+risk: One change reaches every team that uses the platform.
+constitution:
+- Changes go through IaC and pull requests, never by hand in production.
+- Every change has a rollback and a staged rollout.
+- Access is least privilege; only measured permissions are claimed.
+- Hard-to-reverse decisions get an ADR.
+signals:
+- '**/*.tf'
+- databricks.yml
+- '**/unity_catalog/**'
+- '**/policies/**'
+- .claude-plugin/**
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - bmad-method/bmad-deep-recon
+    - open-skill/open-skill-intel
+    alternatives:
+    - context7/context7-mcp
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - bmad-method/bmad-architecture
+    - knowledge-work-engineering/architecture
+    alternatives:
+    - bmad-method/bmad-advanced-elicitation
+    - superpowers/writing-plans
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - anthropic-skills/skill-creator
+    - claude-code-builtin/update-config
+    alternatives:
+    - spec-kit/implement
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - claude-code-builtin/security-review
+    - claude-code-builtin/code-review
+    - ponytail/ponytail-audit
+    alternatives:
+    - codegraph/impact
+  release:
+    primary:
+    - bmad-method/bmad-correct-course
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    - claude-code-builtin/schedule
+    alternatives:
+    - claude-code-builtin/fewer-permission-prompts
+  learn:
+    primary:
+    - knowledge-work-data/data-context-extractor
+    - open-skill/open-skill-learn
+seeds:
+- Announce platform changes to affected teams before rollout.
+- Distribute shared skills through an org overlay, not by copying files.
+- Report permissions from measurement (grants, SCIM), never from inference.

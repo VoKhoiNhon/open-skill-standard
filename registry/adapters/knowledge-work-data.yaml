@@ -1,0 +1,73 @@
+source: knowledge-work-data
+upstream: https://github.com/anthropics/knowledge-work-plugins/tree/main/data
+license: Apache-2.0
+summary: SQL, exploration, statistics, visualization, dashboards and QA for data work.
+install:
+  claude-plugin: "claude plugin marketplace add anthropics/knowledge-work-plugins && claude plugin install data@knowledge-work-plugins"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/data/*/skills/{name}/SKILL.md", invoke: "data:{name}"}
+  - {glob: "~/Library/Application Support/Claude/local-agent-mode-sessions/*/*/rpm/*/skills/{name}/SKILL.md", invoke: "data:{name}"}
+portability: [claude-code, claude-desktop]
+skills:
+  - name: analyze
+    description: Answer data questions from quick lookups to full analyses
+    phases: [build]
+    roles: {data-analyst: 1.0, analytics-engineer: 0.8, data-scientist: 0.8, data-engineer: 0.6, product-manager: 0.5}
+    produces: [analysis-report]
+    task_size: [small, medium, large]
+    triggers: [metric, kpi, "why did", trend, analysis, phân tích, số liệu]
+  - name: explore-data
+    description: Profile a dataset - shape, nulls, distributions, duplicates, quality issues
+    phases: [verify, research]
+    roles: {data-engineer: 1.0, data-scientist: 1.0, data-analyst: 0.9, analytics-engineer: 0.9}
+    produces: [data-profile]
+    task_size: [small, medium, large]
+    triggers: [profile, profiling, nulls, duplicates, "new table", khám phá dữ liệu]
+  - name: validate-data
+    description: QA an analysis or dataset before sharing - methodology, accuracy, bias
+    phases: [verify]
+    roles: {data-analyst: 1.0, data-engineer: 1.0, data-scientist: 1.0, analytics-engineer: 1.0}
+    task_size: [small, medium, large]
+    triggers: [validate, qa, reconcile, "sanity check", đối soát, kiểm tra số]
+  - name: write-query
+    description: Translate a data need into optimized SQL for your dialect
+    phases: [build]
+    roles: {data-analyst: 1.0, analytics-engineer: 1.0, data-engineer: 0.9, database-administrator: 0.7}
+    task_size: [small, medium]
+    triggers: [sql, query, "write a query", truy vấn]
+  - name: sql-queries
+    description: Correct, performant SQL across warehouse dialects; optimize and translate
+    phases: [build, review]
+    roles: {data-engineer: 1.0, analytics-engineer: 1.0, database-administrator: 1.0, data-analyst: 0.8}
+    task_size: [small, medium, large]
+    triggers: [sql, optimize, "slow query", dialect, window function]
+  - name: statistical-analysis
+    description: Descriptive statistics, trends, outliers and hypothesis tests
+    phases: [build, verify]
+    roles: {data-scientist: 1.0, data-analyst: 0.9, ml-engineer: 0.6}
+    task_size: [small, medium, large]
+    triggers: [statistics, "a/b test", significance, hypothesis, p-value, model, predict, prediction, forecast, churn, kiểm định, dự báo]
+  - name: create-viz
+    description: Publication-quality charts with Python
+    phases: [release]
+    roles: {data-analyst: 1.0, data-scientist: 0.9}
+    produces: [analysis-report]
+    task_size: [small, medium]
+    triggers: [chart, plot, graph, biểu đồ]
+  - name: data-visualization
+    description: Choose chart types and apply visualization design principles
+    phases: [release]
+    roles: {data-analyst: 1.0, data-scientist: 0.8}
+    task_size: [small, medium]
+  - name: build-dashboard
+    description: Interactive HTML dashboard with KPI cards, charts and filters
+    phases: [release]
+    roles: {data-analyst: 1.0, analytics-engineer: 0.8, product-manager: 0.5}
+    produces: [dashboard]
+    task_size: [medium, large]
+    triggers: [dashboard, report, kpi]
+  - name: data-context-extractor
+    description: Build a company-specific data knowledge skill from analysts' tribal knowledge
+    phases: [learn, build]
+    roles: {analytics-engineer: 0.9, data-ai-platform-engineer: 0.8, data-analyst: 0.7}
+    task_size: [medium, large]

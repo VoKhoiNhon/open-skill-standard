@@ -28,7 +28,9 @@ dev-mode-dirs = ["cli"]
 packages = ["cli/open_skill"]
 
 [tool.hatch.build.targets.wheel.force-include]
+"registry" = "open_skill/_data/registry"
 "spec" = "open_skill/_data/spec"
+"skills" = "open_skill/_data/skills"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

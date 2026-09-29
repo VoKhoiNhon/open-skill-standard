@@ -1,0 +1,87 @@
+id: system-administrator
+name: System Administrator
+family: quality-ops
+summary: Runs servers, operating systems, identity and internal services.
+risk: Undocumented manual changes that cannot be reproduced or audited.
+constitution:
+- Changes are scripted and idempotent.
+- Procedures live in runbooks next to the scripts.
+- Systems are patched on a schedule.
+- Backups are verified by restoring them.
+signals:
+- ansible.cfg
+- '**/playbooks/**'
+- '**/*.service'
+- inventory*
+- '**/crontab*'
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - ponytail/ponytail
+    alternatives:
+    - bmad-method/bmad-build
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-engineering/deploy-checklist
+    alternatives:
+    - knowledge-work-engineering/documentation
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    - knowledge-work-engineering/incident-response
+    alternatives:
+    - claude-code-builtin/schedule
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Run a playbook twice; the second run must change nothing.
+- Write the runbook step before automating it.
+- Keep a change log for every production host.

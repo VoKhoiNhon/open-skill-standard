@@ -1,0 +1,10 @@
+id: claude-haiku-4-5
+match: ["claude-haiku-4-5*", "haiku"]
+family: haiku
+inherits: generic
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
+verified: false
+notes: No dedicated prompting guide; conservative limits until measured with routing evals.
+chain: {max_steps: 3}
+addenda:
+  - "Prefer one well-chosen skill over a long chain; do the task directly when it is small."

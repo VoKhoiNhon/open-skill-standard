@@ -1,0 +1,88 @@
+id: site-reliability-engineer
+name: Site Reliability Engineer
+family: quality-ops
+summary: Keeps services reliable with SLOs, alerting, incident response and automation of toil.
+risk: Unreliable service, or noisy alerts that hide the real incident.
+constitution:
+- Services have SLOs with error budgets that guide release pace.
+- Every alert is actionable and links to a runbook.
+- Postmortems are blameless and end with owned actions.
+- Repeated manual work gets automated.
+signals:
+- '**/slo*.yaml'
+- '**/alerts/**'
+- '**/runbooks/**'
+- prometheus.yml
+- '**/grafana/**'
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - codegraph/explore
+    - open-skill/open-skill-intel
+    alternatives:
+    - context7/context7-mcp
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - knowledge-work-engineering/system-design
+    - superpowers/writing-plans
+    alternatives:
+    - knowledge-work-engineering/architecture
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - knowledge-work-engineering/deploy-checklist
+    alternatives:
+    - superpowers/finishing-a-development-branch
+  operate:
+    primary:
+    - knowledge-work-engineering/incident-response
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - claude-code-builtin/schedule
+  learn:
+    primary:
+    - knowledge-work-engineering/incident-response
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Write the runbook link into the alert itself.
+- Page on symptoms users feel, not on every cause.
+- Record the timeline while the incident is running.

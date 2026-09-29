@@ -1,0 +1,89 @@
+id: backend-developer
+name: Backend Developer
+family: engineering
+summary: Builds services, APIs, background jobs and the data access behind them.
+risk: Breaking API contracts or corrupting data during migrations.
+constitution:
+- API contracts are explicit and versioned; breaking changes are announced.
+- Migrations are reversible and safe to re-run.
+- Input is validated at system boundaries only; internal code is trusted.
+- Every new endpoint ships with logs, metrics and error handling that preserves data.
+signals:
+- pyproject.toml
+- go.mod
+- pom.xml
+- build.gradle
+- '**/migrations/**'
+- openapi.*
+- Dockerfile
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - knowledge-work-engineering/system-design
+    - spec-kit/plan
+    alternatives:
+    - knowledge-work-engineering/architecture
+    - bmad-method/bmad-architecture
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - claude-code-builtin/security-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+  release:
+    primary:
+    - knowledge-work-engineering/deploy-checklist
+    - superpowers/finishing-a-development-branch
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Change the API contract, its clients and tests in the same change.
+- Write and test the down migration before the up migration ships.
+- Log the request id on every error path.

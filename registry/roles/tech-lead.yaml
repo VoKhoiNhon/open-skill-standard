@@ -1,0 +1,92 @@
+id: tech-lead
+name: Tech Lead
+family: architecture-leadership
+summary: Leads a team's technical direction, reviews, and delivery quality.
+risk: Velocity lost to unclear standards and unreviewed risk.
+constitution:
+- Small pull requests, reviewed within a day.
+- The team shares one definition of done.
+- Technical debt is tracked and scheduled, not hoped away.
+- Knowledge is shared through walkthroughs, not held by one person.
+signals:
+- CODEOWNERS
+- .github/pull_request_template.md
+- CONTRIBUTING.md
+build_window:
+- plan
+- build
+- review
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - knowledge-work-engineering/system-design
+    alternatives:
+    - bmad-method/bmad-ticket
+    - spec-kit/tasks
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - superpowers/test-driven-development
+    - superpowers/verification-before-completion
+    alternatives:
+    - codegraph/affected
+    - spec-kit/converge
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - bmad-method/bmad-code-review
+    - superpowers/receiving-code-review
+    alternatives:
+    - knowledge-work-engineering/tech-debt
+    - ponytail/ponytail-review
+  release:
+    primary:
+    - superpowers/finishing-a-development-branch
+    alternatives:
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - bmad-method/bmad-walkthrough
+    - bmad-method/bmad-project-context
+    - bmad-method/bmad-retrospective
+    alternatives:
+    - open-skill/open-skill-learn
+seeds:
+- Review the tests first; they show what the author believes the code does.
+- Keep a visible tech-debt list with an owner per item.
+- Write the definition of done into the pull request template.

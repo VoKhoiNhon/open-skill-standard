@@ -1,0 +1,11 @@
+id: claude-sonnet-5
+match: ["claude-sonnet-5", "claude-sonnet-5-20*"]
+family: sonnet
+inherits: generic
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5
+verified: "2026-09-29"
+traits: {literal_instructions: true, strict_effort: true}
+effort: {small: low, medium: high, large: xhigh}
+addenda:
+  - "When an instruction should apply broadly, state that scope explicitly."
+avoid: [review_severity_filter, temperature]

@@ -1,0 +1,124 @@
+source: spec-kit
+upstream: https://github.com/github/spec-kit
+license: MIT
+tested_version: 1.0.12
+summary: Spec-driven development - constitution, spec, plan, tasks, implement, converge; bug and assessment extensions.
+install:
+  cli: "uv tool install specify-cli"
+  project-init: "specify init --here --integration claude"
+  bug-extension: "specify extension add bug"
+  assess-extension: "specify extension add assess"
+detect:
+  - {glob: "{project}/.claude/skills/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: constitution
+    description: Create or update the project's governing principles
+    phases: [specify]
+    requires: ["project:.specify"]
+    task_size: [large]
+    triggers: [constitution, principles, "coding standards"]
+  - name: specify
+    description: Write the feature specification - what and why, not how
+    phases: [specify]
+    produces: [spec]
+    alternatives: [bmad-method/bmad-spec, knowledge-work-product-management/write-spec]
+    requires: ["project:.specify"]
+    task_size: [medium, large]
+    triggers: [spec, specification, feature]
+  - name: clarify
+    description: Ask up to five targeted questions and encode the answers into the spec
+    phases: [specify]
+    consumes: [spec]
+    precedes: [spec-kit/plan]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: plan
+    description: Create the technical plan and design artifacts from the spec
+    phases: [plan]
+    consumes: [spec]
+    produces: [plan]
+    alternatives: [superpowers/writing-plans]
+    requires: ["project:.specify"]
+    task_size: [medium, large]
+  - name: checklist
+    description: Generate a requirements-quality checklist for the feature
+    phases: [plan, verify]
+    consumes: [spec]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: tasks
+    description: Generate a dependency-ordered tasks.md from the plan
+    phases: [plan]
+    consumes: [plan]
+    produces: [tasks]
+    requires: ["project:.specify"]
+    task_size: [medium, large]
+  - name: analyze
+    description: Cross-check spec, plan and tasks for consistency before implementing
+    phases: [verify, plan]
+    consumes: [spec, plan, tasks]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: implement
+    description: Execute tasks.md
+    phases: [build]
+    consumes: [tasks]
+    produces: [code-change]
+    conflicts: [superpowers/subagent-driven-development, superpowers/executing-plans, bmad-method/bmad-build, bmad-method/bmad-build-auto]
+    requires: ["project:.specify"]
+    task_size: [medium, large]
+  - name: converge
+    description: Compare the codebase against spec, plan and tasks and append unbuilt work
+    phases: [verify]
+    consumes: [spec, plan, tasks]
+    requires: ["project:.specify"]
+    task_size: [medium, large]
+  - name: taskstoissues
+    description: Turn tasks into dependency-ordered GitHub issues
+    phases: [plan, release]
+    consumes: [tasks]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: bug-assess
+    description: Assess a bug's root cause before fixing (bug extension)
+    phases: [operate]
+    requires: ["project:.specify"]
+    task_size: [small, medium, large]
+    triggers: [bug, crash, regression]
+  - name: bug-fix
+    description: Fix the assessed cause of a bug (bug extension)
+    phases: [build]
+    requires: ["project:.specify"]
+    task_size: [small, medium]
+  - name: bug-test
+    description: Verify the original symptom is gone (bug extension)
+    phases: [verify]
+    requires: ["project:.specify"]
+    task_size: [small, medium]
+  - name: assess-intake
+    description: Start an evidence-based go/kill assessment of an idea (assess extension)
+    phases: [discover]
+    produces: [idea-brief]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: assess-research
+    description: Gather evidence for an idea assessment
+    phases: [research]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: assess-define
+    description: Define the problem and success criteria of an assessed idea
+    phases: [specify]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: assess-shape
+    description: Shape candidate solutions for an assessed idea
+    phases: [plan]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: assess-decide
+    description: Record a go, needs-clarification or kill decision
+    phases: [discover]
+    requires: ["project:.specify"]
+    task_size: [large]

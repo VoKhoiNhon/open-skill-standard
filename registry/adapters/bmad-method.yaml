@@ -1,0 +1,195 @@
+source: bmad-method
+upstream: https://github.com/bmad-code-org/BMAD-METHOD
+license: MIT
+trademark_note: "BMad and BMAD-METHOD are trademarks of BMad Code, LLC. Referenced for interoperability only."
+tested_version: 6.13.0
+summary: Agile AI-driven development - thinking partners, personas, planning artifacts, right-sized build and review.
+install:
+  skills-cli: "npx skills add bmad-code-org/BMAD-METHOD -g"
+  claude-plugin: "/plugin marketplace add bmad-code-org/bmad-plugins"
+  project-init: "ask the bmad skill to run `bmad setup` in this project"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/bmad-method/*/skills/{name}/SKILL.md", invoke: "bmad-method:{name}"}
+  - {glob: "~/.claude/plugins/cache/*/bmad-toolbox/*/skills/{name}/SKILL.md", invoke: "bmad-toolbox:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project}/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex, cursor, copilot]
+skills:
+  - name: bmad
+    description: BMad hub - setup, status, and which skill to run next
+    phases: [discover]
+    task_size: [small, medium, large]
+  - name: bmad-forge-idea
+    description: Pressure-test a half-formed idea with personas until it can be acted on or dropped
+    phases: [discover]
+    produces: [idea-brief]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: [idea, "pressure-test", "stress-test", hypothesis, giả thuyết, ý tưởng]
+  - name: bmad-brainstorming
+    description: Divergent brainstorming session with 60+ creative techniques
+    phases: [discover]
+    produces: [idea-brief]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: [brainstorm, ideate, "many ideas", ý tưởng]
+  - name: bmad-advanced-elicitation
+    description: Make the model critique and refine its own output - pre-mortem, red team, socratic, first principles
+    phases: [verify, review]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: ["red team", "pre-mortem", critique, phản biện]
+  - name: bmad-party-mode
+    description: Roundtable discussion between several agent personas or custom personas
+    phases: [discover, review]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: [perspectives, roundtable, "focus group"]
+  - name: bmad-deep-recon
+    description: Decision research - market, domain, technical, competitive, academic, with cited sources
+    phases: [research]
+    produces: [research-report]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: [research, compare, "choose between", nghiên cứu, so sánh]
+  - name: bmad-prfaq
+    description: Working-backwards press release and FAQ to test a product concept
+    phases: [discover, specify]
+    produces: [idea-brief]
+    requires: ["project:_bmad"]
+    task_size: [large]
+  - name: bmad-product-brief
+    description: Create, update or validate a product brief
+    phases: [specify]
+    produces: [idea-brief]
+    requires: ["project:_bmad"]
+    task_size: [large]
+  - name: bmad-prd
+    description: Create, update or validate a PRD
+    phases: [specify]
+    produces: [prd]
+    requires: ["project:_bmad"]
+    task_size: [large]
+    triggers: [prd, requirements]
+  - name: bmad-spec
+    description: Condense ideas, briefs or transcripts into a short kernel spec
+    phases: [specify]
+    produces: [spec]
+    alternatives: [spec-kit/specify]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-architecture
+    description: Record the architecture decisions that keep separately built parts consistent
+    phases: [plan]
+    consumes: [spec, prd]
+    produces: [adr]
+    requires: ["project:_bmad"]
+    task_size: [large]
+    triggers: [architecture, adr, "solution design", kiến trúc]
+  - name: bmad-ux
+    description: Capture the UX vision in DESIGN.md and EXPERIENCE.md
+    phases: [plan]
+    produces: [ux-design]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: [ux, "user experience", design]
+  - name: bmad-ticket
+    description: Slice initiatives into epics and stories and run the board
+    phases: [plan]
+    consumes: [prd, spec]
+    produces: [tasks]
+    requires: ["project:_bmad"]
+    task_size: [large]
+    triggers: [epic, story, ticket, backlog]
+  - name: bmad-build
+    description: Right-sized implementation - clarify, plan, implement, review and verify a change
+    phases: [build]
+    produces: [code-change]
+    conflicts: [spec-kit/implement, superpowers/subagent-driven-development, superpowers/executing-plans]
+    requires: ["project:_bmad"]
+    task_size: [small, medium, large]
+  - name: bmad-build-auto
+    description: One unattended iteration of a development loop
+    phases: [build]
+    produces: [code-change]
+    conflicts: [spec-kit/implement, superpowers/subagent-driven-development, superpowers/executing-plans]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-code-review
+    description: Several independent reviewers in parallel, then triage
+    phases: [review]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: ["code review", "review this", pr]
+  - name: bmad-review
+    description: Review lenses - adversarial, edge cases, verification gaps, structure, prose
+    phases: [review]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-qa-generate-e2e-tests
+    description: Generate API and end-to-end tests for implemented features
+    phases: [verify]
+    produces: [test-suite]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+    triggers: [e2e, "end-to-end", "api tests"]
+  - name: bmad-correct-course
+    description: Assess the impact of a significant change mid-sprint and propose a course correction
+    phases: [plan, release]
+    requires: ["project:_bmad"]
+    task_size: [large]
+    triggers: ["change request", impact, "course correction"]
+  - name: bmad-retrospective
+    description: Evidence-based retrospective of a finished epic
+    phases: [learn]
+    produces: [retro]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-walkthrough
+    description: Guide a human through a commit, PR, file or directory
+    phases: [review, learn]
+    requires: ["project:_bmad"]
+    task_size: [small, medium, large]
+  - name: bmad-project-context
+    description: Set up and audit a repository's AGENTS.md instructions and pitfalls
+    phases: [learn, plan]
+    requires: ["project:_bmad"]
+    task_size: [small, medium]
+  - name: bmad-customize
+    description: Author overrides for installed BMad skills
+    phases: [build]
+    requires: ["project:_bmad"]
+    task_size: [small]
+  - name: bmad-agent-analyst
+    description: Business analyst persona for research and requirements
+    phases: [research, specify]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-agent-pm
+    description: Product manager persona for PRDs and discovery
+    phases: [specify]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-agent-architect
+    description: Architect persona for technical design
+    phases: [plan]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-agent-dev
+    description: Developer persona that implements stories
+    phases: [build]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmad-agent-ux-designer
+    description: UX designer persona
+    phases: [plan]
+    requires: ["project:_bmad"]
+    task_size: [medium, large]
+  - name: bmod-core-tools
+    description: Module metadata record, never invoked directly
+    phases: [discover]
+    task_size: [small]
+  - name: bmod-method
+    description: Module metadata record, never invoked directly
+    phases: [discover]
+    task_size: [small]

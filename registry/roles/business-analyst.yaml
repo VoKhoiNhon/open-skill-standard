@@ -1,0 +1,89 @@
+id: business-analyst
+name: Business Analyst
+family: product-delivery
+summary: Turns business needs into clear, testable requirements and process models.
+risk: Ambiguous requirements that each team reads differently.
+constitution:
+- Every requirement is testable and has acceptance criteria.
+- Ambiguities are resolved with stakeholders, not assumed.
+- Process changes are modeled before they are built.
+- Requirements trace to the business goal they serve.
+signals:
+- '**/requirements*.md'
+- '**/*.bpmn'
+- '**/user-stories*.md'
+build_window:
+- research
+- specify
+- verify
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - knowledge-work-product-management/synthesize-research
+    - bmad-method/bmad-agent-analyst
+    - bmad-method/bmad-deep-recon
+    alternatives:
+    - knowledge-work-design/user-research
+  specify:
+    primary:
+    - knowledge-work-product-management/write-spec
+    - bmad-method/bmad-prd
+    - spec-kit/specify
+    alternatives:
+    - spec-kit/clarify
+    - bmad-method/bmad-spec
+  plan:
+    primary:
+    - bmad-method/bmad-ticket
+    alternatives:
+    - knowledge-work-product-management/sprint-planning
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - superpowers/executing-plans
+  verify:
+    primary:
+    - spec-kit/checklist
+    - spec-kit/analyze
+    - knowledge-work-data/validate-data
+    alternatives:
+    - bmad-method/bmad-advanced-elicitation
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - superpowers/requesting-code-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - ponytail/ponytail-review
+    - knowledge-work-engineering/code-review
+  release:
+    primary:
+    - superpowers/finishing-a-development-branch
+    alternatives:
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    alternatives:
+    - bmad-method/bmad-retrospective
+seeds:
+- Write acceptance criteria as Given/When/Then.
+- List who signs off on each requirement.
+- Ask for a real example for every rule.

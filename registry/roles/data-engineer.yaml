@@ -1,0 +1,95 @@
+id: data-engineer
+name: Data Engineer
+family: data-ai
+summary: Builds and runs pipelines that move, model and serve data reliably.
+risk: 'Silently wrong numbers: pipelines succeed while the data is wrong.'
+constitution:
+- 'Loads are idempotent: re-running a date range never duplicates data.'
+- Every run is reconciled against its source (row counts, key totals).
+- Schema changes are declared and downstream consumers are checked.
+- No personal data in logs, repositories or prompts.
+- Shared tables have a data contract (ODCS).
+signals:
+- dbt_project.yml
+- '**/dags/**'
+- databricks.yml
+- '**/pipelines/**'
+- '**/*.sql'
+- '**/spark/**'
+phases:
+  discover:
+    primary:
+    - bmad-method/bmad-forge-idea
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - bmad-method/bmad-deep-recon
+    - knowledge-work-data/explore-data
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-architecture
+    - knowledge-work-engineering/architecture
+  build:
+    primary:
+    - superpowers/subagent-driven-development
+    - spec-kit/implement
+    - superpowers/test-driven-development
+    alternatives:
+    - bmad-method/bmad-build
+    - knowledge-work-data/sql-queries
+  verify:
+    primary:
+    - knowledge-work-data/validate-data
+    - knowledge-work-data/explore-data
+    - open-skill/open-skill-standards
+    alternatives:
+    - superpowers/verification-before-completion
+  review:
+    primary:
+    - claude-code-builtin/code-review
+    - codegraph/impact
+    - ponytail/ponytail-review
+    alternatives:
+    - bmad-method/bmad-code-review
+    - knowledge-work-data/sql-queries
+  release:
+    primary:
+    - superpowers/finishing-a-development-branch
+    alternatives:
+    - knowledge-work-engineering/deploy-checklist
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - claude-code-builtin/schedule
+    - knowledge-work-engineering/incident-response
+  learn:
+    primary:
+    - open-skill/open-skill-learn
+    - bmad-method/bmad-retrospective
+seeds:
+- Use MERGE on the business key instead of a blind INSERT.
+- Check nulls and duplicates on primary and business keys after every load.
+- Backfill in bounded batches and verify each batch before the next.
+- Filter on the partition column; never scan a large table without it.
+- When a number disagrees with the dashboard, fix the rule that generated the query, not the single query.
+- codegraph does not index SQL; search dbt and SQL repositories by table name.
+handoff:
+  reporting: data-analyst
+  modeling: data-scientist

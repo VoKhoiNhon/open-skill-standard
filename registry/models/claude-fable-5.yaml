@@ -1,0 +1,13 @@
+id: claude-fable-5
+match: ["claude-fable-5", "claude-fable-5-20*", "claude-mythos-5", "claude-mythos-5-20*"]
+family: fable
+inherits: generic
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5
+verified: "2026-09-29"
+traits: {long_turns: true, strong_instruction_following: true, subagent_eagerness: high, benefits_from_memory: true}
+effort: {small: medium, medium: high, large: high}
+chain: {max_steps: 10}
+addenda:
+  - "Pause for the user only for destructive or irreversible actions, real scope changes, or input only they can give."
+  - "Record lessons one per note with a one-line summary; update an existing note instead of duplicating it."
+avoid: [reasoning_in_response, over_prescriptive_skills]

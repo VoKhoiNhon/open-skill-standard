@@ -1,0 +1,14 @@
+id: generic
+match: ["*"]
+family: null
+inherits: null
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
+verified: "2026-09-29"
+notes: Applies to any model, including unknown future models and non-Claude agents.
+effort: {small: low, medium: medium, large: high}
+chain: {max_steps: 8}
+addenda:
+  - "Act once you have enough information; when weighing options, give a recommendation instead of a survey."
+  - "Keep changes to what the task asks for; mention other improvements at the end instead of making them."
+  - "Before reporting progress, point to the tool result that shows it; say plainly what is not verified."
+avoid: [reasoning_in_response]

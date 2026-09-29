@@ -1,0 +1,78 @@
+source: taste-skill
+upstream: https://github.com/leonxlnx/taste-skill
+license: MIT
+summary: Frontend visual taste - anti-generic UI, redesigns, design-image generation, brand kits.
+install:
+  skills-cli: "npx skills add https://github.com/Leonxlnx/taste-skill"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/taste-skill/*/skills/{name}/SKILL.md", invoke: "taste-skill:{name}"}
+  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex]
+skills:
+  - name: taste-skill
+    description: Frontend that does not look templated - landing pages, portfolios, redesigns
+    phases: [build]
+    roles: {frontend-developer: 1.0, fullstack-developer: 0.8, ux-designer: 0.8, game-developer: 0.4}
+    task_size: [small, medium, large]
+    triggers: [ui, landing, "landing page", portfolio, beautiful, giao diện đẹp]
+  - name: redesign-skill
+    description: Upgrade an existing site or app to premium visual quality
+    phases: [build, review]
+    roles: {frontend-developer: 1.0, ux-designer: 0.8}
+    task_size: [medium, large]
+    triggers: [redesign, "make it look better", polish]
+  - name: minimalist-skill
+    description: Clean editorial interfaces with a warm monochrome palette
+    phases: [build]
+    roles: {frontend-developer: 0.7}
+    task_size: [small, medium]
+  - name: soft-skill
+    description: High-end agency visual design system
+    phases: [build]
+    roles: {frontend-developer: 0.7}
+    task_size: [small, medium]
+  - name: brutalist-skill
+    description: Swiss-print and terminal-inspired brutalist interfaces
+    phases: [build]
+    roles: {frontend-developer: 0.6}
+    task_size: [small, medium]
+  - name: gpt-tasteskill
+    description: Editorial layouts with advanced scroll animation
+    phases: [build]
+    roles: {frontend-developer: 0.6}
+    task_size: [medium]
+  - name: stitch-skill
+    description: DESIGN.md generation for a design tool
+    phases: [plan]
+    roles: {ux-designer: 0.7}
+    task_size: [medium]
+  - name: image-to-code-skill
+    description: Generate design images first, then implement the site to match
+    phases: [build]
+    roles: {frontend-developer: 0.7}
+    task_size: [medium, large]
+  - name: imagegen-frontend-web
+    description: Generate per-section website design reference images
+    phases: [plan]
+    roles: {ux-designer: 0.8, frontend-developer: 0.6}
+    produces: [ux-design]
+    task_size: [medium]
+  - name: imagegen-frontend-mobile
+    description: Generate mobile app screen concepts
+    phases: [plan]
+    roles: {mobile-developer: 0.8, ux-designer: 0.8}
+    produces: [ux-design]
+    task_size: [medium]
+  - name: brandkit
+    description: Brand guideline boards and logo systems
+    phases: [plan]
+    roles: {ux-designer: 0.7}
+    task_size: [medium]
+  - name: output-skill
+    description: Enforce complete, untruncated code output
+    phases: [build]
+    task_size: [large]
+  - name: taste-skill-v1
+    description: Original v1 taste skill kept for compatibility
+    phases: [build]
+    task_size: [small]

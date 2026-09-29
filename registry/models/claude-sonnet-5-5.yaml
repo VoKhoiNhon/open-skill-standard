@@ -1,0 +1,13 @@
+id: claude-sonnet-5-5
+match: ["claude-sonnet-5-5*", "sonnet"]
+family: sonnet
+inherits: claude-sonnet-5
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5
+verified: "2026-09-29"
+notes: For the hardest long-horizon work an Opus model is the better choice.
+traits: {low_effort_skips_verification: true, checks_in_at_low_effort: true, adds_unrequested_tests: true}
+effort: {small: low, medium: medium, large: high}
+addenda:
+  - "Before reporting a code change done, run a real check that exercises it: tests, type-check, build or the changed command."
+  - "Keep working until everything asked is done; stop only when blocked or before a risky step."
+  - "Use search to check specifics that may have changed since training."

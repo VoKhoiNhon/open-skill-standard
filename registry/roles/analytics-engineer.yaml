@@ -1,0 +1,84 @@
+id: analytics-engineer
+name: Analytics Engineer
+family: data-ai
+summary: Models warehouse data into tested, documented, reusable datasets and metrics.
+risk: Metric definitions that drift between models and dashboards.
+constitution:
+- Each metric has exactly one definition, in the semantic layer.
+- 'Every model has tests: unique, not null, relationships, accepted values.'
+- Models are documented where they are defined.
+- Changed models are reconciled against the previous version.
+signals:
+- dbt_project.yml
+- models/**/*.sql
+- '**/semantic_models/**'
+- '**/*.lkml'
+- '**/metrics/*.yml'
+phases:
+  discover:
+    primary:
+    - superpowers/brainstorming
+    - bmad-method/bmad-forge-idea
+    alternatives:
+    - bmad-method/bmad-brainstorming
+    - knowledge-work-product-management/product-brainstorming
+  research:
+    primary:
+    - open-skill/open-skill-intel
+    - context7/context7-mcp
+    alternatives:
+    - codegraph/explore
+    - bmad-method/bmad-deep-recon
+  specify:
+    primary:
+    - spec-kit/specify
+    - superpowers/brainstorming
+    alternatives:
+    - bmad-method/bmad-spec
+    - knowledge-work-product-management/write-spec
+  plan:
+    primary:
+    - superpowers/writing-plans
+    - spec-kit/plan
+    - spec-kit/tasks
+    alternatives:
+    - bmad-method/bmad-ticket
+    - knowledge-work-engineering/system-design
+  build:
+    primary:
+    - knowledge-work-data/sql-queries
+    - knowledge-work-data/write-query
+    - superpowers/test-driven-development
+    alternatives:
+    - superpowers/subagent-driven-development
+  verify:
+    primary:
+    - knowledge-work-data/validate-data
+    - knowledge-work-data/explore-data
+    alternatives:
+    - open-skill/open-skill-standards
+  review:
+    primary:
+    - knowledge-work-data/sql-queries
+    - claude-code-builtin/code-review
+    alternatives:
+    - ponytail/ponytail-review
+  release:
+    primary:
+    - knowledge-work-data/build-dashboard
+    alternatives:
+    - knowledge-work-data/create-viz
+  operate:
+    primary:
+    - superpowers/systematic-debugging
+    alternatives:
+    - knowledge-work-engineering/debug
+    - spec-kit/bug-assess
+  learn:
+    primary:
+    - knowledge-work-data/data-context-extractor
+    - open-skill/open-skill-learn
+seeds:
+- Define the grain of every model in its first line of documentation.
+- Compare row counts and key metrics between the old and new model before merging.
+- Never compute the same metric in two places.
