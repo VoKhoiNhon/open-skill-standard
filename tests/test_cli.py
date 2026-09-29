@@ -305,6 +305,14 @@ def test_eval_triggers_lists_only_tuning_failures(capsys, tmp_path):
     assert "missed: zzz tuning miss" in out and "zzz holdout miss" not in out
 
 
+def test_eval_triggers_suggest(capsys, tmp_path):
+    (tmp_path / "s.yaml").write_text("skill: open-skill-learn\nqueries:\n"
+                                     "  - {q: qqq wibble one, trigger: true, holdout: false}\n"
+                                     "  - {q: qqq wibble two, trigger: true, holdout: false}\n")
+    assert cli.main(["eval", "triggers", "--cases", str(tmp_path), "--suggest"]) == 0
+    assert "consider the concept behind: qqq (2), qqq wibble (2), wibble (2)" in capsys.readouterr().out
+
+
 def test_eval_triggers_agent_needs_claude(capsys, monkeypatch):
     import shutil
     monkeypatch.setattr(shutil, "which", lambda name: None)

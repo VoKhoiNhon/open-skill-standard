@@ -124,13 +124,42 @@ def trigger_metrics(labels: list[dict], fired: list[bool]) -> dict:
             "false_alarms": [q["q"] for q, f in zip(labels, fired) if not q["trigger"] and f]}
 
 
-def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str]) -> dict[str, dict]:
-    """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report."""
+def _terms(query: str) -> set[str]:
+    """Words and two-word phrases of a query, without stopwords."""
+    from . import index
+
+    words = index.TOKEN.findall(query.lower())
+    keep = [w for w in words if w not in index.STOP]
+    pairs = {f"{a} {b}" for a, b in zip(words, words[1:]) if a not in index.STOP and b not in index.STOP}
+    return set(keep) | pairs
+
+
+def suggest_terms(labels: list[dict], fired: list[bool], description: str, min_count: int = 2) -> dict:
+    """Hints for a description author, from tuning queries only: terms that `min_count` or more missed positives
+    share and that neither the description nor any near miss contains, and description words behind false alarms.
+    They point at a missing concept; copying them in verbatim overfits (see the optimizing-descriptions guide)."""
+    from collections import Counter
+
+    desc = _terms(description)
+    negatives = set().union(*(_terms(q["q"]) for q in labels if not q["trigger"]))
+    missed = Counter(t for q, f in zip(labels, fired) if q["trigger"] and not f for t in _terms(q["q"]))
+    alarms = Counter(t for q, f in zip(labels, fired) if not q["trigger"] and f for t in _terms(q["q"]) if t in desc)
+    add = [(t, n) for t, n in missed.items() if n >= min_count and t not in desc and t not in negatives]
+    return {"add": sorted(add, key=lambda x: (-x[1], x[0])),
+            "false_alarms": sorted(alarms.items(), key=lambda x: (-x[1], x[0]))}
+
+
+def trigger_report_lexical(sets: dict[str, list[dict]], descriptions: dict[str, str], suggest: bool = False) -> dict[str, dict]:
+    """Proxy metrics per skill on the train (tuning) and validation (holdout) queries, like the agent report;
+    with `suggest`, also suggest_terms() for the train queries."""
     report = {}
     for skill, queries in sets.items():
         train, val = split_queries(queries)
-        report[skill] = {part: trigger_metrics(qs, [skill in lexical_triggers(q["q"], descriptions) for q in qs])
+        fired = {q["q"]: skill in lexical_triggers(q["q"], descriptions) for q in queries}
+        report[skill] = {part: trigger_metrics(qs, [fired[q["q"]] for q in qs])
                          for part, qs in (("train", train), ("validation", val))}
+        if suggest:
+            report[skill]["suggest"] = suggest_terms(train, [fired[q["q"]] for q in train], descriptions.get(skill, ""))
     return report
 
 
