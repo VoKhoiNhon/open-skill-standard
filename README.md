@@ -100,6 +100,11 @@ Adapters describe upstream skills as metadata and point to the official installe
 
 Prompting advice changes between model generations; instructions that helped one model can hurt the next. Skills here stay model-neutral, and model-specific notes live in [`registry/models/`](registry/models/): effort per task size, chain length, short prompting notes and patterns to avoid, each with its source in Anthropic's prompting guides. An unknown future model falls back to its family, then to `generic`, so nothing breaks; a weekly workflow opens an issue when the guides list a model without a profile. `open-skill lint` rejects patterns current models handle badly (reasoning-in-response requests, redundant "double-check" instructions, hard-coded model IDs, removed parameters).
 
+## Measuring it
+
+- `open-skill eval routing` runs the labeled routing cases (every role, frameworks, models) and reports pass rates per role.
+- `open-skill eval triggers` measures how well each core skill's description catches the requests it should and leaves near misses alone, using about 20 labeled queries per skill. By default it uses a deterministic lexical proxy (fast, runs in CI with regression floors); `--agent claude --runs 3` runs every query through Claude Code, counts a trigger when the skill is invoked in at least half the runs, and reports precision and recall on a stable 60/40 train/validation split, following the [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions).
+
 ## Skill health
 
 `open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too. Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
