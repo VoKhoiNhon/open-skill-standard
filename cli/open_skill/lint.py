@@ -74,6 +74,7 @@ def rule(id: str, severity: str, checks: str, source: str) -> None:
 
 MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
 PLUGIN_DOCS = "https://code.claude.com/docs/en/plugins-reference"
+MARKETPLACE_REF = "https://code.claude.com/docs/en/plugins/marketplace-reference"
 rule("frontmatter", "error", "SKILL.md starts with a closed block of YAML frontmatter that is a mapping", SPEC)
 rule("frontmatter-name", "error", "`name` is a string of 1-64 lowercase letters, digits and single hyphens, not starting or"
      " ending with a hyphen; letters outside a-z are allowed as the reference validator allows them", SPEC)
@@ -101,10 +102,16 @@ rule("missing-reference", "error", "every relative file the body links to outsid
 rule("missing-mention", "warning", "every references/, scripts/ or assets/ path the body names in inline code exists",
      SPEC + "#file-references")
 rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
-rule("marketplace-field", "error", "marketplace.json has `name`, `owner` and `plugins`", MARKETPLACE_DOCS)
-rule("marketplace-plugin", "error", "every marketplace plugin entry has `name` and `source`", MARKETPLACE_DOCS)
-rule("marketplace-source", "error", "a relative plugin `source` does not leave the marketplace with `..`", MARKETPLACE_DOCS)
-rule("marketplace-name", "warning", "the marketplace name does not look like an official Anthropic marketplace", MARKETPLACE_DOCS)
+rule("marketplace-field", "error", "marketplace.json has `name`, `owner` (with a `name`) and a list of `plugins`",
+     MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-plugin", "error", "every plugin entry is an object with a `name` (unique, no spaces) and a `source`",
+     MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`",
+     MARKETPLACE_DOCS)
+rule("marketplace-name", "error", "the marketplace name is a non-empty string without spaces, slashes, '..' or control "
+     "characters", MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-reserved", "warning", "the marketplace name is not reserved for, and does not look like, an official "
+     "Anthropic marketplace", MARKETPLACE_REF + "#reserved-names")
 rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
      PLUGIN_DOCS + "#name")
 rule("plugin-name-style", "warning", "plugin.json `name` is kebab-case, as Claude Code recommends", PLUGIN_DOCS + "#name")
@@ -269,34 +276,71 @@ def lint_paths(paths) -> list[Finding]:
     return out
 
 
-def lint_marketplace(path: Path) -> list[Finding]:
-    """Required fields of .claude-plugin/marketplace.json, as the Claude Code validator checks them."""
-    import json
+# Reserved marketplace names (marketplace reference, "Reserved names"); other spellings count too.
+RESERVED = {"claude-code-marketplace", "claude-code-plugins", "claude-plugins-official", "anthropic-marketplace",
+            "anthropic-plugins", "agent-skills", "anthropic-agent-skills", "life-sciences", "knowledge-work-plugins",
+            "claude-for-legal", "claude-for-financial-services", "financial-services-plugins", "first-party-plugins",
+            "claude-tag-plugins", "claude-community", "claude-plugins-community", "healthcare",
+            "anthropic-plugin-directory", "claude-plugin-directory", "inline", "builtin", "skills-dir", "synced",
+            "claude-plugin-test", "npm", "pip", "uv", "cargo", "github", "gh"}
 
+
+def _reserved(name: str) -> bool:
+    spelled = re.sub(r"[^\w]", "-", name.lower().rstrip("."))  # claude.code.plugins is claude-code-plugins
+    return (spelled in RESERVED or spelled.startswith("claudeai-")
+            or any(w in spelled for w in ("anthropic", "official")))
+
+
+def lint_marketplace(path: Path) -> list[Finding]:
+    """.claude-plugin/marketplace.json, as the Claude Code validator checks it."""
     path = Path(path)
     out: list[Finding] = []
 
     def add(rule_id, msg):
         out.append(_finding(path, rule_id, msg))
 
-    try:
-        doc = json.loads(path.read_text())
-    except json.JSONDecodeError as e:
-        add("manifest-json", f"invalid JSON: {e}")
+    doc, why = _load_manifest(path)
+    if why:
+        add("manifest-json", why)
         return out
     for key in ("name", "owner", "plugins"):
         if key not in doc:
             add("marketplace-field", f"missing required field '{key}'")
-    for i, p in enumerate(doc.get("plugins") or []):
+    owner = doc.get("owner")
+    if "owner" in doc and not (isinstance(owner, dict) and isinstance(owner.get("name"), str) and owner["name"].strip()):
+        add("marketplace-field", "owner must be an object with a non-empty name")
+    plugins = doc.get("plugins", [])
+    if not isinstance(plugins, list):
+        add("marketplace-field", "plugins must be a list of plugin entries")
+        plugins = []
+    root = isinstance(doc.get("metadata"), dict) and doc["metadata"].get("pluginRoot")
+    seen = set()
+    for i, p in enumerate(plugins):
+        if not isinstance(p, dict):
+            add("marketplace-plugin", f"plugins[{i}] must be an object with name and source")
+            continue
         for key in ("name", "source"):
             if key not in p:
                 add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
+        pname = p.get("name")
+        if isinstance(pname, str) and BAD_NAME_CHARS.search(pname):
+            add("marketplace-plugin", f"plugins[{i}].name '{pname}' must not contain spaces or control characters")
+        if isinstance(pname, str) and pname in seen:
+            add("marketplace-plugin", f"duplicate plugin name '{pname}'")
+        seen.add(pname if isinstance(pname, str) else None)
         src = p.get("source")
         if isinstance(src, str) and ".." in Path(src).parts:
             add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
-    name = str(doc.get("name", "")).lower()
-    if any(w in name for w in ("anthropic", "claude-plugins-official", "official")):
-        add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace")
+        elif isinstance(src, str) and src != "." and not src.startswith("./") and not root:
+            add("marketplace-source", f"plugins[{i}].source '{src}' is a relative path and must start with ./")
+    name = doc.get("name", "")
+    if "name" in doc and (not isinstance(name, str) or not name or name in (".", "..") or ".." in name
+                          or BAD_NAME_CHARS.search(name)):
+        add("marketplace-name", f"marketplace name {name!r} must be a non-empty string without spaces, slashes, '..' "
+                                "or control characters")
+    elif isinstance(name, str) and _reserved(name):
+        add("marketplace-reserved", f"marketplace name '{name}' is reserved for or looks like an official Anthropic "
+                                    "marketplace; adding it fails unless it is hosted under github.com/anthropics")
     return out
 
 

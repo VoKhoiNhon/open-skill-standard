@@ -139,7 +139,7 @@ def test_repository_marketplace_is_valid():
 def test_marketplace_source_escape_and_impersonation(tmp_path):
     doc_ = {"name": "anthropic-official-tools", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
     found = [(f.rule, f.severity) for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
-    assert found == [("marketplace-source", "error"), ("marketplace-name", "warning")]
+    assert found == [("marketplace-source", "error"), ("marketplace-reserved", "warning")]
 
 
 def test_plugin_json_rules(tmp_path):
@@ -410,3 +410,39 @@ def test_plugin_manifest_cases(tmp_path, manifest, expected):
     assert [f.rule for f in found] == expected
     assert all(f.source == lint.RULES[f.rule].source for f in found)
     assert all(f.source.startswith(lint.PLUGIN_DOCS) for f in found if f.rule.startswith("plugin-"))
+
+
+def mkt(**kw):
+    base = {"name": "tools", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./plugins/a"}]}
+    base.update(kw)
+    return base
+
+
+@pytest.mark.parametrize("manifest,expected", [
+    (mkt(), []),
+    (mkt(plugins=[{"name": "a", "source": "."}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": "plugins/a"}]), ["marketplace-source"]),      # relative paths start with ./
+    (mkt(plugins=[{"name": "a", "source": "a"}], metadata={"pluginRoot": "./plugins"}), []),
+    (mkt(plugins=[{"name": "a", "source": "./x/../../y"}]), ["marketplace-source"]),
+    (mkt(plugins={"a": {"source": "./a"}}), ["marketplace-field"]),                     # an object, not a list: crashed
+    (mkt(plugins=["a"]), ["marketplace-plugin"]),                                        # entry not an object: crashed
+    (mkt(plugins=[{"name": "a", "source": "./a"}, {"name": "a", "source": "./b"}]), ["marketplace-plugin"]),
+    (mkt(plugins=[{"name": "my plugin", "source": "./a"}]), ["marketplace-plugin"]),
+    (mkt(owner={"email": "x@example.org"}), ["marketplace-field"]),
+    (mkt(owner="me"), ["marketplace-field"]),
+    (mkt(name="my tools"), ["marketplace-name"]),
+    (mkt(name="../up"), ["marketplace-name"]),
+    (mkt(name=""), ["marketplace-name"]),
+    (mkt(name="claude-plugins-official"), ["marketplace-reserved"]),
+    (mkt(name="claude.code.plugins"), ["marketplace-reserved"]),                         # another spelling of a reserved name
+    (mkt(name="NPM"), ["marketplace-reserved"]),
+    (mkt(name="claudeai-team"), ["marketplace-reserved"]),
+    (mkt(name="acme-official-tools"), ["marketplace-reserved"]),
+    (mkt(name="công-cụ"), []),
+    ([], ["manifest-json"]),
+])
+def test_marketplace_manifest_cases(tmp_path, manifest, expected):
+    found = lint.lint_marketplace(write_json(tmp_path, "marketplace.json", manifest))
+    assert [f.rule for f in found] == expected
+    assert all(f.source == lint.RULES[f.rule].source for f in found)
