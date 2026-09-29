@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import frontmatter, paths
+from . import agents, frontmatter, paths
 
 NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # Agent Skills name rule; also keeps the folder inside the target
 
@@ -35,3 +35,23 @@ def resolve_source(spec: str) -> Source:
     if not NAME.match(name):
         raise ValueError(f"{folder}: skill name {name!r} must be lowercase letters, digits and single hyphens")
     return Source(name, folder, kind)
+
+
+@dataclass
+class Plan:
+    source: Source
+    agent: str
+    scope: str  # "global" or "project"
+    dest: Path
+    mode: str = "copy"  # or "symlink"
+    action: str = "install"  # install | unchanged | refuse
+    reason: str = ""
+
+
+def plan(src: Source, agent: dict, project: Path | None = None, mode: str = "copy") -> Plan:
+    """Where `src` goes for this agent: its first project folder with `project`, else its first global folder."""
+    scope = "project" if project is not None else "global"
+    targets = agents.folders(agent, scope, project)
+    if not targets:
+        raise ValueError(f"{agent['id']} has no {scope} skill folder")
+    return Plan(src, agent["id"], scope, targets[0] / src.name, mode)

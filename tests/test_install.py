@@ -2,9 +2,20 @@ from pathlib import Path
 
 import pytest
 
-from open_skill import install
+from open_skill import install, registry
 
 REPO = Path(__file__).parents[1]
+
+
+@pytest.fixture(autouse=True)
+def env(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "osh"))
+
+
+@pytest.fixture(scope="module")
+def reg():
+    return registry.load()
 
 
 def skill(folder: Path, name: str, body: str = "Body.\n") -> Path:
@@ -34,4 +45,22 @@ def test_unknown_source_is_an_error(tmp_path):
 @pytest.mark.parametrize("bad", ["../escape", "Upper", "a/b", "-dash"])
 def test_unsafe_skill_names_are_rejected(tmp_path, bad):
     with pytest.raises(ValueError, match="name"):
-        install.resolve_source(str(skill(tmp_path / "s", bad or '""')))
+        install.resolve_source(str(skill(tmp_path / "s", bad)))
+
+
+def test_plan_targets_the_agents_first_global_folder(reg, tmp_path):
+    p = install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"])
+    assert p.dest == tmp_path / "home/.agents/skills/open-skill-router"
+    assert (p.agent, p.scope, p.action) == ("codex", "global", "install")
+
+
+def test_plan_in_a_project_targets_the_first_project_folder(reg, tmp_path):
+    p = install.plan(install.resolve_source("open-skill-router"), reg.agents["claude-code"], project=tmp_path / "proj")
+    assert p.dest == (tmp_path / "proj").resolve() / ".claude/skills/open-skill-router"
+    assert p.scope == "project"
+
+
+def test_agent_without_project_folders_cannot_install_in_a_project(tmp_path):
+    agent = {"id": "solo", "global": [{"path": "~/.solo/skills"}]}
+    with pytest.raises(ValueError, match="project"):
+        install.plan(install.resolve_source("open-skill-router"), agent, project=tmp_path)
