@@ -16,12 +16,13 @@ def stopwords(tax: dict) -> set[str]:
 
 STOP = stopwords(registry.load_taxonomy())
 
-TOKENIZE = "unicode61 remove_diacritics 2"  # lowercase, split on non-alphanumerics, drop accents: "Lỗi" → "loi"
+TOKENIZE = "unicode61 remove_diacritics 2"  # lowercase, split on non-alphanumerics, drop accents: "Café" → "cafe"
 
 
 def _dd(text: str) -> str:
-    """đ is a letter of its own to the tokenizer, but people typing Vietnamese without accents write d."""
-    return text.replace("đ", "d").replace("Đ", "D")
+    """The Vietnamese d with stroke (U+0111) is a letter of its own to the tokenizer, but people typing Vietnamese
+    without accents write d."""
+    return text.replace("\u0111", "d").replace("\u0110", "D")
 
 
 @functools.lru_cache(maxsize=1)

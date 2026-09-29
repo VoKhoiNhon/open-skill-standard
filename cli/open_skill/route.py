@@ -27,7 +27,7 @@ def _words(text: str) -> str:
 def _positions(text: str, keywords: list[str]) -> list[int]:
     """Start offsets of whole-word and phrase keyword matches (anywhere, for UNSPACED scripts), ignoring case and
     hyphens. Text typed without accents is matched folded, as the index folds it; text with accents keeps them, since
-    lời (words) is not lỗi (error)."""
+    two words can differ in their accents alone (Vietnamese for "words" and for "error" do)."""
     form = _words if _words(text) != index.fold(text) else index.fold
     words = form(text)
     out = []
