@@ -193,3 +193,11 @@ def test_given_phase_skips_keyword_detection(tmp_path):
     assert r["target_phase"] == "operate" and r["decisions"]["phase"]["from"] == "given"
     with pytest.raises(ValueError, match="unknown phase"):
         route.route("add an endpoint", p, REG, ALL, phase="deploy")
+
+
+def test_phase_without_any_signal_is_reported_as_a_guess(tmp_path):
+    p = proj(tmp_path)
+    r = route.route("the orders thing", p, REG, ALL, role="data-engineer")
+    assert (r["target_phase"], r["phase_from"]) == ("build", "guessed")  # build stays the fallback
+    assert route.route("add an export endpoint", p, REG, ALL)["phase_from"] == "keywords"
+    assert route.route("add an export endpoint", p, REG, ALL, phase="build")["phase_from"] == "given"

@@ -145,7 +145,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     phase_kw = {p["id"]: p["keywords"] for p in tax["phases"]}
     size_kw = tax.get("size_keywords", {}).get(size, [])
     phase_words = [] if given_phase else _matched(task, phase_kw.get(target, []))
-    phase_from = "given" if given_phase else ("keywords" if phase_words else "default")
+    phase_from = "given" if given_phase else ("keywords" if phase_words else "guessed")
     size_from = "given" if given_size else ("keywords" if _matched(task, size_kw) else "default")
     task_terms = _terms(task)
 
@@ -298,6 +298,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         "role": mix,
         "size": size,
         "target_phase": target,
+        "phase_from": phase_from,
         "project": {k: proj[k] for k in ("path", "native", "artifacts", "codegraph")},
         "chain": chain,
         "advice": advice,

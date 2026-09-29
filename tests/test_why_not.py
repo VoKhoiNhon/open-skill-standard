@@ -176,6 +176,6 @@ def test_decisions_name_the_keywords_behind_target_phase_and_size(project):
     d = run("add an export endpoint", project, decisions=True)["decisions"]
     assert d["phase"] == {"target": "build", "from": "keywords", "keywords": ["add", "endpoint"]}
     assert d["size"] == {"size": "medium", "from": "default", "keywords": []}
-    assert run("the orders thing", project, decisions=True)["decisions"]["phase"] == {"target": "build", "from": "default", "keywords": []}
+    assert run("the orders thing", project, decisions=True)["decisions"]["phase"] == {"target": "build", "from": "guessed", "keywords": []}
     d = run("build a new platform", project, size="small", decisions=True)["decisions"]
     assert d["size"] == {"size": "small", "from": "given", "keywords": []}
