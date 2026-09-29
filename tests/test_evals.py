@@ -66,5 +66,7 @@ def test_core_skills_trigger_proxy_meets_floor():
     rep = evals.trigger_report_lexical(evals.load_trigger_sets(ROOT / "evals" / "triggers"),
                                        evals.skill_descriptions(REG, ROOT / "skills"))
     assert set(rep) == {"open-skill-router", "open-skill-standards", "open-skill-intel", "open-skill-learn"}
+    # Regression floors for the lexical proxy; raise them when descriptions improve, never lower them silently.
     for skill, m in rep.items():
-        print(skill, m["precision"], m["recall"])
+        assert m["precision"] >= 0.75, (skill, m)
+        assert m["recall"] >= 0.4, (skill, m)
