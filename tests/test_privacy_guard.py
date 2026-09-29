@@ -45,8 +45,9 @@ def _repo(tmp_path, files: dict[str, str]):
     for rel, text in files.items():
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / rel).write_text(text)
-    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    env = pg.git_env()  # never the repository running the tests, even when git set GIT_DIR for us
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True, env=env)
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, env=env)
     return tmp_path
 
 
@@ -88,3 +89,10 @@ def test_every_public_text_file_is_scanned(tmp_path, monkeypatch, rel, flagged):
     (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
     (tmp_path / rel).write_text("maintainer: alice@corp.example\n")
     assert bool(pg.check([rel])) is flagged
+
+
+def test_git_helpers_read_the_folder_they_are_given_even_under_git_dir(tmp_path, monkeypatch):
+    # git exports GIT_DIR to hooks and `rebase --exec`; `git add` in a temp repo then wrote to this repository's index.
+    monkeypatch.setenv("GIT_DIR", str(ROOT / ".git"))
+    root = _repo(tmp_path, {"skills/only/SKILL.md": "x"})
+    assert pg.tracked(root) == ["skills/only/SKILL.md"]

@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- The privacy guard and wheel check ignore an inherited `GIT_DIR`, `GIT_WORK_TREE` and `GIT_INDEX_FILE`, so they read the folder they are given; under `git rebase --exec` or a hook, the privacy guard's tests used to run `git add` against the repository itself.
+
 ## [0.7.1] - 2026-09-29
 
 Follow-up fixes from the audit: sturdier user data, fairer keyword and trigger scoring, reviewed model profiles.
