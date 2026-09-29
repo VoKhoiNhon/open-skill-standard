@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `python -m open_skill.benchmark` scores the router against baselines and ablations with the same checks as `open-skill eval routing`, on the tuned and held-out cases: description match only (BM25 top-1 over the router's own index), a random skill in the router's phases (expected pass over 200 seeded draws), the router without phase detection and without role priors. It reports 95% Wilson intervals, wins and losses against description match with an exact McNemar test, and route latency; `--json` for machine output.
+- The README shows the held-out benchmark as a chart (light and dark), drawn by `scripts/render_assets.py` from the benchmark itself, so CI keeps it current.
+
 ## [0.7.2] - 2026-09-29
 
 Finishing the audit: concurrent writers, model fallback and repository checks.

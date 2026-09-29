@@ -23,7 +23,7 @@ from xml.sax.saxutils import escape
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / ".github" / "assets"
 sys.path.insert(0, str(ROOT / "cli"))
-from open_skill import __version__, registry, route, userdata  # noqa: E402
+from open_skill import __version__, benchmark, registry, route, userdata  # noqa: E402
 
 SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
@@ -555,9 +555,56 @@ def screenshots(reg) -> list[str]:
     return written
 
 
+def benchmark_chart(rep: dict) -> dict[str, str]:
+    """Held-out pass rate of the router against baselines and ablations, with 95% Wilson intervals."""
+    rows, n = rep["holdout"], rep["holdout"]["router"]["cases"]
+    v = rows["router"]["vs_bm25"]
+    kinds = {"bm25": "box", "random": "box", "no-phase": "blue", "no-role": "blue", "router": "green"}
+    w, left, right, top, bar, gap = 960, 330, 880, 92, 24, 18
+    h = top + len(benchmark.SYSTEMS) * (bar + gap) + 78
+    x = lambda r: left + (right - left) * r
+    mant, exp = f"{v['mcnemar_p']:.0e}".split("e")
+    p_text = f"{mant}×10{str(int(exp)).translate(str.maketrans('-0123456789', '⁻⁰¹²³⁴⁵⁶⁷⁸⁹'))}"
+    label = (f"Held-out routing benchmark: {n} requests never tuned on. " + "; ".join(
+        f"{rows[k]['label']} {rows[k]['rate']:.0%}" for k, _ in benchmark.SYSTEMS))
+    out = {}
+    for theme, suffix in (("light", ""), ("dark", "-dark")):
+        b = [text(24, 34, f"Routing benchmark · {n} held-out requests, never tuned on", "h"),
+             text(24, 56, "A case passes only if every labeled check holds. Paraphrased, messy, English and "
+                          "Vietnamese (with and without accents).", "m s")]
+        for i in range(5):
+            gx = x(i / 4)
+            b.append(f'<line x1="{gx:g}" y1="{top - 10}" x2="{gx:g}" y2="{h - 70}" class="dash"/>')
+            b.append(text(gx, top - 16, f"{i * 25}%", "m s", "middle"))
+        for i, (key, _) in enumerate(benchmark.SYSTEMS):
+            r, y = rows[key], top + i * (bar + gap)
+            cls = kinds[key]
+            b.append(text(24, y + bar / 2 + 4, r["label"], "b" if key == "router" else ""))
+            b.append(rect(left, y, max(x(r["rate"]) - left, 2), bar, cls, 3))
+            lo, hi = x(r["ci95"][0]), x(r["ci95"][1])
+            end = x(r["rate"])
+            if key == "random":
+                note = f"{r['rate']:.0%} expected over {benchmark.RANDOM_DRAWS} draws"
+            else:
+                b += [f'<line x1="{lo:g}" y1="{y + bar / 2}" x2="{hi:g}" y2="{y + bar / 2}" class="edge"/>',
+                      f'<line x1="{lo:g}" y1="{y + 6}" x2="{lo:g}" y2="{y + bar - 6}" class="edge"/>',
+                      f'<line x1="{hi:g}" y1="{y + 6}" x2="{hi:g}" y2="{y + bar - 6}" class="edge"/>']
+                end = hi
+                note = f"{r['rate']:.0%}  [{r['ci95'][0]:.0%}–{r['ci95'][1]:.0%}]  {r['passed']:g}/{n}"
+            b.append(text(end + 10, y + bar / 2 + 4, note, "b t-green" if key == "router" else "s"))
+        fy = h - 44
+        b += [text(24, fy, f"Router vs description match on the same {n} cases: {v['wins']} wins, {v['losses']} losses, "
+                           f"exact McNemar p = {p_text}. Whiskers: 95% Wilson intervals.", "m s"),
+              text(24, fy + 20, "Limits: labels written by the maintainer, few cases (wide intervals); this measures "
+                                "routing, not the work after it. Regenerate: uv run python -m open_skill.benchmark", "m s")]
+        out[f"benchmark{suffix}.svg"] = svg(w, h, b, theme, label)
+    return out
+
+
 def render() -> dict[str, str]:
     reg = registry.load(ROOT)
     out = {}
+    out.update(benchmark_chart(benchmark.run(reg, latency=False)))
     out.update(architecture(reg))
     out.update(lifecycle(reg))
     out.update(pipeline())
