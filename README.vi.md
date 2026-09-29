@@ -73,6 +73,10 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 - **Tự phát hiện model mới.** Workflow chạy hằng tuần tự mở issue khi Anthropic ra model chưa có hồ sơ.
 - **`open-skill lint`** chặn các mẫu không còn phù hợp: yêu cầu viết lại suy luận vào câu trả lời, lệnh "double-check" thừa, model ID viết cứng.
 
+## Sức khoẻ của skill
+
+`open-skill lint` kiểm tra skill theo [đặc tả Agent Skills](https://agentskills.io/specification) (luật đặt tên và khớp thư mục, giới hạn các trường, file được tham chiếu) và theo hướng dẫn prompt hiện hành; plugin manifest cũng được kiểm tra. Chỉ lỗi mới làm lệnh thất bại; `--strict` coi cả cảnh báo là lỗi, `--format json` để dùng cho công cụ khác. `open-skill lint --installed` báo cáo sức khoẻ của mọi skill đã cài, nhóm theo nguồn.
+
 ## Hiểu bạn, ngay trên máy bạn
 
 - **Dữ liệu cá nhân nằm trong `~/.open-skill/`:** hồ sơ, ghi chú (mỗi file một ý) và lịch sử dùng.
