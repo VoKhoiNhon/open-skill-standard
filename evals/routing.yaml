@@ -96,6 +96,8 @@ cases:
      include: [knowledge-work-engineering/architecture, claude-code-builtin/security-review]}
   - {id: cloud-bmad, role: cloud-engineer, task: "add a private bucket", files: [_bmad/config.toml],
      include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: cloud-spec-kit, role: cloud-engineer, task: "add a private network for the reporting database",
+     files: [.specify/memory/constitution.md], include: [spec-kit/plan, spec-kit/implement]}
   - {id: security, role: security-engineer, task: "review the login flow for security issues",
      phases: [review], include: [claude-code-builtin/security-review]}
   - {id: security-leak, role: security-engineer, task: "a secret was leaked in the repo, handle the incident",

@@ -43,6 +43,7 @@ phases:
     alternatives:
     - bmad-method/bmad-architecture
     - superpowers/writing-plans
+    - spec-kit/plan
   build:
     primary:
     - superpowers/subagent-driven-development
