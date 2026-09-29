@@ -233,6 +233,14 @@ def test_a_new_locale_block_drives_phase_and_size_without_code_changes():
     assert route.target_phase("add an export endpoint", tax) == "build"  # English keywords still apply
 
 
+def test_keywords_in_a_script_without_spaces_match_inside_the_text():
+    """Bug: Japanese is written without spaces between words, so a whole-word-only match never found a ja keyword."""
+    tax = _with_locale("ja", {"operate": ["エラー"], "review": ["レビュー"]})
+    assert route.target_phase("請求書のエクスポートでエラーが出る", tax) == "operate"
+    assert route.target_phase("決済モジュールのプルリクエストをレビューして", tax) == "review"
+    assert route.target_phase("the prefix is wrong in the reviewer list", tax) == "build"  # spaced text: whole words
+
+
 def test_accents_the_user_typed_still_tell_words_apart():
     tax = REG.taxonomy
     assert route.task_size("rò rỉ bộ nhớ khi tải ảnh", tax, None) == "medium"  # nhớ (memory) is not nhỏ (small)

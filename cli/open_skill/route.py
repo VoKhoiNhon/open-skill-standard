@@ -8,6 +8,9 @@ from pathlib import Path
 from . import index, knowledge, models, project, registry
 
 TOKEN = re.compile(r"\w+", re.UNICODE)
+# Scripts written without spaces between words: a keyword in them matches anywhere, not as a whole word.
+# ponytail: Thai, kana and CJK only; add ranges (Lao, Khmer, Myanmar...) when a locale block needs them.
+UNSPACED = re.compile(r"[\u0e00-\u0e7f\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]")
 PRIMARY, ALTERNATIVE, UNLISTED = 2.0, 0.7, 0.2
 UNKNOWN_ROLE, UNKNOWN_ROLE_HARVESTED = 0.3, 0.5  # no role data: generic registry skill vs. local skill
 INFERRED_FACTOR, MIN_SCORE, ASK_MARGIN, FLOW_BONUS = 0.8, 0.35, 0.10, 1.25
@@ -22,13 +25,15 @@ def _words(text: str) -> str:
 
 
 def _positions(text: str, keywords: list[str]) -> list[int]:
-    """Start offsets of whole-word and phrase keyword matches, ignoring case and hyphens. Text typed without accents
-    is matched folded, as the index folds it; text with accents keeps them, since lời (words) is not lỗi (error)."""
+    """Start offsets of whole-word and phrase keyword matches (anywhere, for UNSPACED scripts), ignoring case and
+    hyphens. Text typed without accents is matched folded, as the index folds it; text with accents keeps them, since
+    lời (words) is not lỗi (error)."""
     form = _words if _words(text) != index.fold(text) else index.fold
     words = form(text)
     out = []
     for k in keywords:
-        m = re.search(rf"(?<!\S){re.escape(form(k))}(?!\S)", words) if form(k) else None
+        word = re.escape(form(k))
+        m = re.search(word if UNSPACED.search(k) else rf"(?<!\S){word}(?!\S)", words) if form(k) else None
         if m:
             out.append(m.start())
     return out
