@@ -45,6 +45,7 @@ def test_default_output_has_no_decisions(project):
 def test_decisions_record_the_window_the_winner_and_the_losers(project):
     r = run("add an export endpoint", project, decisions=True)
     assert r["decisions"]["window"] == ["plan", "build", "verify", "review"]
+    assert r["decisions"]["window_reason"] == "medium build task: starts at plan, then verify and review"
     build = outcomes(r, "superpowers/test-driven-development")["build"]
     assert build["outcome"] == "chosen" and build["score"] == r["chain"][0]["score"]
     assert outcomes(r, "spec-kit/plan")["plan"] == {"phase": "plan", "id": "spec-kit/plan", "outcome": "requirement-unmet",
