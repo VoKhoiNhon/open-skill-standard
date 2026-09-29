@@ -282,3 +282,45 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         knowledge.record({"type": "proposed", "route_id": rid, "task": task,
                           "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
     return result
+
+
+def _reason_text(d: dict, size: str) -> str:
+    p, code = d["phase"], d["outcome"]
+    return {
+        "wrong-size": lambda: f"made for {', '.join(d.get('sizes', []))} tasks; this one is {size}",
+        "requirement-unmet": lambda: f"needs {', '.join(d.get('needs', []))} in the project",
+        "no-phase-keywords": lambda: f"no manifest, and its description has no {p} keywords",
+        "few-shared-terms": lambda: f"no manifest, and its description shares {d.get('shared')} word(s) with the task "
+                                    f"(needs {MIN_SHARED_TERMS})",
+        "conflict": lambda: f"conflicts with {', '.join(d.get('conflicts_with', []))}, already in the chain",
+        "below-minimum": lambda: f"score {d.get('score')} is below the minimum {d.get('minimum')}",
+        "lower-score": lambda: f"score {d.get('score')} lost to {d.get('winner')} ({d.get('winner_score')})"
+                               + ("; the project's native framework wins its phases" if d.get("native_winner") else ""),
+        "trimmed": lambda: f"won with score {d.get('score')}, then dropped to fit the model's {d.get('max_steps')}-step limit",
+        "do-directly": lambda: f"won with score {d.get('score')}, but the task is small enough to do directly",
+    }[code]()
+
+
+def why_not(result: dict, skill_id: str, reg, installed) -> dict:
+    """Why a skill is not in the chain, from a route(..., decisions=True) result. KeyError for unknown skills."""
+    have = {i.id for i in installed}
+    if skill_id not in reg.skills and skill_id not in have:
+        raise KeyError(skill_id)
+    mine = [d for d in result["decisions"]["candidates"] if d["id"] == skill_id]
+    chosen = next((d["phase"] for d in mine if d["outcome"] == "chosen"), None)
+    out = {"id": skill_id, "chosen": chosen, "reasons": []}
+    if chosen:
+        return out
+    if skill_id not in have:
+        out["reasons"].append({"code": "not-installed", "text": f"not installed → {_install_hint(reg.skills[skill_id])}"})
+        return out
+    window = result["decisions"]["window"]
+    relevant = [d for d in mine if d["outcome"] not in ("wrong-phase", "already-chosen")]
+    if not relevant:
+        phases = (reg.skills.get(skill_id) or {}).get("phases", [])
+        out["reasons"].append({"code": "wrong-phase", "text": f"acts in {', '.join(phases) or 'no phase'}; "
+                                                              f"this task's phase window is {', '.join(window)}"})
+    for d in relevant:
+        out["reasons"].append({"code": d["outcome"], "phase": d["phase"],
+                               "text": f"[{d['phase']}] {_reason_text(d, result['size'])}"})
+    return out
