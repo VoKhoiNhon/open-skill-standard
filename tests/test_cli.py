@@ -151,3 +151,13 @@ def test_seeds_review_commands(capsys, tmp_path):
     code, out = run(capsys, "seeds", "keep", "data-engineer/n")
     assert "kept your version" in out
     assert "no seed updates waiting" in run(capsys, "seeds", "accept")[1]
+
+
+def test_upgrade_command_and_rollback(capsys, tmp_path):
+    run(capsys, "init", "--role", "data-engineer")
+    code, out = run(capsys, "upgrade", "--dry-run")
+    assert code == 0 and "dry run" in out
+    code, out = run(capsys, "upgrade")
+    assert code == 0 and "backed up to" in out
+    code, out = run(capsys, "upgrade", "--rollback")
+    assert code == 0 and out.startswith("restored")

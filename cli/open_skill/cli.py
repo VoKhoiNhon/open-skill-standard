@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, userdata
+from . import __version__, frontmatter, generate, index, knowledge, lint, paths, registry, route, scan, upgrade, userdata
 
 
 def _registry(args):
@@ -257,6 +257,21 @@ def _seed_decision(args):
     return 0
 
 
+def cmd_upgrade(args):
+    if args.rollback:
+        try:
+            print(upgrade.rollback())
+        except FileNotFoundError as e:
+            print(e, file=sys.stderr)
+            return 1
+        return 0
+    reg = _registry(args)
+    seeds = {rid: r.get("seeds", []) for rid, r in reg.roles.items()}
+    actions = upgrade.upgrade(seeds, dry_run=args.dry_run)
+    print(("dry run, nothing changed:\n" if args.dry_run else "") + ("\n".join(actions) or "already up to date"))
+    return 0
+
+
 def _upstream_skills(src_dir: Path) -> dict[str, str]:
     found = {}
     for p in sorted(Path(src_dir).rglob("SKILL.md")):
@@ -362,6 +377,10 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("seed_id", nargs="?", help="for diff/accept/keep: one seed id (default: all waiting)")
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(fn=cmd_seeds)
+    s = sub.add_parser("upgrade", help="after pulling a new release: migrate your data and sync starter knowledge safely")
+    s.add_argument("--dry-run", action="store_true")
+    s.add_argument("--rollback", action="store_true", help="restore the state from before the last upgrade")
+    s.set_defaults(fn=cmd_upgrade)
     s = sub.add_parser("adapter", help="draft or check an adapter against an upstream checkout")
     s.add_argument("action", choices=["draft", "check"])
     s.add_argument("--source", required=True)
