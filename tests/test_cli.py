@@ -95,3 +95,13 @@ def test_backup_command_and_list(capsys, tmp_path):
     assert code == 0 and made.exists() and made.parent.name == "backups"
     code, out = run(capsys, "backup", "--list")
     assert str(made) in out
+
+
+def test_restore_command(capsys, tmp_path):
+    run(capsys, "learn", "First note", "--applies-to", "role:*")
+    snap = run(capsys, "backup")[1].strip()
+    run(capsys, "learn", "Second note", "--applies-to", "role:*")
+    code, out = run(capsys, "restore", snap)
+    assert code == 0 and "previous state saved" in out
+    texts = [p.read_text() for p in (tmp_path / "h" / "knowledge").glob("*.md")]
+    assert any("First note" in t for t in texts) and not any("Second note" in t for t in texts)
