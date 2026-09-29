@@ -87,6 +87,9 @@ phases:
     alternatives:
     - open-skill/open-skill-learn
 seeds:
-- Review the tests first; they show what the author believes the code does.
-- Keep a visible tech-debt list with an owner per item.
-- Write the definition of done into the pull request template.
+- id: review-tests-first-they-show
+  text: Review the tests first; they show what the author believes the code does.
+- id: keep-visible-tech-debt-list
+  text: Keep a visible tech-debt list with an owner per item.
+- id: write-definition-done-pull-request
+  text: Write the definition of done into the pull request template.

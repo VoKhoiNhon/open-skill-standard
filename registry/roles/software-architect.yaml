@@ -79,6 +79,9 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- Write the rejected options into the ADR; they are the useful part later.
-- Draw the boundary before choosing the technology.
-- Measure the quality attribute you are designing for.
+- id: write-rejected-options-adr-they
+  text: Write the rejected options into the ADR; they are the useful part later.
+- id: draw-boundary-choosing-technology
+  text: Draw the boundary before choosing the technology.
+- id: measure-quality-attribute-designing
+  text: Measure the quality attribute you are designing for.
