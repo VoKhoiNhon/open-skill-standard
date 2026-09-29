@@ -1,0 +1,22 @@
+skill: open-skill-standards
+queries:
+  - {q: "before I say this pipeline is done, run the definition of done checklist", trigger: true}
+  - {q: "is this change good enough to merge? check it against our standards", trigger: true}
+  - {q: "what are the best practices for idempotent data loads and backfills", trigger: true}
+  - {q: "set up a spec-kit constitution with principles for a data engineering team", trigger: true}
+  - {q: "quy chuẩn code cho team backend là gì, checklist trước khi merge", trigger: true}
+  - {q: "do we need an ADR for switching from Postgres to DynamoDB? what should it contain", trigger: true}
+  - {q: "checklist for a data contract between our team and the analytics team", trigger: true}
+  - {q: "what's the definition of done for an ML model release", trigger: true}
+  - {q: "review my commit messages and tests against conventional standards before the PR", trigger: true}
+  - {q: "đã đủ chuẩn chưa? kiểm tra giúp pipeline này theo best practice", trigger: true}
+  - {q: "which skill should I use to start this project", trigger: false}
+  - {q: "who calls the calculate_total function", trigger: false}
+  - {q: "remember that our release day is Thursday", trigger: false}
+  - {q: "write a SQL query for monthly revenue by region", trigger: false}
+  - {q: "build a landing page for the product launch", trigger: false}
+  - {q: "debug why the nightly job failed with a timeout", trigger: false}
+  - {q: "look up the React 19 useActionState API", trigger: false}
+  - {q: "make a slide deck summarizing Q3 results", trigger: false}
+  - {q: "brainstorm names for our new internal tool", trigger: false}
+  - {q: "sửa lỗi chính tả trong file hướng dẫn", trigger: false}
