@@ -67,3 +67,14 @@ def test_a_linked_skill_folder_given_by_the_user_is_audited_at_its_target(toy_ru
     (real / "SKILL.md").write_text("danger\n")
     (tmp_path / "installed").symlink_to(real)
     assert [f.rule for f in audit.audit_paths([tmp_path / "installed"])] == ["toy"]
+
+
+@pytest.mark.parametrize("head", [b"\x7fELF\x02\x01", b"\xcf\xfa\xed\xfe\x07\x00", b"MZ\x90\x00\x03\x00"])
+def test_bundled_native_executable_is_flagged(toy_rule, tmp_path, head):
+    (tmp_path / "tool").write_bytes(head + b"\0" * 64 + b"danger")
+    assert [f.rule for f in audit.audit_paths([tmp_path])] == ["native-executable"]
+
+
+def test_other_binary_assets_are_skipped(toy_rule, tmp_path):
+    (tmp_path / "logo.png").write_bytes(b"\x89PNG\r\n\x1a\n\0\0danger")
+    assert audit.audit_paths([tmp_path]) == []

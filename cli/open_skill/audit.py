@@ -73,6 +73,13 @@ rule("link-outside-skill", "high", None,
      "a symbolic link points outside the skill folder; following it could read or run files the skill does not ship",
      CWE_LINK)
 
+ANTHROPIC_SKILLS = "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations"
+rule("native-executable", "medium", None,
+     "a compiled program ships with the skill; it cannot be reviewed as text, so only run it from a source you trust",
+     ANTHROPIC_SKILLS)
+NATIVE = (b"\x7fELF", b"\xfe\xed\xfa\xce", b"\xfe\xed\xfa\xcf", b"\xce\xfa\xed\xfe", b"\xcf\xfa\xed\xfe",
+          b"\xca\xfe\xba\xbe", b"MZ")  # ELF, Mach-O (32/64-bit, both byte orders, universal), Windows PE
+
 
 def _flag(rule_id: str, path: Path, excerpt: str) -> Finding:
     r = RULES[rule_id]
@@ -85,7 +92,10 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
         target = Path(os.path.realpath(path))
         inside = target.is_relative_to(Path(os.path.realpath(root)))
         return [] if inside else [_flag("link-outside-skill", path, f"-> {os.readlink(path)}")]
-    return audit_text(path.read_text(errors="replace"), str(path))
+    data = path.read_bytes()
+    if b"\0" in data[:8192]:  # binary: images and fonts are normal, programs deserve a look
+        return [_flag("native-executable", path, data[:4].hex())] if data.startswith(NATIVE) else []
+    return audit_text(data.decode("utf-8", errors="replace"), str(path))
 
 
 def audit_paths(paths) -> list[Finding]:
