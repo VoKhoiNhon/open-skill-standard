@@ -110,9 +110,7 @@ def init(profile: dict, seeds: dict[str, list[str]]) -> Path:
     """Write profile.yaml and copy the seeds of the chosen roles into knowledge/."""
     _prepare()
     userdata.atomic_write(home() / "profile.yaml", yaml.safe_dump(profile, sort_keys=False, allow_unicode=True))
-    for role in profile.get("roles", {}):
-        for s in seeds.get(role, []):
-            learn(s["text"] if isinstance(s, dict) else s, [f"role:{role}"], type_="pitfall", source="seed")
+    sync_seeds(list(profile.get("roles", {})), seeds)
     return home()
 
 

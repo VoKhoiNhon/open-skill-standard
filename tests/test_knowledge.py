@@ -16,12 +16,13 @@ def home(tmp_path, monkeypatch):
 
 def test_init_writes_profile_and_seeds(home):
     knowledge.init({"roles": {"data-engineer": 1.0}, "stack": ["python"]},
-                   seeds={"data-engineer": ["Use MERGE on the business key."]})
+                   seeds={"data-engineer": [{"id": "merge", "text": "Use MERGE on the business key."}]})
     prof = yaml.safe_load((home / "profile.yaml").read_text())
     assert prof["roles"] == {"data-engineer": 1.0}
     nodes = knowledge.load_knowledge()
     assert len(nodes) == 1
     assert nodes[0]["source"] == "seed" and nodes[0]["applies_to"] == ["role:data-engineer"]
+    assert nodes[0]["seed_id"] == "data-engineer/merge"
 
 
 def test_learn_dedupes_and_merges_scope(home):
