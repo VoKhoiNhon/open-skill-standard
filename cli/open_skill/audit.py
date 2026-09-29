@@ -94,6 +94,8 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
         target = Path(os.path.realpath(path))
         inside = target.is_relative_to(Path(os.path.realpath(root)))
         return [] if inside else [_flag("link-outside-skill", path, f"-> {os.readlink(path)}")]
+    if not path.is_file():  # sockets, FIFOs and devices: opening one could block or have side effects
+        return []
     with path.open("rb") as fh:
         head = fh.read(8192)
     if b"\0" in head:  # binary: images and fonts are normal, programs deserve a look

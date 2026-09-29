@@ -84,3 +84,10 @@ def test_oversized_text_is_reported_as_unscanned(toy_rule, tmp_path, monkeypatch
     monkeypatch.setattr(audit, "MAX_TEXT_BYTES", 100)
     (tmp_path / "big.md").write_text("x" * 200 + "\ndanger\n")
     assert [(f.rule, f.severity) for f in audit.audit_paths([tmp_path])] == [("unscanned-file", "low")]
+
+
+def test_special_files_are_skipped_without_opening(toy_rule, tmp_path):
+    import os
+
+    os.mkfifo(tmp_path / "pipe")  # opening a FIFO for reading would block the audit forever
+    assert audit.audit_paths([tmp_path]) == []
