@@ -187,3 +187,10 @@ def test_lint_exit_codes_and_json(capsys, tmp_path):
     assert run(capsys, "lint", "--strict", str(tmp_path / "s"))[0] == 1
     code, out = run(capsys, "lint", "--format", "json", str(tmp_path / "s"))
     assert json.loads(out)[0]["severity"] == "warning"
+
+
+def test_lint_installed_report(capsys):
+    code, out = run(capsys, "lint", "--installed")
+    assert code == 0 and "superpowers" in out and "harvested" in out
+    code, out = run(capsys, "lint", "--installed", "--format", "json")
+    assert json.loads(out)["superpowers"]["skills"] >= 1
