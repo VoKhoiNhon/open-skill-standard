@@ -32,7 +32,7 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 /plugin install open-skill@open-skill-standard
 
 # 2. Khai báo vai trò; lệnh này cũng nạp tri thức khởi đầu (seed) cho vai trò đó
-uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.4.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
+uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.5.0 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
 
 # 3. Trong agent, ở bất kỳ project nào
 /open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
