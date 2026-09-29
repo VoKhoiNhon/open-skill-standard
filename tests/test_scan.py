@@ -102,3 +102,19 @@ def test_shared_folder_is_seen_by_every_agent_that_reads_it(reg):
     helper = by_invoke(scan.scan(reg))["shared-helper"]
     assert helper.agent == "codex"  # ~/.agents/skills is codex's first folder, demo-agent's second
     assert helper.agents == {"codex": "shared-helper", "demo-agent": "shared-helper"}
+
+
+def test_bundled_adapters_find_their_skills_in_other_agents(tmp_path, monkeypatch):
+    for folder in (".agents/skills", ".cursor/skills"):
+        skill = tmp_path / folder / "open-skill-router/SKILL.md"
+        skill.parent.mkdir(parents=True)
+        skill.write_text("---\nname: open-skill-router\ndescription: d\n---\n")
+    proj = tmp_path / "proj"
+    (proj / ".agents/skills/speckit-plan").mkdir(parents=True)
+    (proj / ".agents/skills/speckit-plan/SKILL.md").write_text("---\nname: speckit-plan\ndescription: d\n---\n")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    got = {i.id: i for i in scan.scan(registry.load(), proj)}
+    router = got["open-skill/open-skill-router"]
+    assert {"codex", "cursor", "gemini-cli", "github-copilot"} <= set(router.agents)
+    assert "claude-code" not in router.agents
+    assert "codex" in got["spec-kit/plan"].agents

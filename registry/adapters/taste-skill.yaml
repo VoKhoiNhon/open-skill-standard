@@ -6,7 +6,7 @@ install:
   skills-cli: "npx skills add https://github.com/Leonxlnx/taste-skill"
 detect:
   - {glob: "~/.claude/plugins/cache/*/taste-skill/*/skills/{name}/SKILL.md", invoke: "taste-skill:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex]
 skills:
   - name: taste-skill

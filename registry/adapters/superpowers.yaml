@@ -8,8 +8,8 @@ install:
   claude-plugin-marketplace: "/plugin marketplace add obra/superpowers-marketplace && /plugin install superpowers@superpowers-marketplace"
 detect:
   - {glob: "~/.claude/plugins/cache/*/superpowers/*/skills/{name}/SKILL.md", invoke: "superpowers:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
-  - {glob: "{project}/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex, cursor, copilot]
 skills:
   - name: brainstorming

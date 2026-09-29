@@ -8,8 +8,8 @@ install:
   skills-cli: "npx skills add VoKhoiNhon/open-skill-standard -g"
 detect:
   - {glob: "~/.claude/plugins/cache/*/open-skill/*/skills/{name}/SKILL.md", invoke: "open-skill:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
-  - {glob: "{project}/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex, cursor, copilot, gemini]
 skills:
   - name: open-skill-router

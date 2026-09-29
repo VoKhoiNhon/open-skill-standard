@@ -6,7 +6,7 @@ install:
   setup: "npx ctx7 setup"
 detect:
   - {glob: "~/.claude/plugins/cache/*/context7/*/skills/{name}/SKILL.md", invoke: "context7:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex, cursor, copilot]
 skills:
   - name: context7-mcp

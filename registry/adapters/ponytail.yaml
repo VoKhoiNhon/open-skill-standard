@@ -6,7 +6,7 @@ install:
   claude-plugin: "/plugin marketplace add DietrichGebert/ponytail && /plugin install ponytail@ponytail"
 detect:
   - {glob: "~/.claude/plugins/cache/*/ponytail/*/skills/{name}/SKILL.md", invoke: "ponytail:{name}"}
-  - {glob: "~/.claude/skills/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
 portability: [claude-code, codex]
 skills:
   - name: ponytail

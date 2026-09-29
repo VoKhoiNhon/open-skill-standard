@@ -9,7 +9,7 @@ install:
   bug-extension: "specify extension add bug"
   assess-extension: "specify extension add assess"
 detect:
-  - {glob: "{project}/.claude/skills/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
+  - {glob: "{project_skills}/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
 portability: [claude-code, codex, cursor, copilot, gemini]
 skills:
   - name: constitution
