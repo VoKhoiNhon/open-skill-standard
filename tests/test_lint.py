@@ -152,3 +152,18 @@ def test_lint_paths_includes_manifests(tmp_path):
     write_json(tmp_path, "plugin.json", {"name": "Bad Name"})
     assert "plugin-name" in [f.rule for f in lint.lint_paths([tmp_path / ".claude-plugin"])]
     assert "plugin-name" in [f.rule for f in lint.lint_paths([tmp_path])]
+
+
+def test_health_groups_findings_by_source(tmp_path):
+    from open_skill.scan import Installed
+    good = tmp_path / "good-skill"
+    good.mkdir()
+    (good / "SKILL.md").write_text(doc("fine"))
+    bad = tmp_path / "bad"
+    bad.mkdir()
+    (bad / "SKILL.md").write_text(doc("fine", name="not-bad"))
+    installed = [Installed("pack/good-skill", "good-skill", str(good / "SKILL.md"), "", False),
+                 Installed("pack/bad", "bad", str(bad / "SKILL.md"), "", False),
+                 Installed("claude-code-builtin/code-review", "code-review", "builtin:CLAUDECODE", "", False)]
+    report = lint.health(installed)
+    assert report == {"pack": {"skills": 2, "errors": 1, "warnings": 0, "worst": ["bad: name-matches-folder"]}}
