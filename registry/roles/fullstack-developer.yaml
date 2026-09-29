@@ -84,8 +84,8 @@ phases:
     alternatives:
     - bmad-method/bmad-retrospective
 seeds:
-- id: contract-changes-update-client-tests
-  text: When a contract changes, update the client and the tests in the same change.
+- id: end-to-end-test-across-layers
+  text: Run one end-to-end test through the UI and the API before calling a cross-layer change done.
 - id: do-add-dependency-what-few
   text: Do not add a dependency for what a few lines can do.
 - id: reproduce-bug-failing-test-fixing
