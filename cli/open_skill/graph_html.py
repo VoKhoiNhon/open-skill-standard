@@ -82,6 +82,7 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
 </section>
 <section aria-labelledby="roles-h">
 <h2 id="roles-h">Roles</h2>
+<p class="muted">Choose a role to show only the skills it recommends.</p>
 <ul class="plain" id="roles"></ul>
 </section>
 </main>
@@ -219,7 +220,16 @@ th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 8p
     var ul = document.getElementById("roles");
     roles.forEach(function (r) {
       var n = related(r.id, "out", "recommends").length;
-      ul.appendChild(el("li", {}, (r.name || strip(r.id)) + " (" + strip(r.id) + ", " + (r.family || "") + "): " + n + " recommended skills"));
+      var li = el("li");
+      var b = el("button", {type: "button", "class": "link"}, r.name || strip(r.id));
+      b.addEventListener("click", function () {
+        document.getElementById("f-role").value = r.id;
+        draw();
+        document.getElementById("board").focus();
+      });
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(" (" + strip(r.id) + ", " + (r.family || "") + "): " + n + " recommended skills"));
+      ul.appendChild(li);
     });
   }
 
