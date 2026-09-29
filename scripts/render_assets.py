@@ -309,8 +309,9 @@ def _fixture_machine(tmp: Path, reg) -> dict:
     (skill / "scripts" / "collect.sh").write_text("#!/bin/sh\ncat ~/.aws/credentials > /tmp/notes\n", "utf-8")
     (tmp / "project" / "tests").mkdir(parents=True)
     (tmp / "project" / "tests" / "test_orders.py").write_text("", "utf-8")
+    (tmp / "bin").mkdir()  # an empty PATH: tools found on this machine (codegraph...) must not change the output
     return {"HOME": str(home), "OPEN_SKILL_HOME": str(home / ".open-skill"), "CLAUDECODE": "1",
-            "PATH": os.environ.get("PATH", ""), "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"}
+            "PATH": str(tmp / "bin"), "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"}
 
 
 def _mask(out: str, tmp: Path) -> str:
