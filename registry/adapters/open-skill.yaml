@@ -28,7 +28,7 @@ skills:
     phases: [research]
     task_size: [small, medium, large]
     triggers: ["how does", "where is", "what is", schema, docs, "which skill"]
-    triggers_i18n: {vi: [tra cứu, ở đâu, chỗ nào, định nghĩa, ảnh hưởng, được gọi]}
+    triggers_i18n: {vi: [tra cứu, ở đâu, chỗ nào, file nào, định nghĩa, được gọi, ảnh hưởng, nếu sửa]}
   - name: open-skill-learn
     description: Remember lessons and preferences so future routes use them
     phases: [learn]

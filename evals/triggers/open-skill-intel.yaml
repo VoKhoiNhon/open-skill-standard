@@ -36,3 +36,4 @@ queries:
   - {q: "je ne sais pas par où commencer ce projet de migration, quel workflow suivre ?", trigger: false, holdout: true, locale: fr}
   - {q: "check this diff against our definition of done before I open the PR", trigger: false, holdout: true}
   - {q: "xem tài liệu mới nhất của pandas về merge trước khi dùng", trigger: true, holdout: true, locale: vi}
+  - {q: "viết hàm tính tổng doanh thu theo tháng", trigger: false, holdout: true, locale: vi}
