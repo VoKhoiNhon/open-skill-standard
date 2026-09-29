@@ -1,0 +1,252 @@
+"""Turn a task into an ordered, explained chain of skills (design §7)."""
+
+import hashlib
+import re
+import time
+from pathlib import Path
+
+from . import index, knowledge, models, project
+
+TOKEN = re.compile(r"\w+", re.UNICODE)
+PRIMARY, ALTERNATIVE, UNLISTED = 2.0, 0.7, 0.2
+UNKNOWN_ROLE, UNKNOWN_ROLE_HARVESTED = 0.3, 0.5  # no role data: generic registry skill vs. local skill
+INFERRED_FACTOR, MIN_SCORE, ASK_MARGIN, FLOW_BONUS = 0.8, 0.35, 0.10, 1.25
+MIN_SHARED_TERMS = 2  # a skill without a manifest must share this many meaningful words with the task
+KEEP_PRIORITY = ["build", "review", "verify", "plan", "specify", "operate", "research", "discover", "release", "learn"]
+
+
+def _positions(text: str, keywords: list[str]) -> list[int]:
+    """Start offsets of keyword matches (whole words; phrases as substrings)."""
+    low = text.lower()
+    out = []
+    for k in keywords:
+        k = k.lower()
+        m = re.search(re.escape(k) if (" " in k or "-" in k) else rf"(?<!\w){re.escape(k)}(?!\w)", low)
+        if m:
+            out.append(m.start())
+    return out
+
+
+def _hits(text: str, keywords: list[str]) -> int:
+    return len(_positions(text, keywords))
+
+
+def _terms(text: str) -> set[str]:
+    return {t for t in TOKEN.findall(text.lower()) if len(t) > 1 and t not in index.STOP}
+
+
+def _phase_order(tax) -> list[str]:
+    return [p["id"] for p in tax["phases"]]
+
+
+def target_phase(task: str, tax: dict) -> str:
+    """Phase with the most keyword hits; ties go to the phase mentioned first ("add a model with tests" is build)."""
+    best, key = "build", None
+    for p in tax["phases"]:
+        pos = _positions(task, p["keywords"])
+        if pos:
+            k = (-len(pos), min(pos))
+            if key is None or k < key:
+                best, key = p["id"], k
+    return best
+
+
+def task_size(task: str, tax: dict, given: str | None) -> str:
+    if given:
+        return given
+    kw = tax.get("size_keywords", {})
+    if _hits(task, kw.get("small", [])):
+        return "small"
+    if _hits(task, kw.get("large", [])):
+        return "large"
+    return "medium"
+
+
+def phase_window(target: str, size: str, artifacts: list[str], role_window: list[str] | None = None) -> list[str]:
+    if target == "build":
+        if size == "small":
+            return ["build"]
+        if role_window:
+            return list(role_window)
+        start = "specify" if size == "large" else "plan"
+        if start == "specify" and "spec" in artifacts:
+            start = "plan"
+        if "tasks" in artifacts or (start == "plan" and "plan" in artifacts):
+            start = "build"
+        order = ["specify", "plan", "build"]
+        return order[order.index(start):] + ["verify", "review"]
+    return {
+        "plan": ["specify", "plan"] if size == "large" and "spec" not in artifacts else ["plan"],
+        "operate": ["operate", "build", "verify"],
+        "release": ["verify", "release"],
+    }.get(target, [target])
+
+
+def _role_mix(role, prof, proj) -> dict[str, float]:
+    if role:
+        return {role: 1.0}
+    for src in (prof.get("roles") or {}, proj["role_signals"]):
+        if src:
+            total = sum(src.values())
+            return {r: v / total for r, v in src.items()}
+    return {"fullstack-developer": 1.0}
+
+
+def _unsatisfied(skill: dict, proj: dict) -> list[str]:
+    root = Path(proj["path"])
+    return [r for r in skill.get("requires", []) if r.startswith("project:") and not (root / r[8:]).exists()]
+
+
+def _install_hint(skill: dict) -> str:
+    inst = skill.get("install") or {}
+    for k, v in inst.items():
+        if "init" in k:
+            return v
+    return next(iter(inst.values()), f"install {skill['source']}")
+
+
+def route(task: str, project_path: Path, reg, installed, role: str | None = None, size: str | None = None,
+          model: str | None = None, record: bool = True) -> dict:
+    tax = reg.taxonomy
+    proj = project.inspect(Path(project_path), tax, reg.roles)
+    prof = knowledge.load_profile()
+    mix = _role_mix(role, prof, proj)
+    size = task_size(task, tax, size)
+    target = target_phase(task, tax)
+    lead = max(mix, key=mix.get)
+    window = phase_window(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"))
+    weights = knowledge.personal_weights()
+    phase_kw = {p["id"]: p["keywords"] for p in tax["phases"]}
+    task_terms = _terms(task)
+
+    conn = index.build_index(reg, installed)
+    hits = dict(index.search(conn, task, limit=200))
+    by_id = {}
+    for i in installed:
+        by_id.setdefault(i.id, i)
+
+    def role_prior(sid: str, phase: str, manifest: dict | None) -> tuple[float, str]:
+        total, notes = 0.0, []
+        for r, share in mix.items():
+            entry = (reg.roles.get(r, {}).get("phases") or {}).get(phase) or {}
+            if sid in entry.get("primary", []):
+                total += share * PRIMARY
+                notes.append(f"primary for {r}")
+            elif sid in entry.get("alternatives", []):
+                total += share * ALTERNATIVE
+                notes.append(f"alternative for {r}")
+            elif manifest and manifest.get("roles"):
+                total += share * manifest["roles"].get(r, UNLISTED)
+            else:
+                total += share * (UNKNOWN_ROLE if manifest else UNKNOWN_ROLE_HARVESTED)
+        return total, ", ".join(notes)
+
+    chain, chosen, missing, asks = [], [], {}, {}
+    available = set(proj["artifacts"])  # artifacts in the repo plus those produced by earlier steps
+    for phase in window:
+        cands = []
+        for sid, inst in by_id.items():
+            manifest = reg.skills.get(sid)
+            if manifest:
+                if phase not in manifest.get("phases", []) or size not in manifest.get("task_size", [size]):
+                    continue
+                if _unsatisfied(manifest, proj):
+                    continue
+            elif not _hits(inst.description, phase_kw.get(phase, [])) or len(task_terms & _terms(inst.description)) < MIN_SHARED_TERMS:
+                continue
+            prior, note = role_prior(sid, phase, manifest)
+            s = hits.get(sid, 0.0)
+            rel = 1 + 3 * s / (s + 4)  # saturating: strong text matches help, but cannot outweigh role and phase
+            personal = weights.get(sid, 0.0)
+            native = bool(manifest and proj["native"] and manifest["source"] == proj["native"])
+            flow = bool(manifest and set(manifest.get("consumes", [])) & available)
+            score = rel * prior * (1 + personal) * (INFERRED_FACTOR if inst.inferred else 1.0) * (FLOW_BONUS if flow else 1.0)
+            why = [f"phase {phase}", f"role prior {prior:.2f}" + (f" ({note})" if note else ""), f"text {rel:.2f}"]
+            if personal:
+                why.append(f"your history {personal:+.2f}")
+            if native:
+                why.append(f"native {proj['native']}")
+            if flow:
+                why.append("consumes " + ", ".join(sorted(set(manifest["consumes"]) & available)))
+            if inst.inferred:
+                why.append("inferred from description")
+            cands.append((native, score, sid, inst, manifest, "; ".join(why)))
+        # The project's native framework wins its phases outright (design §5.1); otherwise best score.
+        cands.sort(key=lambda c: (c[0], c[1]), reverse=True)
+        valid = []
+        for c in cands:
+            _, score, sid, _, manifest, _ = c
+            conflicts = set((manifest or {}).get("conflicts", []))
+            clash = any(sid in set((reg.skills.get(x) or {}).get("conflicts", [])) or x in conflicts for x in chosen)
+            if sid in chosen or clash or score < MIN_SCORE:
+                continue
+            valid.append(c)
+        if valid:
+            native, score, sid, inst, manifest, why = valid[0]
+            step = {"phase": phase, "id": sid, "invoke": inst.invoke, "kind": (manifest or {}).get("kind", "skill"),
+                    "score": round(score, 3), "why": why}
+            if len(valid) > 1 and valid[1][0] == native and valid[1][1] >= score * (1 - ASK_MARGIN):
+                # Only the phase that carries the user's intent is worth a question; elsewhere note the runner-up.
+                if phase == target:
+                    step["ask"] = [sid, valid[1][2]]
+                    asks[phase] = step["ask"]
+                else:
+                    step["runner_up"] = valid[1][2]
+            chain.append(step)
+            chosen.append(sid)
+            available |= set((manifest or {}).get("produces", []))
+        for r in mix:
+            entry = (reg.roles.get(r, {}).get("phases") or {}).get(phase) or {}
+            for sid in entry.get("primary", []):
+                manifest = reg.skills.get(sid)
+                if not manifest or sid in chosen or sid in missing:
+                    continue
+                reason = "not installed" if sid not in by_id else None
+                unmet = _unsatisfied(manifest, proj)
+                if unmet:
+                    reason = f"needs {', '.join(u[8:] for u in unmet)} in the project"
+                if reason:
+                    missing[sid] = {"id": sid, "phase": phase, "reason": reason, "install": _install_hint(manifest),
+                                    "optional": phase != target}
+
+    advice = None
+    if size == "small" and len(chain) <= 1 and target == "build":
+        chain, advice = [], "do directly"
+
+    prof_m = models.resolve(model, reg.models)
+    max_steps = (prof_m.get("chain") or {}).get("max_steps")
+    if max_steps and len(chain) > max_steps:
+        keep = sorted(chain, key=lambda s: KEEP_PRIORITY.index(s["phase"]) if s["phase"] in KEEP_PRIORITY else 99)
+        kept = {id(s) for s in keep[:max_steps]}
+        chain = [s for s in chain if id(s) in kept]
+    effort = (prof_m.get("effort") or {}).get(size)
+    for s in chain:
+        s["effort"] = effort
+
+    proj_key = f"project:{proj['path']}"
+    wanted = {f"skill:{s['id']}" for s in chain} | {f"role:{r}" for r in mix} | {"role:*", proj_key}
+    wanted |= {f"phase:{p}" for p in window}
+    nodes = [k for k in knowledge.load_knowledge() if wanted & set(k.get("applies_to", []))]
+    nodes.sort(key=lambda k: str(k.get("created", "")), reverse=True)  # newest first...
+    nodes.sort(key=lambda k: k.get("type") not in ("lesson", "pitfall"))  # ...lessons and pitfalls before the rest
+
+    rid = "r-" + time.strftime("%Y%m%d-%H%M%S") + "-" + hashlib.sha1(f"{task}{time.time()}".encode()).hexdigest()[:6]
+    result = {
+        "route_id": rid,
+        "task": task,
+        "role": mix,
+        "size": size,
+        "target_phase": target,
+        "project": {k: proj[k] for k in ("path", "native", "artifacts", "codegraph")},
+        "chain": chain,
+        "advice": advice,
+        "knowledge": [{"id": k["id"], "type": k.get("type"), "text": k.get("text", "")} for k in nodes[:5]],
+        "missing": list(missing.values()),
+        "model": {"profile": prof_m["id"], "matched_by": prof_m["matched_by"], "effort": effort,
+                  "max_steps": max_steps, "addenda": prof_m.get("addenda", []), "avoid": prof_m.get("avoid", []),
+                  "traits": prof_m.get("traits", {})},
+    }
+    if record:
+        knowledge.record({"type": "proposed", "route_id": rid, "task": task,
+                          "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
+    return result
