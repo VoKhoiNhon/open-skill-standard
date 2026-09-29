@@ -149,6 +149,8 @@ cases:
      first: superpowers/systematic-debugging}
   - {id: ai-engineer, role: ai-engineer, task: "build a RAG chatbot over our docs with evals",
      include: [superpowers/subagent-driven-development]}
+  - {id: ai-engineer-bmad, role: ai-engineer, task: "add a summarization endpoint", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
   - {id: platform, role: data-ai-platform-engineer, task: "roll out a shared skill pack to all teams",
      include: [anthropic-skills/skill-creator]}
   - {id: architect, role: software-architect, task: "choose between Kafka and a database queue for events",
