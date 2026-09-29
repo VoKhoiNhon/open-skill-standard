@@ -1,0 +1,11 @@
+source: knowledge-work-data
+upstream: https://github.com/anthropics/knowledge-work-plugins
+license: Apache-2.0
+detect:
+  - {glob: "~/.claude/plugins/cache/*/data/*/skills/{name}/SKILL.md", invoke: "data:{name}"}
+skills:
+  - name: validate-data
+    description: QA an analysis or dataset before sharing; check nulls, duplicates, joins
+    phases: [verify]
+    roles: {data-engineer: 1.0}
+    produces: [data-profile]

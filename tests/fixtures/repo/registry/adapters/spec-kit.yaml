@@ -1,0 +1,31 @@
+source: spec-kit
+upstream: https://github.com/github/spec-kit
+license: MIT
+install: {project-init: "specify init --here --integration claude"}
+detect:
+  - {glob: "{project}/.claude/skills/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
+skills:
+  - name: specify
+    description: Create the feature specification
+    phases: [specify]
+    roles: {fullstack-developer: 1.0, data-engineer: 0.9}
+    produces: [spec]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: plan
+    description: Create the technical plan from the spec
+    phases: [plan]
+    roles: {fullstack-developer: 1.0, data-engineer: 0.9}
+    consumes: [spec]
+    produces: [plan]
+    requires: ["project:.specify"]
+    task_size: [medium, large]
+  - name: implement
+    description: Execute tasks.md
+    phases: [build]
+    roles: {fullstack-developer: 1.0, data-engineer: 0.9}
+    consumes: [tasks]
+    produces: [code-change]
+    conflicts: [superpowers/subagent-driven-development]
+    requires: ["project:.specify"]
+    task_size: [medium, large]

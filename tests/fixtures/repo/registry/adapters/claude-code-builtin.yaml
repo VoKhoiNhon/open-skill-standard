@@ -1,0 +1,9 @@
+source: claude-code-builtin
+upstream: https://code.claude.com/docs
+license: proprietary
+available_env: CLAUDECODE
+portability: [claude-code]
+skills:
+  - name: code-review
+    description: Review the current diff for correctness bugs
+    phases: [review]

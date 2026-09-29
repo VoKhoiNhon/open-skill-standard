@@ -1,0 +1,13 @@
+id: data-engineer
+name: Data Engineer
+family: data-ai
+summary: Builds and runs data pipelines
+risk: Silently wrong numbers
+constitution: [Idempotent loads, Reconcile after every run, Declare schema changes]
+signals: [dbt_project.yml, "**/dags/**"]
+phases:
+  plan: {primary: [superpowers/writing-plans], alternatives: [spec-kit/plan]}
+  build: {primary: [superpowers/test-driven-development]}
+  verify: {primary: [knowledge-work-data/validate-data]}
+  review: {primary: [codegraph/explore]}
+seeds: ["Use MERGE on the business key instead of blind INSERT."]

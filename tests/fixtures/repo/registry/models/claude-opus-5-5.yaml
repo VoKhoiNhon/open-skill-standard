@@ -1,0 +1,8 @@
+id: claude-opus-5-5
+match: ["claude-opus-5-5*"]
+family: opus
+inherits: claude-opus-5
+source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5
+verified: "2026-09-29"
+effort: {medium: medium}
+addenda: ["Deliver what was asked, at the scope intended.", "Before your first tool call, say in one sentence what you're about to do."]

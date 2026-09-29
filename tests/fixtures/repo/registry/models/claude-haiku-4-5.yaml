@@ -1,0 +1,7 @@
+id: claude-haiku-4-5
+match: ["claude-haiku-4-5*"]
+family: haiku
+inherits: generic
+source: null
+verified: false
+chain: {max_steps: 3}
