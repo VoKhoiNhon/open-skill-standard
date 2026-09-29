@@ -110,20 +110,40 @@ def locale_triggers(reg) -> dict[str, dict[str, list[str]]]:
     return {sid.split("/", 1)[1]: s["triggers_i18n"] for sid, s in reg.skills.items() if s.get("triggers_i18n")}
 
 
-def lexical_triggers(query: str, descriptions: dict[str, str], top_k: int = 3, ratio: float = 0.5) -> list[str]:
-    """Deterministic stand-in for an agent's choice: skills in the top k by BM25 and within `ratio` of the best."""
+def lexical_triggers(query: str, descriptions: dict[str, str], top_k: int = 3, ratio: float = 0.5,
+                     k1: float = 1.2) -> list[str]:
+    """Deterministic stand-in for an agent's choice: skills in the top k by BM25 and within `ratio` of the best.
+
+    BM25 here has no length normalization (b = 0). An agent reads every description in full, so a 600-character
+    SKILL.md description should not lose to a 60-character registry one for the same matches, and the scores should
+    not move when a registry PR changes the average description length. FTS5's bm25() fixes b at 0.75, so the terms
+    come from fts5vocab, tokenized exactly as FTS5 would."""
+    import math
     import sqlite3
 
     from . import index
 
-    conn = sqlite3.connect(":memory:")
-    conn.execute(f"CREATE VIRTUAL TABLE d USING fts5(name UNINDEXED, text, tokenize='{index.TOKENIZE}')")
-    conn.executemany("INSERT INTO d VALUES (?, ?)", [(n, f"{n.replace('-', ' ')} {t}") for n, t in descriptions.items()])
     tokens = [t for t in index.TOKEN.findall(query.lower()) if t not in index.STOP and t != "near"]
     if not tokens:
         return []
-    rows = conn.execute("SELECT name, -bm25(d) FROM d WHERE d MATCH ? ORDER BY bm25(d) LIMIT ?",
-                        (" OR ".join(f'"{t}"' for t in dict.fromkeys(tokens)), top_k)).fetchall()
+    conn = sqlite3.connect(":memory:")
+    conn.execute(f"CREATE VIRTUAL TABLE d USING fts5(name UNINDEXED, text, tokenize='{index.TOKENIZE}')")
+    conn.execute(f"CREATE VIRTUAL TABLE q USING fts5(text, tokenize='{index.TOKENIZE}')")
+    conn.execute("CREATE VIRTUAL TABLE dv USING fts5vocab(d, instance)")
+    conn.execute("CREATE VIRTUAL TABLE qv USING fts5vocab(q, row)")
+    conn.executemany("INSERT INTO d VALUES (?, ?)", [(n, f"{n.replace('-', ' ')} {t}") for n, t in descriptions.items()])
+    conn.execute("INSERT INTO q VALUES (?)", (" ".join(tokens),))
+    tf = conn.execute("SELECT d.name, dv.term, count(*) FROM dv JOIN d ON d.rowid = dv.doc "
+                      "WHERE dv.term IN (SELECT term FROM qv) GROUP BY dv.doc, dv.term").fetchall()
+    df = {}
+    for _, term, _ in tf:
+        df[term] = df.get(term, 0) + 1
+    n = len(descriptions)
+    scores = {}
+    for name, term, f in tf:
+        idf = math.log((n - df[term] + 0.5) / (df[term] + 0.5) + 1)
+        scores[name] = scores.get(name, 0.0) + idf * f * (k1 + 1) / (f + k1)
+    rows = sorted(scores.items(), key=lambda x: (-x[1], x[0]))[:top_k]
     if not rows:
         return []
     best = rows[0][1]

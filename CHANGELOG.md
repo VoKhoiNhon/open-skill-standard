@@ -66,6 +66,9 @@ English-first and audited: the whole repository is written for an international 
 - `export` on a fresh `~/.open-skill` no longer creates an empty `knowledge/` folder either, so it too cannot make the home look like an old layout.
 - `build --check` compares the search index `dist/index.db` row by row too; the shipped index had gone stale (it still folded `đ` the old way) without CI noticing, and is rebuilt.
 - Keyword routing no longer lets generic verbs decide a tie: "write a postmortem" targets learn, "write a data contract" specify and "write an ADR" plan. Symptoms (failing, broken, crash, hangs, debug) now beat build and release words, so "the deploy pipeline is failing" starts with debugging (operate). Topic words do not: alert, monitor, cost, and also error and `lỗi` ("add error handling", `lỗi chính tả`). "write tests" and "add a model with tests" stay build. Taxonomy phases may list `generic` and `symptoms` keywords, with `_i18n` blocks like `keywords`; `update` and `cập nhật` are new generic build verbs.
+### Fixed
+
+- The `eval triggers` lexical proxy scores descriptions with BM25 without length normalization, so the core skills' long SKILL.md descriptions no longer lose to short registry descriptions for the same matches, and adding an adapter moves fewer scores. Tuning recall rises to 0.90–1.00 and holdout recall from 0.00–0.17 to 0.67–0.83; holdout precision falls to 0.56–0.71 because the core skills now reach the top 3 at all. The floors in `tests/test_evals.py` follow.
 
 ## [0.6.0] - 2026-09-29
 
