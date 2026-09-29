@@ -460,6 +460,13 @@ def test_empty_note_is_refused(cli):
     assert "empty" in cli.run("learn", "  ", "--applies-to", "role:*", code=2).stderr
     assert not (cli.home / "knowledge").exists()
 
+
+def test_role_weight_must_be_a_number(cli):
+    # Bug: `init --role data-engineer=abc` crashed with ValueError and wrote nothing useful.
+    assert "weight" in cli.run("init", "--role", "data-engineer=abc", code=2).stderr
+    assert "weight" in cli.run("init", "--role", "data-engineer=-1", code=2).stderr
+    assert not (cli.home / "profile.yaml").exists()
+
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
 def _parser_surface() -> set[str]:

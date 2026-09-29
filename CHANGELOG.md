@@ -21,6 +21,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
 ### Fixed
+- `init --role name=weight` with a weight that is not a positive number exits 2 instead of crashing (or storing a negative weight).
 - `learn` with empty text exits 2 instead of crashing.
 - `adapter check --from <missing folder>` exits 2 instead of reporting every skill as dropped upstream, and `eval triggers --cases <missing folder>` exits 2 instead of passing with an empty report.
 - A missing or corrupt file given on the command line (`restore`, `eval --cases` and others) exits 2 with one line on stderr instead of a traceback.

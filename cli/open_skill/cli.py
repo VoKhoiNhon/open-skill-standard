@@ -360,17 +360,27 @@ def _parse_roles(items) -> dict[str, float]:
     out = {}
     for item in items or []:
         name, _, w = item.partition("=")
-        out[name] = float(w or 1.0)
+        try:
+            weight = float(w or 1.0)
+        except ValueError:
+            weight = 0.0
+        if not weight > 0:  # also rejects nan
+            raise ValueError(f"role weight for {name} must be a positive number, got {w!r}")
+        out[name] = weight
     return out
 
 
 def cmd_init(args):
     reg = _registry(args)
-    roles = _parse_roles(args.role)
-    if not roles and sys.stdin.isatty():
-        known = ", ".join(sorted(reg.roles))
-        answer = input(f"Your roles, e.g. data-engineer=0.7,data-analyst=0.3\n({known})\n> ")
-        roles = _parse_roles([x.strip() for x in answer.split(",") if x.strip()])
+    try:
+        roles = _parse_roles(args.role)
+        if not roles and sys.stdin.isatty():
+            known = ", ".join(sorted(reg.roles))
+            answer = input(f"Your roles, e.g. data-engineer=0.7,data-analyst=0.3\n({known})\n> ")
+            roles = _parse_roles([x.strip() for x in answer.split(",") if x.strip()])
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 2
     unknown = [r for r in roles if r not in reg.roles]
     if unknown:
         print(f"unknown role(s): {', '.join(unknown)}", file=sys.stderr)
