@@ -1,0 +1,11 @@
+{
+  "name": "open-skill",
+  "version": "0.1.0",
+  "description": "Open Skill Standard core skills: router, standards, intel, learn.",
+  "author": {
+    "name": "Võ Khôi Nhơn",
+    "url": "https://github.com/VoKhoiNhon"
+  },
+  "homepage": "https://github.com/VoKhoiNhon/open-skill-standard",
+  "license": "MIT"
+}
