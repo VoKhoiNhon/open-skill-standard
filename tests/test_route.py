@@ -184,3 +184,12 @@ def test_missing_skill_hints_use_the_agent(tmp_path):
     codex = route.route(task, proj(tmp_path), reg, have, role="data-engineer", record=False, agent="codex")
     assert claude["missing"] and {m["install"] for m in claude["missing"]} == {"/plugin install demo"}
     assert codex["agent"] == "codex" and {m["install"] for m in codex["missing"]} == {"npx skills add demo -g"}
+
+
+def test_given_phase_skips_keyword_detection(tmp_path):
+    p = proj(tmp_path)
+    r = route.route("customers say invoice export returns nothing since yesterday", p, REG, ALL,
+                    role="data-engineer", phase="operate", decisions=True)
+    assert r["target_phase"] == "operate" and r["decisions"]["phase"]["from"] == "given"
+    with pytest.raises(ValueError, match="unknown phase"):
+        route.route("add an endpoint", p, REG, ALL, phase="deploy")
