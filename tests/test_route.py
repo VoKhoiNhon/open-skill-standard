@@ -136,3 +136,21 @@ def test_harvested_skill_needs_more_than_one_shared_word(tmp_path):
                        "Analyze numbers and post the daily report to the team channel; specification of the format", True)]
     r = route.route("write a spec for team workspaces", proj(tmp_path, "x.py"), REG, ALL + extra, role="fullstack-developer")
     assert "harvested/daily-report" not in ids(r)
+
+
+@pytest.mark.parametrize("args,window,reason", [
+    (("build", "small", []), ["build"], "small build task: build only"),
+    (("build", "medium", [], ["build", "verify"], "data-analyst"), ["build", "verify"], "data-analyst's build_window"),
+    (("build", "large", []), ["specify", "plan", "build", "verify", "review"], "large build task: starts at specify"),
+    (("build", "large", ["spec"]), ["plan", "build", "verify", "review"], "large build task with a spec in the project"),
+    (("build", "medium", ["plan"]), ["build", "verify", "review"], "medium build task with plan in the project"),
+    (("build", "large", ["spec", "tasks"]), ["build", "verify", "review"], "with tasks in the project"),
+    (("plan", "large", []), ["specify", "plan"], "large plan task without a spec"),
+    (("plan", "medium", []), ["plan"], "plan task: plan only"),
+    (("operate", "medium", []), ["operate", "build", "verify"], "operate task"),
+    (("release", "medium", []), ["verify", "release"], "release task"),
+])
+def test_window_and_reason(args, window, reason):
+    w, why = route.window_and_reason(*args)
+    assert w == window and reason in why
+    assert route.phase_window(*args[:4]) == window

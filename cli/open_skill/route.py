@@ -35,6 +35,10 @@ def _terms(text: str) -> set[str]:
     return {t for t in TOKEN.findall(text.lower()) if len(t) > 1 and t not in index.STOP}
 
 
+def _matched(text: str, keywords: list[str]) -> list[str]:
+    return [k for k in keywords if _positions(text, [k])]
+
+
 def _phase_order(tax) -> list[str]:
     return [p["id"] for p in tax["phases"]]
 
@@ -63,23 +67,31 @@ def task_size(task: str, tax: dict, given: str | None) -> str:
 
 
 def phase_window(target: str, size: str, artifacts: list[str], role_window: list[str] | None = None) -> list[str]:
+    return window_and_reason(target, size, artifacts, role_window)[0]
+
+
+def window_and_reason(target: str, size: str, artifacts: list[str], role_window: list[str] | None = None,
+                      role: str = "the lead role") -> tuple[list[str], str]:
+    """The phases a route covers, and one sentence on why."""
     if target == "build":
         if size == "small":
-            return ["build"]
+            return ["build"], "small build task: build only"
         if role_window:
-            return list(role_window)
+            return list(role_window), f"{role}'s build_window"
         start = "specify" if size == "large" else "plan"
+        why = f"{size} build task: starts at {start}"
         if start == "specify" and "spec" in artifacts:
-            start = "plan"
+            start, why = "plan", "large build task with a spec in the project: starts at plan"
         if "tasks" in artifacts or (start == "plan" and "plan" in artifacts):
-            start = "build"
+            found = "tasks" if "tasks" in artifacts else "plan"
+            start, why = "build", f"{size} build task with {found} in the project: starts at build"
         order = ["specify", "plan", "build"]
-        return order[order.index(start):] + ["verify", "review"]
-    return {
-        "plan": ["specify", "plan"] if size == "large" and "spec" not in artifacts else ["plan"],
-        "operate": ["operate", "build", "verify"],
-        "release": ["verify", "release"],
-    }.get(target, [target])
+        return order[order.index(start):] + ["verify", "review"], why + ", then verify and review"
+    if target == "plan" and size == "large" and "spec" not in artifacts:
+        return ["specify", "plan"], "large plan task without a spec: specify first"
+    fixed = {"operate": (["operate", "build", "verify"], "operate task: fix, then verify"),
+             "release": (["verify", "release"], "release task: verify first")}
+    return fixed.get(target, ([target], f"{target} task: {target} only"))
 
 
 def _role_mix(role, prof, proj) -> dict[str, float]:
@@ -112,12 +124,14 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     proj = project.inspect(Path(project_path), tax, reg.roles)
     prof = knowledge.load_profile()
     mix = _role_mix(role, prof, proj)
-    size = task_size(task, tax, size)
+    given_size, size = size, task_size(task, tax, size)
     target = target_phase(task, tax)
     lead = max(mix, key=mix.get)
-    window = phase_window(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"))
+    window, window_why = window_and_reason(target, size, proj["artifacts"], reg.roles.get(lead, {}).get("build_window"), lead)
     weights = knowledge.personal_weights()
     phase_kw = {p["id"]: p["keywords"] for p in tax["phases"]}
+    size_kw = tax.get("size_keywords", {}).get(size, [])
+    size_from = "given" if given_size else ("keywords" if _matched(task, size_kw) else "default")
     task_terms = _terms(task)
 
     conn = index.build_index(reg, installed)
@@ -277,7 +291,10 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                   "traits": prof_m.get("traits", {})},
     }
     if decisions:
-        result["decisions"] = {"window": window, "candidates": trace}
+        result["decisions"] = {
+            "phase": {"target": target, "keywords": _matched(task, phase_kw.get(target, []))},
+            "size": {"size": size, "from": size_from, "keywords": _matched(task, size_kw) if size_from == "keywords" else []},
+            "window": window, "window_reason": window_why, "candidates": trace}
     if record:
         knowledge.record({"type": "proposed", "route_id": rid, "task": task,
                           "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})

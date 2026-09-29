@@ -45,6 +45,7 @@ def test_default_output_has_no_decisions(project):
 def test_decisions_record_the_window_the_winner_and_the_losers(project):
     r = run("add an export endpoint", project, decisions=True)
     assert r["decisions"]["window"] == ["plan", "build", "verify", "review"]
+    assert r["decisions"]["window_reason"] == "medium build task: starts at plan, then verify and review"
     build = outcomes(r, "superpowers/test-driven-development")["build"]
     assert build["outcome"] == "chosen" and build["score"] == r["chain"][0]["score"]
     assert outcomes(r, "spec-kit/plan")["plan"] == {"phase": "plan", "id": "spec-kit/plan", "outcome": "requirement-unmet",
@@ -166,3 +167,15 @@ def test_decisions_never_change_the_route(project, task, kw):
     for r in (plain, traced):
         r.pop("route_id")
     assert plain == traced
+
+
+def test_decisions_name_the_keywords_behind_target_phase_and_size(project):
+    d = run("review a typo in the checklist", project, decisions=True)["decisions"]
+    assert d["phase"] == {"target": "review", "keywords": ["review"]}
+    assert d["size"] == {"size": "small", "from": "keywords", "keywords": ["typo"]}
+    d = run("add an export endpoint", project, decisions=True)["decisions"]
+    assert d["phase"] == {"target": "build", "keywords": ["add", "endpoint"]}
+    assert d["size"] == {"size": "medium", "from": "default", "keywords": []}
+    assert run("the orders thing", project, decisions=True)["decisions"]["phase"] == {"target": "build", "keywords": []}
+    d = run("build a new platform", project, size="small", decisions=True)["decisions"]
+    assert d["size"] == {"size": "small", "from": "given", "keywords": []}
