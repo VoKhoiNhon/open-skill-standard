@@ -24,7 +24,7 @@ jobs:
           - {source: taste-skill, repo: leonxlnx/taste-skill, dir: skills}
           - {source: context7, repo: upstash/context7, dir: "."}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
       - run: git clone --depth 1 https://github.com/${{ matrix.repo }} upstream
       - id: diff
