@@ -199,6 +199,12 @@ cases:
      include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: architect-bmad, role: software-architect, task: "design the checkout architecture", files: [_bmad/config.toml],
      phases: [plan], include: [bmad-method/bmad-architecture]}
+  - {id: architect-review, role: software-architect, task: "review the architecture of the payments service",
+     phases: [review], exclude: [superpowers/subagent-driven-development]}
+  - {id: architect-research, role: software-architect, task: "research event streaming platforms to compare",
+     phases: [research]}
+  - {id: architect-vietnamese, role: software-architect, task: "thiết kế kiến trúc cho hệ thống đặt hàng",
+     include: [knowledge-work-engineering/architecture], exclude: [superpowers/subagent-driven-development]}
   - {id: tech-lead, role: tech-lead, task: "review this pull request for the payments module",
      phases: [review], include: [claude-code-builtin/code-review]}
   - {id: eng-manager, role: engineering-manager, task: "plan next sprint and send a status update",
