@@ -74,6 +74,8 @@ cases:
      include: [knowledge-work-data/sql-queries]}
   - {id: sysadmin, role: system-administrator, task: "automate nightly backups of the file server",
      include: [superpowers/subagent-driven-development]}
+  - {id: sysadmin-spec-kit, role: system-administrator, task: "add log rotation to the web servers",
+     files: [.specify/memory/constitution.md], include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: data-engineer, role: data-engineer, task: "add a pipeline that loads orders into the warehouse",
      include: [knowledge-work-data/explore-data], exclude: [knowledge-work-data/create-viz]}
   - {id: analytics-engineer, role: analytics-engineer, task: "add a revenue model with tests",
