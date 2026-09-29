@@ -70,13 +70,13 @@ def cmd_audit(args):
         groups = audit.audit_installed(scan.scan(_registry(args), Path(args.project) if args.project else None))
     else:
         groups = {p: audit.audit_paths([p]) for p in args.paths}
+    every = [f for found in groups.values() for f in found]
     if args.format == "json":
-        every = [f for found in groups.values() for f in found]
         _print({"disclaimer": audit.DISCLAIMER, "summary": audit.summary(every),
                 "groups": {g: [f.__dict__ for f in found] for g, found in groups.items()}})
     else:
         print(_audit_report(groups))
-    return 0
+    return 1 if audit.summary(every)["high"] or (args.strict and every) else 0
 
 
 def cmd_scan(args):
@@ -568,6 +568,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--installed", action="store_true", help="audit every installed skill, grouped by source")
     s.add_argument("--project", help="with --installed: also the project's own skills")
     s.add_argument("--format", choices=["text", "json"], default="text")
+    s.add_argument("--strict", action="store_true", help="fail on medium and low findings too, not only high")
     s.set_defaults(fn=cmd_audit)
     s = sub.add_parser("scan", help="list installed skills")
     s.add_argument("--project")

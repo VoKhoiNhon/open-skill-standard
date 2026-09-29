@@ -52,3 +52,15 @@ def test_audit_json_has_groups_summary_and_disclaimer(capsys):
     (found,) = doc["groups"].values()
     assert {"severity", "rule", "file", "line", "excerpt", "source", "message"} <= set(found[0])
     assert doc["summary"]["high"] == sum(1 for f in found if f["severity"] == "high") > 0
+
+
+def test_audit_exit_code_fails_on_high_severity(capsys):
+    assert run(capsys, "audit", str(AUDIT / "risky-skill"))[0] == 1
+    assert run(capsys, "audit", str(AUDIT / "risky-skill"), "--format", "json")[0] == 1
+
+
+def test_audit_strict_fails_on_any_finding(capsys, tmp_path):
+    (tmp_path / "SKILL.md").write_text("- Changes: !`git status`\n")  # one low-severity finding
+    assert run(capsys, "audit", str(tmp_path))[0] == 0
+    assert run(capsys, "audit", str(tmp_path), "--strict")[0] == 1
+    assert run(capsys, "audit", str(AUDIT / "clean-skill"), "--strict")[0] == 0
