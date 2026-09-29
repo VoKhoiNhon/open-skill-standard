@@ -110,3 +110,26 @@ def test_restore_rejects_path_traversal(tmp_path):
         userdata.restore(home, evil)
     assert not (tmp_path / "outside.txt").exists()
     assert (home / "profile.yaml").exists()
+
+
+def test_migrate_runs_steps_in_order_with_backup(tmp_path, monkeypatch):
+    home = _layer(tmp_path / "h")
+    calls = []
+    monkeypatch.setattr(userdata, "SCHEMA_VERSION", 2)
+    monkeypatch.setattr(userdata, "MIGRATIONS", {
+        0: ("first", lambda h, dry: calls.append((0, dry)) or ["did 0"]),
+        1: ("second", lambda h, dry: calls.append((1, dry)) or ["did 1"]),
+    })
+    actions = userdata.migrate(home)
+    assert calls == [(0, False), (1, False)]
+    assert actions[0].startswith("backed up to") and "v1 -> v2: second" in actions
+    assert userdata.data_version(home) == 2
+    assert userdata.migrate(home) == []
+
+
+def test_migrate_dry_run_changes_nothing(tmp_path, monkeypatch):
+    home = _layer(tmp_path / "h")
+    monkeypatch.setattr(userdata, "MIGRATIONS", {0: ("first", lambda h, dry: ["would do"] if dry else ["did"])})
+    actions = userdata.migrate(home, dry_run=True)
+    assert "  would do" in actions
+    assert userdata.data_version(home) == 0 and userdata.list_backups(home) == []

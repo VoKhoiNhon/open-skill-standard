@@ -122,3 +122,35 @@ def restore(home: Path, archive: Path) -> Path | None:
         os.replace(entry, home / entry.name)
     staging.rmdir()
     return safety
+
+
+# version -> (summary, step). A step upgrades data from `version` to `version + 1` and returns what it
+# changed (or would change, when dry_run is true). Steps must be idempotent and must not alter user text.
+MIGRATIONS: dict = {}
+
+
+def pending(home: Path) -> list[int]:
+    return list(range(data_version(home), SCHEMA_VERSION))
+
+
+def migrate(home: Path, dry_run: bool = False) -> list[str]:
+    """Bring the user layer to SCHEMA_VERSION, backing it up first. Returns a description of each change."""
+    home = Path(home)
+    v = data_version(home)
+    if v > SCHEMA_VERSION:
+        raise NewerDataError(f"{home} uses data schema {v}; this open-skill understands up to {SCHEMA_VERSION}.")
+    steps = pending(home)
+    if not steps:
+        return []
+    actions: list[str] = []
+    if not dry_run:
+        saved = backup(home, f"pre-migrate-v{v}")
+        if saved:
+            actions.append(f"backed up to {saved}")
+    for step in steps:
+        summary, fn = MIGRATIONS[step]
+        actions.append(f"v{step} -> v{step + 1}: {summary}")
+        actions += [f"  {a}" for a in fn(home, dry_run)]
+        if not dry_run:
+            write_version(home, step + 1)
+    return actions
