@@ -505,11 +505,16 @@ def _seed_decision(args):
             diff = difflib.unified_diff(note["text"].splitlines(), pending[sid].splitlines(),
                                         f"{sid} (yours)", f"{sid} (upstream)", lineterm="")
             print("\n".join(diff))
-        elif args.action == "accept":
-            print(f"accepted upstream wording for {sid}; your version is in {knowledge.accept_proposal(sid)}")
-        else:
-            knowledge.keep_mine(sid)
-            print(f"kept your version of {sid}")
+            continue
+        try:
+            if args.action == "accept":
+                print(f"accepted upstream wording for {sid}; your version is in {knowledge.accept_proposal(sid)}")
+            else:
+                knowledge.keep_mine(sid)
+                print(f"kept your version of {sid}")
+        except KeyError:
+            print(f"{sid} no longer has a note in {knowledge.home() / 'knowledge'}; nothing changed", file=sys.stderr)
+            return 1
     return 0
 
 

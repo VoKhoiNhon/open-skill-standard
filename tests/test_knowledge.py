@@ -351,3 +351,14 @@ def test_forgetting_a_seed_drops_its_pending_update(home):
     note = _edited_seed_with_proposal(home)
     assert knowledge.forget(note["id"])
     assert knowledge.proposals() == {}
+
+
+def test_accept_or_keep_without_the_note_exits_cleanly(home, capsys):
+    # Bug: a proposal whose note file was deleted by hand made `seeds accept` and `seeds keep` crash with KeyError.
+    from open_skill import cli
+
+    note = _edited_seed_with_proposal(home)
+    (home / "knowledge" / f"{note['id']}.md").unlink()
+    assert cli.main(["seeds", "accept", "data-engineer/nulls"]) == 1
+    assert cli.main(["seeds", "keep"]) == 1
+    assert "no longer has a note" in capsys.readouterr().err
