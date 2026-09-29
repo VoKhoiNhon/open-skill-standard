@@ -53,6 +53,13 @@ cases:
   - {id: embedded-vietnamese, role: embedded-engineer, task: "viết driver cho cảm biến nhiệt độ",
      include: [superpowers/test-driven-development]}
   - {id: game, role: game-developer, task: "add a double jump to the player controller", include: [claude-code-builtin/run]}
+  - {id: game-crash, role: game-developer, task: "the game crashes when loading a save file",
+     first: superpowers/systematic-debugging, include: [claude-code-builtin/run]}
+  - {id: game-perf, role: game-developer, task: "the frame rate is slow in the forest level",
+     first: superpowers/systematic-debugging}
+  - {id: game-bmad, role: game-developer, task: "add a boss fight", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-build], exclude: [superpowers/subagent-driven-development]}
+  - {id: game-vietnamese, role: game-developer, task: "thêm chế độ chơi nhiều người", include: [claude-code-builtin/run]}
   - {id: qa, role: qa-engineer, task: "create end-to-end tests for the checkout flow",
      include: [knowledge-work-engineering/testing-strategy, anthropic-skills/webapp-testing]}
   - {id: devops, role: devops-engineer, task: "add a CI pipeline that builds and deploys the container",
