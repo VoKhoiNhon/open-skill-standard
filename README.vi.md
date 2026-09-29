@@ -253,6 +253,25 @@ open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 ```
 
+Mã thoát: 0 thành công, 1 một kiểm tra thất bại (lint có lỗi, audit có phát hiện mức high, build cũ, adapter lệch upstream, không có gì để gỡ), 2 đầu vào sai (vai trò, phase, agent hoặc đường dẫn không tồn tại), 3 dữ liệu của bạn do một open-skill mới hơn ghi.
+
+### Đầu ra JSON
+
+Các đầu ra này dành cho công cụ khác; các khoá liệt kê luôn có mặt (có thể thêm khoá, không bao giờ bỏ khoá trong một bản minor).
+
+| Lệnh | Dạng | Khoá |
+|---|---|---|
+| `open-skill route` | object | `route_id`, `task`, `agent`, `role`, `size`, `target_phase`, `phase_from`, `project`, `chain`, `advice`, `knowledge`, `missing`, `model` |
+| `open-skill scan --json` | list of objects | `id`, `invoke`, `path`, `description`, `inferred`, `agent`, `agents` |
+| `open-skill agents --json` | list of objects | `id`, `name`, `detected`, `skills`, `docs`, `install_to`, `reads` |
+| `open-skill status --json` | object | `open_skill`, `registry`, `home`, `data_schema`, `cli_schema`, `pending_migrations`, `roles`, `notes`, `seed_updates_to_review`, `backups` |
+| `open-skill lint --format json` | list of objects | `path`, `severity`, `rule`, `message`, `source` |
+| `open-skill lint --installed --format json` | object per source | `skills`, `errors`, `warnings`, `worst` |
+| `open-skill audit --format json` | object | `disclaimer`, `summary`, `groups` |
+| `open-skill graph --format json` | object | `version`, `nodes`, `edges` |
+| `open-skill eval routing --format json` | object | `cases`, `passed`, `pass_rate`, `by_role`, `results` |
+| `open-skill eval triggers --format json` | object per skill | `train`, `validation` |
+
 ## Đóng góp
 
 Bạn có thể thêm adapter, role pack hoặc hồ sơ model; xem [CONTRIBUTING.md](CONTRIBUTING.md). Mỗi thay đổi đều chạy: unit test, routing eval cho mọi vai trò, validate schema, lint skill, kiểm tra file sinh tự động, và privacy guard.

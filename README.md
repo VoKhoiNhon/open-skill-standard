@@ -231,6 +231,25 @@ open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 ```
 
+Exit codes: 0 success, 1 a check failed (lint errors, a high audit finding, stale build, adapter drift, nothing to remove), 2 bad input (unknown role, phase, agent or path), 3 your data was written by a newer open-skill.
+
+### JSON output
+
+These outputs are for other tools; the keys listed are always present (more may be added, never removed in a minor release).
+
+| Command | Shape | Keys |
+|---|---|---|
+| `open-skill route` | object | `route_id`, `task`, `agent`, `role`, `size`, `target_phase`, `phase_from`, `project`, `chain`, `advice`, `knowledge`, `missing`, `model` |
+| `open-skill scan --json` | list of objects | `id`, `invoke`, `path`, `description`, `inferred`, `agent`, `agents` |
+| `open-skill agents --json` | list of objects | `id`, `name`, `detected`, `skills`, `docs`, `install_to`, `reads` |
+| `open-skill status --json` | object | `open_skill`, `registry`, `home`, `data_schema`, `cli_schema`, `pending_migrations`, `roles`, `notes`, `seed_updates_to_review`, `backups` |
+| `open-skill lint --format json` | list of objects | `path`, `severity`, `rule`, `message`, `source` |
+| `open-skill lint --installed --format json` | object per source | `skills`, `errors`, `warnings`, `worst` |
+| `open-skill audit --format json` | object | `disclaimer`, `summary`, `groups` |
+| `open-skill graph --format json` | object | `version`, `nodes`, `edges` |
+| `open-skill eval routing --format json` | object | `cases`, `passed`, `pass_rate`, `by_role`, `results` |
+| `open-skill eval triggers --format json` | object per skill | `train`, `validation` |
+
 ## Contributing
 
 Add an adapter, a role pack or a model profile; see [CONTRIBUTING.md](CONTRIBUTING.md). Every change runs unit tests, routing evals for every role, schema validation, skill lint, a generated-files check and a privacy guard.
