@@ -106,7 +106,8 @@ def _install_hint(skill: dict) -> str:
 
 
 def route(task: str, project_path: Path, reg, installed, role: str | None = None, size: str | None = None,
-          model: str | None = None, record: bool = True) -> dict:
+          model: str | None = None, record: bool = True, decisions: bool = False) -> dict:
+    """decisions=True adds result["decisions"]: the phase window and the outcome of every candidate per phase."""
     tax = reg.taxonomy
     proj = project.inspect(Path(project_path), tax, reg.roles)
     prof = knowledge.load_profile()
@@ -141,18 +142,31 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                 total += share * (UNKNOWN_ROLE if manifest else UNKNOWN_ROLE_HARVESTED)
         return total, ", ".join(notes)
 
-    chain, chosen, missing, asks = [], [], {}, {}
+    chain, chosen, missing, asks, trace = [], [], {}, {}, []
+
+    def decide(phase: str, sid: str, outcome: str, **extra):
+        trace.append({"phase": phase, "id": sid, "outcome": outcome, **extra})
     available = set(proj["artifacts"])  # artifacts in the repo plus those produced by earlier steps
     for phase in window:
         cands = []
         for sid, inst in by_id.items():
             manifest = reg.skills.get(sid)
             if manifest:
-                if phase not in manifest.get("phases", []) or size not in manifest.get("task_size", [size]):
+                if phase not in manifest.get("phases", []):
+                    decide(phase, sid, "wrong-phase", phases=manifest.get("phases", []))
                     continue
-                if _unsatisfied(manifest, proj):
+                if size not in manifest.get("task_size", [size]):
+                    decide(phase, sid, "wrong-size", sizes=manifest["task_size"])
                     continue
-            elif not _hits(inst.description, phase_kw.get(phase, [])) or len(task_terms & _terms(inst.description)) < MIN_SHARED_TERMS:
+                unmet = _unsatisfied(manifest, proj)
+                if unmet:
+                    decide(phase, sid, "requirement-unmet", needs=[u[8:] for u in unmet])
+                    continue
+            elif not _hits(inst.description, phase_kw.get(phase, [])):
+                decide(phase, sid, "no-phase-keywords")
+                continue
+            elif len(task_terms & _terms(inst.description)) < MIN_SHARED_TERMS:
+                decide(phase, sid, "few-shared-terms", shared=len(task_terms & _terms(inst.description)))
                 continue
             prior, note = role_prior(sid, phase, manifest)
             s = hits.get(sid, 0.0)
@@ -177,12 +191,21 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         for c in cands:
             _, score, sid, _, manifest, _ = c
             conflicts = set((manifest or {}).get("conflicts", []))
-            clash = any(sid in set((reg.skills.get(x) or {}).get("conflicts", [])) or x in conflicts for x in chosen)
-            if sid in chosen or clash or score < MIN_SCORE:
-                continue
-            valid.append(c)
+            clash = [x for x in chosen if sid in set((reg.skills.get(x) or {}).get("conflicts", [])) or x in conflicts]
+            if sid in chosen:
+                decide(phase, sid, "already-chosen")
+            elif clash:
+                decide(phase, sid, "conflict", score=round(score, 3), conflicts_with=clash)
+            elif score < MIN_SCORE:
+                decide(phase, sid, "below-minimum", score=round(score, 3), minimum=MIN_SCORE)
+            else:
+                valid.append(c)
         if valid:
             native, score, sid, inst, manifest, why = valid[0]
+            decide(phase, sid, "chosen", score=round(score, 3), why=why)
+            for c in valid[1:]:
+                decide(phase, c[2], "lower-score", score=round(c[1], 3), winner=sid, winner_score=round(score, 3),
+                     native_winner=native and not c[0])
             step = {"phase": phase, "id": sid, "invoke": inst.invoke, "kind": (manifest or {}).get("kind", "skill"),
                     "score": round(score, 3), "why": why}
             if len(valid) > 1 and valid[1][0] == native and valid[1][1] >= score * (1 - ASK_MARGIN):
@@ -212,6 +235,9 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
     advice = None
     if size == "small" and len(chain) <= 1 and target == "build":
         chain, advice = [], "do directly"
+        for d in trace:
+            if d["outcome"] == "chosen":
+                d["outcome"] = "do-directly"
 
     prof_m = models.resolve(model, reg.models)
     max_steps = (prof_m.get("chain") or {}).get("max_steps")
@@ -219,6 +245,10 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         keep = sorted(chain, key=lambda s: KEEP_PRIORITY.index(s["phase"]) if s["phase"] in KEEP_PRIORITY else 99)
         kept = {id(s) for s in keep[:max_steps]}
         chain = [s for s in chain if id(s) in kept]
+        final = {(s["phase"], s["id"]) for s in chain}
+        for d in trace:
+            if d["outcome"] == "chosen" and (d["phase"], d["id"]) not in final:
+                d.update(outcome="trimmed", max_steps=max_steps)
     effort = (prof_m.get("effort") or {}).get(size)
     for s in chain:
         s["effort"] = effort
@@ -246,7 +276,51 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                   "max_steps": max_steps, "addenda": prof_m.get("addenda", []), "avoid": prof_m.get("avoid", []),
                   "traits": prof_m.get("traits", {})},
     }
+    if decisions:
+        result["decisions"] = {"window": window, "candidates": trace}
     if record:
         knowledge.record({"type": "proposed", "route_id": rid, "task": task,
                           "chain": [{"id": s["id"], "invoke": s["invoke"]} for s in chain]})
     return result
+
+
+def _reason_text(d: dict, size: str) -> str:
+    p, code = d["phase"], d["outcome"]
+    return {
+        "wrong-size": lambda: f"made for {', '.join(d.get('sizes', []))} tasks; this one is {size}",
+        "requirement-unmet": lambda: f"needs {', '.join(d.get('needs', []))} in the project",
+        "no-phase-keywords": lambda: f"no manifest, and its description has no {p} keywords",
+        "few-shared-terms": lambda: f"no manifest, and its description shares {d.get('shared')} word(s) with the task "
+                                    f"(needs {MIN_SHARED_TERMS})",
+        "conflict": lambda: f"conflicts with {', '.join(d.get('conflicts_with', []))}, already in the chain",
+        "below-minimum": lambda: f"score {d.get('score')} is below the minimum {d.get('minimum')}",
+        "lower-score": lambda: f"score {d.get('score')} lost to {d.get('winner')} ({d.get('winner_score')})"
+                               + ("; the project's native framework wins its phases" if d.get("native_winner") else ""),
+        "trimmed": lambda: f"won with score {d.get('score')}, then dropped to fit the model's {d.get('max_steps')}-step limit",
+        "do-directly": lambda: f"won with score {d.get('score')}, but the task is small enough to do directly",
+    }[code]()
+
+
+def why_not(result: dict, skill_id: str, reg, installed) -> dict:
+    """Why a skill is not in the chain, from a route(..., decisions=True) result. KeyError for unknown skills."""
+    have = {i.id for i in installed}
+    if skill_id not in reg.skills and skill_id not in have:
+        raise KeyError(skill_id)
+    mine = [d for d in result["decisions"]["candidates"] if d["id"] == skill_id]
+    chosen = next((d["phase"] for d in mine if d["outcome"] == "chosen"), None)
+    out = {"id": skill_id, "chosen": chosen, "reasons": []}
+    if chosen:
+        return out
+    if skill_id not in have:
+        out["reasons"].append({"code": "not-installed", "text": f"not installed → {_install_hint(reg.skills[skill_id])}"})
+        return out
+    window = result["decisions"]["window"]
+    relevant = [d for d in mine if d["outcome"] not in ("wrong-phase", "already-chosen")]
+    if not relevant:
+        phases = (reg.skills.get(skill_id) or {}).get("phases", [])
+        out["reasons"].append({"code": "wrong-phase", "text": f"acts in {', '.join(phases) or 'no phase'}; "
+                                                              f"this task's phase window is {', '.join(window)}"})
+    for d in relevant:
+        out["reasons"].append({"code": d["outcome"], "phase": d["phase"],
+                               "text": f"[{d['phase']}] {_reason_text(d, result['size'])}"})
+    return out

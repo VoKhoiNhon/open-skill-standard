@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `scripts/release_check.py X.Y.Z`: before tagging, verifies the version is bumped everywhere, nothing is left under `[Unreleased]`, the new section is the newest, dated and moves the version forward, and the compare links are updated. CI runs it on `release/*` pull requests.
 - Trigger sets grow to 32 queries per core skill, with multilingual phrasing and closer near misses; the 12 new ones per skill are marked `holdout: true` and kept out of tuning.
 - `eval triggers` reports the lexical proxy on tuning and holdout queries separately and lists failures for tuning queries only; `--agent` uses the `holdout` flags as its validation split when a set has them.
+- `open-skill route "<task>" --why-not <skill>` explains why a skill is not in the chain: not installed, wrong phase or size, requirement unmet, conflict with a chosen skill, below the minimum score, lower score than the winner (both scores), dropped by the model step limit, or done directly. `route.route(..., decisions=True)` exposes every candidate decision; the default output is unchanged.
 
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.

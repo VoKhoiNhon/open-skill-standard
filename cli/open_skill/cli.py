@@ -107,10 +107,30 @@ def _explain(r) -> str:
     return "\n".join(lines)
 
 
+def _why_not(args, reg, proj, installed) -> int:
+    sid = next((i.id for i in installed if i.invoke == args.why_not), args.why_not)
+    r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
+                    record=False, decisions=True)
+    try:
+        w = route.why_not(r, sid, reg, installed)
+    except KeyError:
+        print(f"unknown skill: {args.why_not} (see open-skill search)", file=sys.stderr)
+        return 2
+    if w["chosen"]:
+        print(f"{sid} is in the chain, for phase {w['chosen']}")
+        return 0
+    print(f"{sid} is not in the chain for: {args.task}")
+    for x in w["reasons"]:
+        print(f"  - {x['text']}")
+    return 0
+
+
 def cmd_route(args):
     reg = _registry(args)
     proj = Path(args.project or ".")
     installed = scan.scan(reg, proj)
+    if args.why_not:
+        return _why_not(args, reg, proj, installed)
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
                     record=not args.no_record)
     _print(_explain(r) if args.explain else r, as_json=not args.explain)
@@ -444,6 +464,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--model")
     s.add_argument("--explain", action="store_true")
     s.add_argument("--no-record", action="store_true")
+    s.add_argument("--why-not", metavar="SKILL", help="explain why a skill (id or invoke name) is not in the chain")
     s.set_defaults(fn=cmd_route)
     s = sub.add_parser("graph", help="export the skill graph")
     s.add_argument("--format", choices=["mermaid", "json", "html"], default="mermaid")
