@@ -64,7 +64,7 @@ def _latest_versions(paths: list[Path]) -> list[Path]:
 
 def _describe(path: Path) -> tuple[str, str]:
     meta, _ = frontmatter.parse(path.read_text(errors="replace"))
-    return str(meta.get("name") or path.parent.name), str(meta.get("description") or "")
+    return frontmatter.text(meta, "name") or path.parent.name, frontmatter.text(meta, "description")
 
 
 def _targets(pattern: str, project: Path | None, reg, agent: str) -> list[tuple[str, list[str]]]:

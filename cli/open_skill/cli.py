@@ -38,6 +38,10 @@ def cmd_lint(args):
                 print(f"    {w}")
         return 0
     targets = args.paths or [str(paths.data_root() / "skills")]
+    missing = [p for p in targets if not Path(p).exists()]
+    if missing:
+        print(f"no such file or folder: {', '.join(missing)}", file=sys.stderr)
+        return 2
     findings = lint.lint_paths(targets)
     errors = [f for f in findings if f.severity == "error"]
     if args.format == "json":
@@ -610,7 +614,7 @@ def _upstream_skills(src_dir: Path) -> dict[str, str]:
         if ".git" in p.parts:
             continue
         meta, _ = frontmatter.parse(p.read_text(errors="replace"))
-        found[p.parent.name] = str(meta.get("description") or "")  # agents invoke skills by folder name
+        found[p.parent.name] = frontmatter.text(meta, "description")  # agents invoke skills by folder name
     return found
 
 

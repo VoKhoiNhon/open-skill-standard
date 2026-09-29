@@ -1,6 +1,8 @@
 """Lint SKILL.md files: frontmatter limits and prompt patterns that current Claude models handle badly."""
 
 import re
+import unicodedata
+from urllib.parse import unquote
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,40 +13,112 @@ FABLE5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineeri
 OPUS5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5"
 SONNET5 = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5"
 SPEC = "https://agentskills.io/specification"
+SKILLS_REF = "https://github.com/agentskills/agentskills/blob/main/skills-ref/src/skills_ref/validator.py"
+QUICK_VALIDATE = "https://github.com/anthropics/skills/blob/main/skills/skill-creator/scripts/quick_validate.py"
+OSS_SPEC = "https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md#7-skill-writing-rules"
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
 
 PATTERNS = [
-    ("reasoning-in-response",
-     re.compile(r"(?i)(show|write out|reproduce|explain|include|output) (all |your |the )?(reasoning|thinking|chain[- ]of[- ]thought)"
+    ("reasoning-in-response", "error",
+     re.compile(r"(?i)(?<!not )(?<!n't )(?<!n’t )(?<!never )"
+                r"(show|write out|reproduce|explain|include|output) (all |your |the )?(reasoning|thinking|chain[- ]of[- ]thought)"
                 r"( process)?( in| into)? (the |your )?(response|answer|reply|output)|think step[- ]by[- ]step (in|and write)"),
      "Asking the model to reproduce its reasoning in the reply can be declined as reasoning_extraction.", FABLE5),
-    ("redundant-verification",
+    ("redundant-verification", "warning",
      re.compile(r"(?i)\b(double[- ]check your|re-?verify (your|before)|verify (it|your work) again)"),
      "Current models self-verify; extra verification instructions cause over-verification.", OPUS5),
-    ("hardcoded-model",
-     re.compile(r"(?i)\bclaude-(opus|sonnet|haiku|fable|mythos)-\d"),
-     "Model IDs belong in registry/models profiles, not in skills.", PRACTICES),
-    ("legacy-params",
-     re.compile(r"(?i)\b(budget_tokens|temperature\s*[=:]|prefill(ed)? (the )?(assistant|response))"),
-     "budget_tokens, temperature and prefills are removed or rejected on current models.", PRACTICES),
+    ("hardcoded-model", "warning",
+     re.compile(r"(?i)\bclaude-((opus|sonnet|haiku|fable|mythos)-\d|\d(-\d+)?-(opus|sonnet|haiku)\b)"),
+     "Model IDs belong in registry/models profiles, not in skills, so a skill keeps working on the next model.", OSS_SPEC),
+    ("legacy-params", "error",
+     re.compile(r"(?i)\b(budget_tokens|prefill(ed)? (the )?(assistant|response))"),
+     "Manual thinking budgets (budget_tokens) and assistant prefills return a 400 error on current models.", PRACTICES),
+    ("sampling-params", "error",
+     re.compile(r"(?i)\b(temperature|top_p|top_k)[\"']?\s*[=:]\s*[\"']?\d"),
+     "Setting temperature, top_p or top_k returns a 400 error on Claude Sonnet 5; describe the variety you want instead.",
+     SONNET5 + "#tone-and-writing-style"),
 ]
-REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|don'?t nitpick)")
+REVIEW_FILTER = re.compile(r"(?i)(only report (high|critical)[- ]severity|be conservative|(don['’]?t|do not) nitpick)")
 SHOUT = re.compile(r"\b(MUST|NEVER|ALWAYS|CRITICAL|IMPORTANT)\b")
 SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
-# Extensions some agents read (Claude Code documents these); everything else is probably a typo.
-AGENT_FIELDS = {"when_to_use", "argument-hint", "disable-model-invocation", "user-invocable", "model", "effort",
-                "context", "agent", "hooks", "paths", "version"}
+# Extensions Claude Code documents in its frontmatter reference; everything else is probably a typo.
+AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
+                "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"}
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
+FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
+
+
+def prose(body: str) -> str:
+    """The body with fenced code blocks blanked out, keeping line numbers."""
+    return FENCE.sub(lambda m: "\n" * m.group().count("\n"), body)
+
+
 NAME_RX = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # no leading, trailing or double hyphens (Agent Skills spec)
 
 
 # Errors break skills on some agent or model; warnings are strong advice.
-SEVERITY = {
-    "field-allowed-tools": "warning", "field-license": "warning", "unknown-field": "warning", "body-tokens": "warning",
-    "frontmatter-name": "error", "frontmatter-description": "error", "reasoning-in-response": "error",
-    "legacy-params": "error", "length": "warning", "redundant-verification": "warning",
-    "hardcoded-model": "warning", "review-filtering": "warning", "shouting": "warning",
-}
+@dataclass(frozen=True)
+class Rule:
+    id: str
+    severity: str
+    checks: str  # what the rule looks for, as the rule catalog shows it
+    source: str  # the public guidance the rule comes from
+
+
+RULES: dict[str, Rule] = {}
+
+
+def rule(id: str, severity: str, checks: str, source: str) -> None:
+    assert severity in ("error", "warning") and id not in RULES, id
+    RULES[id] = Rule(id, severity, checks, source)
+
+
+MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+PLUGIN_DOCS = "https://code.claude.com/docs/en/plugins-reference"
+MARKETPLACE_REF = "https://code.claude.com/docs/en/plugins/marketplace-reference"
+rule("frontmatter", "error", "SKILL.md starts with a closed block of YAML frontmatter that is a mapping", SPEC)
+rule("frontmatter-name", "error", "`name` is a string of 1-64 lowercase letters, digits and single hyphens, not starting or"
+     " ending with a hyphen; letters outside a-z are allowed as the reference validator allows them", SPEC)
+rule("name-ascii", "warning", "`name` uses only a-z, 0-9 and hyphens, which Anthropic's packager and claude.ai uploads require",
+     QUICK_VALIDATE)
+rule("name-reserved-word", "error", "`name` does not contain the reserved words 'claude' or 'anthropic'", BEST)
+rule("name-matches-folder", "error", "`name` equals the name of the folder holding SKILL.md, compared in Unicode NFKC form",
+     SKILLS_REF)
+rule("frontmatter-description", "error", "`description` is a non-blank string of at most 1024 characters", SPEC)
+rule("description-angle-brackets", "error", "`description` has no `<` or `>`, which Anthropic's packager rejects", QUICK_VALIDATE)
+rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or one Claude Code documents",
+     CLAUDE_SKILLS + "#frontmatter-reference")
+rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
+rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
+rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
+rule("field-license", "warning", "`license`, when present, is a string", SPEC)
+rule("body-tokens", "warning", "the SKILL.md body is under about 5000 tokens", SPEC)
+rule("length", "warning", "SKILL.md is under 500 lines", BEST)
+for _id, _sev, _rx, _msg, _src in PATTERNS:
+    rule(_id, _sev, _msg, _src)
+rule("review-filtering", "warning", "a review skill does not tell the model to report only severe findings", SONNET5)
+rule("shouting", "warning", "no more than five lines outside code blocks use capitalized MUST, NEVER, ALWAYS, CRITICAL or IMPORTANT",
+     PRACTICES + "#tool-usage")
+rule("missing-reference", "error", "every relative file the body links to outside code exists", SPEC + "#file-references")
+rule("missing-mention", "warning", "every references/, scripts/ or assets/ path the body names in inline code exists",
+     SPEC + "#file-references")
+rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
+rule("marketplace-field", "error", "marketplace.json has `name`, `owner` (with a `name`) and a list of `plugins`",
+     MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-plugin", "error", "every plugin entry is an object with a `name` (unique, no spaces) and a `source`",
+     MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`",
+     MARKETPLACE_DOCS)
+rule("marketplace-name", "error", "the marketplace name is a non-empty string without spaces, slashes, '..' or control "
+     "characters", MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-reserved", "warning", "the marketplace name is not reserved for, and does not look like, an official "
+     "Anthropic marketplace", MARKETPLACE_REF + "#reserved-names")
+rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
+     PLUGIN_DOCS + "#name")
+rule("plugin-name-style", "warning", "plugin.json `name` is kebab-case, as Claude Code recommends", PLUGIN_DOCS + "#name")
+rule("plugin-version", "warning", "plugin.json `version`, when present, is semantic (x.y.z); Claude Code accepts any string",
+     PLUGIN_DOCS + "#version")
+rule("plugin-description", "warning", "plugin.json has a `description`", PLUGIN_DOCS)
 
 
 @dataclass
@@ -56,64 +130,118 @@ class Finding:
     severity: str = "error"
 
 
-def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
-    out: list[Finding] = []
-    meta, body = frontmatter.parse(text)
+def _finding(path, rule_id: str, message: str) -> Finding:
+    r = RULES[rule_id]
+    return Finding(str(path), rule_id, message, r.source, r.severity)
 
-    def add(rule, msg, src):
-        out.append(Finding(path, rule, msg, src, SEVERITY.get(rule, "error")))
 
-    name, desc = str(meta.get("name", "")), str(meta.get("description", ""))
-    if not name:
-        add("frontmatter-name", "name is missing", BEST)
-    elif len(name) > 64 or not NAME_RX.match(name):
-        add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen", SPEC)
-    elif "claude" in name or "anthropic" in name:
-        add("frontmatter-name", "name must not contain 'claude' or 'anthropic'", BEST)
-    if name and folder and name != folder:
-        add("name-matches-folder", f"name '{name}' must match its folder '{folder}'", SPEC)
-    if not desc:
-        add("frontmatter-description", "description is missing", BEST)
-    elif len(desc) > 1024 or "<" in desc or ">" in desc:
-        add("frontmatter-description", "description must be at most 1024 chars with no angle brackets", BEST)
+def _not_text(meta: dict, key: str) -> str | None:
+    """Why a required text field is unusable, or None when it is a non-blank string."""
+    v = meta.get(key)
+    if v is None:
+        return f"{key} is missing"
+    if not isinstance(v, str):
+        return f"{key} must be a string, not a YAML {type(v).__name__} (quote it)"
+    return None if v.strip() else f"{key} is blank"
+
+
+def _spec_name(name: str) -> bool:
+    """The reference validator's test: lowercase letters (any script), digits and single inner hyphens, 1-64 long."""
+    return (0 < len(name) <= 64 and name == name.lower() and not name.startswith("-") and not name.endswith("-")
+            and "--" not in name and all(c.isalnum() or c == "-" for c in name))
+
+
+def _check_fields(meta: dict, folder: str | None, add) -> None:
+    name = unicodedata.normalize("NFKC", frontmatter.text(meta, "name").strip())
+    desc = frontmatter.text(meta, "description")
+    if _not_text(meta, "name"):
+        add("frontmatter-name", _not_text(meta, "name"))
+    elif not _spec_name(name):
+        add("frontmatter-name", "name must be 1-64 lowercase letters, digits and single hyphens, not starting or ending with a hyphen")
+    else:
+        if not NAME_RX.match(name):
+            add("name-ascii", f"name '{name}' has letters outside a-z; claude.ai uploads and package_skill.py reject it")
+        if "claude" in name or "anthropic" in name:
+            add("name-reserved-word", "name must not contain 'claude' or 'anthropic'")
+    if name and folder and name != unicodedata.normalize("NFKC", folder):
+        add("name-matches-folder", f"name '{name}' must match its folder '{folder}'")
+    if _not_text(meta, "description"):
+        add("frontmatter-description", _not_text(meta, "description"))
+    elif len(desc) > 1024:
+        add("frontmatter-description", f"description is {len(desc)} characters; the limit is 1024")
+    elif "<" in desc or ">" in desc:
+        add("description-angle-brackets", "description must not contain < or >; Anthropic's packager rejects it")
     for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS):
-        add("unknown-field", f"'{key}' is not an Agent Skills field; agents will ignore it (put custom data under metadata)", SPEC)
+        add("unknown-field", f"'{key}' is neither an Agent Skills field nor one Claude Code documents; agents ignore it (put custom data under metadata)")
     if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):
-        add("field-compatibility", "compatibility must be a string of 1-500 characters", SPEC)
+        add("field-compatibility", "compatibility must be a string of 1-500 characters")
     md = meta.get("metadata")
     if "metadata" in meta and not (isinstance(md, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in md.items())):
-        add("field-metadata", "metadata must map string keys to string values (quote numbers like \"1.0\")", SPEC)
+        add("field-metadata", "metadata must map string keys to string values (quote numbers like \"1.0\")")
     if "allowed-tools" in meta and not isinstance(meta["allowed-tools"], str):
-        add("field-allowed-tools", "allowed-tools should be one space-separated string", SPEC)
+        add("field-allowed-tools", "allowed-tools should be one space-separated string")
     if "license" in meta and not isinstance(meta["license"], str):
-        add("field-license", "license should be a short string or the name of a bundled license file", SPEC)
-    if len(body) / 4 > 5000:  # rough token estimate; the spec recommends under 5000 tokens for instructions
-        add("body-tokens", f"instructions are about {len(body) // 4} tokens; keep SKILL.md under ~5000 and move detail to references/", SPEC)
-    if text.count("\n") + 1 > 500:
-        add("length", "SKILL.md over 500 lines; move detail into reference files", BEST)
-    for rule, rx, msg, src in PATTERNS:
+        add("field-license", "license should be a short string or the name of a bundled license file")
+
+
+def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
+    out: list[Finding] = []
+
+    def add(rule_id, msg):
+        out.append(_finding(path, rule_id, msg))
+
+    try:
+        meta, body = frontmatter.split(text)
+    except ValueError as e:  # the field rules would only repeat "missing", so report the cause once
+        add("frontmatter", str(e))
+        meta, body = {}, text
+    else:
+        _check_fields(meta, folder, add)
+    name, desc = frontmatter.text(meta, "name"), frontmatter.text(meta, "description")
+    # ponytail: rough token estimate (4 ASCII characters or 1 other character per token); a tokenizer would be exact.
+    tokens = int(sum(0.25 if ord(c) < 128 else 1 for c in body))
+    if tokens > 5000:  # the spec recommends under 5000 tokens for instructions
+        add("body-tokens", f"instructions are about {tokens} tokens; keep SKILL.md under ~5000 and move detail to references/")
+    if len(text.splitlines()) > 500:
+        add("length", "SKILL.md over 500 lines; move detail into reference files")
+    for rule_id, _, rx, msg, _ in PATTERNS:
         if rx.search(body):
-            add(rule, msg, src)
-    if re.search(r"(?i)review", name + " " + desc) and REVIEW_FILTER.search(body):
-        add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.", SONNET5)
-    if sum(1 for line in body.splitlines() if SHOUT.search(line)) > 5:
-        add("shouting", "Explain why instead of capitalized MUST/NEVER; current models follow brief instructions.", FABLE5)
+            add(rule_id, msg)
+    if re.search(r"(?i)\breview", name + " " + desc) and REVIEW_FILTER.search(body):
+        add("review-filtering", "Review instructions that filter by severity cut recall on current models; report all and filter later.")
+    if sum(1 for line in prose(body).splitlines() if SHOUT.search(line)) > 5:
+        add("shouting", "Explain why instead of capitalized MUST/NEVER; current models overreact to aggressive emphasis.")
     return out
 
 
-LINK = re.compile(r"\]\(([^)\s]+)\)|`((?:references|scripts|assets)/[^`\s]+)`")
+LINK = re.compile(r"\]\((?:<([^>\n]+)>|([^)\s]+))")
+MENTION = re.compile(r"`((?:references|scripts|assets)/[^`\s]+)`")
+CODE_SPAN = re.compile(r"(`+)(?!`).+?(?<!`)\1")
 
 
-def missing_references(body: str, base: Path) -> list[str]:
-    """Relative files a skill points to that do not exist (URLs, anchors and <placeholders> are skipped)."""
+def _absent(refs, base: Path) -> list[str]:
+    """Relative file paths among refs that do not exist under base; URLs, anchors and placeholders are skipped."""
     out = []
-    for m in LINK.finditer(body):
-        ref = (m.group(1) or m.group(2)).split("#")[0]
-        if not ref or re.match(r"^[a-z]+:", ref) or ref.startswith(("/", "~")) or re.search(r"[<>{}*]", ref):
+    for ref in refs:
+        ref = unquote(ref.split("#")[0])
+        if not ref or re.match(r"^[a-z]+:", ref) or ref.startswith(("/", "~")) or re.search(r"[<>{}*\[\]$]", ref):
+            continue
+        if "/" not in ref and "." not in ref:  # a bare word such as (URL) or (link) is a template placeholder
             continue
         if not (base / ref).exists():
             out.append(ref)
     return sorted(set(out))
+
+
+def missing_references(body: str, base: Path) -> list[str]:
+    """Files the body links to, outside code, that do not exist."""
+    text = CODE_SPAN.sub("", prose(body))
+    return _absent((m.group(1) or m.group(2) for m in LINK.finditer(text)), base)
+
+
+def missing_mentions(body: str, base: Path) -> list[str]:
+    """references/, scripts/ or assets/ paths named in inline code, outside code blocks, that do not exist."""
+    return _absent((m.group(1) for m in MENTION.finditer(prose(body))), base)
 
 
 def lint_file(path: Path) -> list[Finding]:
@@ -121,8 +249,11 @@ def lint_file(path: Path) -> list[Finding]:
     folder = path.parent.name if path.name == "SKILL.md" else None
     text = path.read_text(errors="replace")
     out = lint_text(text, str(path), folder)
-    for ref in missing_references(frontmatter.parse(text)[1], path.parent):
-        out.append(Finding(str(path), "missing-reference", f"references '{ref}', which does not exist", SPEC))
+    body = frontmatter.parse(text)[1]
+    for ref in missing_references(body, path.parent):
+        out.append(_finding(path, "missing-reference", f"links to '{ref}', which does not exist"))
+    for ref in missing_mentions(body, path.parent):
+        out.append(_finding(path, "missing-mention", f"names '{ref}', which does not exist; link it if the skill ships it"))
     return out
 
 
@@ -146,60 +277,109 @@ def lint_paths(paths) -> list[Finding]:
     return out
 
 
-MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
+# Reserved marketplace names (marketplace reference, "Reserved names"); other spellings count too.
+RESERVED = {"claude-code-marketplace", "claude-code-plugins", "claude-plugins-official", "anthropic-marketplace",
+            "anthropic-plugins", "agent-skills", "anthropic-agent-skills", "life-sciences", "knowledge-work-plugins",
+            "claude-for-legal", "claude-for-financial-services", "financial-services-plugins", "first-party-plugins",
+            "claude-tag-plugins", "claude-community", "claude-plugins-community", "healthcare",
+            "anthropic-plugin-directory", "claude-plugin-directory", "inline", "builtin", "skills-dir", "synced",
+            "claude-plugin-test", "npm", "pip", "uv", "cargo", "github", "gh"}
+
+
+def _reserved(name: str) -> bool:
+    spelled = re.sub(r"[^\w]", "-", name.lower().rstrip("."))  # claude.code.plugins is claude-code-plugins
+    return (spelled in RESERVED or spelled.startswith("claudeai-")
+            or any(w in spelled for w in ("anthropic", "official")))
 
 
 def lint_marketplace(path: Path) -> list[Finding]:
-    """Required fields of .claude-plugin/marketplace.json, as the Claude Code validator checks them."""
-    import json
-
+    """.claude-plugin/marketplace.json, as the Claude Code validator checks it."""
     path = Path(path)
     out: list[Finding] = []
 
-    def add(rule, msg, sev="error"):
-        out.append(Finding(str(path), rule, msg, MARKETPLACE_DOCS, sev))
+    def add(rule_id, msg):
+        out.append(_finding(path, rule_id, msg))
 
-    try:
-        doc = json.loads(path.read_text())
-    except json.JSONDecodeError as e:
-        add("manifest-json", f"invalid JSON: {e}")
+    doc, why = _load_manifest(path)
+    if why:
+        add("manifest-json", why)
         return out
     for key in ("name", "owner", "plugins"):
         if key not in doc:
             add("marketplace-field", f"missing required field '{key}'")
-    for i, p in enumerate(doc.get("plugins") or []):
+    owner = doc.get("owner")
+    if "owner" in doc and not (isinstance(owner, dict) and isinstance(owner.get("name"), str) and owner["name"].strip()):
+        add("marketplace-field", "owner must be an object with a non-empty name")
+    plugins = doc.get("plugins", [])
+    if not isinstance(plugins, list):
+        add("marketplace-field", "plugins must be a list of plugin entries")
+        plugins = []
+    root = isinstance(doc.get("metadata"), dict) and doc["metadata"].get("pluginRoot")
+    seen = set()
+    for i, p in enumerate(plugins):
+        if not isinstance(p, dict):
+            add("marketplace-plugin", f"plugins[{i}] must be an object with name and source")
+            continue
         for key in ("name", "source"):
             if key not in p:
                 add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
+        pname = p.get("name")
+        if isinstance(pname, str) and BAD_NAME_CHARS.search(pname):
+            add("marketplace-plugin", f"plugins[{i}].name '{pname}' must not contain spaces or control characters")
+        if isinstance(pname, str) and pname in seen:
+            add("marketplace-plugin", f"duplicate plugin name '{pname}'")
+        seen.add(pname if isinstance(pname, str) else None)
         src = p.get("source")
         if isinstance(src, str) and ".." in Path(src).parts:
             add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
-    name = str(doc.get("name", "")).lower()
-    if any(w in name for w in ("anthropic", "claude-plugins-official", "official")):
-        add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace", "warning")
+        elif isinstance(src, str) and src != "." and not src.startswith("./") and not root:
+            add("marketplace-source", f"plugins[{i}].source '{src}' is a relative path and must start with ./")
+    name = doc.get("name", "")
+    if "name" in doc and (not isinstance(name, str) or not name or name in (".", "..") or ".." in name
+                          or BAD_NAME_CHARS.search(name)):
+        add("marketplace-name", f"marketplace name {name!r} must be a non-empty string without spaces, slashes, '..' "
+                                "or control characters")
+    elif isinstance(name, str) and _reserved(name):
+        add("marketplace-reserved", f"marketplace name '{name}' is reserved for or looks like an official Anthropic "
+                                    "marketplace; adding it fails unless it is hosted under github.com/anthropics")
     return out
 
 
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 
 
-def lint_plugin(path: Path) -> list[Finding]:
-    """.claude-plugin/plugin.json: a kebab-case name, and a semantic version when one is given."""
+# What Claude Code rejects in a plugin or marketplace name: whitespace, @ and :, path separators, control and bidi characters.
+BAD_NAME_CHARS = re.compile(r"[\s@:/\\\x00-\x1f\x7f\u200e\u200f\u202a-\u202e\u2066-\u2069]")
+
+
+def _load_manifest(path: Path):
+    """(object, None) for a JSON object, else (None, why)."""
     import json
 
-    path = Path(path)
     try:
-        doc = json.loads(path.read_text())
+        doc = json.loads(path.read_text(errors="replace"))
     except json.JSONDecodeError as e:
-        return [Finding(str(path), "manifest-json", f"invalid JSON: {e}", MARKETPLACE_DOCS)]
+        return None, f"invalid JSON: {e}"
+    return (doc, None) if isinstance(doc, dict) else (None, "the manifest must be a JSON object")
+
+
+def lint_plugin(path: Path) -> list[Finding]:
+    """.claude-plugin/plugin.json, as Claude Code's plugins reference describes it."""
+    path = Path(path)
+    doc, why = _load_manifest(path)
+    if why:
+        return [_finding(path, "manifest-json", why)]
     out = []
-    if not NAME_RX.match(str(doc.get("name", ""))):
-        out.append(Finding(str(path), "plugin-name", "plugin name must be kebab-case", MARKETPLACE_DOCS))
+    name = doc.get("name")
+    if not isinstance(name, str) or not name or BAD_NAME_CHARS.search(name):
+        out.append(_finding(path, "plugin-name", f"plugin name {name!r} must be a non-empty string without spaces, @, :, "
+                                                 "slashes or control characters"))
+    elif not NAME_RX.match(name):
+        out.append(_finding(path, "plugin-name-style", f"plugin name '{name}' is not kebab-case (my-plugin)"))
     if "version" in doc and not SEMVER.match(str(doc["version"])):
-        out.append(Finding(str(path), "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)", MARKETPLACE_DOCS))
+        out.append(_finding(path, "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)"))
     if not doc.get("description"):
-        out.append(Finding(str(path), "plugin-description", "add a description so people know what the plugin does",
-                           MARKETPLACE_DOCS, "warning"))
+        out.append(_finding(path, "plugin-description", "add a description so people know what the plugin does"))
     return out
 
 
