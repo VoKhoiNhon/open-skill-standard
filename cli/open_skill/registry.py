@@ -20,6 +20,16 @@ class Registry:
     models: dict[str, dict] = field(default_factory=dict)
     agents: dict[str, dict] = field(default_factory=dict)  # coding agents and the folders they load skills from
     files: dict[str, str] = field(default_factory=dict)  # "<kind>:<id>" -> file path, for error messages
+    problems: list[str] = field(default_factory=list)  # found while loading; validate reports them
+
+
+def _list(v) -> list:
+    """A YAML list field, or [] when it is missing or not a list (the schema reports the wrong type)."""
+    return v if isinstance(v, list) else []
+
+
+def _named(s) -> bool:
+    return isinstance(s, dict) and isinstance(s.get("name"), str)
 
 
 def _yaml_files(d: Path):
@@ -27,7 +37,10 @@ def _yaml_files(d: Path):
 
 
 def _read(p: Path) -> dict:
-    doc = yaml.safe_load(p.read_text()) or {}
+    try:
+        doc = yaml.safe_load(p.read_text()) or {}
+    except yaml.YAMLError as e:
+        raise ValueError(f"{p}: not valid YAML: {e}") from e
     if not isinstance(doc, dict):
         raise ValueError(f"{p}: top level must be a mapping")
     return doc
@@ -54,33 +67,49 @@ def load(root: Path | None = None, overlays=()) -> Registry:
     root = Path(root) if root else paths.data_root()
     reg = Registry(taxonomy=load_taxonomy(root))
     for layer in [root / "registry", *map(Path, overlays)]:
+        seen: dict[str, Path] = {}
+
+        def claim(key: str, p: Path) -> None:
+            """Overlays override by id on purpose; two files of one layer with one id are a mistake."""
+            if key in seen:
+                reg.problems.append(f"{key.replace(':', ' ', 1)} is defined in both {seen[key]} and {p}")
+            seen[key] = p
+            reg.files[key] = str(p)
+
         for p in _yaml_files(layer / "adapters"):
             doc = _read(p)
             src = doc.get("source", p.stem)
             base = reg.adapters.setdefault(src, {"source": src, "skills": []})
-            by_name = {s["name"]: s for s in base.get("skills", [])}
-            for s in doc.get("skills", []):
-                by_name.setdefault(s["name"], {}).update(s)
+            by_name = {s["name"]: s for s in base.get("skills", []) if _named(s)}
+            broken = [s for s in base.get("skills", []) if not _named(s)]
+            names = [s["name"] for s in _list(doc.get("skills")) if _named(s)]
+            for n in sorted({n for n in names if names.count(n) > 1}):  # overlays merge by name; one file must not
+                reg.problems.append(f"{p}: defines skill {n} twice; the entries would be merged silently")
+            for s in _list(doc.get("skills")):
+                if _named(s):
+                    by_name.setdefault(s["name"], {}).update(s)
+                else:  # kept as is, so the schema check reports it instead of load crashing on it
+                    broken.append(s)
             base.update({k: v for k, v in doc.items() if k != "skills"})
-            base["skills"] = list(by_name.values())
-            reg.files[f"adapter:{src}"] = str(p)
+            base["skills"] = list(by_name.values()) + broken
+            claim(f"adapter:{src}", p)
         for p in _yaml_files(layer / "roles"):
             doc = _read(p)
             rid = doc.get("id", p.stem)
             reg.roles.setdefault(rid, {}).update(doc)
-            reg.files[f"role:{rid}"] = str(p)
+            claim(f"role:{rid}", p)
         for p in _yaml_files(layer / "models"):
             doc = _read(p)
             mid = doc.get("id", p.stem)
             reg.models.setdefault(mid, {}).update(doc)
-            reg.files[f"model:{mid}"] = str(p)
+            claim(f"model:{mid}", p)
         for p in _yaml_files(layer / "agents"):
             doc = _read(p)
             aid = doc.get("id", p.stem)
             reg.agents.setdefault(aid, {}).update(doc)
-            reg.files[f"agent:{aid}"] = str(p)
+            claim(f"agent:{aid}", p)
     for src, a in reg.adapters.items():
-        for s in a.get("skills", []):
+        for s in filter(_named, a.get("skills", [])):
             m = {k: a[k] for k in INHERITED if k in a}
             m.update(s)
             m["source"] = src
@@ -100,7 +129,7 @@ def _schema_errors(doc: dict, schema: dict, where: str) -> list[str]:
 def validate(reg: Registry) -> list[str]:
     """Schema checks per document plus cross-reference checks. Empty list means valid."""
     sch = schemas.all_schemas(reg.taxonomy)
-    errors: list[str] = _schema_errors(reg.taxonomy, sch["taxonomy"], "spec/taxonomy.yaml")
+    errors: list[str] = reg.problems + _schema_errors(reg.taxonomy, sch["taxonomy"], "spec/taxonomy.yaml")
     for src, a in reg.adapters.items():
         errors += _schema_errors(a, sch["adapter"], reg.files.get(f"adapter:{src}", src))
     for rid, r in reg.roles.items():
@@ -111,28 +140,45 @@ def validate(reg: Registry) -> list[str]:
         errors += _schema_errors(a, sch["agent"], reg.files.get(f"agent:{aid}", aid))
 
     known = set(reg.skills)
+    for src, a in reg.adapters.items():
+        for rule in _list(a.get("detect")):
+            agent = rule.get("agent") if isinstance(rule, dict) else None
+            if agent and agent not in reg.agents:  # the rule would then describe folders no agent reads
+                errors.append(f"adapter {src}: detect rule {rule.get('glob')} names unknown agent {agent}")
     for sid, s in reg.skills.items():
         for key in ("alternatives", "conflicts", "precedes"):
-            for ref in s.get(key, []):
+            for ref in _list(s.get(key)):
                 if ref not in known:
                     errors.append(f"skill {sid}: {key} references unknown skill {ref}")
-        for req in s.get("requires", []):
-            if req.startswith("skill:") and req[6:] not in known:
+        for req in _list(s.get("requires")):
+            if isinstance(req, str) and req.startswith("skill:") and req[6:] not in known:
                 errors.append(f"skill {sid}: requires unknown skill {req[6:]}")
     for rid, r in reg.roles.items():
-        for phase, entry in (r.get("phases") or {}).items():
+        phases = r.get("phases") if isinstance(r.get("phases"), dict) else {}
+        for phase, entry in phases.items():
             for key in ("primary", "alternatives"):
-                for ref in (entry or {}).get(key, []):
+                for ref in _list((entry if isinstance(entry, dict) else {}).get(key)):
                     if ref not in known:
                         errors.append(f"role {rid}: {phase}.{key} references unknown skill {ref}")
     for rid, r in reg.roles.items():
-        ids = [s["id"] for s in r.get("seeds", []) if isinstance(s, dict)]
-        if any(isinstance(s, str) for s in r.get("seeds", [])):
+        handoff = r.get("handoff") if isinstance(r.get("handoff"), dict) else {}
+        for when, target in handoff.items():  # the schema allows any taxonomy role; the playbook links to its pack
+            if target not in reg.roles:
+                errors.append(f"role {rid}: {when} hands off to {target}, which has no role pack")
+        seeds = _list(r.get("seeds"))
+        ids = [s["id"] for s in seeds if isinstance(s, dict) and isinstance(s.get("id"), str)]
+        if any(isinstance(s, str) for s in seeds):
             errors.append(f"role {rid}: every seed needs an id so it can be updated without touching user edits")
         if len(ids) != len(set(ids)):
-            errors.append(f"role {rid}: duplicate seed ids")
+            errors.append(f"role {rid}: duplicate seed ids: {', '.join(sorted({i for i in ids if ids.count(i) > 1}))}")
     for mid, m in reg.models.items():
         parent = m.get("inherits")
         if parent and parent not in reg.models:
             errors.append(f"model {mid}: inherits unknown profile {parent}")
+        chain = [mid]
+        while (parent := reg.models.get(chain[-1], {}).get("inherits")) and parent in reg.models:
+            if parent in chain:  # resolving any model in the loop would raise, so every route would fail
+                errors.append(f"model {mid}: inheritance cycle {' -> '.join(chain + [parent])}")
+                break
+            chain.append(parent)
     return errors

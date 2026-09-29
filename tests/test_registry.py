@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 import yaml
 
 from open_skill import registry
@@ -135,3 +136,60 @@ def test_released_seed_ids_are_never_renamed():
 def test_seed_texts_are_english():
     texts = [s["text"] for r in registry.load().roles.values() for s in r.get("seeds", [])]
     assert texts and all(t.isascii() for t in texts)
+
+
+def _set(doc, path, value):
+    """Set doc[a][b]... = value along a list of keys and indexes."""
+    for k in path[:-1]:
+        doc = doc[k]
+    doc[path[-1]] = value
+
+
+def _edit(root, rel, path=None, value=None, raw=None):
+    p = root / "registry" / rel
+    if raw is not None:
+        p.write_text(raw)
+        return
+    doc = yaml.safe_load(p.read_text())
+    _set(doc, path, value)
+    p.write_text(yaml.safe_dump(doc, allow_unicode=True))
+
+
+SP = "adapters/superpowers.yaml"
+DE = "roles/data-engineer.yaml"
+# (case, file, key path, new value, raw file text, expected error text). Every validate check has a row.
+VALIDATION_CASES = [
+    ("schema error", SP, ["skills", 1, "phases"], ["not-a-phase"], None, "not-a-phase"),
+    ("dangling alternative", SP, ["skills", 0, "alternatives"], ["nobody/missing"], None, "alternatives references unknown skill nobody/missing"),
+    ("dangling conflict", SP, ["skills", 0, "conflicts"], ["nobody/missing"], None, "conflicts references unknown skill"),
+    ("dangling precedes", SP, ["skills", 0, "precedes"], ["nobody/missing"], None, "precedes references unknown skill"),
+    ("dangling requires", SP, ["skills", 0, "requires"], ["skill:nobody/missing"], None, "requires unknown skill nobody/missing"),
+    ("dangling role primary", DE, ["phases", "build", "primary"], ["superpowers/does-not-exist"], None, "build.primary references unknown skill"),
+    ("dangling role alternative", DE, ["phases", "build", "alternatives"], ["x/y"], None, "build.alternatives references unknown skill x/y"),
+    ("unknown parent model", "models/claude-opus-5.yaml", ["inherits"], "claude-nope", None, "inherits unknown profile claude-nope"),
+    ("seed without id is a string", DE, ["seeds"], ["no id here"], None, "every seed needs an id"),
+    ("duplicate seed ids", DE, ["seeds"], [{"id": "a", "text": "x"}, {"id": "a", "text": "y"}], None, "duplicate seed ids: a"),
+    # These crashed validate with a traceback instead of reporting an error:
+    ("seed object without id", DE, ["seeds"], [{"text": "x"}], None, "seeds/0"),
+    ("seeds is null", DE, ["seeds"], None, None, "seeds"),
+    ("seed id is a list", DE, ["seeds"], [{"id": ["a"], "text": "x"}], None, "seeds/0"),
+    ("adapter skill without name", SP, ["skills", 0], {"phases": ["plan"]}, None, "'name' is a required property"),
+    ("adapter skill is a string", SP, ["skills", 0], "brainstorming", None, "is not of type 'object'"),
+    ("adapter skills is null", SP, ["skills"], None, None, "skills"),
+    # These passed silently:
+    ("duplicate skill in one file", SP, ["skills", 1, "name"], "brainstorming", None, "defines skill brainstorming twice"),
+    ("model inheritance cycle", "models/generic.yaml", ["inherits"], "claude-opus-5", None, "inheritance cycle"),
+    ("detect names an unknown agent", SP, ["detect", 0, "agent"], "no-such-agent", None, "unknown agent no-such-agent"),
+    ("handoff to a role without a pack", DE, ["handoff"], {"review": "security-engineer"}, None, "hands off to security-engineer"),
+    ("two files, one id", "roles/copy.yaml", None, None, "id: data-engineer\n", "defined in both"),
+]
+
+
+@pytest.mark.parametrize("case,rel,path,value,raw,expected", VALIDATION_CASES, ids=[c[0] for c in VALIDATION_CASES])
+def test_validate_reports(tmp_path, case, rel, path, value, raw, expected):
+    import shutil
+    root = tmp_path / "r"
+    shutil.copytree(FIX / "repo", root)
+    _edit(root, rel, path, value, raw)
+    errors = registry.validate(registry.load(root))
+    assert any(expected in e for e in errors), errors

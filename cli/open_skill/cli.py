@@ -18,7 +18,10 @@ def _print(obj, as_json=True):
 
 
 def cmd_validate(args):
-    errors = registry.validate(_registry(args))
+    try:
+        errors = registry.validate(_registry(args))
+    except ValueError as e:  # a file that cannot be read as a registry document
+        errors = [str(e)]
     for e in errors:
         print(e, file=sys.stderr)
     print(f"{len(errors)} error(s)")
