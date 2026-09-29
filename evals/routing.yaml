@@ -70,6 +70,14 @@ cases:
      include: [bmad-method/bmad-qa-generate-e2e-tests]}
   - {id: devops, role: devops-engineer, task: "add a CI pipeline that builds and deploys the container",
      include: [superpowers/subagent-driven-development]}
+  - {id: devops-debug, role: devops-engineer, task: "debug why the container fails its health checks",
+     first: superpowers/systematic-debugging}
+  - {id: devops-review-ci, role: devops-engineer, task: "review the pull request that changes the CI workflow",
+     phases: [review], include: [claude-code-builtin/security-review]}
+  - {id: devops-vietnamese, role: devops-engineer, task: "thêm pipeline CI build và deploy container",
+     include: [superpowers/subagent-driven-development]}
+  - {id: devops-spec-kit, role: devops-engineer, task: "add a staging environment", files: [.specify/memory/constitution.md],
+     include: [spec-kit/implement], exclude: [superpowers/subagent-driven-development]}
   - {id: sre-incident, role: site-reliability-engineer, task: "the API has an outage and error rate is spiking",
      first: knowledge-work-engineering/incident-response}
   - {id: cloud, role: cloud-engineer, task: "add a private network and database with terraform",
