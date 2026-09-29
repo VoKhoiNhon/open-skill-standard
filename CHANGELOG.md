@@ -24,6 +24,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 - The release workflow stops before building when the CHANGELOG has no section for the tag, with one clear error.
 - Releases are titled `vX.Y.Z — <theme>` automatically, from the first line of the CHANGELOG section (`scripts/changelog.py title`).
+- README and README.vi: a "See and question the graph" section with example output for `route --explain`, `route --why-not`, search filters and the HTML graph; the CLI reference lists the new flags.
 
 ### Fixed
 - Crash and hang reports, in English and Vietnamese ("crashes", "hangs", "bị treo", "văng"), start with debugging instead of a planned build.
