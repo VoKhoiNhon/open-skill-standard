@@ -242,6 +242,14 @@ cases:
   - {id: business-analyst-bmad, role: business-analyst, task: "write requirements for the refund process",
      files: [_bmad/config.toml], include: [bmad-method/bmad-prd], exclude: [knowledge-work-product-management/write-spec]}
   - {id: ux, role: ux-designer, task: "design the onboarding flow", exclude: [superpowers/subagent-driven-development]}
+  - {id: ux-a11y-review, role: ux-designer, task: "review the onboarding flow for accessibility",
+     phases: [review], include: [knowledge-work-design/accessibility-review]}
+  - {id: ux-research, role: ux-designer, task: "research how users find the export button",
+     phases: [research], exclude: [open-skill/open-skill-intel]}
+  - {id: ux-vietnamese, role: ux-designer, task: "thiết kế luồng đăng ký",
+     phases: [plan], exclude: [superpowers/subagent-driven-development]}
+  - {id: ux-bmad, role: ux-designer, task: "design the onboarding flow", files: [_bmad/config.toml],
+     include: [bmad-method/bmad-ux]}
   - {id: tech-writer, role: technical-writer, task: "write docs for the public API",
      include: [knowledge-work-engineering/documentation]}
   - {id: tech-writer-review, role: technical-writer, task: "review the API docs for accuracy",
