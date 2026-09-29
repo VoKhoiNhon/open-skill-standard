@@ -37,7 +37,10 @@ def _yaml_files(d: Path):
 
 
 def _read(p: Path) -> dict:
-    doc = yaml.safe_load(p.read_text()) or {}
+    try:
+        doc = yaml.safe_load(p.read_text()) or {}
+    except yaml.YAMLError as e:
+        raise ValueError(f"{p}: not valid YAML: {e}") from e
     if not isinstance(doc, dict):
         raise ValueError(f"{p}: top level must be a mapping")
     return doc

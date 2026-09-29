@@ -519,3 +519,12 @@ def test_bug_explain_printed_python_reprs():
     r.update(role={"data-engineer": 1.0}, project={"native": "spec-kit", "artifacts": []})
     assert cli._explain(r).splitlines()[:2] == ["route r-1  role=data-engineer  size=medium  target=build",
                                                 "project native=spec-kit artifacts=none"]
+
+
+@pytest.mark.parametrize("text,why", [("skills: [unclosed\n", "roles/broken.yaml"), ("- a\n- b\n", "top level must be a mapping")])
+def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, why):
+    import shutil
+    shutil.copytree(FIX / "repo", tmp_path / "r")
+    (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text)
+    code = cli.main(["--registry", str(tmp_path / "r"), "validate"])
+    assert code == 1 and why in capsys.readouterr().err
