@@ -16,7 +16,7 @@ from . import frontmatter, paths, userdata
 HALF_LIFE_DAYS = 90
 WEIGHT_RANGE = (-0.9, 2.0)
 SENSITIVE = [
-    ("email", re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")),
+    ("email", re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)*\.[A-Za-z]{2,}\b")),
     ("phone", re.compile(r"(?<![\w-])(\+\d{1,3}[ .-]?)?(\(?\d{2,4}\)?[ .-]){2,}\d{3,4}(?![\w-])")),
     ("api-token", re.compile(r"\b(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9]{20,}|github_pat_\w{20,}|xox[abp]-[\w-]{10,})")),
     ("aws-key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),

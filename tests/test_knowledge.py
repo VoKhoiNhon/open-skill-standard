@@ -48,6 +48,8 @@ def test_looks_sensitive(text):
 def test_looks_sensitive_allows_normal_text():
     assert knowledge.looks_sensitive("Backfill in batches of 7 days; check nulls on 2 keys") is None
     assert knowledge.looks_sensitive("verified: 2026-09-29, version 1.6.0") is None
+    assert knowledge.looks_sensitive("pin it: uvx --from git+https://example.org/repo@v0.2.0 tool") is None
+    assert knowledge.looks_sensitive("npm i left-pad@1.3.0") is None
 
 
 def test_forget(home):
