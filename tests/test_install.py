@@ -64,3 +64,25 @@ def test_agent_without_project_folders_cannot_install_in_a_project(tmp_path):
     agent = {"id": "solo", "global": [{"path": "~/.solo/skills"}]}
     with pytest.raises(ValueError, match="project"):
         install.plan(install.resolve_source("open-skill-router"), agent, project=tmp_path)
+
+
+def test_copy_install_writes_files_and_records_them(reg, tmp_path):
+    src = install.resolve_source(str(skill(tmp_path / "src/my-skill", "my-skill")))
+    (src.path / "references").mkdir()
+    (src.path / "references/a.md").write_text("ref\n")
+    p = install.plan(src, reg.agents["codex"])
+    install.apply(p)
+    assert (p.dest / "SKILL.md").read_bytes() == (src.path / "SKILL.md").read_bytes()
+    assert (p.dest / "references/a.md").read_text() == "ref\n"
+    [rec] = install.manifest()
+    assert rec["skill"] == "my-skill" and rec["agent"] == "codex" and rec["dest"] == str(p.dest)
+    assert rec["kind"] == "local" and rec["mode"] == "copy" and rec["source"] == str(src.path)
+    assert set(rec["files"]) == {"SKILL.md", "references/a.md"}
+    from open_skill import __version__
+    assert rec["version"] == __version__
+    assert not [x for x in p.dest.parent.iterdir() if x.name.startswith(".")]  # no temp folder left behind
+
+
+def test_manifest_lives_in_the_user_layer(reg, tmp_path):
+    install.apply(install.plan(install.resolve_source("open-skill-learn"), reg.agents["codex"]))
+    assert (tmp_path / "osh" / "installed.json").is_file()
