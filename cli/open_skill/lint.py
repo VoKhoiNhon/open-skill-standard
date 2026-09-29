@@ -167,3 +167,26 @@ def lint_marketplace(path: Path) -> list[Finding]:
     if any(w in name for w in ("anthropic", "claude-plugins-official", "official")):
         add("marketplace-name", f"marketplace name '{doc.get('name')}' looks like an official Anthropic marketplace", "warning")
     return out
+
+
+SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
+
+
+def lint_plugin(path: Path) -> list[Finding]:
+    """.claude-plugin/plugin.json: a kebab-case name, and a semantic version when one is given."""
+    import json
+
+    path = Path(path)
+    try:
+        doc = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        return [Finding(str(path), "manifest-json", f"invalid JSON: {e}", MARKETPLACE_DOCS)]
+    out = []
+    if not NAME_RX.match(str(doc.get("name", ""))):
+        out.append(Finding(str(path), "plugin-name", "plugin name must be kebab-case", MARKETPLACE_DOCS))
+    if "version" in doc and not SEMVER.match(str(doc["version"])):
+        out.append(Finding(str(path), "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)", MARKETPLACE_DOCS))
+    if not doc.get("description"):
+        out.append(Finding(str(path), "plugin-description", "add a description so people know what the plugin does",
+                           MARKETPLACE_DOCS, "warning"))
+    return out

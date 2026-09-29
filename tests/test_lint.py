@@ -140,3 +140,9 @@ def test_marketplace_source_escape_and_impersonation(tmp_path):
     doc_ = {"name": "anthropic-official-tools", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
     found = [(f.rule, f.severity) for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
     assert found == [("marketplace-source", "error"), ("marketplace-name", "warning")]
+
+
+def test_plugin_json_rules(tmp_path):
+    assert lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "tools", "version": "1.2.3", "description": "d"})) == []
+    found = [f.rule for f in lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "My Tools", "version": "v1"}))]
+    assert found == ["plugin-name", "plugin-version", "plugin-description"]
