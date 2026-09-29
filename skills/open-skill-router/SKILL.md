@@ -1,6 +1,6 @@
 ---
 name: open-skill-router
-description: Picks and orders the installed skills best suited to a task, for the user's IT role and the project's state (spec-kit, BMad, superpowers, codegraph, data, design and more), then runs the first step. Use when starting work in a project, when the user asks which skill or workflow to use, names their role (data engineer, frontend, SRE, product manager...), or hands over a multi-step task without naming a skill. Also use when the user says "route this", "which skill", "where do I start", "bắt đầu project", "nên dùng skill nào".
+description: Picks the best installed skills to run for a task, and their order, from the user's IT role and the project's state (spec-kit, BMad, superpowers, codegraph...), then starts the first step. Use when starting a new project, or work with several steps (specify, plan, build, test, review) where no skill is named; when the user asks which skill, workflow or sequence of skills to use or where to start; when more than one installed workflow could fit; or when they state their role (data engineer, frontend, SRE, product manager...). Also for "route this", "bắt đầu project", "nên dùng skill nào".
 ---
 
 # Open Skill Router

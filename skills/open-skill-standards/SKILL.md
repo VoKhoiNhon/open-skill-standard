@@ -1,6 +1,6 @@
 ---
 name: open-skill-standards
-description: Definition-of-done checklists for software work, general and per IT role (28 roles, from frontend and SRE to data engineering, AI and product), covering commits, tests, security, ADRs, idempotent data pipelines, data contracts, evals and IaC. Use before reporting a build or fix as done, when reviewing code or a pipeline, when setting up a spec-kit constitution, or when the user asks about standards, best practices, "definition of done", "quy chuẩn", or whether work is good enough to merge.
+description: Use before calling any software or data work done or ready to merge, and when reviewing someone's change or pipeline, to check it against a definition-of-done checklist - general items (one purpose per change, commit messages, tests, security, architecture decision records) plus the principles of the IT role doing it (28 roles, from frontend and SRE to data engineering, AI and product, covering idempotent pipelines and backfills, data contracts, evals and IaC). Also for setting up a spec-kit constitution and for questions about standards, best practices, "definition of done", "quy chuẩn", or whether work is good enough to merge.
 ---
 
 # Open Skill Standards
