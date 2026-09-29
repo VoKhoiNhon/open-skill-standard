@@ -313,3 +313,7 @@ cases:
      exclude: [open-skill/open-skill-router]}
   - {id: learn-a-lesson-of-any-size, role: data-engineer, task: "remember that backfills run in bounded batches from now on",
      phase: learn, include: [open-skill/open-skill-learn]}
+  - {id: be-release-branch, role: backend-developer, task: "the export feature is done and tested, merge the branch", phase: release, include: [superpowers/finishing-a-development-branch]}
+  - {id: fs-spec-kit-tasks, role: fullstack-developer, task: "break the plan into tasks", phase: plan, files: [.specify/memory/constitution.md, specs/001-invites/plan.md], include: [spec-kit/tasks]}
+  - {id: fe-taste, role: frontend-developer, task: "build a landing page that does not look templated", phase: build, include: [taste-skill/taste-skill]}
+  - {id: game-bmad-brainstorm, role: game-developer, task: "brainstorm mechanics for a co-op puzzle level", phase: discover, files: [_bmad/config.toml], include: [bmad-method/bmad-brainstorming]}
