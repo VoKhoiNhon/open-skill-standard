@@ -68,6 +68,16 @@ Knowledge nodes are Markdown files with frontmatter `id`, `type`, `applies_to` (
 
 Documents are merged in order: **L0** public registry, **L1** organization overlays, **L2** the user's local layer. Later layers override earlier ones by identifier. L2 data (profile, knowledge, usage events) MUST stay on the user's machine and MUST NOT be published with L0.
 
+### 5.1 Upgrade guarantees
+
+A conforming implementation:
+
+1. MUST record a schema version for the user layer and MUST refuse to write data whose version is newer than it understands.
+2. MUST back up the user layer before migrating it, and MUST keep the text of user notes unchanged during migration.
+3. MUST NOT overwrite a seed note the user edited; it SHOULD record the hash of each seed as installed to detect edits, and SHOULD offer upstream's new wording for review instead.
+4. MUST NOT re-create a seed the user deleted, and MUST NOT delete a seed only because upstream stopped shipping it.
+5. SHOULD offer a dry run and a rollback for every upgrade.
+
 ## 6. Routing
 
 A conforming router, given a task, a project and optionally a role, size and model:
