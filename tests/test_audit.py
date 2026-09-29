@@ -374,3 +374,22 @@ def test_the_cli_source_has_no_invisible_characters():
     # The hidden-unicode pattern itself was written with literal zero-width and bidi characters.
     src = Path(audit.__file__).parent
     assert [f for f in audit.audit_paths([src]) if f.rule == "hidden-unicode"] == []
+
+
+@pytest.mark.parametrize("text", [
+    "Local state (useState)           -> Component-specific UI state",  # vercel/addyosmani React guides
+    "// Provider A: Local state for ephemeral forms",
+    "Build AI applications with real-time web data using search APIs.",
+    "User intents  Local State store     Role/token policy",
+])
+def test_browser_data_ignores_prose_about_state_and_data(text):
+    assert "browser-data" not in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "sqlite3 'Default/Login Data' 'select * from logins'",
+    r"copy %LOCALAPPDATA%\Microsoft\Edge\User Data\Local State out.json",
+    "cat ~/.config/chromium/Default/Web Data",
+])
+def test_browser_data_flags_profile_files_in_paths(text):
+    assert "browser-data" in fired(text)
