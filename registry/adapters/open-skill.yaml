@@ -33,6 +33,6 @@ skills:
   - name: open-skill-learn
     description: Remember lessons and preferences so future routes use them
     phases: [learn]
-    task_size: [small]
+    task_size: [small, medium, large]
     triggers: [remember, lesson, "note that", "from now on"]
     triggers_i18n: {vi: [ghi nhớ, nhớ giúp, bài học, từ giờ, lần sau]}
