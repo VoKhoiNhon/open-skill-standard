@@ -371,9 +371,25 @@ def cmd_init(args):
     return 0
 
 
+def _scopes(reg, raw: str) -> list[str]:
+    """applies_to entries a route can match: known kinds, role and phase ids; project paths resolved like route's."""
+    phases = [p["id"] for p in reg.taxonomy["phases"]]
+    out = []
+    for scope in (x.strip() for x in raw.split(",") if x.strip()):
+        kind, _, val = scope.partition(":")
+        if kind not in ("skill", "role", "project", "phase") or not val:
+            raise ValueError(f"unknown scope kind in {scope!r}; use skill:<id>, role:<id>, role:*, project:<path>, phase:<id>")
+        if kind == "role" and val != "*" and val not in reg.roles:
+            raise ValueError(f"unknown role: {val} (one of: {', '.join(sorted(reg.roles))}, or *)")
+        if kind == "phase" and val not in phases:
+            raise ValueError(f"unknown phase: {val} (one of: {', '.join(phases)})")
+        out.append(f"project:{Path(val).expanduser().resolve()}" if kind == "project" else scope)
+    return out
+
+
 def cmd_learn(args):
     try:
-        nid = knowledge.learn(args.text, args.applies_to.split(","), type_=args.type, force=args.force)
+        nid = knowledge.learn(args.text, _scopes(_registry(args), args.applies_to), type_=args.type, force=args.force)
     except ValueError as e:
         print(e, file=sys.stderr)
         return 2

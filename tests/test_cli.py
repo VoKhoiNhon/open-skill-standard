@@ -450,3 +450,24 @@ def test_bug_route_rejects_an_unknown_role(capsys, tmp_path):
                      str(tmp_path / "p"), "--role", "frontend", "--no-record"])
     err = capsys.readouterr().err
     assert code == 2 and "unknown role: frontend" in err and "data-engineer" in err
+
+
+@pytest.mark.parametrize("scope,why", [("roles:data-engineer", "unknown scope kind"),
+                                       ("role:frontend", "unknown role"),
+                                       ("phase:testing", "unknown phase"),
+                                       ("data-engineer", "unknown scope kind")])
+def test_bug_learn_rejects_scopes_no_route_can_match(capsys, tmp_path, scope, why):
+    # These were saved, and the note then never applied to any route.
+    code = cli.main(["--registry", str(FIX / "repo"), "learn", "Prefer MERGE", "--applies-to", scope])
+    assert code == 2 and why in capsys.readouterr().err
+    assert not (tmp_path / "h" / "knowledge").exists() or not list((tmp_path / "h" / "knowledge").glob("*.md"))
+
+
+def test_bug_learn_resolves_project_scopes_like_route_does(capsys, tmp_path, monkeypatch):
+    # route matches project:<resolved path>; a relative or symlinked path never matched.
+    (tmp_path / "real").mkdir()
+    (tmp_path / "link").symlink_to(tmp_path / "real")
+    monkeypatch.chdir(tmp_path)
+    code, out = run(capsys, "learn", "Deploys go through staging first", "--applies-to", "project:link,role:*")
+    note = (tmp_path / "h" / "knowledge" / f"{out.strip()}.md").read_text()
+    assert code == 0 and f"project:{(tmp_path / 'real').resolve()}" in note and "role:*" in note
