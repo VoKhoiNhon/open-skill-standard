@@ -50,7 +50,7 @@ def graph_json(reg, installed=()) -> dict:
         nodes.append({"id": f"artifact:{a}", "kind": "artifact"})
     for sid, s in sorted(reg.skills.items()):
         nodes.append({"id": sid, "kind": s.get("kind", "skill"), "source": s["source"],
-                      "phases": s.get("phases", []), "installed": sid in inst})
+                      "phases": s.get("phases", []), "installed": sid in inst, "description": s.get("description", "")})
         for a in s.get("produces", []):
             edges.append({"from": sid, "to": f"artifact:{a}", "type": "produces"})
         for a in s.get("consumes", []):
@@ -63,9 +63,9 @@ def graph_json(reg, installed=()) -> dict:
     for i in installed:
         if i.id not in reg.skills:
             nodes.append({"id": i.id, "kind": "skill", "source": i.id.split("/")[0], "phases": [],
-                          "installed": True, "inferred": True})
+                          "installed": True, "inferred": True, "description": i.description})
     for rid, r in sorted(reg.roles.items()):
-        nodes.append({"id": f"role:{rid}", "kind": "role", "family": r.get("family")})
+        nodes.append({"id": f"role:{rid}", "kind": "role", "name": r.get("name", rid), "family": r.get("family")})
         seen = set()
         for entry in (r.get("phases") or {}).values():
             for ref in entry.get("primary", []):
