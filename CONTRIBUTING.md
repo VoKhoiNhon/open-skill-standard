@@ -16,6 +16,7 @@ Before opening a pull request, all of these must pass (CI runs the same):
 uv run pytest -q                      # unit tests + routing evals for every role
 uv run open-skill validate            # schemas and cross-references
 uv run open-skill lint skills/ .claude-plugin/   # Agent Skills spec, prompting rules, plugin manifests
+uv run open-skill audit skills/ .claude-plugin/ --strict   # heuristic security review of our own skills
 uv run open-skill build --check       # generated playbooks/schemas/dist are current
 uv run python scripts/privacy_guard.py
 ```
