@@ -4,6 +4,8 @@ import functools
 import re
 import sqlite3
 
+from . import registry
+
 TOKEN = re.compile(r"\w{2,}", re.UNICODE)
 STOP = set("""a an the to of in on for and or not is it this that these those with be are was as at by from into
 my our your we i you me us please can could should would will how what why when where which who do does did
@@ -38,7 +40,7 @@ def fold(text: str) -> str:
 
 def _doc(sid: str, s: dict) -> str:
     parts = [sid.replace("/", " ").replace("-", " "), s.get("description", "")]
-    parts += s.get("triggers", [])
+    parts += registry.localized(s, "triggers")
     parts += [p for p in s.get("phases", [])]
     parts += [r.replace("-", " ") for r in s.get("roles", {})]
     return " ".join(parts)
