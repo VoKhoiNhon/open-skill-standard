@@ -1,0 +1,175 @@
+source: addy-agent-skills
+upstream: https://github.com/addyosmani/agent-skills
+license: MIT
+tested_version: 0.6.11
+summary: Engineering lifecycle skills - specs, task breakdown, thin-slice builds, TDD, five-axis review, hardening, shipping.
+install:
+  skills-cli: "npx skills add addyosmani/agent-skills"
+  claude-plugin-marketplace: "/plugin marketplace add addyosmani/agent-skills && /plugin install agent-skills@addy-agent-skills"
+  gemini-cli: "gemini skills install https://github.com/addyosmani/agent-skills.git --path skills"
+detect:
+  - {glob: "~/.claude/plugins/cache/*/agent-skills/*/skills/{name}/SKILL.md", invoke: "agent-skills:{name}"}
+  - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
+  - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: idea-refine
+    description: Sharpen a vague idea by widening the options, then converging on one direction with its assumptions and MVP scope
+    phases: [discover]
+    produces: [idea-brief]
+    task_size: [medium, large]
+    triggers: [ideate, "refine this idea", "stress-test my plan"]
+  - name: interview-me
+    description: Ask one question at a time until the real intent behind an underspecified request is clear
+    phases: [discover, specify]
+    alternatives: [superpowers/brainstorming]
+    task_size: [medium, large]
+    triggers: ["interview me", "grill me", "are we sure"]
+  - name: spec-driven-development
+    description: Write a gated spec (objective, stack, commands, boundaries) before any code for a new project or feature
+    phases: [specify]
+    produces: [spec]
+    alternatives: [spec-kit/specify, superpowers/brainstorming]
+    task_size: [medium, large]
+    triggers: [spec, prd, requirements, "capability map"]
+  - name: constraint-driven-development
+    description: Record the project's quality bar as a contract and flag diffs that quietly lower it
+    phases: [specify, review]
+    roles: {tech-lead: 0.5, qa-engineer: 0.4, software-architect: 0.4}
+    task_size: [medium, large]
+    triggers: [constraints, "quality bar", thresholds]
+  - name: planning-and-task-breakdown
+    description: Turn a spec into an ordered plan and a checklist of small, verifiable tasks with checkpoints
+    phases: [plan]
+    consumes: [spec]
+    produces: [plan, tasks]
+    alternatives: [superpowers/writing-plans, spec-kit/tasks]
+    task_size: [medium, large]
+    triggers: [breakdown, "break down", "task list", estimate]
+  - name: api-and-interface-design
+    description: Design stable APIs, type contracts and module boundaries before implementing them
+    phases: [plan]
+    roles: {backend-developer: 0.6, fullstack-developer: 0.5, software-architect: 0.5, tech-lead: 0.4}
+    produces: [adr]
+    task_size: [medium, large]
+    triggers: [api, rest, graphql, interface, contract]
+  - name: incremental-implementation
+    description: Build in thin vertical slices, each tested and committed before the next
+    phases: [build]
+    consumes: [plan, tasks]
+    produces: [code-change]
+    alternatives: [superpowers/executing-plans, superpowers/subagent-driven-development]
+    conflicts: [spec-kit/implement, bmad-method/bmad-build, bmad-method/bmad-build-auto]
+    task_size: [medium, large]
+    triggers: ["feature flag", slice, incremental]
+  - name: test-driven-development
+    description: Red-green-refactor for new logic, and a failing reproduction test before any bug fix
+    phases: [build, verify]
+    produces: [test-suite, code-change]
+    alternatives: [superpowers/test-driven-development]
+    task_size: [small, medium, large]
+    triggers: [tdd, "test first", "bug report"]
+  - name: source-driven-development
+    description: Check each framework decision against official documentation and cite it
+    phases: [research, build]
+    alternatives: [context7/context7-mcp]
+    task_size: [small, medium, large]
+    triggers: ["official docs", documentation, framework]
+  - name: frontend-ui-engineering
+    description: Accessible, responsive production UI - component structure, state, design-system use, WCAG AA
+    phases: [build]
+    roles: {frontend-developer: 0.6, fullstack-developer: 0.5, ux-designer: 0.3, mobile-developer: 0.2}
+    produces: [code-change]
+    task_size: [small, medium, large]
+    triggers: [ui, component, page, layout, responsive, accessibility]
+  - name: browser-testing-with-devtools
+    description: Inspect the DOM, console, network and performance in a real browser to verify or debug UI
+    phases: [verify, operate]
+    roles: {frontend-developer: 0.6, fullstack-developer: 0.5, qa-engineer: 0.5}
+    requires: ["tool:chrome-devtools-mcp"]
+    task_size: [small, medium, large]
+    triggers: [browser, devtools, console, dom]
+  - name: debugging-and-error-recovery
+    description: Stop, reproduce and find the root cause of a failure before changing code
+    phases: [operate]
+    produces: [runbook]
+    alternatives: [superpowers/systematic-debugging]
+    task_size: [small, medium, large]
+    triggers: [bug, error, "tests fail", "build broke", "root cause"]
+  - name: performance-optimization
+    description: Measure first, then fix bottlenecks - Core Web Vitals, N+1 queries, bundle size, profiling
+    phases: [operate, verify]
+    roles: {frontend-developer: 0.5, backend-developer: 0.5, database-administrator: 0.4, site-reliability-engineer: 0.4}
+    task_size: [medium, large]
+    triggers: [performance, slow, latency, "web vitals", profiling, "n+1"]
+  - name: observability-and-instrumentation
+    description: Add the logs, metrics, traces and alerts that make production behavior diagnosable
+    phases: [build, operate]
+    roles: {site-reliability-engineer: 0.6, devops-engineer: 0.5, backend-developer: 0.4, ml-engineer: 0.4}
+    task_size: [medium, large]
+    triggers: [logging, metrics, tracing, alerting, observability]
+  - name: code-simplification
+    description: Refactor for clarity without changing behavior
+    phases: [review, build]
+    alternatives: [ponytail/ponytail-review]
+    task_size: [small, medium]
+    triggers: [simplify, refactor, readability, complexity]
+  - name: code-review-and-quality
+    description: Five-axis review of a diff or pull request before it merges
+    phases: [review]
+    alternatives: [claude-code-builtin/code-review, superpowers/requesting-code-review]
+    task_size: [small, medium, large]
+    triggers: [review, "pull request", diff]
+  - name: doubt-driven-development
+    description: Send each non-trivial decision to a fresh-context adversarial reviewer before it stands
+    phases: [review, plan]
+    roles: {security-engineer: 0.5, software-architect: 0.4, tech-lead: 0.4}
+    task_size: [medium, large]
+    triggers: [adversarial, "stress-test", "high stakes", irreversible]
+  - name: security-and-hardening
+    description: Threat-model and harden input handling, auth, sessions, storage and dependencies against the OWASP Top Ten
+    phases: [review, build]
+    roles: {security-engineer: 0.6, backend-developer: 0.5, fullstack-developer: 0.4, cloud-engineer: 0.4}
+    alternatives: [claude-code-builtin/security-review]
+    task_size: [small, medium, large]
+    triggers: [security, owasp, auth, login, vulnerability, hardening]
+  - name: git-workflow-and-versioning
+    description: Atomic commits, branches and worktrees, conflict resolution, pull requests and semantic versioning
+    phases: [build, release]
+    task_size: [small, medium, large]
+    triggers: [commit, branch, rebase, conflict, "semantic version", tag]
+  - name: ci-cd-and-automation
+    description: Set up or change CI/CD pipelines with quality gates and a deployment strategy
+    phases: [build, release]
+    roles: {devops-engineer: 0.6, site-reliability-engineer: 0.4, cloud-engineer: 0.4, tech-lead: 0.3}
+    task_size: [medium, large]
+    triggers: [ci, cd, pipeline, "github actions", "quality gate"]
+  - name: deprecation-and-migration
+    description: Sunset old code or APIs and migrate users or schemas without downtime (expand and contract)
+    phases: [plan, build]
+    roles: {backend-developer: 0.5, database-administrator: 0.5, software-architect: 0.4, tech-lead: 0.4}
+    task_size: [medium, large]
+    triggers: [deprecate, deprecation, migration, sunset, "expand/contract"]
+  - name: documentation-and-adrs
+    description: Record architecture decisions as ADRs and keep the docs that future engineers and agents need
+    phases: [plan, release]
+    roles: {software-architect: 0.6, technical-writer: 0.5, tech-lead: 0.5}
+    produces: [adr]
+    task_size: [small, medium, large]
+    triggers: [adr, "architecture decision", docs, documentation]
+  - name: shipping-and-launch
+    description: Pre-launch checklist, feature flags, staged rollout, monitoring and a rollback plan
+    phases: [release]
+    alternatives: [knowledge-work-engineering/deploy-checklist]
+    task_size: [medium, large]
+    triggers: [launch, rollout, rollback, "pre-launch", "ship to production"]
+  - name: context-engineering
+    description: Set up rules files and session context so agents keep producing good output
+    phases: [learn, discover]
+    roles: {data-ai-platform-engineer: 0.5, ai-engineer: 0.4, tech-lead: 0.4}
+    task_size: [small, medium]
+    triggers: ["rules file", "agents.md", "claude.md", context]
+  - name: using-agent-skills
+    description: Meta skill - decide which of the collection's skills applies to the work at hand
+    phases: [discover]
+    task_size: [small]

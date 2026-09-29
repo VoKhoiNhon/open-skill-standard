@@ -118,6 +118,271 @@
    "kind": "artifact"
   },
   {
+   "id": "addy-agent-skills/api-and-interface-design",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "plan"
+   ],
+   "installed": false,
+   "description": "Design stable APIs, type contracts and module boundaries before implementing them"
+  },
+  {
+   "id": "addy-agent-skills/browser-testing-with-devtools",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "verify",
+    "operate"
+   ],
+   "installed": false,
+   "description": "Inspect the DOM, console, network and performance in a real browser to verify or debug UI"
+  },
+  {
+   "id": "addy-agent-skills/ci-cd-and-automation",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "build",
+    "release"
+   ],
+   "installed": false,
+   "description": "Set up or change CI/CD pipelines with quality gates and a deployment strategy"
+  },
+  {
+   "id": "addy-agent-skills/code-review-and-quality",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "review"
+   ],
+   "installed": false,
+   "description": "Five-axis review of a diff or pull request before it merges"
+  },
+  {
+   "id": "addy-agent-skills/code-simplification",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "review",
+    "build"
+   ],
+   "installed": false,
+   "description": "Refactor for clarity without changing behavior"
+  },
+  {
+   "id": "addy-agent-skills/constraint-driven-development",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "specify",
+    "review"
+   ],
+   "installed": false,
+   "description": "Record the project's quality bar as a contract and flag diffs that quietly lower it"
+  },
+  {
+   "id": "addy-agent-skills/context-engineering",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "learn",
+    "discover"
+   ],
+   "installed": false,
+   "description": "Set up rules files and session context so agents keep producing good output"
+  },
+  {
+   "id": "addy-agent-skills/debugging-and-error-recovery",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "operate"
+   ],
+   "installed": false,
+   "description": "Stop, reproduce and find the root cause of a failure before changing code"
+  },
+  {
+   "id": "addy-agent-skills/deprecation-and-migration",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "plan",
+    "build"
+   ],
+   "installed": false,
+   "description": "Sunset old code or APIs and migrate users or schemas without downtime (expand and contract)"
+  },
+  {
+   "id": "addy-agent-skills/documentation-and-adrs",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "plan",
+    "release"
+   ],
+   "installed": false,
+   "description": "Record architecture decisions as ADRs and keep the docs that future engineers and agents need"
+  },
+  {
+   "id": "addy-agent-skills/doubt-driven-development",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "review",
+    "plan"
+   ],
+   "installed": false,
+   "description": "Send each non-trivial decision to a fresh-context adversarial reviewer before it stands"
+  },
+  {
+   "id": "addy-agent-skills/frontend-ui-engineering",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false,
+   "description": "Accessible, responsive production UI - component structure, state, design-system use, WCAG AA"
+  },
+  {
+   "id": "addy-agent-skills/git-workflow-and-versioning",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "build",
+    "release"
+   ],
+   "installed": false,
+   "description": "Atomic commits, branches and worktrees, conflict resolution, pull requests and semantic versioning"
+  },
+  {
+   "id": "addy-agent-skills/idea-refine",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "discover"
+   ],
+   "installed": false,
+   "description": "Sharpen a vague idea by widening the options, then converging on one direction with its assumptions and MVP scope"
+  },
+  {
+   "id": "addy-agent-skills/incremental-implementation",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "build"
+   ],
+   "installed": false,
+   "description": "Build in thin vertical slices, each tested and committed before the next"
+  },
+  {
+   "id": "addy-agent-skills/interview-me",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "discover",
+    "specify"
+   ],
+   "installed": false,
+   "description": "Ask one question at a time until the real intent behind an underspecified request is clear"
+  },
+  {
+   "id": "addy-agent-skills/observability-and-instrumentation",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "build",
+    "operate"
+   ],
+   "installed": false,
+   "description": "Add the logs, metrics, traces and alerts that make production behavior diagnosable"
+  },
+  {
+   "id": "addy-agent-skills/performance-optimization",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "operate",
+    "verify"
+   ],
+   "installed": false,
+   "description": "Measure first, then fix bottlenecks - Core Web Vitals, N+1 queries, bundle size, profiling"
+  },
+  {
+   "id": "addy-agent-skills/planning-and-task-breakdown",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "plan"
+   ],
+   "installed": false,
+   "description": "Turn a spec into an ordered plan and a checklist of small, verifiable tasks with checkpoints"
+  },
+  {
+   "id": "addy-agent-skills/security-and-hardening",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "review",
+    "build"
+   ],
+   "installed": false,
+   "description": "Threat-model and harden input handling, auth, sessions, storage and dependencies against the OWASP Top Ten"
+  },
+  {
+   "id": "addy-agent-skills/shipping-and-launch",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "release"
+   ],
+   "installed": false,
+   "description": "Pre-launch checklist, feature flags, staged rollout, monitoring and a rollback plan"
+  },
+  {
+   "id": "addy-agent-skills/source-driven-development",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "research",
+    "build"
+   ],
+   "installed": false,
+   "description": "Check each framework decision against official documentation and cite it"
+  },
+  {
+   "id": "addy-agent-skills/spec-driven-development",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "specify"
+   ],
+   "installed": false,
+   "description": "Write a gated spec (objective, stack, commands, boundaries) before any code for a new project or feature"
+  },
+  {
+   "id": "addy-agent-skills/test-driven-development",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "build",
+    "verify"
+   ],
+   "installed": false,
+   "description": "Red-green-refactor for new logic, and a failing reproduction test before any bug fix"
+  },
+  {
+   "id": "addy-agent-skills/using-agent-skills",
+   "kind": "skill",
+   "source": "addy-agent-skills",
+   "phases": [
+    "discover"
+   ],
+   "installed": false,
+   "description": "Meta skill - decide which of the collection's skills applies to the work at hand"
+  },
+  {
    "id": "anthropic-skills/academy-guide",
    "kind": "skill",
    "source": "anthropic-skills",
@@ -1893,6 +2158,171 @@
   }
  ],
  "edges": [
+  {
+   "from": "addy-agent-skills/api-and-interface-design",
+   "to": "artifact:adr",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/browser-testing-with-devtools",
+   "to": "tool:chrome-devtools-mcp",
+   "type": "requires"
+  },
+  {
+   "from": "addy-agent-skills/code-review-and-quality",
+   "to": "claude-code-builtin/code-review",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/code-review-and-quality",
+   "to": "superpowers/requesting-code-review",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/code-simplification",
+   "to": "ponytail/ponytail-review",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/debugging-and-error-recovery",
+   "to": "artifact:runbook",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/debugging-and-error-recovery",
+   "to": "superpowers/systematic-debugging",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/documentation-and-adrs",
+   "to": "artifact:adr",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/frontend-ui-engineering",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/idea-refine",
+   "to": "artifact:idea-brief",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/incremental-implementation",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:plan",
+   "to": "addy-agent-skills/incremental-implementation",
+   "type": "consumes"
+  },
+  {
+   "from": "artifact:tasks",
+   "to": "addy-agent-skills/incremental-implementation",
+   "type": "consumes"
+  },
+  {
+   "from": "addy-agent-skills/incremental-implementation",
+   "to": "superpowers/executing-plans",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/incremental-implementation",
+   "to": "superpowers/subagent-driven-development",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/incremental-implementation",
+   "to": "spec-kit/implement",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "addy-agent-skills/incremental-implementation",
+   "to": "bmad-method/bmad-build",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "addy-agent-skills/incremental-implementation",
+   "to": "bmad-method/bmad-build-auto",
+   "type": "conflicts-with"
+  },
+  {
+   "from": "addy-agent-skills/interview-me",
+   "to": "superpowers/brainstorming",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/planning-and-task-breakdown",
+   "to": "artifact:plan",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/planning-and-task-breakdown",
+   "to": "artifact:tasks",
+   "type": "produces"
+  },
+  {
+   "from": "artifact:spec",
+   "to": "addy-agent-skills/planning-and-task-breakdown",
+   "type": "consumes"
+  },
+  {
+   "from": "addy-agent-skills/planning-and-task-breakdown",
+   "to": "superpowers/writing-plans",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/planning-and-task-breakdown",
+   "to": "spec-kit/tasks",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/security-and-hardening",
+   "to": "claude-code-builtin/security-review",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/shipping-and-launch",
+   "to": "knowledge-work-engineering/deploy-checklist",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/source-driven-development",
+   "to": "context7/context7-mcp",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/spec-driven-development",
+   "to": "artifact:spec",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/spec-driven-development",
+   "to": "spec-kit/specify",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/spec-driven-development",
+   "to": "superpowers/brainstorming",
+   "type": "alternative-to"
+  },
+  {
+   "from": "addy-agent-skills/test-driven-development",
+   "to": "artifact:test-suite",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/test-driven-development",
+   "to": "artifact:code-change",
+   "type": "produces"
+  },
+  {
+   "from": "addy-agent-skills/test-driven-development",
+   "to": "superpowers/test-driven-development",
+   "type": "alternative-to"
+  },
   {
    "from": "anthropic-skills/skill-creator",
    "to": "artifact:eval-suite",
