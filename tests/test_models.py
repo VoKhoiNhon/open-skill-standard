@@ -25,6 +25,18 @@ def test_normalizes_suffixes():
     assert models.resolve("claude-opus-5-5-20260901", PROFILES)["id"] == "claude-opus-5-5"
 
 
+@pytest.mark.parametrize("model_id", [
+    "us.anthropic.claude-opus-5-5-v1:0",        # Amazon Bedrock inference profile
+    "anthropic.claude-opus-5-5-20260901-v1:0",  # Amazon Bedrock model id
+    "claude-opus-5-5@20260901",                 # Google Vertex AI
+    "anthropic/claude-opus-5-5",                # gateways that prefix the provider
+])
+def test_bug_provider_prefixed_ids_find_their_profile(model_id):
+    # The router skill passes the id the runtime reports; on Bedrock or behind a gateway these matched no
+    # profile and not even the family, so the model's step limit and notes were dropped for generic ones.
+    assert models.resolve(model_id, PROFILES)["id"] == "claude-opus-5-5"
+
+
 def test_unknown_future_model_falls_back_to_family():
     p = models.resolve("claude-opus-9", PROFILES)
     assert p["id"] == "claude-opus-5-5"

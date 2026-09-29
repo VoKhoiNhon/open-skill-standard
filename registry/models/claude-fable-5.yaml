@@ -8,6 +8,8 @@ traits: {long_turns: true, strong_instruction_following: true, subagent_eagernes
 effort: {small: medium, medium: high, large: high}
 chain: {max_steps: 10}
 addenda:
+  - "Act once you have enough information; when weighing options, give a recommendation instead of a survey."
+  - "Before reporting progress, point to the tool result that shows it; say plainly what is not verified."
   - "Pause for the user only for destructive or irreversible actions, real scope changes, or input only they can give."
   - "Record lessons one per note with a one-line summary; update an existing note instead of duplicating it."
 avoid: [reasoning_in_response, over_prescriptive_skills]

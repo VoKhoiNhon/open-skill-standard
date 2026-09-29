@@ -3,7 +3,12 @@ match: ["claude-opus-4-8*"]
 family: opus
 inherits: generic
 source: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8
-verified: false
-notes: Only the guide's summary was reviewed (response length, effort, tool triggering, literal instructions, subagents, frontend defaults).
-traits: {literal_instructions: true}
-avoid: [review_severity_filter]
+verified: "2026-09-29"
+notes: The guide recommends xhigh for coding and agentic work and at least high for intelligence-sensitive tasks.
+traits: {literal_instructions: true, subagent_eagerness: low, favors_reasoning_over_tools: true, regular_progress_updates: true}
+effort: {small: high, medium: xhigh, large: xhigh}
+addenda:
+  - "When a step depends on facts in files, tools or the web, look them up with the tools rather than reasoning from memory."
+  - "Fan independent reads or items out to subagents in one turn; do work you can finish in one response yourself."
+  - "For UI work without a stated style, choose a palette and type that fit the product; the default house style suits editorial briefs, not dashboards or tools."
+avoid: [review_severity_filter, forced_status_updates]

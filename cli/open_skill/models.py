@@ -8,7 +8,9 @@ FAMILY = re.compile(r"^claude-([a-z]+)-")
 
 
 def _normalize(model_id: str) -> str:
-    return re.sub(r"\[.*?\]", "", model_id.strip().lower())
+    """Lowercase, without a context suffix like [1m] or a provider prefix like us.anthropic. or anthropic/."""
+    mid = re.sub(r"\[.*?\]", "", model_id.strip().lower())
+    return re.sub(r"^[a-z0-9._/-]*?(?=claude-)", "", mid)
 
 
 def _merge(base: dict, child: dict) -> dict:
