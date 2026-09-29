@@ -10,6 +10,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 - The router skill has the agent classify the phase (the ten taxonomy ids) and size from the conversation and pass `--phase`/`--size`; keyword detection is the fallback, and a `guessed` phase is checked against the request. Its manual path starts from the same phase.
 
+### Fixed
+- Phase and size keywords match Vietnamese typed without accents (`xuat hoa don bi loi` is operate, `doi ten` is small) by folding like the search index; text typed with accents keeps them, so `lời` is not `lỗi`. Search also matches `đ` typed as `d`. Operate gains symptom keywords (slower, regressed, timeouts, "stopped working", "returns nothing", "since yesterday", không chạy, ngừng hoạt động, từ hôm qua and more). Routing holdout: 23/52 → 36/52.
+
 ## [0.6.0] - 2026-09-29
 
 Multi-agent support, a security audit and graph explanations: install and scan skills for nine agents, audit skill folders before trusting them, and see why the router picks a skill.
