@@ -204,22 +204,22 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 ## Phase 6: Polish & cross-cutting
 
-- [ ] T023 [P] Add a "Parallel sessions" section to `README.md` after "## See and question the graph" (line 101): install Graphify, `graphify extract . --code-only` once, then `session start`/`update`/`list`/`end`, and the limit that Graphify misses calls made through a module name, so codegraph stays. Update line 27 to "18 adapters".
-- [ ] T024 [P] Mirror T023 in `README.vi.md`, in Vietnamese, with the same structure and position (`tests/test_docs.py` checks the READMEs match).
-- [ ] T025 [P] Under `## [Unreleased]` in `CHANGELOG.md`, add an `### Added` list:
+- [X] T023 [P] Add a "Parallel sessions" section to `README.md` after "## See and question the graph" (line 101): install Graphify, `graphify extract . --code-only` once, then `session start`/`update`/`list`/`end`, and the limit that Graphify misses calls made through a module name, so codegraph stays. Update line 27 to "18 adapters".
+- [X] T024 [P] Mirror T023 in `README.vi.md`, in Vietnamese, with the same structure and position (`tests/test_docs.py` checks the READMEs match).
+- [X] T025 [P] Under `## [Unreleased]` in `CHANGELOG.md`, add an `### Added` list:
   - `open-skill session start|list|end|update`;
   - the adapters `graphify` and `open-skill-cli`;
   - `project.inspect` reporting `graphify`.
   Add a `### Changed` entry: the lock helper moved to `paths.locked`.
-- [ ] T026 Run `.venv/bin/open-skill build` to regenerate playbooks, schemas and `dist/`, then `.venv/bin/open-skill build --check`.
-- [ ] T027 Run every quality gate from the constitution:
+- [X] T026 Run `.venv/bin/open-skill build` to regenerate playbooks, schemas and `dist/`, then `.venv/bin/open-skill build --check`.
+- [X] T027 Run every quality gate from the constitution:
   - `.venv/bin/pytest -q`;
   - `.venv/bin/open-skill eval`;
   - `.venv/bin/open-skill validate`;
   - `.venv/bin/open-skill lint skills/`;
   - `.venv/bin/open-skill build --check`;
   - `.venv/bin/python scripts/privacy_guard.py`.
-- [ ] T028 Run quickstart.md end to end against real Graphify 0.9.72 on a scratch copy, and record in the PR description:
+- [X] T028 Run quickstart.md end to end against real Graphify 0.9.72 on a scratch copy, and record in the PR description:
   - SC-001: the `time` result;
   - SC-002 on the real graph: `session update --json` after touching `cli/open_skill/route.py` lists all 7 files that `grep -rlE "from open_skill import .*\broute\b|open_skill\.route" --include='*.py' .` finds;
   - U1: the same result after committing the touch;
@@ -286,3 +286,12 @@ then T020 → T021 → T022
 ### Suggested commits
 
 One commit per checkpoint: Foundational, US1, US2, US3, Polish. Each commit message ends with the repository's co-author line.
+
+## Validation results (T028, 2026-09-30, Graphify 0.9.72, scratch copy of this repository)
+
+- SC-001: `session update` after a one-file change: 2.75 s (target < 5 s).
+- SC-002: all 5 files under `cli/`, `scripts/`, `tests/` that import `route` directly (grep) are in `affected`; `tests/test_route.py` conflicts with the `tests/**` session.
+- U1: after `git commit`, `affected` and `conflicts` are identical to before the commit.
+- SC-003: 20 of 20 pairs of concurrent refreshes left a valid `graph.json`.
+- Error paths: no Graphify → exit 2 with install hint; no graph → exit 2 with `graphify extract . --code-only`; no git → exit 0 with "conflict check skipped"; a corrupt record → `pruned 1 record(s)`.
+- Gates: 1167 tests pass; routing evals 199/199 in-sample, holdout unchanged at 35/52; validate, lint, build --check and privacy guard clean.

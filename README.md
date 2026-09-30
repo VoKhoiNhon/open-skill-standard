@@ -24,7 +24,7 @@ Open Skill Standard adds the missing layer: metadata about **which role a skill 
 | `open-skill-intel` skill | Sends each question to the best source: codegraph, Context7, schemas, the web, your notes, the skill graph |
 | `open-skill-learn` skill | Remembers your lessons and preferences so future routes use them |
 | `open-skill` CLI | `route`, `search`, `scan`, `doctor`, `build`, `validate`, `lint`, `init`, `learn`, `feedback`… |
-| Registry | 16 adapters describing 190+ upstream skills and tools, 28 role packs, 9 model profiles |
+| Registry | 18 adapters describing 190+ upstream skills and tools, 28 role packs, 9 model profiles |
 
 ## Quick start
 
@@ -139,6 +139,31 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 **The whole graph.** `open-skill graph --format html --out graph.html` writes one self-contained page (no network access): skills by phase, each skill's artifacts, requirements, conflicts and recommending roles, an artifact table and the roles, with filters by role, phase, source and installed state and a search box. It works with the keyboard (`/` searches, `Esc` clears) and follows your light or dark theme. `--format json` and `--format mermaid` export the same graph for other tools.
 
+## Parallel sessions
+
+Several agent sessions can work on one project at once and share one [Graphify](https://github.com/Graphify-Labs/graphify) code graph. Each session declares the paths it works on. After an edit, `session update` refreshes the graph (Graphify locks and rewrites it, about 2.4 s on this repository) and lists the files within two steps of calls, references or imports of what changed since the session started, committed or not. It warns when one of them lies in another session's scope. It never blocks and never fails because of a conflict.
+
+```bash
+uv tool install graphifyy && graphify extract . --code-only    # once per project
+open-skill session start --scope "cli/open_skill/route.py" --task "speed up fit"
+open-skill session start --scope "tests/**" --task "add fixtures for route tests"
+open-skill session update --session <id>          # after an edit, from the session that made it
+open-skill session list                           # --prune drops sessions idle for more than 6 hours
+open-skill session end <id>
+```
+
+```text
+$ open-skill session update --session a1b2c3
+graph: 2204 nodes, 3566 edges (refreshed)
+changed: cli/open_skill/route.py
+affected: 14 files
+  cli/open_skill/cli.py
+  …
+⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
+```
+
+Graphify links `from pkg import mod` to the package, not to `mod.py`, and does not resolve `mod.fn()` as a call; `session update` resolves package imports itself, so a test that imports the module is still found. For call-level questions (callers, impact) keep codegraph. Session records live in `.open-skill/sessions/` inside the project, which ignores itself in git. `--json` gives the changed, affected and conflicting files to an agent.
+
 ## Roles
 
 | Family | Roles |
@@ -229,6 +254,7 @@ open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forg
 open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
 open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
+open-skill session start --scope <glob> --task "..." | list [--prune] | end <id> | update [--session <id>] [--json]
 ```
 
 Exit codes: 0 success, 1 a check failed (lint errors, a high audit finding, stale build, adapter drift, nothing to remove), 2 bad input (unknown role, phase, agent or path), 3 your data was written by a newer open-skill.

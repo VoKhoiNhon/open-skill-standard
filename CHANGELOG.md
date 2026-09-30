@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill session start|list|end|update`: parallel agent sessions on one project declare their scope, share one Graphify graph, and get a warning (never an error) when a change reaches another session's scope. Changes count from the session's start commit, so committed work is included; `from pkg import mod` is resolved to `mod.py` because Graphify links it to the package.
+- Adapters `graphify` (query, affected, update; Apache-2.0, tested with 0.9.72) and `open-skill-cli` (`session-update`), and routing evals for session conflicts.
+- `project.inspect` and `route` report whether a project has a Graphify graph (`graphify-out/`).
+
+### Changed
+- The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
+
 ## [0.7.2] - 2026-09-29
 
 Finishing the audit: concurrent writers, model fallback and repository checks.

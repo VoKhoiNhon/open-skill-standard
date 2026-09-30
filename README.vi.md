@@ -24,7 +24,7 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 | Skill `open-skill-intel` | Đưa mỗi câu hỏi tới nguồn tốt nhất: codegraph, Context7, schema, web, ghi chú của bạn, skill graph |
 | Skill `open-skill-learn` | Ghi nhớ bài học và thói quen để các lần route sau dùng |
 | CLI `open-skill` | `route`, `search`, `scan`, `doctor`, `build`, `validate`, `lint`, `init`, `learn`, `feedback`… |
-| Registry | 16 adapter mô tả hơn 190 skill và tool upstream, 28 role pack, 9 hồ sơ model |
+| Registry | 18 adapter mô tả hơn 190 skill và tool upstream, 28 role pack, 9 hồ sơ model |
 
 ## Bắt đầu nhanh
 
@@ -150,6 +150,31 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 **Toàn bộ graph.** `open-skill graph --format html --out graph.html` ghi ra một trang HTML duy nhất, tự chứa, không cần mạng: skill theo phase; artefact, điều kiện, xung đột và vai trò khuyên dùng của từng skill; bảng artefact và danh sách vai trò; lọc theo vai trò, phase, nguồn, đã cài hay chưa, và ô tìm kiếm. Dùng được bằng bàn phím (`/` để tìm, `Esc` để xoá) và theo giao diện sáng/tối của máy. `--format json` và `--format mermaid` xuất cùng graph cho công cụ khác.
 
+## Nhiều session song song
+
+Nhiều session agent có thể cùng làm trên một project và dùng chung một code graph [Graphify](https://github.com/Graphify-Labs/graphify). Mỗi session khai báo các đường dẫn mình phụ trách. Sau khi sửa, `session update` cập nhật graph (Graphify tự khoá và ghi lại, khoảng 2.4 s trên repo này) rồi liệt kê các file cách những gì đã đổi từ lúc session bắt đầu, đã commit hay chưa, trong vòng hai bước theo lời gọi, tham chiếu hoặc import. Nếu một file trong đó thuộc phạm vi của session khác thì lệnh cảnh báo. Lệnh không bao giờ chặn và không bao giờ báo lỗi vì đụng độ.
+
+```bash
+uv tool install graphifyy && graphify extract . --code-only    # once per project
+open-skill session start --scope "cli/open_skill/route.py" --task "speed up fit"
+open-skill session start --scope "tests/**" --task "add fixtures for route tests"
+open-skill session update --session <id>          # after an edit, from the session that made it
+open-skill session list                           # --prune drops sessions idle for more than 6 hours
+open-skill session end <id>
+```
+
+```text
+$ open-skill session update --session a1b2c3
+graph: 2204 nodes, 3566 edges (refreshed)
+changed: cli/open_skill/route.py
+affected: 14 files
+  cli/open_skill/cli.py
+  …
+⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
+```
+
+Graphify nối `from pkg import mod` tới package chứ không tới `mod.py`, và không nhận `mod.fn()` là một lời gọi hàm; `session update` tự nối các import qua package, nên test có import module vẫn được tìm thấy. Với câu hỏi ở mức lời gọi hàm (ai gọi, ảnh hưởng) thì vẫn dùng codegraph. Bản ghi session nằm trong `.open-skill/sessions/` của project, thư mục này tự bỏ qua trong git. `--json` trả danh sách file đổi, bị ảnh hưởng và đụng độ cho agent dùng tiếp.
+
 ## 28 vai trò
 
 | Nhóm | Vai trò |
@@ -251,6 +276,7 @@ open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forg
 open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
 open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
+open-skill session start --scope <glob> --task "..." | list [--prune] | end <id> | update [--session <id>] [--json]
 ```
 
 Mã thoát: 0 thành công, 1 một kiểm tra thất bại (lint có lỗi, audit có phát hiện mức high, build cũ, adapter lệch upstream, không có gì để gỡ), 2 đầu vào sai (vai trò, phase, agent hoặc đường dẫn không tồn tại), 3 dữ liệu của bạn do một open-skill mới hơn ghi.
