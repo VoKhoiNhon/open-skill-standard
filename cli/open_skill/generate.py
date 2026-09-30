@@ -81,8 +81,8 @@ def write_all(reg, root: Path) -> list[Path]:
     written = []
     for path, text in outputs(reg, root).items():
         path.parent.mkdir(parents=True, exist_ok=True)
-        if not path.exists() or path.read_text(encoding="utf-8") != text:
-            path.write_text(text, encoding="utf-8")
+        if not path.exists() or path.read_bytes() != text.encode("utf-8"):  # bytes, so CRLF from an older build is fixed
+            path.write_text(text, encoding="utf-8", newline="\n")
             written.append(path)
     db = Path(root) / "dist" / "index.db"
     db.unlink(missing_ok=True)
