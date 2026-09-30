@@ -54,10 +54,10 @@ def _applies(r: Rule, file: str) -> bool:
     return r.only is None or file == "<text>" or bool(r.only.search(file))
 
 
-# Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters, the soft
-# hyphen and Hangul fillers (blank, yet part of a word) and variation selectors, which can carry a payload one byte
-# per selector ("emoji smuggling"). ponytail: ZWJ/ZWNJ, LRM/RLM and the emoji selectors FE0E/FE0F are left out
-# because emoji and right-to-left scripts use them; add them if hidden payloads start using those.
+# Characters an excerpt shows escaped: zero-width space, word joiners, bidi overrides and isolates, Unicode tag
+# characters, the soft hyphen, the Mongolian vowel separator, Hangul fillers and variation selectors (the hidden-unicode
+# rule flags a narrower set). ponytail: ZWJ/ZWNJ, LRM/RLM and the emoji selectors FE0E/FE0F stay unescaped so emoji and
+# right-to-left text read normally; add them if hidden payloads start using those.
 INVISIBLE = re.compile(r"[\u00ad\u115f\u1160\u180e\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\u3164\ufe00-\ufe0d"
                        r"\uffa0\U000e0000-\U000e007f\U000e0100-\U000e01ef]")
 
@@ -163,47 +163,64 @@ rule("browser-data", "high",
 
 
 # Payloads found in malicious skills: a download run unread, a command hidden in an encoding, a known collection host.
+# Every gap is bounded ({0,GAP}) so a long line costs linear time: a skill must not be able to stall its own audit.
+GAP = 300
 ATTACK_INGRESS = "https://attack.mitre.org/techniques/T1105/"
 DOWNLOAD = r"\b(curl|wget|iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b"
-RUNNER = r"(sudo\s+(-\w+\s+)*)?((ba|z|da|k|fi)?sh|python[23]?|node|perl|ruby|php|iex|Invoke-Expression|pwsh|powershell)\b"
+# An interpreter that reads its program from stdin: nothing after it, `-`, `-s`, or the end of the command.
+# `| python -m json.tool` or `| node parse.js` only read data.
+RUNNER = (r"(sudo\s+(-\w+\s+){0,4})?(env\s+)?(/(usr/)?(local/)?bin/)?"
+          r"((ba|z|da|k|fi)?sh|python[23]?|node|perl|ruby|php|iex|Invoke-Expression|pwsh|powershell)"
+          r"(?=\s*($|[;&|)\"'`])|\s+-s?(\s|$))")
 rule("remote-exec", "medium",
-     rf"{DOWNLOAD}[^|\n]*\|\s*{RUNNER}|(\b(ba|z)?sh|\bsource|(^|\s)\.)\s+<\(\s*{DOWNLOAD}|\b(iex|Invoke-Expression)\b[^\n]*\(\s*{DOWNLOAD}",
+     rf"{DOWNLOAD}[^|\n]{{0,{GAP}}}\|\s*{RUNNER}|(\b(ba|z)?sh|\bsource|(^|\s)\.)\s+<\(\s*{DOWNLOAD}"
+     rf"|\b(ba|z)?sh\s+-c\s+[\"']?\$\(\s*{DOWNLOAD}|\b(iex|Invoke-Expression)\b[^\n]{{0,{GAP}}}\(\s*{DOWNLOAD}"
+     rf"|\b(exec|eval)\s*\([^\n]{{0,{GAP}}}\burlopen\(",
      "downloads a script and runs it at once, so nobody reads what runs; download it, read it, then run it",
      ATTACK_INGRESS)
 
 
 ATTACK_OBFUSCATION = "https://attack.mitre.org/techniques/T1027/"
+DECODE = r"\b(base(32|64)|xxd)\s+(-\w*[dDr]\w*|--decode)\b"  # base64 -d, -di, -D, --decode; xxd -r
 rule("encoded-exec", "high",
-     r"\bbase(32|64)\s+(-d|-D|--decode)\b[^\n]*\|\s*" + RUNNER
-     + r"|\beval\s*[\"'(]?\s*[\"']?\$\(\s*(echo|printf|base(32|64))\b"
-     r"|\bexec\s*\([^\n]*\b(b64decode|b32decode|decodebytes|fromhex|codecs\.decode)\b"
-     r"|\bFromBase64String\b[^\n]*\b(iex|Invoke-Expression)\b|\b(iex|Invoke-Expression)\b[^\n]*\bFromBase64String\b"
-     r"|\b(powershell|pwsh)(\.exe)?\b[^\n]*\s-(e|ec|enc|encodedcommand)\s+[A-Za-z0-9+/=]{16,}",
+     rf"{DECODE}[^\n]{{0,{GAP}}}\|\s*" + RUNNER
+     + rf"|\beval\s*[\"'(]?\s*[\"']?\$\(\s*(echo|printf)\b[^)\n]{{0,{GAP}}}\|\s*{DECODE}|\beval\s*[\"'(]?\s*[\"']?\$\(\s*{DECODE}"
+     rf"|\b(exec|eval)\s*\([^\n]{{0,{GAP}}}\b(b64decode|b32decode|decodebytes|fromhex|codecs\.decode)\b"
+     rf"|\bFromBase64String\b[^\n]{{0,{GAP}}}\b(iex|Invoke-Expression)\b"
+     rf"|\b(iex|Invoke-Expression)\b[^\n]{{0,{GAP}}}\bFromBase64String\b"
+     rf"|\b(powershell|pwsh)(\.exe)?\b[^\n]{{0,{GAP}}}\s-(e|ec|enc|encodedcommand)\s+[A-Za-z0-9+/=]{{16}}",
      "decodes text and runs it as a command; the encoding hides what runs from a reviewer", ATTACK_OBFUSCATION)
 
 
+# Services built to receive requests from strangers. ponytail: chat webhooks (Discord, Telegram bots) and file drops
+# are left out because notification and sharing skills use them openly; add them if stolen data starts going there.
 ATTACK_EXFIL_WEB = "https://attack.mitre.org/techniques/T1567/"
 rule("exfil-endpoint", "high",
-     r"\b(webhook\.site|requestbin\.(com|net)|[\w-]+\.m\.pipedream\.net|interact\.sh|oast\.(fun|pro|live|site|online|me)"
-     r"|burpcollaborator\.net|oastify\.com|canarytokens\.com|pastebin\.com/api|transfer\.sh|ptpb\.pw)\b"
-     r"|\bdiscord(app)?\.com/api/webhooks/|\bapi\.telegram\.org/bot",
-     "names a request-collection or paste service, a webhook or a chat bot API that attackers use to receive stolen data",
-     ATTACK_EXFIL_WEB)
+     r"\b(webhook\.site|requestbin\.(com|net)|[\w-]{1,63}\.m\.pipedream\.net|interact\.sh|oast\.(fun|pro|live|site|online|me)"
+     r"|burpcollaborator\.net|oastify\.com|canarytokens\.com|pastebin\.com/api)\b",
+     "names a request-collection or paste service that attackers use to receive stolen data", ATTACK_EXFIL_WEB)
 
 
-# Tokens in the shape their issuers publish; a documented example key (AKIA...EXAMPLE) and a run of x's are placeholders.
+# Tokens in the shape their issuers publish. Placeholders are skipped: AWS's documented example key (AKIA...EXAMPLE)
+# and a body that starts with a filler (xxxxxxxx, 00000000, aaaaaaaa, ********, YOUR...). A key header only counts at a line's start,
+# so prose that names the header ("starts with -----BEGIN ...") is left alone.
 ATTACK_CRED_IN_FILES = "https://attack.mitre.org/techniques/T1552/001/"
+REAL = r"(?!x{8}|0{8}|a{8}|\*{8}|your)"  # patterns ignore case, so x{8} also skips XXXXXXXX
 rule("hardcoded-secret", "high",
-     r"\bsk-ant-(api|admin)\d{2}-[A-Za-z0-9_-]{20,}|\bgh[pousr]_(?![xX]{8})[A-Za-z0-9]{36}\b|\bgithub_pat_[A-Za-z0-9_]{60,}"
-     r"|\b(AKIA|ASIA)(?![0-9A-Z]{0,12}EXAMPLE)[0-9A-Z]{16}\b|\bxox[abpr]-[0-9]{6,}-[A-Za-z0-9-]{6,}"
-     r"|\bAIza[0-9A-Za-z_-]{35}\b|\b[rs]k_live_[0-9A-Za-z]{20,}|\bnpm_[A-Za-z0-9]{36}\b|\bglpat-[A-Za-z0-9_-]{20}\b"
-     r"|-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED |PGP )?PRIVATE KEY( BLOCK)?-----",
+     rf"\bsk-ant-(api|admin)\d{{2}}-{REAL}[A-Za-z0-9_-]{{20}}|\bsk-(proj|svcacct|admin)-{REAL}[A-Za-z0-9_-]{{40}}"
+     rf"|\bgh[pousr]_{REAL}[A-Za-z0-9]{{36}}\b|\bgithub_pat_{REAL}[A-Za-z0-9_]{{60}}"
+     rf"|\b(AKIA|ASIA)(?![0-9A-Z]{{0,12}}EXAMPLE){REAL}[0-9A-Z]{{16}}\b|\bxox[abpr]-[0-9]{{6,15}}-{REAL}[A-Za-z0-9-]{{6}}"
+     rf"|\bAIza{REAL}[0-9A-Za-z_-]{{35}}\b|\b[rs]k_live_{REAL}[0-9A-Za-z]{{20}}|\bnpm_{REAL}[A-Za-z0-9]{{36}}\b"
+     rf"|\bglpat-{REAL}[A-Za-z0-9_-]{{20}}\b|^[\s\"'`>]*-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED |PGP )?PRIVATE KEY( BLOCK)?-----",
      "contains what looks like a real API token or private key; anyone who installs the skill can read and use it",
      ATTACK_CRED_IN_FILES)
 
 
-# INVISIBLE characters anywhere, and a byte-order mark inside a line.
-rule("hidden-unicode", "high", INVISIBLE.pattern + r"|(?<!^)\ufeff",
+# Characters that are invisible wherever they appear, and a run of variation selectors: one selector after a base
+# character picks a glyph (emoji, CJK variants), several in a row carry bytes ("emoji smuggling").
+HIDDEN = (r"[\u115f\u1160\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\u3164\uffa0\U000e0000-\U000e007f]"
+          r"|[\ufe00-\ufe0f\U000e0100-\U000e01ef]{2}")
+rule("hidden-unicode", "high", HIDDEN + r"|(?<!^)\ufeff",
      "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
 
 
