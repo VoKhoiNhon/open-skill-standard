@@ -1,8 +1,8 @@
 source: spec-kit
 upstream: https://github.com/github/spec-kit
 license: MIT
-tested_version: 1.0.12
-summary: Spec-driven development - constitution, spec, plan, tasks, implement, converge; bug and assessment extensions.
+tested_version: 1.0.13
+summary: Spec-driven development - constitution, spec, plan, tasks, implement, converge; bug, assessment and GitHub extensions.
 install:
   cli: "uv tool install specify-cli"
   project-init: "specify init --here --integration claude"
@@ -16,6 +16,7 @@ install:
   project-init@amp: "specify init --here --integration amp"
   bug-extension: "specify extension add bug"
   assess-extension: "specify extension add assess"
+  github-extension: "specify extension add github"
 detect:
   - {glob: "{project_skills}/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
 portability: [claude-code, codex, cursor, copilot, gemini]
@@ -83,9 +84,17 @@ skills:
     requires: ["project:.specify"]
     task_size: [medium, large]
   - name: taskstoissues
-    description: Turn tasks into dependency-ordered GitHub issues
+    description: Turn tasks into dependency-ordered GitHub issues (moving to the github extension)
     phases: [plan, release]
     consumes: [tasks]
+    alternatives: [spec-kit/github-taskstoissues]
+    requires: ["project:.specify"]
+    task_size: [large]
+  - name: github-taskstoissues
+    description: Turn tasks into dependency-ordered GitHub issues through the GitHub MCP server (github extension)
+    phases: [plan, release]
+    consumes: [tasks]
+    alternatives: [spec-kit/taskstoissues]
     requires: ["project:.specify"]
     task_size: [large]
   - name: bug-assess

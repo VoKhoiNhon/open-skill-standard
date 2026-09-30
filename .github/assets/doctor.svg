@@ -26,7 +26,7 @@
 <text x="20" y="390" fill="#e3b341" textLength="547.5" lengthAdjust="spacingAndGlyphs">  · open-skill-cli           0 installed / 1 described  → uv tool install</text>
 <text x="20" y="408" fill="#e3b341" textLength="427.5" lengthAdjust="spacingAndGlyphs">    git+https://github.com/VoKhoiNhon/open-skill-standard</text>
 <text x="20" y="426" fill="#c9d1d9" textLength="405" lengthAdjust="spacingAndGlyphs">  ✓ ponytail                 6 installed / 6 described</text>
-<text x="20" y="444" fill="#e3b341" textLength="645" lengthAdjust="spacingAndGlyphs">  · spec-kit                 0 installed / 18 described  → uv tool install specify-cli</text>
+<text x="20" y="444" fill="#e3b341" textLength="645" lengthAdjust="spacingAndGlyphs">  · spec-kit                 0 installed / 19 described  → uv tool install specify-cli</text>
 <text x="20" y="462" fill="#c9d1d9" textLength="412.5" lengthAdjust="spacingAndGlyphs">  ✓ superpowers             15 installed / 15 described</text>
 <text x="20" y="480" fill="#e3b341" textLength="547.5" lengthAdjust="spacingAndGlyphs">  · taste-skill              0 installed / 13 described  → npx skills add</text>
 <text x="20" y="498" fill="#e3b341" textLength="322.5" lengthAdjust="spacingAndGlyphs">    https://github.com/Leonxlnx/taste-skill</text>

@@ -1694,6 +1694,17 @@
    "description": "Compare the codebase against spec, plan and tasks and append unbuilt work"
   },
   {
+   "id": "spec-kit/github-taskstoissues",
+   "kind": "skill",
+   "source": "spec-kit",
+   "phases": [
+    "plan",
+    "release"
+   ],
+   "installed": false,
+   "description": "Turn tasks into dependency-ordered GitHub issues through the GitHub MCP server (github extension)"
+  },
+  {
    "id": "spec-kit/implement",
    "kind": "skill",
    "source": "spec-kit",
@@ -1742,7 +1753,7 @@
     "release"
    ],
    "installed": false,
-   "description": "Turn tasks into dependency-ordered GitHub issues"
+   "description": "Turn tasks into dependency-ordered GitHub issues (moving to the github extension)"
   },
   {
    "id": "superpowers/brainstorming",
@@ -2990,6 +3001,21 @@
    "type": "requires"
   },
   {
+   "from": "artifact:tasks",
+   "to": "spec-kit/github-taskstoissues",
+   "type": "consumes"
+  },
+  {
+   "from": "spec-kit/github-taskstoissues",
+   "to": "spec-kit/taskstoissues",
+   "type": "alternative-to"
+  },
+  {
+   "from": "spec-kit/github-taskstoissues",
+   "to": "project:.specify",
+   "type": "requires"
+  },
+  {
    "from": "spec-kit/implement",
    "to": "artifact:code-change",
    "type": "produces"
@@ -3083,6 +3109,11 @@
    "from": "artifact:tasks",
    "to": "spec-kit/taskstoissues",
    "type": "consumes"
+  },
+  {
+   "from": "spec-kit/taskstoissues",
+   "to": "spec-kit/github-taskstoissues",
+   "type": "alternative-to"
   },
   {
    "from": "spec-kit/taskstoissues",
