@@ -126,7 +126,7 @@ phase window: plan → build → verify → review (medium build task: starts at
 
 When no phase keyword matches, the phase line reads `phase: build (guessed, no signal)` and the JSON has `"phase_from": "guessed"`. An agent that has read the conversation should pass `--phase` (and `--size`) itself; keyword detection is the fallback.
 
-<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route "add an endpoint that exports invoices as CSV" --role backend-developer --explain, showing the target phase, the phase window and each step with its score and runner-ups" width="790">
+<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route “add an endpoint that exports invoices as CSV” --role backend-developer --explain, showing the target phase, the phase window and each step with its score and runner-ups" width="790">
 
 **Why not that skill?** `--why-not` takes a skill id or invoke name and names the reason: not installed (with the install command), wrong phase or size, a requirement the project does not meet, a conflict with a chosen skill, a score below the minimum or below the winner's (both scores), the model's step limit, or a task small enough to do directly.
 
