@@ -202,14 +202,15 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
     if "license" in meta and not isinstance(meta["license"], str):
         add("field-license", "license should be a short string or the name of a bundled license file")
     for key, allowed in CLAUDE_CODE_VALUES.items():
-        if key in meta and (type(meta[key]), meta[key]) not in {(type(a), a) for a in allowed}:  # 0 is not False
+        if key in meta and not any(type(meta[key]) is type(a) and meta[key] == a for a in allowed):  # 0 is not False
             shown = " or ".join(str(a).lower() for a in allowed)
             add("field-claude-code", f"{key} is {meta[key]!r}; Claude Code accepts {shown}")
     listed = len(desc) + len(frontmatter.text(meta, "when_to_use"))
     if listed > LISTING_MAX:
         add("listing-length", f"description and when_to_use are {listed} characters; Claude Code cuts the listing at "
                               f"{LISTING_MAX}, so put the key use case first")
-    if folder and (folder.lower() == "synced" or folder.startswith("anthropic-skills")):
+    if folder and (folder.lower() == "synced" or folder.lower() == "anthropic-skills"
+                   or folder.lower().startswith("anthropic-skills:")):
         add("folder-reserved", f"Claude Code does not load a skill folder named '{folder}'; rename it")
 
 
@@ -365,7 +366,7 @@ def lint_marketplace(path: Path) -> list[Finding]:
         src = p.get("source")
         for why in _source_problems(src) if "source" in p else []:
             add("marketplace-source", f"plugins[{i}].source: {why}")
-        if "headersHelper" in p and p.get("strict") is not False:
+        if "headersHelper" in p and isinstance(src, dict) and src.get("source") == "archive" and p.get("strict") is not False:
             add("marketplace-source", f"plugins[{i}] sets headersHelper, which needs \"strict\": false")
         if isinstance(src, str) and ".." in Path(src).parts:
             add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
@@ -404,7 +405,7 @@ def _source_problems(src) -> list[str]:
     if not isinstance(src, dict):
         return ["must be a relative path or an object"]
     kind = src.get("source")
-    if kind not in SOURCE_TYPES:
+    if not isinstance(kind, str) or kind not in SOURCE_TYPES:
         return [f"unknown source type {kind!r}; use one of {', '.join(SOURCE_TYPES)}"]
     out = [f"{kind} needs a non-empty string '{k}'" for k in SOURCE_TYPES[kind]
            if not (isinstance(src.get(k), str) and src[k].strip())]

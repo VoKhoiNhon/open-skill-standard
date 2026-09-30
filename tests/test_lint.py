@@ -449,6 +449,9 @@ def mkt(**kw):
     (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip"},
                    "headersHelper": "get-token", "strict": False}]), []),
     (mkt(plugins=[{"name": "a", "source": 3}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": ["github"]}}]), ["marketplace-source"]),  # crashed: unhashable
+    (mkt(plugins=[{"name": "a", "source": {"source": {}}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r"}, "headersHelper": "h"}]), []),  # no effect
     (mkt(plugins=[{"name": "a", "source": "plugins/a"}]), ["marketplace-source"]),      # relative paths start with ./
     (mkt(plugins=[{"name": "a", "source": "a"}], metadata={"pluginRoot": "./plugins"}), []),
     (mkt(plugins=[{"name": "a", "source": "./x/../../y"}]), ["marketplace-source"]),
@@ -529,6 +532,8 @@ def with_fields(extra: str) -> str:
     ("user-invocable: no-thanks", True),
     ("background: false", False),
     ("background: 0", True),
+    ("effort: [low]", True),  # crashed: a list is unhashable
+    ("context: {a: 1}", True),
 ])
 def test_claude_code_field_values(extra, fires):
     assert ("field-claude-code" in rules(with_fields(extra))) is fires
@@ -540,7 +545,8 @@ def test_listing_length_counts_description_and_when_to_use():
 
 
 @pytest.mark.parametrize("folder,fires", [("synced", True), ("Synced", True), ("anthropic-skills", True),
-                                          ("anthropic-skills:pdf", True), ("sync-notes", False)])
+                                          ("anthropic-skills:pdf", True), ("sync-notes", False),
+                                          ("anthropic-skillset", False), ("Anthropic-Skills", True)])
 def test_reserved_skill_folders(folder, fires):
     text = f"---\nname: {folder}\ndescription: Does a thing.\n---\nBody.\n"
     assert ("folder-reserved" in [f.rule for f in lint.lint_text(text, folder=folder)]) is fires
