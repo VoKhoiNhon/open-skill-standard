@@ -18,6 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill audit` flags `encoded-exec` (high): text decoded and run as a command (`base64 -d | sh`, `eval "$(echo ... | base64 -d)"`, `exec(b64decode(...))`, `powershell -enc`), a way to hide a payload from a reviewer.
 - `open-skill audit` flags `exfil-endpoint` (high): request-collection and paste services, Discord webhooks and the Telegram bot API, where stolen data is usually sent.
 - `open-skill audit` flags `hardcoded-secret` (high): API tokens in their issuers' published shapes (Anthropic, GitHub, AWS, Slack, Google, Stripe, npm, GitLab) and private key blocks; AWS's documented example key and runs of `x` are ignored.
+- The audit's `hidden-unicode` rule also catches the soft hyphen, Hangul fillers and variation selectors (except the emoji selectors U+FE0E/U+FE0F), which can split a flagged word or carry a hidden payload one byte per character. Excerpts escape these characters too; Python counts some of them as printable, so they used to be shown raw.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.

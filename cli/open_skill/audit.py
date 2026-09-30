@@ -54,9 +54,23 @@ def _applies(r: Rule, file: str) -> bool:
     return r.only is None or file == "<text>" or bool(r.only.search(file))
 
 
+# Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters, the soft
+# hyphen and Hangul fillers (blank, yet part of a word) and variation selectors, which can carry a payload one byte
+# per selector ("emoji smuggling"). ponytail: ZWJ/ZWNJ, LRM/RLM and the emoji selectors FE0E/FE0F are left out
+# because emoji and right-to-left scripts use them; add them if hidden payloads start using those.
+INVISIBLE = re.compile(r"[\u00ad\u115f\u1160\u180e\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\u3164\ufe00-\ufe0d"
+                       r"\uffa0\U000e0000-\U000e007f\U000e0100-\U000e01ef]")
+
+
+def _escape(c: str) -> str:
+    n = ord(c)
+    return f"\\x{n:02x}" if n < 256 else f"\\u{n:04x}" if n < 0x10000 else f"\\U{n:08x}"
+
+
 def _excerpt(line: str, limit: int = 160) -> str:
-    # Escape control and invisible characters so an excerpt cannot hide text or drive the terminal.
-    s = "".join(c if c.isprintable() else (f"\\x{ord(c):02x}" if ord(c) < 256 else f"\\u{ord(c):04x}")
+    # Escape control and invisible characters so an excerpt cannot hide text or drive the terminal. Some invisible
+    # ones (Hangul fillers, variation selectors) count as printable, so the INVISIBLE set is escaped too.
+    s = "".join(c if c.isprintable() and not INVISIBLE.fullmatch(c) else _escape(c)
                 for c in line.strip())
     return s if len(s) <= limit else s[: limit - 3] + "..."
 
@@ -188,10 +202,8 @@ rule("hardcoded-secret", "high",
      ATTACK_CRED_IN_FILES)
 
 
-# Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
-# byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
-# scripts use them; add them if hidden payloads start using those.
-rule("hidden-unicode", "high", r"[\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\U000e0000-\U000e007f]|(?<!^)\ufeff",
+# INVISIBLE characters anywhere, and a byte-order mark inside a line.
+rule("hidden-unicode", "high", INVISIBLE.pattern + r"|(?<!^)\ufeff",
      "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
 
 
