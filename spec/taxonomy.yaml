@@ -116,5 +116,6 @@ native_markers:
 
 tool_markers:
   codegraph: [".codegraph"]
+  graphify: ["graphify-out"]
 
 knowledge_types: [preference, lesson, glossary, project-fact, pitfall]

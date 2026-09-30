@@ -481,6 +481,34 @@ def test_install_into_a_missing_project_is_refused(cli):
 
 # ---- every command, flag and choice has a test above ----------------------------------------------------------
 
+def test_session_lifecycle(cli):
+    (cli.project / "pkg").mkdir()
+    (cli.project / "pkg" / "route.py").write_text("def fit():\n    return 1\n", encoding="utf-8")
+    sid = cli.run("session", "start", "--scope", "pkg/**", "--task", "speed up fit").stdout.strip()
+    rec = cli.json("session", "start", "--scope", ".specify/**", "--task", "specs", "--project", ".", "--json")
+    listed = cli.json("session", "list", "--project", ".", "--json")
+    assert {s["id"] for s in listed} == {sid, rec["id"]}
+    assert cli.run("session", "list").stdout.count("seen ") == 2
+    bin_dir = cli.tmp / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "graphify").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    (bin_dir / "graphify").chmod(0o755)
+    cli.env["PATH"] = f"{bin_dir}{os.pathsep}{cli.env['PATH']}"
+    missing = cli.run("session", "update", "--session", sid, code=2)
+    assert "graphify extract . --code-only" in missing.stderr
+    (cli.project / "graphify-out").mkdir()
+    shutil.copy(FIX / "graphify" / "graph.json", cli.project / "graphify-out" / "graph.json")
+    # Success paths that also print a note on stderr (not a git repository; pruned count), so no cli.run here.
+    raw = lambda *a: subprocess.run([sys.executable, "-m", "open_skill", *a], capture_output=True, text=True,
+                                    env=cli.env, cwd=cli.project)
+    p = raw("session", "update", "--session", sid, "--project", ".", "--json")
+    assert p.returncode == 0 and json.loads(p.stdout)["git"] is False and "conflict check skipped" in p.stderr
+    cli.run("session", "end", sid, "--project", ".")
+    cli.run("session", "end", sid, code=2)
+    p = raw("session", "list", "--prune", "--project", ".")
+    assert p.returncode == 0 and "pruned 0 record(s)" in p.stderr
+
+
 def _parser_surface() -> set[str]:
     """`cmd`, `cmd --flag` and `cmd choice` (for flags and positionals with choices), plus global flags."""
     parser = build_parser()

@@ -44,3 +44,9 @@ def test_role_signals_and_languages(tmp_path):
 def test_empty_project(tmp_path):
     r = inspect(tmp_path)
     assert r["native"] is None and r["artifacts"] == [] and r["codegraph"] is False
+
+
+def test_graphify_marker(tmp_path):
+    assert inspect(make(tmp_path, "graphify-out/graph.json"))["graphify"] is True
+    assert inspect(make(tmp_path / "other", "app.py"))["graphify"] is False
+    assert inspect(make(tmp_path / "cg", ".codegraph/db"))["codegraph"] is True

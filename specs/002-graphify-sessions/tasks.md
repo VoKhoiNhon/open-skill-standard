@@ -172,31 +172,31 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 ### Tests for User Story 3 (write first, must fail)
 
-- [ ] T016 [P] [US3] Add to `tests/test_project.py`: a project containing `graphify-out/` gives `inspect(...)["graphify"] is True`, and one without it gives False, while `codegraph` keeps its current behavior (Acceptance 1).
-- [ ] T017 [P] [US3] Add these routing cases to `evals/routing.yaml` near line 345, in the existing one-line style:
+- [X] T016 [P] [US3] Add to `tests/test_project.py`: a project containing `graphify-out/` gives `inspect(...)["graphify"] is True`, and one without it gives False, while `codegraph` keeps its current behavior (Acceptance 1).
+- [X] T017 [P] [US3] Add these routing cases to `evals/routing.yaml` near line 345, in the existing one-line style:
   - `{id: dev-session-conflict, role: backend-developer, task: "which other session does my change affect", phase: review, files: [graphify-out/graph.json], include: [open-skill-cli/session-update]}`;
   - `{id: qa-graphify-affected, role: qa-engineer, task: "what is affected by my change in the graphify graph", phase: review, files: [graphify-out/graph.json], include_any: [graphify/affected, open-skill-cli/session-update]}`;
   - `{id: no-graphify-no-tools, role: backend-developer, task: "which other session does my change affect", phase: review, exclude: [open-skill-cli/session-update, graphify/affected]}`, for a project without Graphify (Acceptance 3).
 
 ### Implementation for User Story 3
 
-- [ ] T018 [P] [US3] Create `registry/adapters/graphify.yaml` in the form of `registry/adapters/codegraph.yaml`, with the values from contracts/cli.md § Registry entries:
+- [X] T018 [P] [US3] Create `registry/adapters/graphify.yaml` in the form of `registry/adapters/codegraph.yaml`, with the values from contracts/cli.md § Registry entries:
   - `source: graphify`;
   - upstream `https://github.com/Graphify-Labs/graphify`;
-  - `license: MIT`, after checking the upstream LICENSE; if it is a different license, use that one;
+  - `license: Apache-2.0` (checked: GitHub API and the 0.9.72 wheel metadata say Apache-2.0, not MIT);
   - `tested_version: 0.9.72`;
   - `summary` stating that it misses calls made through a module name;
   - install `cli: "uv tool install graphifyy"` and `project-init: "graphify extract . --code-only"`;
   - `available_cmd: graphify`;
   - `portability: [claude-code, codex, cursor, copilot, gemini]`;
   - tools `query` (phases `[research]`), `affected` (`[plan, review]`) and `update` (`[verify]`), all `kind: tool` with `requires: ["project:graphify-out"]` and English triggers.
-- [ ] T019 [P] [US3] Create `registry/adapters/open-skill-cli.yaml` with `available_cmd: open-skill`, this repository as upstream, its license, and one tool:
+- [X] T019 [P] [US3] Create `registry/adapters/open-skill-cli.yaml` with `available_cmd: open-skill`, this repository as upstream, its license, and one tool:
   - `name: session-update`, `kind: tool`, `invoke: "open-skill session update"`;
   - `phases: [review, verify]`, `requires: ["project:graphify-out"]`;
   - triggers `["other session", "which session", "session conflict", "parallel session"]` and `triggers_i18n: {vi: [session khác, đụng session]}` (R9).
-- [ ] T020 [US3] In `spec/taxonomy.yaml`, add `graphify: ["graphify-out"]` under `tool_markers` (line 117). In `cli/open_skill/project.py`, `inspect()` also returns `"graphify"`, computed the same way as `"codegraph"`. In `cli/open_skill/route.py:361`, add `"graphify"` to the reported project keys. Make T016 pass.
-- [ ] T021 [US3] Add a row to the table in `skills/open-skill-intel/SKILL.md` after line 15: "Which other session my change affects | Graphify, when `graphify-out/` exists | `open-skill session update --session <id> --json`". Add one sentence: inside a declared session, filter Graphify answers to the session's scope, and keep codegraph for call-level questions. Run `.venv/bin/open-skill lint skills/`.
-- [ ] T022 [US3] Run `.venv/bin/open-skill validate` and `.venv/bin/open-skill eval`, and tune the triggers in T018/T019 until the three T017 cases pass and no existing case regresses (SC-005). If a fixture registry test needs it, mirror the adapters in `tests/fixtures/repo/registry/adapters/`.
+- [X] T020 [US3] In `spec/taxonomy.yaml`, add `graphify: ["graphify-out"]` under `tool_markers` (line 117). In `cli/open_skill/project.py`, `inspect()` also returns `"graphify"`, computed the same way as `"codegraph"`. In `cli/open_skill/route.py:361`, add `"graphify"` to the reported project keys. Make T016 pass.
+- [X] T021 [US3] Add a row to the table in `skills/open-skill-intel/SKILL.md` after line 15: "Which other session my change affects | Graphify, when `graphify-out/` exists | `open-skill session update --session <id> --json`". Add one sentence: inside a declared session, filter Graphify answers to the session's scope, and keep codegraph for call-level questions. Run `.venv/bin/open-skill lint skills/`.
+- [X] T022 [US3] Run `.venv/bin/open-skill validate` and `.venv/bin/open-skill eval`, and tune the triggers in T018/T019 until the three T017 cases pass and no existing case regresses (SC-005). If a fixture registry test needs it, mirror the adapters in `tests/fixtures/repo/registry/adapters/`.
 
 **Checkpoint**: evals are green; all three stories work.
 

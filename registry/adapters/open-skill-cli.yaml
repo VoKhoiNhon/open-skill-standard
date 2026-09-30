@@ -1,0 +1,19 @@
+source: open-skill-cli
+upstream: https://github.com/VoKhoiNhon/open-skill-standard
+license: MIT
+tested_version: 0.7.2
+summary: Commands of the open-skill CLI itself that agents can run as tools.
+install:
+  cli: "uv tool install git+https://github.com/VoKhoiNhon/open-skill-standard"
+available_cmd: open-skill
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: session-update
+    kind: tool
+    invoke: "open-skill session update"
+    description: Refresh the shared Graphify graph and warn when a change reaches another parallel session's scope
+    phases: [review, verify]
+    requires: ["project:graphify-out"]
+    task_size: [small, medium, large]
+    triggers: ["other session", "which session", "session conflict", "parallel session", "another session"]
+    triggers_i18n: {vi: [session khác, đụng session, phiên khác]}
