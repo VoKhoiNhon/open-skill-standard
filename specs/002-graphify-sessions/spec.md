@@ -6,7 +6,9 @@
 
 **Status**: Draft
 
-**Input**: User description: "Graphify-backed parallel session management for open-skill (approach A: one shared graph + per-session scopes). Add a graphify adapter alongside codegraph; sessions with scope and task; `open-skill session update` refreshes the shared graph and warns (never blocks) when a change affects another active session's scope. Out of scope: sharded extraction, daemon/lock server, web UI, automatic scope claiming."
+**Input**: User description: "Graphify-backed parallel session management for open-skill (approach A: one shared graph + per-session scopes). Add a graphify adapter alongside codegraph; sessions with scope and task; `open-skill graph update` refreshes the shared graph and warns (never blocks) when a change affects another active session's scope. Out of scope: sharded extraction, daemon/lock server, web UI, automatic scope claiming."
+
+*Note*: the command was later renamed `open-skill session update` (research R1); the quote above is the original request.
 
 ## Context
 
@@ -98,7 +100,7 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - **FR-007**: Starting a session whose scope overlaps an active session's scope MUST warn and MUST still create the session.
 - **FR-008**: `open-skill session update` MUST refresh the project's Graphify graph incrementally, with only one refresh per project running at a time.
 - **FR-009**: After refreshing, the command MUST determine the changed files, meaning every file that differs from the session's start commit (committed, staged, unstaged or untracked; the current commit when no session is named), and the files affected by them within two steps of calls, references or imports in the graph, where an import of a package counts as an import of each module it names.
-- **FR-010**: The command MUST warn, and never block or fail, when an affected file falls inside another active session's scope, naming that session and its task.
+- **FR-010**: The command MUST warn, and never block or fail, when an affected file, or a file this session changed itself, falls inside another active session's scope, naming that session and its task.
 - **FR-011**: The command MUST offer a machine-readable output with changed files, affected files and conflicts.
 - **FR-012**: Every command that names an **active** session MUST update that session's last activity time; naming a stale session MUST NOT revive it.
 - **FR-013**: The error cases listed under Edge Cases MUST behave as described, with exit code 2 for a missing Graphify install and no automatic full builds or forced writes.
@@ -114,6 +116,9 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
+
+SC-001 and SC-003 depend on the real Graphify binary and its lock, so they are checked by hand in the quickstart run (task T028), not in the automated suite; the measured values are recorded at the end of tasks.md.
+
 
 - **SC-001**: On this repository, a refresh after a one-file change, including the conflict check, completes in under 5 seconds.
 - **SC-002**: In the fixture scenarios, 100% of files that call or import a changed file within two steps are reported as affected, including test files that reach the module only through a package import; and on this repository, every file that imports `route.py` directly, by module or through the package, is reported when `route.py` changes.

@@ -54,15 +54,15 @@ Steps and what the user sees:
 4. **Impact.** Computes the files affected by the changes, including package imports resolved to modules (R5), and the conflicts with other active sessions (R7). The session given with `--session` is excluded from conflicts. With an active `--session`, a changed file that lies only in other sessions' scopes is listed under `others` as their work, and is neither walked nor a conflict.
 5. **Activity.** If `--session` is active, refreshes its `seen`. If the id is unknown or stale, adds the warning `session ID is unknown or stale; checked against all active sessions`.
 
-Text output:
+Text output, shortened with `…`. The counts come from the walk on this repository's graph after touching `cli/open_skill/route.py` (14 code files). A real run also lists documentation files that reference the module, and other edits in the working tree, so the numbers vary:
 
 ```
 graph: 2204 nodes, 3566 edges (refreshed)
 changed: cli/open_skill/route.py
-affected: 4 files
+affected: 14 files
+  cli/open_skill/__main__.py
   cli/open_skill/cli.py
-  cli/open_skill/evals.py
-  tests/test_route.py
+  …
   tests/test_why_not.py
 ⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
 · tests/fixtures/new.yaml changed in session b4c5d6 ("add fixtures for route tests"); counted as its work

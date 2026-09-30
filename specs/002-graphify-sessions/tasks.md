@@ -196,7 +196,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - triggers `["other session", "which session", "session conflict", "parallel session"]` and `triggers_i18n: {vi: [session khác, đụng session]}` (R9).
 - [X] T020 [US3] In `spec/taxonomy.yaml`, add `graphify: ["graphify-out"]` under `tool_markers` (line 117). In `cli/open_skill/project.py`, `inspect()` also returns `"graphify"`, computed the same way as `"codegraph"`. In `cli/open_skill/route.py:361`, add `"graphify"` to the reported project keys. Make T016 pass.
 - [X] T021 [US3] Add a row to the table in `skills/open-skill-intel/SKILL.md` after line 15: "Which other session my change affects | Graphify, when `graphify-out/` exists | `open-skill session update --session <id> --json`". Add one sentence: inside a declared session, filter Graphify answers to the session's scope, and keep codegraph for call-level questions. Run `.venv/bin/open-skill lint skills/`.
-- [X] T022 [US3] Run `.venv/bin/open-skill validate` and `.venv/bin/open-skill eval`, and tune the triggers in T018/T019 until the three T017 cases pass and no existing case regresses (SC-005). If a fixture registry test needs it, mirror the adapters in `tests/fixtures/repo/registry/adapters/`.
+- [X] T022 [US3] Run `.venv/bin/open-skill validate` and `.venv/bin/open-skill eval routing`, and tune the triggers in T018/T019 until the three T017 cases pass and no existing case regresses (SC-005). Outcome: 199/199 in-sample, holdout unchanged at 35/52; no trigger tuning and no copies in `tests/fixtures/repo/registry/` were needed, because tests that use the fixture registry do not route to the new adapters.
 
 **Checkpoint**: evals are green; all three stories work.
 
