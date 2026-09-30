@@ -21,7 +21,7 @@ def versions(root: Path) -> dict[str, str]:
                                                     root / "registry/adapters/open-skill.yaml"),
     }
     # The files scripts/bump_version.py rewrites; every distinct pin in each one counts.
-    for p in sorted([*root.glob("skills/*/SKILL.md"), root / "README.md", root / "README.vi.md"]):
+    for p in sorted([*root.glob("skills/*/SKILL.md"), root / "README.md", root / "README.vi.md", *root.glob("site/**/*.html")]):
         if p.is_file():
             for pin in sorted(set(re.findall(re.escape(GIT_URL) + r"@v([\w.\-]+)", p.read_text(encoding="utf-8")))):
                 found[f"{p.relative_to(root)} pin v{pin}"] = pin

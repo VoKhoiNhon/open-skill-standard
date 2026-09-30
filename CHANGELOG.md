@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- A GitHub Pages site at https://vokhoinhon.github.io/open-skill-standard/ (English, with a Vietnamese page): a landing page built from the README's diagrams and a live skill graph page, built by `scripts/build_site.py` and deployed by `.github/workflows/pages.yml` on every push to `main`. The build uses a clean home and an empty PATH, so the graph shows the registry and nothing installed on the build machine. The site's install command is version-checked with the READMEs.
 - `open-skill session start|list|end|update`: parallel agent sessions on one project declare their scope, share one Graphify graph, and get a warning (never an error) when a change reaches another session's scope. Changes count from the session's start commit, so committed work is included; `from pkg import mod` is resolved to `mod.py` because Graphify links it to the package. With `--session`, a changed file that lies only in another session's scope is reported as that session's work (`others`), not as a conflict.
 - Adapters `graphify` (query, affected, update; Apache-2.0, tested with 0.9.72) and `open-skill-cli` (`session-update`), and routing evals for session conflicts.
 - `project.inspect` and `route` report whether a project has a Graphify graph (`graphify-out/`).

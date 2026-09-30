@@ -8,3 +8,4 @@ build/
 /.open-skill/
 events.jsonl
 dist/*.tar.gz
+_site/

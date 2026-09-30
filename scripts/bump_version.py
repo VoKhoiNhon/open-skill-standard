@@ -36,7 +36,7 @@ def bump(root: Path, v: str) -> list[str]:
         if new != text:
             p.write_text(new, encoding="utf-8")
             changed.append(rel)
-    for p in sorted([*root.glob("skills/*/SKILL.md"), root / "README.md", root / "README.vi.md"]):
+    for p in sorted([*root.glob("skills/*/SKILL.md"), root / "README.md", root / "README.vi.md", *root.glob("site/**/*.html")]):
         if p.exists():
             text = p.read_text(encoding="utf-8")
             new = pin(text, v)
