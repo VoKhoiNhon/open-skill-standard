@@ -61,3 +61,10 @@ def test_the_site_version_pin_is_checked_with_every_other_one():
     found = versions(REPO)
     pins = [k for k in found if k.startswith("site/")]
     assert pins and len(set(found.values())) == 1
+
+
+def test_build_with_a_relative_out_dir_still_writes_the_graph(tmp_path):
+    # CI runs `build_site.py _site`; the graph step runs in a temporary home, so the path must not stay relative.
+    subprocess.run([sys.executable, str(REPO / "scripts" / "build_site.py"), "_site"], cwd=tmp_path, check=True,
+                   capture_output=True, text=True)
+    assert (tmp_path / "_site" / "graph.html").is_file()

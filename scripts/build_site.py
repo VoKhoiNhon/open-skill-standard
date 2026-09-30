@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def build(out: Path) -> Path:
+    out = Path(out).resolve()  # the graph step runs in another directory
     if out.exists():
         shutil.rmtree(out)
     shutil.copytree(ROOT / "site", out)
@@ -27,6 +28,8 @@ def build(out: Path) -> Path:
             env.pop(var, None)
         subprocess.run([sys.executable, "-m", "open_skill", "graph", "--format", "html", "--out", str(out / "graph.html")],
                        cwd=home, env=env, check=True, stdout=subprocess.DEVNULL)
+    if not (out / "graph.html").is_file():
+        raise SystemExit(f"graph.html was not written to {out}")
     (out / ".nojekyll").write_text("", encoding="utf-8")  # serve files as they are, no Jekyll pass
     return out
 
