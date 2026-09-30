@@ -14,7 +14,7 @@ def make(tmp_path, *files):
     for f in files:
         p = tmp_path / f
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text("x")
+        p.write_text("x", encoding="utf-8")
     return tmp_path
 
 

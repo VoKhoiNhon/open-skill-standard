@@ -10,7 +10,7 @@ from open_skill import cli, sessions
 
 
 def _graph():
-    return json.loads(GRAPHIFY_FIXTURE.read_text())
+    return json.loads(GRAPHIFY_FIXTURE.read_text(encoding="utf-8"))
 
 
 def _run(capsys, *argv):
@@ -49,7 +49,7 @@ def test_walk_follows_only_the_listed_relations(graph_project):
 
 def test_walk_never_reads_files_outside_the_project(graph_project, tmp_path):
     secret = tmp_path / "outside.py"
-    secret.write_text("from pkg import route\n")
+    secret.write_text("from pkg import route\n", encoding="utf-8")
     g = _graph()
     g["links"].append({"source": "tests_test_cli", "target": "pkg_init", "relation": "imports_from",
                        "source_file": str(secret), "source_location": "L1"})
@@ -62,22 +62,22 @@ def test_walk_never_reads_files_outside_the_project(graph_project, tmp_path):
 # --- changed files (T007) -----------------------------------------------------------------------------------------
 
 def test_changed_files_are_tracked_edits_plus_untracked_files(graph_project):
-    (graph_project / "pkg" / "route.py").write_text("changed\n")
-    (graph_project / "new.py").write_text("x\n")
+    (graph_project / "pkg" / "route.py").write_text("changed\n", encoding="utf-8")
+    (graph_project / "new.py").write_text("x\n", encoding="utf-8")
     files, warnings = sessions.changed_files(graph_project)
     assert files == ["new.py", "pkg/route.py"] and warnings == []
 
 
 def test_changed_files_since_base_include_committed_work(graph_project):
     base = git(graph_project, "rev-parse", "HEAD").strip()
-    (graph_project / "pkg" / "route.py").write_text("changed\n")
+    (graph_project / "pkg" / "route.py").write_text("changed\n", encoding="utf-8")
     git(graph_project, "commit", "-qam", "work")
     assert sessions.changed_files(graph_project)[0] == []
     assert sessions.changed_files(graph_project, base)[0] == ["pkg/route.py"]
 
 
 def test_changed_files_fall_back_to_head_when_base_is_gone(graph_project):
-    (graph_project / "pkg" / "route.py").write_text("changed\n")
+    (graph_project / "pkg" / "route.py").write_text("changed\n", encoding="utf-8")
     files, warnings = sessions.changed_files(graph_project, "0" * 40)
     assert files == ["pkg/route.py"]
     assert warnings == [f"session base {'0' * 40} is gone; compared with HEAD"]
@@ -85,7 +85,7 @@ def test_changed_files_fall_back_to_head_when_base_is_gone(graph_project):
 
 def test_changed_files_ignore_our_own_bookkeeping(graph_project):
     sessions.start(graph_project, ["pkg/**"], "t")
-    (graph_project / "graphify-out" / "graph.json").write_text("{}")
+    (graph_project / "graphify-out" / "graph.json").write_text("{}", encoding="utf-8")
     assert sessions.changed_files(graph_project)[0] == []
 
 
@@ -106,7 +106,7 @@ def two_sessions(graph_project):
 
 def test_update_warns_about_a_file_in_another_sessions_scope(graph_project, fake_graphify, two_sessions, capsys):
     a, b = two_sessions
-    (graph_project / "pkg" / "route.py").write_text("def fit():\n    return 3\n")
+    (graph_project / "pkg" / "route.py").write_text("def fit():\n    return 3\n", encoding="utf-8")
     code, out, err = _run(capsys, "update", "--session", a, "--project", str(graph_project))
     assert code == 0
     assert "changed: pkg/route.py" in out
@@ -116,7 +116,7 @@ def test_update_warns_about_a_file_in_another_sessions_scope(graph_project, fake
 
 def test_update_json_shape(graph_project, fake_graphify, two_sessions, capsys):
     a, b = two_sessions
-    (graph_project / "pkg" / "route.py").write_text("x\n")
+    (graph_project / "pkg" / "route.py").write_text("x\n", encoding="utf-8")
     code, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")
     r = json.loads(out)
     assert code == 0
@@ -131,7 +131,7 @@ def test_update_json_shape(graph_project, fake_graphify, two_sessions, capsys):
 
 def test_update_after_committing_still_sees_the_change(graph_project, fake_graphify, two_sessions, capsys):
     a, b = two_sessions
-    (graph_project / "pkg" / "route.py").write_text("x\n")
+    (graph_project / "pkg" / "route.py").write_text("x\n", encoding="utf-8")
     git(graph_project, "commit", "-qam", "work")
     _, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")
     r = json.loads(out)
@@ -141,7 +141,7 @@ def test_update_after_committing_still_sees_the_change(graph_project, fake_graph
 
 def test_another_sessions_own_change_is_its_work_not_a_conflict(graph_project, fake_graphify, two_sessions, capsys):
     a, b = two_sessions
-    (graph_project / "tests" / "test_cli.py").write_text("x\n")  # inside B's scope only: B's work (N1, option b)
+    (graph_project / "tests" / "test_cli.py").write_text("x\n", encoding="utf-8")  # inside B's scope only: B's work (N1, option b)
     code, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")
     r = json.loads(out)
     assert code == 0 and r["conflicts"] == [] and r["changed"] == ["tests/test_cli.py"]
@@ -151,7 +151,7 @@ def test_another_sessions_own_change_is_its_work_not_a_conflict(graph_project, f
 
 def test_others_are_listed_in_text_output(graph_project, fake_graphify, two_sessions, capsys):
     a, b = two_sessions
-    (graph_project / "tests" / "test_cli.py").write_text("x\n")
+    (graph_project / "tests" / "test_cli.py").write_text("x\n", encoding="utf-8")
     _, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project))
     assert f'· tests/test_cli.py changed in session {b} ("add fixtures for route tests"); counted as its work' in out
     assert "⚠" not in out
@@ -160,7 +160,7 @@ def test_others_are_listed_in_text_output(graph_project, fake_graphify, two_sess
 def test_own_edit_inside_another_scope_is_still_a_conflict(graph_project, fake_graphify, capsys):
     a = sessions.start(graph_project, ["pkg/**", "tests/test_cli.py"], "mine")["id"]
     b = sessions.start(graph_project, ["tests/**"], "theirs")["id"]
-    (graph_project / "tests" / "test_cli.py").write_text("x\n")  # in both scopes: A may edit it, B must hear
+    (graph_project / "tests" / "test_cli.py").write_text("x\n", encoding="utf-8")  # in both scopes: A may edit it, B must hear
     r = json.loads(_run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")[1])
     assert r["others"] == []
     assert {"file": "tests/test_cli.py", "session": b, "task": "theirs", "via": "tests/test_cli.py"} in r["conflicts"]
@@ -169,7 +169,7 @@ def test_own_edit_inside_another_scope_is_still_a_conflict(graph_project, fake_g
 def test_without_a_session_every_changed_file_in_a_scope_is_a_conflict(graph_project, fake_graphify, two_sessions,
                                                                        capsys):
     _, b = two_sessions
-    (graph_project / "tests" / "test_cli.py").write_text("x\n")
+    (graph_project / "tests" / "test_cli.py").write_text("x\n", encoding="utf-8")
     r = json.loads(_run(capsys, "update", "--project", str(graph_project), "--json")[1])
     assert r["others"] == []
     assert {"file": "tests/test_cli.py", "session": b, "task": "add fixtures for route tests",
@@ -178,7 +178,7 @@ def test_without_a_session_every_changed_file_in_a_scope_is_a_conflict(graph_pro
 
 def test_update_without_conflicts(graph_project, fake_graphify, capsys):
     a = sessions.start(graph_project, ["pkg/**"], "all of pkg")["id"]
-    (graph_project / "pkg" / "route.py").write_text("x\n")
+    (graph_project / "pkg" / "route.py").write_text("x\n", encoding="utf-8")
     code, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project))
     assert code == 0 and "⚠" not in out and "affected: 4 files" in out and "no conflicts" in out
 
@@ -186,7 +186,7 @@ def test_update_without_conflicts(graph_project, fake_graphify, capsys):
 def _age(project, sid, hours):
     rec = sessions.get(project, sid)
     rec["seen"] = sessions._stamp(sessions._now() - dt.timedelta(hours=hours))
-    (project / ".open-skill" / "sessions" / f"{sid}.json").write_text(json.dumps(rec))
+    (project / ".open-skill" / "sessions" / f"{sid}.json").write_text(json.dumps(rec), encoding="utf-8")
     return rec["seen"]
 
 
@@ -228,7 +228,7 @@ def test_update_passes_a_failed_refresh_through_and_never_forces(graph_project, 
     code, _, err = _run(capsys, "update", "--project", str(graph_project))
     assert code == 1
     assert "Nothing to update or rebuild failed" in err and "graphify update . --force" in err
-    assert "--force" not in log.read_text()
+    assert "--force" not in log.read_text(encoding="utf-8")
 
 
 def test_update_outside_git_skips_the_conflict_check(graph_project, fake_graphify, capsys):
@@ -241,4 +241,4 @@ def test_update_outside_git_skips_the_conflict_check(graph_project, fake_graphif
 def test_update_calls_graphify_update_in_the_project_root(graph_project, fake_graphify, capsys):
     log = fake_graphify()
     _run(capsys, "update", "--project", str(graph_project))
-    assert log.read_text().splitlines() == [f"{os.path.realpath(graph_project)} update ."]
+    assert log.read_text(encoding="utf-8").splitlines() == [f"{os.path.realpath(graph_project)} update ."]

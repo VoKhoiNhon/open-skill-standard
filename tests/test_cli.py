@@ -132,7 +132,7 @@ def test_build_then_check(capsys, tmp_path):
     assert (root / "skills/open-skill-router/references/roles/data-engineer.md").exists()
     assert (root / "dist/index.db").exists()
     assert cli.main(["--registry", str(root), "build", "--root", str(root), "--check"]) == 0
-    (root / "dist/graph.mmd").write_text("tampered")
+    (root / "dist/graph.mmd").write_text("tampered", encoding="utf-8")
     assert cli.main(["--registry", str(root), "build", "--root", str(root), "--check"]) == 1
 
 
@@ -207,7 +207,7 @@ def test_restore_command(capsys, tmp_path):
 def test_migrate_command_dry_run_then_apply(capsys, tmp_path):
     k = tmp_path / "h" / "knowledge"
     k.mkdir(parents=True)
-    (k / "k-a.md").write_text("---\nid: k-a\ntype: lesson\nsource: user\napplies_to: ['role:*']\n---\nText\n")
+    (k / "k-a.md").write_text("---\nid: k-a\ntype: lesson\nsource: user\napplies_to: ['role:*']\n---\nText\n", encoding="utf-8")
     code, out = run(capsys, "migrate", "--dry-run")
     assert code == 0 and "dry run" in out and "would update k-a.md" in out
     assert not (tmp_path / "h" / "VERSION").exists()
@@ -290,7 +290,7 @@ def test_doctor_points_to_upgrade_and_reviews(capsys, tmp_path):
 def test_lint_exit_codes_and_json(capsys, tmp_path):
     d = tmp_path / "s" / "warn-only"
     d.mkdir(parents=True)
-    (d / "SKILL.md").write_text("---\nname: warn-only\ndescription: Does a thing.\nextra: x\n---\nbody\n")
+    (d / "SKILL.md").write_text("---\nname: warn-only\ndescription: Does a thing.\nextra: x\n---\nbody\n", encoding="utf-8")
     code, out = run(capsys, "lint", str(tmp_path / "s"))
     assert code == 0 and "0 error(s), 1 warning(s)" in out
     assert run(capsys, "lint", "--strict", str(tmp_path / "s"))[0] == 1
@@ -323,7 +323,7 @@ def test_eval_routing_reports_in_sample_and_holdout_apart(capsys, tmp_path):
     assert cli.main(["eval", "routing", "--format", "json"]) == 0
     rep = json.loads(capsys.readouterr().out)
     assert rep["pass_rate"] == 1.0 and rep["holdout"]["cases"] >= 40
-    (tmp_path / "c.yaml").write_text("cases:\n  - {id: x, role: qa-engineer, task: fix typo in README}\n")
+    (tmp_path / "c.yaml").write_text("cases:\n  - {id: x, role: qa-engineer, task: fix typo in README}\n", encoding="utf-8")
     assert cli.main(["eval", "routing", "--cases", str(tmp_path / "c.yaml"), "--format", "json"]) == 0
     assert "holdout" not in json.loads(capsys.readouterr().out)
 
@@ -337,7 +337,7 @@ def test_eval_triggers_command(capsys):
 def test_eval_triggers_lists_only_tuning_failures(capsys, tmp_path):
     (tmp_path / "s.yaml").write_text("skill: open-skill-learn\nqueries:\n"
                                      "  - {q: zzz tuning miss, trigger: true}\n"
-                                     "  - {q: zzz holdout miss, trigger: true, holdout: true}\n")
+                                     "  - {q: zzz holdout miss, trigger: true, holdout: true}\n", encoding="utf-8")
     assert cli.main(["eval", "triggers", "--cases", str(tmp_path)]) == 0
     out = capsys.readouterr().out
     assert "missed: zzz tuning miss" in out and "zzz holdout miss" not in out
@@ -346,7 +346,7 @@ def test_eval_triggers_lists_only_tuning_failures(capsys, tmp_path):
 def test_eval_triggers_prints_a_slice_per_locale(capsys, tmp_path):
     (tmp_path / "s.yaml").write_text("skill: open-skill-learn\nqueries:\n"
                                      "  - {q: remember that we use uv, trigger: true, holdout: false}\n"
-                                     "  - {q: recuerda que usamos uv, trigger: true, holdout: false, locale: es}\n")
+                                     "  - {q: recuerda que usamos uv, trigger: true, holdout: false, locale: es}\n", encoding="utf-8")
     assert cli.main(["eval", "triggers", "--cases", str(tmp_path)]) == 0
     out = capsys.readouterr().out
     assert "  es slice" in out and "(1) | holdout" in out and "vi slice" not in out
@@ -355,7 +355,7 @@ def test_eval_triggers_prints_a_slice_per_locale(capsys, tmp_path):
 def test_eval_triggers_suggest(capsys, tmp_path):
     (tmp_path / "s.yaml").write_text("skill: open-skill-learn\nqueries:\n"
                                      "  - {q: qqq wibble one, trigger: true, holdout: false}\n"
-                                     "  - {q: qqq wibble two, trigger: true, holdout: false}\n")
+                                     "  - {q: qqq wibble two, trigger: true, holdout: false}\n", encoding="utf-8")
     assert cli.main(["eval", "triggers", "--cases", str(tmp_path), "--suggest"]) == 0
     assert "consider the concept behind: qqq (2), qqq wibble (2), wibble (2)" in capsys.readouterr().out
 
@@ -397,7 +397,7 @@ def test_install_dry_run_then_install_then_refuse(capsys, tmp_path, monkeypatch)
     code, out = run(capsys, "install", "open-skill-router", "--agent", "codex")
     assert code == 0 and (dest / "SKILL.md").is_file() and str(dest) in out
     assert run(capsys, "install", "open-skill-router", "--agent", "codex")[1].startswith("unchanged")
-    (dest / "SKILL.md").write_text("edited\n")
+    (dest / "SKILL.md").write_text("edited\n", encoding="utf-8")
     assert run(capsys, "install", "open-skill-router", "--agent", "codex")[0] == 1
     assert (dest / "SKILL.md").read_text(encoding="utf-8") == "edited\n"
 
@@ -416,7 +416,7 @@ def test_remove_only_what_install_created(capsys, tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     dest = tmp_path / "home/.agents/skills/open-skill-router"
     run(capsys, "install", "open-skill-router", "--agent", "codex")
-    (dest / "mine.md").write_text("mine\n")
+    (dest / "mine.md").write_text("mine\n", encoding="utf-8")
     code, out = run(capsys, "remove", "open-skill-router", "--agent", "codex", "--dry-run")
     assert code == 0 and out.startswith("would remove") and (dest / "SKILL.md").exists()
     code, out = run(capsys, "remove", "open-skill-router", "--agent", "codex")
@@ -528,6 +528,6 @@ def test_bug_explain_printed_python_reprs():
 def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, why):
     import shutil
     shutil.copytree(FIX / "repo", tmp_path / "r")
-    (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text)
+    (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text, encoding="utf-8")
     code = cli.main(["--registry", str(tmp_path / "r"), "validate"])
     assert code == 1 and why in capsys.readouterr().err

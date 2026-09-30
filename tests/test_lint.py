@@ -62,9 +62,9 @@ def test_spec_name_accepts_valid_names():
 def test_name_must_match_folder(tmp_path):
     d = tmp_path / "pdf-tools"
     d.mkdir()
-    (d / "SKILL.md").write_text(doc("x", name="pdf-processing"))
+    (d / "SKILL.md").write_text(doc("x", name="pdf-processing"), encoding="utf-8")
     assert [f.rule for f in lint.lint_file(d / "SKILL.md")] == ["name-matches-folder"]
-    (d / "SKILL.md").write_text(doc("x", name="pdf-tools"))
+    (d / "SKILL.md").write_text(doc("x", name="pdf-tools"), encoding="utf-8")
     assert lint.lint_file(d / "SKILL.md") == []
 
 
@@ -98,10 +98,10 @@ def test_unknown_fields_warn_but_agent_extensions_do_not():
 def test_missing_references_are_errors(tmp_path):
     d = tmp_path / "good-skill"
     (d / "references").mkdir(parents=True)
-    (d / "references" / "guide.md").write_text("ok")
+    (d / "references" / "guide.md").write_text("ok", encoding="utf-8")
     body = ("See [the guide](references/guide.md), [gone](references/gone.md), `scripts/run.py`, "
             "[web](https://x.org/a), [anchor](#top), `references/roles/<role>.md`.")
-    (d / "SKILL.md").write_text(doc(body))
+    (d / "SKILL.md").write_text(doc(body), encoding="utf-8")
     found = [(f.rule, f.message) for f in lint.lint_file(d / "SKILL.md")]
     assert [r for r, _ in found] == ["missing-reference", "missing-mention"]
     assert "references/gone.md" in found[0][1] and "scripts/run.py" in found[1][1]
@@ -117,7 +117,7 @@ def write_json(tmp_path, name, obj):
     import json
     p = tmp_path / ".claude-plugin" / name
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(obj if isinstance(obj, str) else json.dumps(obj))
+    p.write_text(obj if isinstance(obj, str) else json.dumps(obj), encoding="utf-8")
     return p
 
 
@@ -158,10 +158,10 @@ def test_health_groups_findings_by_source(tmp_path):
     from open_skill.scan import Installed
     good = tmp_path / "good-skill"
     good.mkdir()
-    (good / "SKILL.md").write_text(doc("fine"))
+    (good / "SKILL.md").write_text(doc("fine"), encoding="utf-8")
     bad = tmp_path / "bad"
     bad.mkdir()
-    (bad / "SKILL.md").write_text(doc("fine", name="not-bad"))
+    (bad / "SKILL.md").write_text(doc("fine", name="not-bad"), encoding="utf-8")
     installed = [Installed("pack/good-skill", "good-skill", str(good / "SKILL.md"), "", False),
                  Installed("pack/bad", "bad", str(bad / "SKILL.md"), "", False),
                  Installed("claude-code-builtin/code-review", "code-review", "builtin:CLAUDECODE", "", False)]
@@ -178,7 +178,7 @@ def test_findings_take_severity_from_the_rule_table(tmp_path):
     # name-matches-folder and missing-reference used to fall back to "error" because SEVERITY did not list them.
     d = tmp_path / "other"
     d.mkdir()
-    (d / "SKILL.md").write_text(doc("[gone](references/gone.md) Double-check your work. " + "MUST x\n" * 6))
+    (d / "SKILL.md").write_text(doc("[gone](references/gone.md) Double-check your work. " + "MUST x\n" * 6), encoding="utf-8")
     found = lint.lint_file(d / "SKILL.md")
     assert {f.rule for f in found} >= {"name-matches-folder", "missing-reference", "redundant-verification", "shouting"}
     for f in found:
@@ -249,7 +249,7 @@ def test_unicode_name_matches_a_folder_in_another_normal_form(tmp_path):
     import unicodedata
     d = tmp_path / unicodedata.normalize("NFD", "phân-tích")
     d.mkdir()
-    (d / "SKILL.md").write_text(doc("x", name=unicodedata.normalize("NFC", "phân-tích")))
+    (d / "SKILL.md").write_text(doc("x", name=unicodedata.normalize("NFC", "phân-tích")), encoding="utf-8")
     assert "name-matches-folder" not in [f.rule for f in lint.lint_file(d / "SKILL.md")]
 
 
@@ -361,8 +361,8 @@ def test_missing_reference_cases(tmp_path, body, expected):
     d = tmp_path / "good-skill"
     (d / "references").mkdir(parents=True)
     for name in ("guide.md", "my notes.md", "ガイド.md", "hướng-dẫn.md"):
-        (d / "references" / name).write_text("ok")
-    (d / "SKILL.md").write_text(doc(body))
+        (d / "references" / name).write_text("ok", encoding="utf-8")
+    (d / "SKILL.md").write_text(doc(body), encoding="utf-8")
     found = lint.lint_file(d / "SKILL.md")
     assert [f.rule for f in found] == expected
     assert all(f.severity == lint.RULES[f.rule].severity for f in found)

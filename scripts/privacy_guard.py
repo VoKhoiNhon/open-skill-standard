@@ -43,7 +43,7 @@ def check(files: list[str]) -> list[str]:
         if f.endswith(".svg"):
             problems += [f"{f}: text looks like {r}" for r in map(_reason, _svg_text(f)) if r]
         elif Path(f).suffix in TEXT:
-            for n, line in enumerate(Path(f).read_text(errors="replace").splitlines(), 1):
+            for n, line in enumerate(Path(f).read_text(encoding="utf-8", errors="replace").splitlines(), 1):
                 reason = _reason(line)
                 if reason:
                     problems.append(f"{f}:{n}: looks like {reason}")

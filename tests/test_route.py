@@ -31,7 +31,7 @@ def proj(tmp_path, *files):
     for f in files:
         p = tmp_path / "p" / f
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text("x")
+        p.write_text("x", encoding="utf-8")
     (tmp_path / "p").mkdir(exist_ok=True)
     return tmp_path / "p"
 

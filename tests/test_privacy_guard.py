@@ -12,7 +12,7 @@ spec.loader.exec_module(pg)
 def _svg(tmp_path, body: str) -> str:
     p = tmp_path / ".github" / "assets" / "x.svg"
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" aria-label="a capture">{body}</svg>\n')
+    p.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" aria-label="a capture">{body}</svg>\n', encoding="utf-8")
     return ".github/assets/x.svg"
 
 
@@ -36,7 +36,7 @@ def test_svg_geometry_is_not_scanned(tmp_path, monkeypatch):
 
 def test_readme_home_path_is_flagged(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    (tmp_path / "README.md").write_text("run it from /home/bob/work\n")
+    (tmp_path / "README.md").write_text("run it from /home/bob/work\n", encoding="utf-8")
     assert pg.check(["README.md"]) == ["README.md:1: looks like local-path"]
 
 
@@ -44,7 +44,7 @@ def _repo(tmp_path, files: dict[str, str]):
     import subprocess
     for rel, text in files.items():
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
-        (tmp_path / rel).write_text(text)
+        (tmp_path / rel).write_text(text, encoding="utf-8")
     env = pg.git_env()  # never the repository running the tests, even when git set GIT_DIR for us
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True, env=env)
     subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, env=env)
@@ -87,7 +87,7 @@ def test_reason_per_line(line, reason):
 def test_every_public_text_file_is_scanned(tmp_path, monkeypatch, rel, flagged):
     monkeypatch.chdir(tmp_path)
     (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
-    (tmp_path / rel).write_text("maintainer: alice@corp.example\n")
+    (tmp_path / rel).write_text("maintainer: alice@corp.example\n", encoding="utf-8")
     assert bool(pg.check([rel])) is flagged
 
 

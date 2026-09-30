@@ -37,7 +37,7 @@ def resolve_source(spec: str) -> Source:
         folder, kind = core_skills()[spec], "core"
     else:
         raise ValueError(f"{spec}: not a folder with a SKILL.md and not a core skill ({', '.join(core_skills())})")
-    meta, _ = frontmatter.parse((folder / "SKILL.md").read_text(errors="replace"))
+    meta, _ = frontmatter.parse((folder / "SKILL.md").read_text(encoding="utf-8", errors="replace"))
     name = frontmatter.text(meta, "name") or folder.name
     if not NAME.match(name):
         raise ValueError(f"{folder}: skill name {name!r} must be lowercase letters, digits and single hyphens")

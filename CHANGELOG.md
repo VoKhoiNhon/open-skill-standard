@@ -32,6 +32,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Output piped on Windows (cp1252) no longer fails with `UnicodeEncodeError` on Vietnamese text or arrows: stdout and stderr are switched to UTF-8.
 - `open-skill audit`'s `hidden-comment` rule no longer takes seconds on a line of repeated `<!--` openers (about 10 s for 200 KB): a comment is read up to the next opener.
 - `open-skill build` writes generated files (playbooks, schemas, `dist/`) with LF line endings on Windows too; it wrote CRLF there, rewriting every generated file.
+- On Windows, `scan`, `lint`, `install`, `adapter check`, the agent memory import and the privacy guard read SKILL.md files, plugin manifests and memory notes as UTF-8; non-ASCII names and descriptions came out garbled, so a skill named `tóm-tắt` failed `name-matches-folder` and imported memory notes were stored mangled.
 
 ## [0.7.2] - 2026-09-29
 

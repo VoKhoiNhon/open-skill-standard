@@ -37,7 +37,7 @@ def test_version_not_bumped_everywhere(tmp_path):
         src, dst = ROOT / rel, tmp_path / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(src, dst) if src.is_dir() else shutil.copy(src, dst)
-    (tmp_path / "CHANGELOG.md").write_text(CHANGELOG.replace("1.1.0", "9.9.9"))
+    (tmp_path / "CHANGELOG.md").write_text(CHANGELOG.replace("1.1.0", "9.9.9"), encoding="utf-8")
     assert any("not bumped" in p for p in rc.problems(tmp_path, "9.9.9"))
 
 

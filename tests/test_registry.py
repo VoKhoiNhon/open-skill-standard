@@ -37,7 +37,7 @@ def test_validate_reports_dangling_role_reference(tmp_path):
     shutil.copytree(FIX / "repo" / "registry", root / "registry", dirs_exist_ok=True)
     role = yaml.safe_load((root / "registry/roles/data-engineer.yaml").read_text(encoding="utf-8"))
     role["phases"]["build"]["primary"] = ["superpowers/does-not-exist"]
-    (root / "registry/roles/data-engineer.yaml").write_text(yaml.safe_dump(role))
+    (root / "registry/roles/data-engineer.yaml").write_text(yaml.safe_dump(role), encoding="utf-8")
     errors = registry.validate(registry.load(root))
     assert any("superpowers/does-not-exist" in e for e in errors)
 
@@ -50,7 +50,7 @@ def test_validate_reports_dangling_alternative_and_schema_error(tmp_path):
     doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     doc["skills"][0]["alternatives"] = ["nobody/missing"]
     doc["skills"][1]["phases"] = ["not-a-phase"]
-    p.write_text(yaml.safe_dump(doc))
+    p.write_text(yaml.safe_dump(doc), encoding="utf-8")
     errors = registry.validate(registry.load(root))
     assert any("nobody/missing" in e for e in errors)
     assert any("not-a-phase" in e for e in errors)
@@ -63,7 +63,7 @@ def test_validate_requires_seed_ids(tmp_path):
     p = root / "registry/roles/data-engineer.yaml"
     doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     doc["seeds"] = ["no id here", {"id": "a", "text": "x"}, {"id": "a", "text": "y"}]
-    p.write_text(yaml.safe_dump(doc))
+    p.write_text(yaml.safe_dump(doc), encoding="utf-8")
     errors = registry.validate(registry.load(root))
     assert any("every seed needs an id" in e for e in errors)
     assert any("duplicate seed ids" in e for e in errors)
@@ -83,7 +83,7 @@ def test_validate_reports_agent_path_without_source(tmp_path):
     shutil.copytree(FIX / "repo" / "registry", root / "registry")
     (root / "registry/agents/bad.yaml").write_text(
         "id: bad\nname: Bad\ndocs: https://example.org\nglobal: [{path: ~/.bad/skills}]\n"
-        "detect: [{path: ~/.bad, source: https://example.org}]\n")
+        "detect: [{path: ~/.bad, source: https://example.org}]\n", encoding="utf-8")
     errors = registry.validate(registry.load(root))
     assert any("agents/bad.yaml" in e and "source" in e for e in errors)
 
@@ -148,11 +148,11 @@ def _set(doc, path, value):
 def _edit(root, rel, path=None, value=None, raw=None):
     p = root / "registry" / rel
     if raw is not None:
-        p.write_text(raw)
+        p.write_text(raw, encoding="utf-8")
         return
     doc = yaml.safe_load(p.read_text(encoding="utf-8"))
     _set(doc, path, value)
-    p.write_text(yaml.safe_dump(doc, allow_unicode=True))
+    p.write_text(yaml.safe_dump(doc, allow_unicode=True), encoding="utf-8")
 
 
 SP = "adapters/superpowers.yaml"
@@ -204,6 +204,6 @@ def test_bug_validate_rejects_a_role_entry_outside_the_skills_phases(tmp_path):
     skill = registry.load(root).skills[sid]
     wrong = next(ph for ph in ("discover", "research", "release", "learn") if ph not in skill["phases"])
     doc["phases"].setdefault(wrong, {}).setdefault("primary", []).append(sid)
-    p.write_text(yaml.safe_dump(doc))
+    p.write_text(yaml.safe_dump(doc), encoding="utf-8")
     errors = registry.validate(registry.load(root))
     assert any(f"{wrong}.primary lists {sid}, which acts in" in e for e in errors)

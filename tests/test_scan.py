@@ -68,7 +68,7 @@ def test_claude_code_rules_tag_the_agent(reg):
 def test_rule_may_name_its_agent(reg, tmp_path, monkeypatch):
     skill = tmp_path / ".demo/skills/brainstorming/SKILL.md"
     skill.parent.mkdir(parents=True)
-    skill.write_text("---\nname: brainstorming\ndescription: d\n---\n")
+    skill.write_text("---\nname: brainstorming\ndescription: d\n---\n", encoding="utf-8")
     monkeypatch.setenv("HOME", str(tmp_path))
     reg.adapters["superpowers"]["detect"] = [{"glob": "~/.demo/skills/{name}/SKILL.md", "invoke": "{name}", "agent": "demo-agent"}]
     got = by_invoke(scan.scan(reg))["brainstorming"]
@@ -92,7 +92,7 @@ def test_project_skills_placeholder_covers_other_agents(reg):
 def test_relocated_agent_home_is_scanned(reg, tmp_path, monkeypatch):
     skill = tmp_path / "codex-home/skills/brainstorming/SKILL.md"
     skill.parent.mkdir(parents=True)
-    skill.write_text("---\nname: brainstorming\ndescription: d\n---\n")
+    skill.write_text("---\nname: brainstorming\ndescription: d\n---\n", encoding="utf-8")
     monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex-home"))
     got = by_invoke(scan.scan(reg))["brainstorming"]
     assert got.id == "superpowers/brainstorming" and got.agents == {"codex": "brainstorming"}
@@ -108,10 +108,10 @@ def test_bundled_adapters_find_their_skills_in_other_agents(tmp_path, monkeypatc
     for folder in (".agents/skills", ".cursor/skills"):
         skill = tmp_path / folder / "open-skill-router/SKILL.md"
         skill.parent.mkdir(parents=True)
-        skill.write_text("---\nname: open-skill-router\ndescription: d\n---\n")
+        skill.write_text("---\nname: open-skill-router\ndescription: d\n---\n", encoding="utf-8")
     proj = tmp_path / "proj"
     (proj / ".agents/skills/speckit-plan").mkdir(parents=True)
-    (proj / ".agents/skills/speckit-plan/SKILL.md").write_text("---\nname: speckit-plan\ndescription: d\n---\n")
+    (proj / ".agents/skills/speckit-plan/SKILL.md").write_text("---\nname: speckit-plan\ndescription: d\n---\n", encoding="utf-8")
     monkeypatch.setenv("HOME", str(tmp_path))
     got = {i.id: i for i in scan.scan(registry.load(), proj)}
     router = got["open-skill/open-skill-router"]
@@ -133,7 +133,7 @@ def test_later_rule_of_same_adapter_does_not_reclaim_a_path(reg, tmp_path, monke
     monkeypatch.setenv("HOME", str(tmp_path))
     for folder in ("vendor-react-best-practices", "vendor-cli"):
         (tmp_path / ".claude/skills" / folder).mkdir(parents=True)
-        (tmp_path / ".claude/skills" / folder / "SKILL.md").write_text(f"---\nname: {folder}\ndescription: d\n---\n")
+        (tmp_path / ".claude/skills" / folder / "SKILL.md").write_text(f"---\nname: {folder}\ndescription: d\n---\n", encoding="utf-8")
     reg.adapters["vendor"] = {"source": "vendor", "skills": [{"name": "react-best-practices"}, {"name": "vendor-cli"}],
                               "detect": [{"glob": "~/.claude/skills/{name}/SKILL.md", "invoke": "{name}"},
                                          {"glob": "~/.claude/skills/vendor-{name}/SKILL.md", "invoke": "vendor-{name}"}]}
@@ -148,7 +148,7 @@ def test_describe_ignores_non_string_frontmatter(tmp_path):
     bomb = "\n".join(["a0: &a0 [x, x, x, x, x, x, x, x, x, x]"] + [
         f"a{i}: &a{i} [" + ", ".join([f"*a{i-1}"] * 10) + "]" for i in range(1, 8)]).replace("a7:", "description:")
     (tmp_path / "odd").mkdir()
-    (tmp_path / "odd" / "SKILL.md").write_text(f"---\nname: ~\n{bomb}\n---\nbody")
+    (tmp_path / "odd" / "SKILL.md").write_text(f"---\nname: ~\n{bomb}\n---\nbody", encoding="utf-8")
     assert scan._describe(tmp_path / "odd" / "SKILL.md") == ("odd", "")
 
 
@@ -156,7 +156,7 @@ def test_skill_installed_under_its_frontmatter_name_maps_to_its_registry_id(tmp_
     # `npx skills add` names the folder after the frontmatter `name`, not the upstream folder "taste-skill".
     skill = tmp_path / ".claude/skills/design-taste-frontend/SKILL.md"
     skill.parent.mkdir(parents=True)
-    skill.write_text("---\nname: design-taste-frontend\ndescription: d\n---\n")
+    skill.write_text("---\nname: design-taste-frontend\ndescription: d\n---\n", encoding="utf-8")
     monkeypatch.setenv("HOME", str(tmp_path))
     got = by_invoke(scan.scan(registry.load()))["design-taste-frontend"]
     assert got.id == "taste-skill/taste-skill" and got.inferred is False

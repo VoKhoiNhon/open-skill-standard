@@ -60,7 +60,7 @@ def test_audit_exit_code_fails_on_high_severity(capsys):
 
 
 def test_audit_strict_fails_on_any_finding(capsys, tmp_path):
-    (tmp_path / "SKILL.md").write_text("- Changes: !`git status`\n")  # one low-severity finding
+    (tmp_path / "SKILL.md").write_text("- Changes: !`git status`\n", encoding="utf-8")  # one low-severity finding
     assert run(capsys, "audit", str(tmp_path))[0] == 0
     assert run(capsys, "audit", str(tmp_path), "--strict")[0] == 1
     assert run(capsys, "audit", str(AUDIT / "clean-skill"), "--strict")[0] == 0
