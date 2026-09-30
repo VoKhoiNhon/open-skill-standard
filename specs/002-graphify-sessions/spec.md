@@ -16,7 +16,7 @@ Measurements on this repository (93 code files, ~11k lines of Python, 2026-09-30
 
 - Refreshing the Graphify graph after a one-file change takes ~2.4 s; a full build takes ~8 s.
 - Building one partial graph per folder and merging them with Graphify's own merge loses every relationship that crosses folders: 1,314 nodes / 2,528 edges merged versus 2,204 nodes / 3,566 edges for the whole project. Per-session partial graphs therefore give wrong answers, so all sessions share one graph.
-- Graphify misses calls made through a module name (`route.target_phase(...)`), so it reported none of the 6–15 test call sites per function that codegraph found. Impact detection must also follow file imports to catch those.
+- Graphify misses calls made through a module name (`route.target_phase(...)`), so it reported none of the 6–15 test call sites per function that codegraph found. It also points `from open_skill import route` at the package (`__init__.py`), not at `route.py`: the real graph has 0 edges from `tests/test_route.py` to `route.py`. Impact detection must therefore resolve package imports to the imported module (measured: 7 of 7 direct importers of `route.py` found, versus 4 without).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -31,10 +31,11 @@ A developer finishes an edit in session A and runs one command. The shared proje
 **Acceptance Scenarios**:
 
 1. **Given** sessions A (scope `cli/open_skill/route.py`) and B (scope `tests/**`) are active and `route.py` changed, **When** the user runs `open-skill session update --session A`, **Then** the graph is refreshed and the output warns that `tests/test_route.py` (session B, with its task) is affected.
-2. **Given** a test file reaches the changed module only by importing it, **When** the refresh runs, **Then** that test file is still reported as affected.
-3. **Given** no other session's scope is affected, **When** the refresh runs, **Then** it reports the affected files and says there are no conflicts.
-4. **Given** `--json` is passed, **When** the refresh runs, **Then** the output is one JSON object listing changed files, affected files and conflicts, so an agent can act on it.
-5. **Given** two sessions start a refresh at the same moment, **When** both run, **Then** the refreshes run one after the other and the graph is never written by both at once.
+2. **Given** a test file reaches the changed module only through a package import (`from open_skill import route`), **When** the refresh runs, **Then** that test file is still reported as affected.
+3. **Given** session A committed its change to `route.py` before running the refresh, **When** the user runs `open-skill session update --session A`, **Then** `route.py` is still listed as changed and the same conflicts are reported as before the commit.
+4. **Given** no other session's scope is affected, **When** the refresh runs, **Then** it reports the affected files and says there are no conflicts.
+5. **Given** `--json` is passed, **When** the refresh runs, **Then** the output is one JSON object listing changed files, affected files and conflicts, so an agent can act on it.
+6. **Given** two sessions start a refresh at the same moment, **When** both run, **Then** the refreshes run one after the other and the graph is never written by both at once.
 
 ---
 
@@ -76,6 +77,8 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - The project has no graph yet: the command says so and suggests the first full build command; it does not start a build itself.
 - Graphify refuses to replace the graph with a smaller one (after a large deletion): its message is passed on with the hint to rerun with force; open-skill never forces on its own.
 - The project is not a git repository: the graph is refreshed, the change-and-conflict step is skipped, and one line explains why.
+- The session's start commit no longer exists (history rewritten and cleaned up): changes are compared with the current commit instead, with a warning naming the missing commit.
+- Other sessions share the working tree, so their edits since the start commit also count as changes: the check over-reports rather than misses.
 - A session record is corrupt or unreadable: it is ignored everywhere and removed by `--prune`.
 - The session id given to `session update` does not exist or is stale: the refresh still runs, conflicts are computed against all active sessions, and a warning names the unknown id.
 - A scope glob matches no file: the session is still created, with a warning.
@@ -88,12 +91,12 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - **FR-001**: The registry MUST include a Graphify adapter describing its query, affected and update tools with phases, triggers, install command and upstream link, in the same form as the codegraph adapter. The codegraph adapter MUST NOT change.
 - **FR-002**: Project inspection MUST report whether a project has Graphify output, alongside the existing codegraph flag.
 - **FR-003**: Users MUST be able to start a session with one or more scope globs and a task, and receive a session id.
-- **FR-004**: Session records MUST live inside the project (under `.open-skill/sessions/`), one record per session, holding id, scope, task, start time and last activity time.
+- **FR-004**: Session records MUST live inside the project (under `.open-skill/sessions/`), one record per session, holding id, scope, task, start time, last activity time and the commit the project was at when the session started (none without git).
 - **FR-005**: Users MUST be able to list active sessions and end a session; listing with `--prune` MUST remove stale and unreadable records.
 - **FR-006**: A session with no activity for more than 6 hours MUST be treated as ended by every command.
 - **FR-007**: Starting a session whose scope overlaps an active session's scope MUST warn and MUST still create the session.
 - **FR-008**: `open-skill session update` MUST refresh the project's Graphify graph incrementally, with only one refresh per project running at a time.
-- **FR-009**: After refreshing, the command MUST determine the changed files (tracked changes plus untracked files) and the files affected by them within two steps of calls, references or imports in the graph.
+- **FR-009**: After refreshing, the command MUST determine the changed files, meaning every file that differs from the session's start commit (committed, staged, unstaged or untracked; the current commit when no session is named), and the files affected by them within two steps of calls, references or imports in the graph, where an import of a package counts as an import of each module it names.
 - **FR-010**: The command MUST warn, and never block or fail, when an affected file falls inside another active session's scope, naming that session and its task.
 - **FR-011**: The command MUST offer a machine-readable output with changed files, affected files and conflicts.
 - **FR-012**: Every command that names a session MUST update that session's last activity time.
@@ -112,7 +115,7 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 ### Measurable Outcomes
 
 - **SC-001**: On this repository, a refresh after a one-file change, including the conflict check, completes in under 5 seconds.
-- **SC-002**: In the fixture scenarios, 100% of files that call or import a changed file within two steps are reported as affected, including test files that only import the module.
+- **SC-002**: In the fixture scenarios, 100% of files that call or import a changed file within two steps are reported as affected, including test files that reach the module only through a package import; and on this repository, every file that imports `route.py` directly, by module or through the package, is reported when `route.py` changes.
 - **SC-003**: Two refreshes started at the same moment always finish with a valid graph, in 20 out of 20 repeated runs.
 - **SC-004**: No command in this feature ever blocks a user's edit or exits with an error because of a conflict.
 - **SC-005**: Existing routing evals for all 28 roles keep their current pass rate, and every quality gate in the constitution passes.

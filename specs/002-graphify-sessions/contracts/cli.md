@@ -9,7 +9,7 @@ Conflicts never change the exit code (FR-010, SC-004).
 
 ## `session start --scope GLOB [--scope GLOB ...] --task TEXT [--project PATH] [--json]`
 
-Creates a session record and prints its id on stdout: text mode prints the id alone on the first line; `--json` prints the full record.
+Creates a session record, with `base` set to the current commit, and prints its id on stdout: text mode prints the id alone on the first line; `--json` prints the full record.
 
 Warnings go to stderr, one line each:
 
@@ -48,8 +48,8 @@ Steps and what the user sees:
    - `graphify` not on PATH → exit 2, stderr: `open-skill: graphify is not installed; install it with: uv tool install graphifyy`. The install command is read from the Graphify adapter.
    - No `graphify-out/graph.json` → exit 2, stderr: `open-skill: no graph yet; build it once with: graphify extract . --code-only`.
 2. **Refresh.** Runs `graphify update .` in the project root and waits on Graphify's own lock (R2). If it exits non-zero, open-skill passes Graphify's stderr through, adds `hint: if code was deleted on purpose, rerun: graphify update . --force`, and exits 1.
-3. **Changes.** Reads changed files from git (R6). If git is unavailable, prints `note: not a git repository (or no commits); conflict check skipped` and exits 0 after reporting the refresh.
-4. **Impact.** Computes the files affected by the changes (R5) and the conflicts with other active sessions (R7). The session given with `--session` is excluded from conflicts.
+3. **Changes.** Reads the files that differ from the base commit (R6): the session's `base` with `--session`, else `HEAD`. If the base commit is gone, it falls back to `HEAD` with the warning `session base <sha> is gone; compared with HEAD`. If git is unavailable, prints `note: not a git repository (or no commits); conflict check skipped` and exits 0 after reporting the refresh.
+4. **Impact.** Computes the files affected by the changes, including package imports resolved to modules (R5), and the conflicts with other active sessions (R7). The session given with `--session` is excluded from conflicts.
 5. **Activity.** If `--session` is active, refreshes its `seen`. If the id is unknown or stale, adds the warning `session ID is unknown or stale; checked against all active sessions`.
 
 Text output:

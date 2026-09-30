@@ -6,7 +6,7 @@
 
 ## Summary
 
-Several agent sessions on one project share a single Graphify code graph and declare the paths they work on. `open-skill session update` refreshes that graph through Graphify, which already serializes rebuilds with its own lock. It then takes the changed files from git and walks the graph backwards for up to two hops over calls, references and imports, and warns, without ever blocking, when a reached file lies in another active session's scope. Two new adapters make Graphify's tools and the session check routable. Codegraph stays unchanged.
+Several agent sessions on one project share a single Graphify code graph and declare the paths they work on. `open-skill session update` refreshes that graph through Graphify, which already serializes rebuilds with its own lock. It then takes the files changed since the session's start commit from git and walks the graph backwards for up to two hops over calls, references and imports, resolving `from pkg import mod` to the module because Graphify links it to the package, and warns, without ever blocking, when a reached file lies in another active session's scope. Two new adapters make Graphify's tools and the session check routable. Codegraph stays unchanged.
 
 ## Technical Context
 
@@ -22,7 +22,7 @@ Several agent sessions on one project share a single Graphify code graph and dec
 
 **Project Type**: CLI and library (`cli/open_skill/`)
 
-**Performance Goals**: refresh plus conflict check under 5 s on this repo (SC-001). Measured parts: `graphify update` ~2.4 s; the walk over ~2.2k nodes and ~3.6k edges takes milliseconds.
+**Performance Goals**: refresh plus conflict check under 5 s on this repo (SC-001). Measured parts: `graphify update` ~2.4 s; the walk over ~2.2k nodes and ~3.6k edges, including resolving package imports, took 4–10 ms in a prototype (R5).
 
 **Constraints**: never block or fail on a conflict; never run a full build or `--force` on the user's behalf; no network
 

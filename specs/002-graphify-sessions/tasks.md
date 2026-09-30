@@ -25,15 +25,18 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 **Purpose**: test scaffolding that several stories use.
 
 - [ ] T001 [P] Create the fixture graph `tests/fixtures/graphify/graph.json` in networkx node-link form, with top-level keys `directed`, `multigraph`, `graph`, `nodes` and `links`. It needs:
-  - nodes with `id` and `source_file` for `pkg/route.py` (symbols `route_fit`, `route_target_phase`), `pkg/cli.py` (`cli_cmd_route`, which calls `route_target_phase`), `pkg/deep.py` (`deep_run`, which calls `cli_cmd_route`: two hops from route), `pkg/far.py` (`far_x`, which calls `deep_run`: three hops, must NOT be reached), `tests/test_route.py`, and an external node `Path` with `source_file: ""`;
-  - a file node `tests_test_route` linked to `pkg_route` **only** by `relation: "imports_from"`, which is the case Graphify misses (R5);
+  - one file node per file, each with `id` and `source_file`: `pkg_init` (`pkg/__init__.py`), `pkg_route` (`pkg/route.py`), `pkg_cli` (`pkg/cli.py`), `pkg_deep` (`pkg/deep.py`), `pkg_far` (`pkg/far.py`), `tests_test_route` (`tests/test_route.py`), `tests_test_cli` (`tests/test_cli.py`), plus an external node `Path` with `source_file: ""`;
+  - symbol nodes: `route_fit` and `route_target_phase` in `pkg/route.py`; `cli_cmd_route` in `pkg/cli.py`, which `calls` `route_target_phase`; `deep_run` in `pkg/deep.py`, which `calls` `cli_cmd_route` (two hops from route); `far_x` in `pkg/far.py`, which `calls` `deep_run` (three hops, must NOT be reached);
+  - the **real Graphify shape of a package import** (R5, finding C1): `tests_test_route` → `pkg_init` with `relation: "imports_from"`, `source_file: "tests/test_route.py"`, `source_location: "L3"`, and **no** link from any node of `tests/test_route.py` to `pkg/route.py`. The fixture's `tests/test_route.py` has `from pkg import (\n    route,\n)` at line 3, a parenthesized multi-line statement. Likewise `tests_test_cli` → `pkg_init` at `L1`, where `tests/test_cli.py` line 1 is `from pkg import cli as c`, so it reaches route only through `pkg/cli.py`;
   - `contains` links from each file node to its symbols. The walk must ignore them.
+  The source files named here are created by `graph_project` (T002) with exactly these import lines.
 - [ ] T002 [P] Add a fake-Graphify helper to `tests/conftest.py`. The fixture `fake_graphify(tmp_path, monkeypatch, exit_code=0, stderr="")`:
   - writes an executable `graphify` script into `tmp_path/bin`;
   - makes that script append its argv to `tmp_path/graphify-calls.log` and exit with `exit_code`, printing `stderr`;
   - prepends `tmp_path/bin` to `PATH`.
   Also add a fixture `graph_project(tmp_path)`:
   - copies `tests/fixtures/graphify/graph.json` to `<project>/graphify-out/graph.json` and creates the source files it names;
+  - writes the fixture source files, including the import lines T001 specifies;
   - runs `git init`, `git add -A` and `git commit` with `-c user.name=t -c user.email=t@t` so changed files can be simulated.
 
 ---
@@ -49,7 +52,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - in `cli/open_skill/knowledge.py`, delete `_locked` and replace `with _locked():` with `with paths.locked(home() / ".lock"):`;
   - run `.venv/bin/pytest tests/test_knowledge.py -q`: it must stay green, including the concurrent-learn test (R3).
 - [ ] T004 Write failing tests in `tests/test_sessions.py` for the record store in `cli/open_skill/sessions.py`:
-  - **start**: `start(project, scope, task)` writes `<project>/.open-skill/sessions/<id>.json` with the fields `id`, `scope`, `task`, `started` and `seen`, where `id` is "6 lowercase hex characters, equal to the file name without `.json`", and writes `<project>/.open-skill/.gitignore` containing `*` (R10);
+  - **start**: `start(project, scope, task)` writes `<project>/.open-skill/sessions/<id>.json` with the fields `id`, `scope`, `task`, `started`, `seen` and `base`. `base` is "full commit sha from `git rev-parse HEAD` at `start`; `null` without git or before the first commit" (R6). `id` is "6 lowercase hex characters, equal to the file name without `.json`". It also writes `<project>/.open-skill/.gitignore` containing `*` (R10);
   - **scope validation**: a scope needs "at least one glob, relative to the project root, forward slashes, no `..` and not absolute". Otherwise raise `ValueError`;
   - **task validation**: task "1–200 characters; one line (newlines replaced by spaces)". An empty task raises `ValueError`; a longer one raises `ValueError`;
   - **active**: `active(project, now=...)` returns only records with `now - seen <= 6 h`, and skips unreadable files (invalid JSON, a missing field, or an `id` that differs from the file name);
@@ -61,6 +64,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - `STALE = dt.timedelta(hours=6)`;
   - ids from `secrets.token_hex(3)`, retried on collision (R8);
   - UTC ISO-8601 timestamps ending in `Z`;
+  - `base` from `git rev-parse HEAD` run in the project root, `None` when it fails;
   - every write under `paths.locked(<project>/.open-skill/sessions/.lock)`;
   - JSON written to a temp file and `os.replace`d.
   Make T004 pass.
@@ -78,18 +82,24 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 ### Tests for User Story 1 (write first, must fail)
 
 - [ ] T006 [P] [US1] Write failing tests for the walk in `tests/test_session_update.py`. `affected_files(graph, changed)`:
-  - returns `pkg/cli.py`, `pkg/deep.py` and `tests/test_route.py` for `changed=["pkg/route.py"]`;
+  - `affected_files(project, graph, changed)` returns `pkg/cli.py`, `pkg/deep.py`, `tests/test_route.py` and `tests/test_cli.py` for `changed=["pkg/route.py"]`;
+  - `tests/test_route.py` is reached only through the package-import edge resolved from its multi-line `from pkg import (route,)` (finding C1);
+  - `tests/test_cli.py` is reached through `from pkg import cli as c` → `pkg/cli.py` → route (2 hops);
+  - with the package-import resolution disabled, `tests/test_route.py` is NOT returned. This proves the fixture has the real Graphify shape;
   - never returns `pkg/far.py` (three hops) or the changed file itself;
   - ignores `contains` links and nodes with an empty `source_file`;
-  - follows only `calls`, `indirect_call`, `references`, `imports` and `imports_from`, in reverse, for 2 hops (R5).
-- [ ] T007 [P] [US1] Write failing tests for `changed_files(project)` in `tests/test_session_update.py`:
-  - returns modified tracked files plus untracked files;
+  - follows only `calls`, `indirect_call`, `references`, `imports`, `imports_from` and the resolved package-import edges, in reverse, for 2 hops (R5).
+- [ ] T007 [P] [US1] Write failing tests for `changed_files(project, base=None)` in `tests/test_session_update.py`:
+  - returns modified tracked files plus untracked files, compared with `HEAD` when `base` is None;
+  - with `base` set to the start commit, a file **committed** after `base` is still returned (finding U1);
+  - an unknown `base` sha falls back to `HEAD` and returns the warning `session base <sha> is gone; compared with HEAD`;
   - returns `None` in a folder that is not a git repository, and in a repository with no commits (R6).
 - [ ] T008 [P] [US1] Write failing CLI tests in `tests/test_session_update.py`, following contracts/cli.md § `session update`:
   - **conflict** (Acceptance 1): A changes `pkg/route.py` and B owns `tests/**`. Text output has a line starting with `⚠ tests/test_route.py is in session <B>`; exit code 0;
   - **imports-only** (Acceptance 2): `tests/test_route.py` is reported although it is linked only by `imports_from`;
   - **no conflict** (Acceptance 3): output lists affected files and has no `⚠` line;
   - **`--json`** (Acceptance 4): stdout is exactly one JSON object with the keys `session`, `graph`, `changed`, `git`, `affected`, `conflicts` and `warnings`. Each conflict has `file`, `session`, `task` and `via`. A changed file inside another session's scope is a conflict with `via` equal to the file;
+  - **committed before refresh** (Acceptance 3): A commits its change to `pkg/route.py`, then runs `session update --session A`. `changed` still lists `pkg/route.py`, the conflict with B is still reported, and `base` in `--json` equals A's start commit;
   - **own session excluded**: the `--session` owner's own scope never produces a conflict;
   - **activity**: `--session A` refreshes A's `seen`. An unknown or stale id adds the warning `session ID is unknown or stale; checked against all active sessions` and still exits 0;
   - **no Graphify**: `graphify` missing from PATH → exit 2, stderr contains `uv tool install graphifyy`;
@@ -102,8 +112,11 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 - [ ] T009 [US1] Implement in `cli/open_skill/sessions.py`:
   - `load_graph(project)`, which reads `graphify-out/graph.json` and uses only `nodes[].id`, `nodes[].source_file` and `links[].source|target|relation`;
-  - `affected_files(graph, changed, hops=2)` as a reverse BFS over the five relations of R5;
-  - `changed_files(project)` from `git diff --name-only HEAD` plus `git ls-files --others --exclude-standard`, returning `None` when git fails.
+  - `affected_files(project, graph, changed, hops=2)` as a reverse BFS over the five relations of R5, plus package-import edges. For each `imports_from` link whose target's `source_file` ends in `__init__.py`:
+    1. read the statement at `source_location` in the importing file, joining lines until `)` when it opens a parenthesis;
+    2. take the names after `import`, with `X as Y` → `X`;
+    3. for every `pkg/<name>.py` present in the graph, record importer node → that module file. Reaching any node of the module file also reaches those importers.
+  - `changed_files(project, base=None)` from `git diff --name-only <base or HEAD>` plus `git ls-files --others --exclude-standard`, returning `(files, warnings)`. Check `base` with `git cat-file -e <base>^{commit}` and fall back to `HEAD` with the warning when it is gone. Return `None` when git fails.
   Make T006 and T007 pass.
 - [ ] T010 [US1] Implement `conflicts(project, files_with_via, exclude_id, now)` in `cli/open_skill/sessions.py`. A file conflicts when it matches a scope glob of another active session through `project._match` (R7). Return dicts with `file`, `session`, `task` and `via`.
 - [ ] T011 [US1] Implement `update(project, session_id=None)` in `cli/open_skill/sessions.py`. It returns the *Refresh result* dict of data-model.md and follows the steps of contracts/cli.md:
@@ -208,6 +221,8 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - `.venv/bin/python scripts/privacy_guard.py`.
 - [ ] T028 Run quickstart.md end to end against real Graphify 0.9.72 on a scratch copy, and record in the PR description:
   - SC-001: the `time` result;
+  - SC-002 on the real graph: `session update --json` after touching `cli/open_skill/route.py` lists all 7 files that `grep -rlE "from open_skill import .*\broute\b|open_skill\.route" --include='*.py' .` finds;
+  - U1: the same result after committing the touch;
   - SC-003: the 20-run concurrency loop, with no `bad graph` line;
   - the four error-path rows.
 

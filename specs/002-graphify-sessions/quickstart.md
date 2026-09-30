@@ -8,7 +8,7 @@
 ```
 
 Expected results:
-- **Tests**: all pass. They put a fake `graphify` script on `PATH` and use the fixture graph `tests/fixtures/graphify/graph.json`. That fixture has a test file linked to the changed module only through `imports_from` (SC-002).
+- **Tests**: all pass. They put a fake `graphify` script on `PATH` and use the fixture graph `tests/fixtures/graphify/graph.json`. That fixture reproduces Graphify's real package-import shape: a test file reaches the changed module only through `from pkg import (route,)`, which Graphify links to `pkg/__init__.py` (SC-002, R5).
 - **Evals**: the routing evals keep their pass rate, plus the new session cases (SC-005).
 
 ## End-to-end on this repository (real Graphify)
@@ -28,7 +28,8 @@ Expected output of the last command:
 - it finishes in under 5 s (SC-001);
 - it lists `tests/test_route.py` as affected;
 - it prints a ⚠ line naming session `$B`;
-- its exit code is 0.
+- its exit code is 0;
+- after `git commit -qam touch` and running the same command again, the result is the same (R6).
 
 ## Concurrency (SC-003)
 
