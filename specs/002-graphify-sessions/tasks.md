@@ -142,7 +142,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 ### Tests for User Story 2 (write first, must fail)
 
-- [ ] T013 [P] [US2] Write failing CLI tests in `tests/test_sessions.py`, following contracts/cli.md:
+- [X] T013 [P] [US2] Write failing CLI tests in `tests/test_sessions.py`, following contracts/cli.md:
   - **start**: `session start --scope "cli/**" --task "speed up fit"` prints the id alone on stdout line 1, and `--json` prints the record (Acceptance 1);
   - **overlap**: a second start with `--scope cli/open_skill/route.py` exits 0 and prints to stderr `warning: scope overlaps session <id> ("speed up fit"): cli/open_skill/route.py` (Acceptance 2);
   - **no match**: a glob that matches no file warns `warning: scope glob matches no file: <glob>`;
@@ -153,8 +153,8 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Implement `overlaps(project, scope, exclude_id=None)` and `unmatched(project, scope)` in `cli/open_skill/sessions.py`, using `project._files` and `project._match` (R7). The first returns `(session, task, sample_file)` tuples.
-- [ ] T015 [US2] Add the `start`, `list` and `end` subcommands under `session` in `cli/open_skill/cli.py`:
+- [X] T014 [US2] Implement `overlaps(project, scope, exclude_id=None)` and `unmatched(project, scope)` in `cli/open_skill/sessions.py`, using `project._files` and `project._match` (R7). The first returns `(session, task, sample_file)` tuples.
+- [X] T015 [US2] Add the `start`, `list` and `end` subcommands under `session` in `cli/open_skill/cli.py`:
   - flags: `--scope` (repeatable, required), `--task` (required), `--project`, `--json`, `--prune`;
   - text format of `list`: `<id>  seen <N>m ago  <first scope glob>  <task>`;
   - `ValueError` and `KeyError` map to exit code 2 with an `open-skill:` message.

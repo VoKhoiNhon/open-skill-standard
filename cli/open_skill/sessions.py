@@ -170,6 +170,29 @@ def prune(project, now=None) -> int:
     return n
 
 
+def _project_files(project: Path) -> list[str]:
+    return [f for f in project_mod._files(project) if not f.startswith(OWN)]
+
+
+def overlaps(project, scope, exclude_id=None, now=None) -> list[tuple[str, str, str]]:
+    """(session id, task, a file both scopes match) for each active session whose scope shares a file with scope."""
+    files = _project_files(Path(project))
+    out = []
+    for s in active(project, now):
+        if s["id"] == exclude_id:
+            continue
+        hit = next((f for f in files if any(project_mod._match(f, g) for g in scope)
+                    and any(project_mod._match(f, g) for g in s["scope"])), None)
+        if hit:
+            out.append((s["id"], s["task"], hit))
+    return out
+
+
+def unmatched(project, scope) -> list[str]:
+    files = _project_files(Path(project))
+    return [g for g in scope if not any(project_mod._match(f, g) for f in files)]
+
+
 # --- the shared graph ---------------------------------------------------------------------------------------------
 
 def load_graph(project) -> dict:

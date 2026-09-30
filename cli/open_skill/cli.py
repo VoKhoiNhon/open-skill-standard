@@ -311,6 +311,46 @@ def _install_hint(args, source: str) -> str:
         return sessions.INSTALL_FALLBACK
 
 
+def cmd_session_start(args):
+    project = paths.folder(args.project)
+    try:
+        rec = sessions.start(project, args.scope, args.task)
+    except ValueError as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 2
+    for sid, task, f in sessions.overlaps(project, rec["scope"], exclude_id=rec["id"]):
+        print(f'warning: scope overlaps session {sid} ("{task}"): {f}', file=sys.stderr)
+    for g in sessions.unmatched(project, rec["scope"]):
+        print(f"warning: scope glob matches no file: {g}", file=sys.stderr)
+    _print(rec) if args.json else print(rec["id"])
+    return 0
+
+
+def cmd_session_list(args):
+    project = paths.folder(args.project)
+    if args.prune:
+        print(f"pruned {sessions.prune(project)} record(s)", file=sys.stderr)
+        return 0
+    now = sessions._now()
+    recs = sorted(sessions.active(project, now), key=lambda r: r["seen"], reverse=True)
+    if args.json:
+        _print(recs)
+        return 0
+    for r in recs:
+        ago = int((now - sessions._parse(r["seen"])).total_seconds() // 60)
+        print(f"{r['id']}  seen {ago}m ago  {r['scope'][0]:<30} {r['task']}")
+    return 0
+
+
+def cmd_session_end(args):
+    try:
+        sessions.end(paths.folder(args.project), args.id)
+    except KeyError:
+        print(f"open-skill: no such session: {args.id}", file=sys.stderr)
+        return 2
+    return 0
+
+
 def cmd_session_update(args):
     project = paths.folder(args.project)
     try:
@@ -789,6 +829,21 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(fn=cmd_graph)
     s = sub.add_parser("session", help="parallel sessions on one project: scopes, shared Graphify graph, conflicts")
     ss = s.add_subparsers(dest="session_cmd", required=True)
+    u = ss.add_parser("start", help="declare a session: the paths it works on and its task; prints its id")
+    u.add_argument("--scope", action="append", required=True, help="glob relative to the project root (repeatable)")
+    u.add_argument("--task", required=True)
+    u.add_argument("--project", default=".")
+    u.add_argument("--json", action="store_true")
+    u.set_defaults(fn=cmd_session_start)
+    u = ss.add_parser("list", help="active sessions, most recently seen first")
+    u.add_argument("--project", default=".")
+    u.add_argument("--json", action="store_true")
+    u.add_argument("--prune", action="store_true", help="delete stale and unreadable session records instead")
+    u.set_defaults(fn=cmd_session_list)
+    u = ss.add_parser("end", help="end a session")
+    u.add_argument("id")
+    u.add_argument("--project", default=".")
+    u.set_defaults(fn=cmd_session_end)
     u = ss.add_parser("update", help="refresh the Graphify graph and warn about changes reaching other sessions")
     u.add_argument("--session", help="the session running this (its start commit is the diff base)")
     u.add_argument("--project", default=".")
