@@ -1,0 +1,93 @@
+/* GitHub's light and dark palettes, the same ones the diagrams in assets/ are drawn with. */
+:root {
+  --bg: #ffffff; --bg-soft: #f6f8fa; --text: #1f2328; --muted: #59636e; --line: #d1d9e0;
+  --accent: #0969da; --accent-bg: #ddf4ff; --btn: #0969da; --green: #1a7f37; --purple: #8250df;
+  --code-bg: #f6f8fa; --shadow: 0 1px 3px rgba(31, 35, 40, .08), 0 8px 24px rgba(66, 74, 83, .08);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --bg-soft: #151b23; --text: #e6edf3; --muted: #9198a1; --line: #3d444d;
+    --accent: #4493f8; --accent-bg: #0f2542; --btn: #1f6feb; --green: #3fb950; --purple: #ab7df8;
+    --code-bg: #151b23; --shadow: 0 8px 24px rgba(1, 4, 9, .5);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .9em; background: var(--bg-soft); padding: .1em .35em; border-radius: 6px; }
+img { max-width: 100%; height: auto; display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 16px; top: 8px; background: var(--bg); padding: 4px 8px; z-index: 10; }
+
+header.top { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+header.top .wrap { display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { font-weight: 600; color: var(--text); white-space: nowrap; }
+nav.links { display: flex; gap: 18px; margin-left: auto; font-size: 14px; white-space: nowrap; }
+nav.links a { color: var(--muted); }
+nav.links a:hover { color: var(--text); }
+@media (max-width: 720px) { nav.links a.opt { display: none; } }
+@media (max-width: 420px) { header.top .wrap { gap: 12px; } nav.links { gap: 12px; font-size: 13px; } .brand { font-size: 15px; } }
+
+.hero { padding: 64px 0 32px; text-align: center; }
+.hero h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -.02em; }
+.hero .tag { font-size: clamp(17px, 2.4vw, 20px); color: var(--muted); max-width: 760px; margin: 0 auto 28px; }
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.btn {
+  display: inline-block; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 15px;
+  border: 1px solid var(--line); color: var(--text); background: var(--bg-soft);
+}
+.btn:hover { text-decoration: none; border-color: var(--muted); }
+.btn.primary { background: var(--btn); border-color: var(--btn); color: #ffffff; }
+.shot { margin: 0 auto; max-width: 790px; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+section h2 { font-size: 28px; line-height: 1.25; margin: 0 0 12px; letter-spacing: -.01em; }
+section .lead { color: var(--muted); font-size: 18px; max-width: 760px; margin: 0 0 28px; }
+figure { margin: 28px 0 0; }
+figure img { margin: 0 auto; }
+figcaption { color: var(--muted); font-size: 14px; text-align: center; margin-top: 10px; }
+
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: var(--bg-soft); }
+.card h3 { margin: 0 0 6px; font-size: 16px; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+.problems { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 20px; }
+.problems .card { background: var(--bg); }
+
+.roles { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.roles h3 { font-size: 14px; color: var(--muted); margin: 0 0 8px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); }
+
+.code { position: relative; }
+.code pre {
+  margin: 0; padding: 18px 20px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px;
+  overflow-x: auto; font-size: 14px; line-height: 1.55;
+}
+.code .c { color: var(--muted); }
+.copy {
+  position: absolute; top: 10px; right: 10px; font: 600 12px/1 inherit; padding: 6px 10px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer;
+}
+.copy:hover { color: var(--text); }
+
+.frameworks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.frameworks a {
+  font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--text);
+}
+
+footer { border-top: 1px solid var(--line); padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; }

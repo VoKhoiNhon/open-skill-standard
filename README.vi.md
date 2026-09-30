@@ -4,7 +4,7 @@
 
 [English](README.md) · **Tiếng Việt**
 
-[Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
+[Website](https://vokhoinhon.github.io/open-skill-standard/vi/) · [Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
 
 <img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain cho data engineer thêm pipeline vào warehouse trả về một chuỗi có thứ tự và có giải thích: writing-plans, subagent-driven-development, explore-data, code-review, kèm điểm, ứng viên xếp sau và lệnh cài cho từng skill còn thiếu" width="790">
 

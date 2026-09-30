@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Skill Standard</title>
+<meta name="description" content="One router, one skill graph, 28 IT roles: an open, agent-agnostic standard for choosing the right Agent Skills for a task.">
+<meta property="og:title" content="Open Skill Standard">
+<meta property="og:description" content="One router, one skill graph, 28 IT roles. Picks and orders the right Agent Skills for each task, with reasons.">
+<meta property="og:image" content="https://vokhoinhon.github.io/open-skill-standard/assets/graph-viewer.png">
+<link rel="alternate" hreflang="vi" href="vi/">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./">Open Skill Standard</a>
+    <nav class="links" aria-label="Sections">
+      <a class="opt" href="#how">How it works</a>
+      <a class="opt" href="#sessions">Sessions</a>
+      <a href="graph.html">Skill graph</a>
+      <a href="https://github.com/VoKhoiNhon/open-skill-standard">GitHub</a>
+      <a href="vi/" lang="vi" hreflang="vi">Tiếng Việt</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrap">
+  <div class="hero">
+    <h1>One router, one skill graph,<br>28 IT roles</h1>
+    <p class="tag">An open, agent-agnostic standard for choosing the right Agent Skills for a task, and a reference implementation that ties together superpowers, BMad Method, spec-kit, codegraph, Anthropic's skills and more, without copying any of them.</p>
+    <div class="cta">
+      <a class="btn primary" href="#start">Get started</a>
+      <a class="btn" href="graph.html">Explore the skill graph</a>
+      <a class="btn" href="https://github.com/VoKhoiNhon/open-skill-standard">View on GitHub</a>
+    </div>
+    <div class="shot">
+      <img src="assets/route-data.svg" alt="Terminal: open-skill route --explain for a data engineer adding a warehouse pipeline returns an ordered, explained chain: writing-plans, subagent-driven-development, explore-data, code-review, with scores, runner-ups and the install command for each missing skill" width="790" height="588">
+    </div>
+  </div>
+</div>
+
+<section id="why">
+  <div class="wrap">
+    <h2>Why</h2>
+    <p class="lead">Coding agents now load skills from many independent projects. A typical setup has 100+ skills that overlap: three build workflows, several reviewers, two kinds of brainstorming.</p>
+    <div class="problems">
+      <div class="card"><h3>Overlapping descriptions</h3><p>Agents pick skills by matching descriptions, so overlap makes them load the wrong skill or miss the right one.</p></div>
+      <div class="card"><h3>A shrinking listing</h3><p>Claude Code budgets the skill listing at about 1% of the context window and drops the least-used descriptions first, so matching gets worse as you install more.</p></div>
+    </div>
+    <p>Open Skill Standard adds the missing layer: <strong>which role a skill serves, which phase it acts in, and which artifacts it consumes and produces</strong>. From that, a router builds a short, ordered, explained chain for each task.</p>
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <h2>What you get</h2>
+    <p class="lead">Four core skills, a CLI, and a registry that describes upstream skills as metadata, never copying them.</p>
+    <div class="grid">
+      <div class="card"><h3>open-skill-router</h3><p>Routes the task, announces the chain in one line, runs step 1 and records what ran.</p></div>
+      <div class="card"><h3>open-skill-standards</h3><p>Definition-of-done checklists, general and for each of the 28 roles.</p></div>
+      <div class="card"><h3>open-skill-intel</h3><p>Sends each question to the best source: codegraph, Context7, schemas, the web, your notes.</p></div>
+      <div class="card"><h3>open-skill-learn</h3><p>Remembers your lessons and preferences, locally, so future routes use them.</p></div>
+      <div class="card"><h3>open-skill CLI</h3><p><code>route</code>, <code>search</code>, <code>doctor</code>, <code>session</code>, <code>lint</code>, <code>audit</code>, <code>learn</code> and more.</p></div>
+      <div class="card"><h3>Registry</h3><p>Adapters for upstream sources, role packs and model profiles, validated in CI.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lead">The registry and your installed skills feed a local index; the router adds your project and your notes, then hands the agent an ordered chain with the reason for every step.</p>
+    <figure>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
+        <img src="assets/architecture.svg" alt="Architecture: the public registry and organization overlays feed scan and a SQLite FTS5 index; the router combines them with your project and your local ~/.open-skill layer, and the coding agent runs the chain" width="960" height="556" loading="lazy">
+      </picture>
+    </figure>
+    <figure>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="assets/routing-dark.svg">
+        <img src="assets/routing.svg" alt="Routing pipeline: request, phase and size, phase window, then for each phase candidate filters, scoring and selection, then trimming and the ordered steps" width="960" height="788" loading="lazy">
+      </picture>
+      <figcaption>Every decision is explained: <code>route --explain</code> and <code>route --why-not &lt;skill&gt;</code>.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="roles">
+  <div class="wrap">
+    <h2>28 IT roles</h2>
+    <p class="lead">Each role pack states the role's characteristic risk, its principles, the project files that suggest it, and its primary and alternative skills per phase. The same kind of request routes differently by role.</p>
+    <div class="roles">
+      <div><h3>Engineering</h3><div class="chips"><span>frontend-developer</span><span>backend-developer</span><span>fullstack-developer</span><span>mobile-developer</span><span>embedded-engineer</span><span>game-developer</span></div></div>
+      <div><h3>Quality &amp; operations</h3><div class="chips"><span>qa-engineer</span><span>devops-engineer</span><span>site-reliability-engineer</span><span>cloud-engineer</span><span>security-engineer</span><span>database-administrator</span><span>system-administrator</span></div></div>
+      <div><h3>Data &amp; AI</h3><div class="chips"><span>data-engineer</span><span>analytics-engineer</span><span>data-analyst</span><span>data-scientist</span><span>ml-engineer</span><span>ai-engineer</span><span>data-ai-platform-engineer</span></div></div>
+      <div><h3>Architecture &amp; leadership</h3><div class="chips"><span>software-architect</span><span>tech-lead</span><span>engineering-manager</span></div></div>
+      <div><h3>Product &amp; delivery</h3><div class="chips"><span>product-manager</span><span>business-analyst</span><span>ux-designer</span><span>technical-writer</span><span>scrum-master</span></div></div>
+    </div>
+    <figure>
+      <div class="shot"><img src="assets/route-sre.svg" alt="Terminal: open-skill route --explain for a site reliability engineer whose checkout requests time out, starting with debugging" width="790" height="516" loading="lazy"></div>
+      <figcaption>A site reliability engineer reporting a timeout starts with debugging, not a plan.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="sessions">
+  <div class="wrap">
+    <h2>Parallel sessions, one shared graph</h2>
+    <p class="lead">Several agent sessions can work on one project at once. Each declares the paths it works on; after an edit, <code>open-skill session update</code> refreshes one shared Graphify code graph and warns, never blocks, when the change reaches another session's scope.</p>
+    <figure>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="assets/sessions-dark.svg">
+        <img src="assets/sessions.svg" alt="Parallel sessions: sessions declare scopes and share one working tree and one Graphify graph; session update refreshes the graph, takes the files changed since the session started, sets aside other sessions' own edits, walks two hops back over calls, references and imports, and reports conflicts, others and affected files" width="960" height="470" loading="lazy">
+      </picture>
+    </figure>
+  </div>
+</section>
+
+<section id="measured">
+  <div class="wrap">
+    <h2>Measured, not claimed</h2>
+    <p class="lead">On held-out requests the router is scored against baselines and ablations with the same checks CI runs, and every number can be reproduced with <code>python -m open_skill.benchmark</code>.</p>
+    <figure>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="assets/benchmark-dark.svg">
+        <img src="assets/benchmark.svg" alt="Routing benchmark on held-out requests: the Open Skill router against description match only, a random skill in the router's phases, and the router without phase detection or role priors, with 95% Wilson intervals" width="960" height="380" loading="lazy">
+      </picture>
+    </figure>
+  </div>
+</section>
+
+<section id="graph">
+  <div class="wrap">
+    <h2>See the whole skill graph</h2>
+    <p class="lead">Every skill by phase, with its artifacts, requirements, conflicts and recommending roles. Filter by role, phase and source; it works offline and with the keyboard.</p>
+    <figure>
+      <a href="graph.html" class="shot" style="display:block">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="assets/graph-viewer-dark.png">
+          <img src="assets/graph-viewer.png" alt="The skill graph page: skills grouped by phase, with filters by role, phase, source and installed state" width="1280" height="800" loading="lazy">
+        </picture>
+      </a>
+      <figcaption><a href="graph.html">Open the live skill graph</a>, built from the registry on every release.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <h2>Get started</h2>
+    <p class="lead">Three steps in Claude Code; other agents that load Agent Skills work too (<a href="https://github.com/VoKhoiNhon/open-skill-standard#any-agent-that-loads-agent-skills">see the list</a>).</p>
+    <div class="code">
+      <button class="copy" type="button" data-copy="start-code">Copy</button>
+<pre id="start-code"><span class="c"># 1. Install the skills (Claude Code); or: npx skills add VoKhoiNhon/open-skill-standard -g</span>
+/plugin marketplace add VoKhoiNhon/open-skill-standard
+/plugin install open-skill@open-skill-standard
+
+<span class="c"># 2. Tell it your role(s); this also seeds starter knowledge for them</span>
+uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.2 open-skill init --role data-engineer=0.7 --role data-analyst=0.3
+
+<span class="c"># 3. In your agent, inside any project</span>
+/open-skill-router add a pipeline that loads orders into the warehouse</pre>
+    </div>
+    <h3 style="margin-top:36px">Integrates, never vendors</h3>
+    <p class="lead" style="margin-bottom:8px">Adapters describe upstream skills as metadata and point to the official installers.</p>
+    <div class="frameworks">
+      <a href="https://github.com/obra/superpowers">superpowers</a>
+      <a href="https://github.com/bmad-code-org/BMAD-METHOD">BMad Method</a>
+      <a href="https://github.com/github/spec-kit">spec-kit</a>
+      <a href="https://github.com/colbymchenry/codegraph">codegraph</a>
+      <a href="https://github.com/Graphify-Labs/graphify">Graphify</a>
+      <a href="https://github.com/anthropics/skills">Anthropic skills</a>
+      <a href="https://github.com/anthropics/knowledge-work-plugins">Knowledge-work plugins</a>
+      <a href="https://github.com/upstash/context7">Context7</a>
+      <a href="https://github.com/DietrichGebert/ponytail">ponytail</a>
+      <a href="https://github.com/leonxlnx/taste-skill">taste-skill</a>
+      <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a>
+      <a href="https://github.com/vercel-labs/agent-skills">vercel-labs/agent-skills</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Open Skill Standard · MIT license</span>
+    <span><a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md">Specification</a> · <a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CHANGELOG.md">Changelog</a></span>
+  </div>
+</footer>
+<script>
+document.querySelectorAll(".copy").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var text = document.getElementById(b.dataset.copy).innerText;
+    var done = function (ok) { b.textContent = ok ? b.dataset.ok || "Copied" : b.dataset.fail || "Select and copy"; };
+    try { navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); }); }
+    catch (e) { done(false); }
+  });
+});
+</script>
+</body>
+</html>
