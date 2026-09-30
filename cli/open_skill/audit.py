@@ -54,9 +54,23 @@ def _applies(r: Rule, file: str) -> bool:
     return r.only is None or file == "<text>" or bool(r.only.search(file))
 
 
+# Characters an excerpt shows escaped: zero-width space, word joiners, bidi overrides and isolates, Unicode tag
+# characters, the soft hyphen, the Mongolian vowel separator, Hangul fillers and variation selectors (the hidden-unicode
+# rule flags a narrower set). ponytail: ZWJ/ZWNJ, LRM/RLM and the emoji selectors FE0E/FE0F stay unescaped so emoji and
+# right-to-left text read normally; add them if hidden payloads start using those.
+INVISIBLE = re.compile(r"[\u00ad\u115f\u1160\u180e\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\u3164\ufe00-\ufe0d"
+                       r"\uffa0\U000e0000-\U000e007f\U000e0100-\U000e01ef]")
+
+
+def _escape(c: str) -> str:
+    n = ord(c)
+    return f"\\x{n:02x}" if n < 256 else f"\\u{n:04x}" if n < 0x10000 else f"\\U{n:08x}"
+
+
 def _excerpt(line: str, limit: int = 160) -> str:
-    # Escape control and invisible characters so an excerpt cannot hide text or drive the terminal.
-    s = "".join(c if c.isprintable() else (f"\\x{ord(c):02x}" if ord(c) < 256 else f"\\u{ord(c):04x}")
+    # Escape control and invisible characters so an excerpt cannot hide text or drive the terminal. Some invisible
+    # ones (Hangul fillers, variation selectors) count as printable, so the INVISIBLE set is escaped too.
+    s = "".join(c if c.isprintable() and not INVISIBLE.fullmatch(c) else _escape(c)
                 for c in line.strip())
     return s if len(s) <= limit else s[: limit - 3] + "..."
 
@@ -148,17 +162,72 @@ rule("browser-data", "high",
      "https://attack.mitre.org/techniques/T1555/003/")
 
 
-# Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
-# byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
-# scripts use them; add them if hidden payloads start using those.
-rule("hidden-unicode", "high", r"[\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\U000e0000-\U000e007f]|(?<!^)\ufeff",
+# Payloads found in malicious skills: a download run unread, a command hidden in an encoding, a known collection host.
+# Every gap is bounded ({0,GAP}) so a long line costs linear time: a skill must not be able to stall its own audit.
+GAP = 300
+ATTACK_INGRESS = "https://attack.mitre.org/techniques/T1105/"
+DOWNLOAD = r"\b(curl|wget|iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b"
+# An interpreter that reads its program from stdin: nothing after it, `-`, `-s`, or the end of the command.
+# `| python -m json.tool` or `| node parse.js` only read data.
+RUNNER = (r"(sudo\s+(-\w+\s+){0,4})?(env\s+)?(/(usr/)?(local/)?bin/)?"
+          r"((ba|z|da|k|fi)?sh|python[23]?|node|perl|ruby|php|iex|Invoke-Expression|pwsh|powershell)"
+          r"(?=\s*($|[;&|)\"'`])|\s+-s?(\s|$))")
+rule("remote-exec", "medium",
+     rf"{DOWNLOAD}[^|\n]{{0,{GAP}}}\|\s*{RUNNER}|(\b(ba|z)?sh|\bsource|(^|\s)\.)\s+<\(\s*{DOWNLOAD}"
+     rf"|\b(ba|z)?sh\s+-c\s+[\"']?\$\(\s*{DOWNLOAD}|\b(iex|Invoke-Expression)\b[^\n]{{0,{GAP}}}\(\s*{DOWNLOAD}"
+     rf"|\b(exec|eval)\s*\([^\n]{{0,{GAP}}}\burlopen\(",
+     "downloads a script and runs it at once, so nobody reads what runs; download it, read it, then run it",
+     ATTACK_INGRESS)
+
+
+ATTACK_OBFUSCATION = "https://attack.mitre.org/techniques/T1027/"
+DECODE = r"\b(base(32|64)|xxd)\s+(-\w*[dDr]\w*|--decode)\b"  # base64 -d, -di, -D, --decode; xxd -r
+rule("encoded-exec", "high",
+     rf"{DECODE}[^\n]{{0,{GAP}}}\|\s*" + RUNNER
+     + rf"|\beval\s*[\"'(]?\s*[\"']?\$\(\s*(echo|printf)\b[^)\n]{{0,{GAP}}}\|\s*{DECODE}|\beval\s*[\"'(]?\s*[\"']?\$\(\s*{DECODE}"
+     rf"|\b(exec|eval)\s*\([^\n]{{0,{GAP}}}\b(b64decode|b32decode|decodebytes|fromhex|codecs\.decode)\b"
+     rf"|\bFromBase64String\b[^\n]{{0,{GAP}}}\b(iex|Invoke-Expression)\b"
+     rf"|\b(iex|Invoke-Expression)\b[^\n]{{0,{GAP}}}\bFromBase64String\b"
+     rf"|\b(powershell|pwsh)(\.exe)?\b[^\n]{{0,{GAP}}}\s-(e|ec|enc|encodedcommand)\s+[A-Za-z0-9+/=]{{16}}",
+     "decodes text and runs it as a command; the encoding hides what runs from a reviewer", ATTACK_OBFUSCATION)
+
+
+# Services built to receive requests from strangers. ponytail: chat webhooks (Discord, Telegram bots) and file drops
+# are left out because notification and sharing skills use them openly; add them if stolen data starts going there.
+ATTACK_EXFIL_WEB = "https://attack.mitre.org/techniques/T1567/"
+rule("exfil-endpoint", "high",
+     r"\b(webhook\.site|requestbin\.(com|net)|[\w-]{1,63}\.m\.pipedream\.net|interact\.sh|oast\.(fun|pro|live|site|online|me)"
+     r"|burpcollaborator\.net|oastify\.com|canarytokens\.com|pastebin\.com/api)\b",
+     "names a request-collection or paste service that attackers use to receive stolen data", ATTACK_EXFIL_WEB)
+
+
+# Tokens in the shape their issuers publish. Placeholders are skipped: AWS's documented example key (AKIA...EXAMPLE)
+# and a body that starts with a filler (xxxxxxxx, 00000000, aaaaaaaa, ********, YOUR...). A key header only counts at a line's start,
+# so prose that names the header ("starts with -----BEGIN ...") is left alone.
+ATTACK_CRED_IN_FILES = "https://attack.mitre.org/techniques/T1552/001/"
+REAL = r"(?!x{8}|0{8}|a{8}|\*{8}|your)"  # patterns ignore case, so x{8} also skips XXXXXXXX
+rule("hardcoded-secret", "high",
+     rf"\bsk-ant-(api|admin)\d{{2}}-{REAL}[A-Za-z0-9_-]{{20}}|\bsk-(proj|svcacct|admin)-{REAL}[A-Za-z0-9_-]{{40}}"
+     rf"|\bgh[pousr]_{REAL}[A-Za-z0-9]{{36}}\b|\bgithub_pat_{REAL}[A-Za-z0-9_]{{60}}"
+     rf"|\b(AKIA|ASIA)(?![0-9A-Z]{{0,12}}EXAMPLE){REAL}[0-9A-Z]{{16}}\b|\bxox[abpr]-[0-9]{{6,15}}-{REAL}[A-Za-z0-9-]{{6}}"
+     rf"|\bAIza{REAL}[0-9A-Za-z_-]{{35}}\b|\b[rs]k_live_{REAL}[0-9A-Za-z]{{20}}|\bnpm_{REAL}[A-Za-z0-9]{{36}}\b"
+     rf"|\bglpat-{REAL}[A-Za-z0-9_-]{{20}}\b|^[\s\"'`>]*-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED |PGP )?PRIVATE KEY( BLOCK)?-----",
+     "contains what looks like a real API token or private key; anyone who installs the skill can read and use it",
+     ATTACK_CRED_IN_FILES)
+
+
+# Characters that are invisible wherever they appear, and a run of variation selectors: one selector after a base
+# character picks a glyph (emoji, CJK variants), several in a row carry bytes ("emoji smuggling").
+HIDDEN = (r"[\u115f\u1160\u200b\u202a-\u202e\u2060-\u2064\u2066-\u2069\u3164\uffa0\U000e0000-\U000e007f]"
+          r"|[\ufe00-\ufe0f\U000e0100-\U000e01ef]{2}")
+rule("hidden-unicode", "high", HIDDEN + r"|(?<!^)\ufeff",
      "contains invisible or direction-changing characters that can hide instructions from a human reviewer", OWASP_LLM01)
 
 
 # Markdown hides HTML comments when rendered, so a reviewer reading the page never sees them; the agent does.
 # Keywords must stand alone: <!-- prettier-ignore --> and <!-- simplify-ignore-start --> are tool directives.
 rule("hidden-comment", "medium",
-     r"<!--(?:(?!-->).){0,2000}?(?<![\w-])(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
+     r"<!--(?:(?!-->|<!--).){0,2000}?(?<![\w-])(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
      r"|assistant|you\s+(are|must|should)|curl|wget|base64)(?![\w-])",
      "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True,
      only=r"\.(md|mdx|markdown|html?)$")

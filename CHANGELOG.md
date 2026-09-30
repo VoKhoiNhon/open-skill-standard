@@ -14,6 +14,11 @@ All notable changes to this project are documented here. The format follows [Kee
 - `project.inspect` and `route` report whether a project has a Graphify graph (`graphify-out/`).
 - `python -m open_skill.benchmark` scores the router against baselines and ablations with the same checks as `open-skill eval routing`, on the tuned and held-out cases: description match only (BM25 top-1 over the router's own index), a random skill in the router's phases (expected pass over 200 seeded draws), the router without phase detection and without role priors. It reports 95% Wilson intervals, wins and losses against description match with an exact McNemar test, and route latency; `--json` for machine output.
 - The README shows the held-out benchmark as a chart (light and dark), drawn by `scripts/render_assets.py` from the benchmark itself, so CI keeps it current.
+- `open-skill audit` flags `remote-exec` (medium): a download piped straight into a shell or interpreter that reads its program from stdin (`curl ... | sh`, `| env bash`, `bash <(curl ...)`, `bash -c "$(curl ...)"`, `iwr ... | iex`, `exec(urlopen(...))`), which runs code nobody read; piping a response into `jq` or `python -m json.tool` is fine.
+- `open-skill audit` flags `encoded-exec` (high): text decoded and run as a command (`base64 -d | sh`, `xxd -r | bash`, `eval "$(echo ... | base64 -d)"`, `exec(b64decode(...))`, `powershell -enc`), a way to hide a payload from a reviewer.
+- `open-skill audit` flags `exfil-endpoint` (high): request-collection and paste services (webhook.site, RequestBin, Pipedream, interactsh and OAST hosts, Burp Collaborator, canary tokens, the Pastebin API), where stolen data is usually sent. Chat webhooks are left out because notification skills use them openly.
+- `open-skill audit` flags `hardcoded-secret` (high): API tokens in their issuers' published shapes (Anthropic, OpenAI, GitHub, AWS, Slack, Google, Stripe, npm, GitLab) and private key headers at the start of a line; AWS's documented example key and placeholder bodies (`xxxxxxxx`, `00000000`, `YOUR...`) are ignored.
+- The audit's `hidden-unicode` rule also catches Hangul fillers and runs of variation selectors, which can carry a hidden payload one byte per character; a single selector (emoji, CJK glyph variants) is fine. Excerpts escape these characters and the soft hyphen too; Python counts some of them as printable, so they used to be shown raw. Every new rule's gaps are bounded, so a long line is audited in linear time.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
@@ -22,6 +27,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - On Windows, `learn` and `session` writes now hold the same lock as on Linux and macOS (`msvcrt` byte lock), so two processes updating one note or one session folder no longer overwrite each other.
 - On Windows the CLI no longer crashes at start with `UnicodeDecodeError`: every file it reads or writes (taxonomy, registry, evals, notes, generated files) is opened as UTF-8 instead of the locale code page.
 - Output piped on Windows (cp1252) no longer fails with `UnicodeEncodeError` on Vietnamese text or arrows: stdout and stderr are switched to UTF-8.
+- `open-skill audit`'s `hidden-comment` rule no longer takes seconds on a line of repeated `<!--` openers (about 10 s for 200 KB): a comment is read up to the next opener.
 
 ## [0.7.2] - 2026-09-29
 
