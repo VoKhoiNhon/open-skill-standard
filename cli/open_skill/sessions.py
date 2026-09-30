@@ -168,3 +168,140 @@ def prune(project, now=None) -> int:
                 path.unlink(missing_ok=True)
                 n += 1
     return n
+
+
+# --- the shared graph ---------------------------------------------------------------------------------------------
+
+def load_graph(project) -> dict:
+    return json.loads((Path(project) / GRAPH).read_text(encoding="utf-8"))
+
+
+def _inside(project: Path, rel: str) -> Path | None:
+    """rel as a path under project, or None when it is absolute or escapes it (graph.json is data, not trusted)."""
+    if not rel or PurePosixPath(rel).is_absolute() or re.match(r"^[A-Za-z]:", rel):
+        return None
+    path = (project / rel).resolve()
+    return path if path.is_relative_to(project.resolve()) and path.is_file() else None
+
+
+def _imported_names(project: Path, rel: str, loc: str) -> set[str]:
+    """Names imported by the statement at line loc (`L<n>`) of rel, joined across a parenthesized statement."""
+    path, m = _inside(project, rel), re.fullmatch(r"L(\d+)", loc or "")
+    if not path or not m:
+        return set()
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    i = int(m.group(1)) - 1
+    if not 0 <= i < len(lines):
+        return set()
+    stmt = lines[i]
+    while "(" in stmt and ")" not in stmt and i + 1 < len(lines):
+        i += 1
+        stmt += " " + lines[i]
+    m = re.search(r"\bimport\b(.*)", stmt.split("#")[0])
+    return {n.split(" as ")[0].strip(" ()\t") for n in m.group(1).split(",")} - {""} if m else set()
+
+
+def affected_files(project, graph: dict, changed, hops: int = HOPS, resolve_packages: bool = True) -> list[str]:
+    """Files reaching a changed file within `hops` reverse steps over calls, references and imports."""
+    return sorted(_reach(Path(project), graph, changed, hops, resolve_packages))
+
+
+def _reach(project: Path, graph: dict, changed, hops=HOPS, resolve_packages=True) -> dict[str, str]:
+    """{affected file: the changed file it was reached from}."""
+    nodes = {n["id"]: n.get("source_file") or "" for n in graph.get("nodes", [])}
+    rev = defaultdict(list)
+    for link in graph.get("links", []):
+        if link.get("relation") in WALK:
+            rev[link["target"]].append(link["source"])
+    # Graphify points `from pkg import mod` at pkg/__init__.py; resolve it to pkg/mod.py so importers are reached.
+    importers = defaultdict(set)
+    if resolve_packages:
+        files = set(nodes.values())
+        for link in graph.get("links", []):
+            target = nodes.get(link.get("target"), "")
+            if link.get("relation") == "imports_from" and target.endswith("__init__.py"):
+                pkg = str(PurePosixPath(target).parent)
+                for name in _imported_names(project, link.get("source_file", ""), link.get("source_location", "")):
+                    mod = f"{name}.py" if pkg == "." else f"{pkg}/{name}.py"
+                    if mod in files:
+                        importers[mod].add(link["source"])
+    changed = set(changed)
+    origin = {nid: f for nid, f in nodes.items() if f in changed}
+    queue = deque((nid, 0) for nid in origin)
+    while queue:
+        cur, depth = queue.popleft()
+        if depth == hops:
+            continue
+        for nxt in [*rev[cur], *importers.get(nodes.get(cur, ""), ())]:
+            if nxt not in origin:
+                origin[nxt] = origin[cur]
+                queue.append((nxt, depth + 1))
+    out = {}
+    for nid, via in origin.items():
+        f = nodes.get(nid, "")
+        if f and f not in changed:
+            out.setdefault(f, via)
+    return out
+
+
+def changed_files(project, base: str | None = None):
+    """(files differing from base or HEAD plus untracked files, warnings), or None when git cannot tell."""
+    project = Path(project)
+    if _git(project, "rev-parse", "--verify", "-q", "HEAD") is None:
+        return None
+    warnings = []
+    if base and _git(project, "cat-file", "-e", f"{base}^{{commit}}") is None:
+        warnings.append(f"session base {base} is gone; compared with HEAD")
+        base = None
+    diff = _git(project, "diff", "--name-only", base or "HEAD")
+    new = _git(project, "ls-files", "--others", "--exclude-standard")
+    if diff is None or new is None:
+        return None
+    files = {f for f in (diff + new).splitlines() if f and not f.startswith(OWN)}
+    return sorted(files), warnings
+
+
+def conflicts(project, reached: dict[str, str], exclude_id=None, now=None) -> list[dict]:
+    """Files (with the changed file that reaches them) that fall inside another active session's scope."""
+    out = []
+    for s in active(project, now):
+        if s["id"] == exclude_id:
+            continue
+        for f, via in sorted(reached.items()):
+            if any(project_mod._match(f, g) for g in s["scope"]):
+                out.append({"file": f, "session": s["id"], "task": s["task"], "via": via})
+    return out
+
+
+def update(project, session_id=None, install_hint=INSTALL_FALLBACK, now=None) -> dict:
+    """Refresh the shared graph through Graphify, then report changed and affected files and scope conflicts."""
+    project = Path(project)
+    if not shutil.which("graphify"):
+        raise GraphifyMissing(f"graphify is not installed; install it with: {install_hint}")
+    if not (project / GRAPH).is_file():
+        raise GraphMissing("no graph yet; build it once with: graphify extract . --code-only")
+    p = subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True, text=True)  # Graphify locks
+    if p.returncode != 0:
+        raise RefreshFailed((p.stderr or p.stdout).strip())
+    graph = load_graph(project)
+    result = {"session": None, "graph": {"refreshed": True, "nodes": len(graph.get("nodes", [])),
+                                         "edges": len(graph.get("links", []))},
+              "base": None, "changed": [], "git": False, "affected": [], "conflicts": [], "warnings": []}
+    own = get(project, session_id) if session_id else None
+    if session_id:
+        if touch(project, session_id, now):
+            result["session"] = session_id
+        else:
+            own = None
+            result["warnings"].append(f"session {session_id} is unknown or stale; checked against all active sessions")
+    got = changed_files(project, own["base"] if own else None)
+    if got is None:
+        return result
+    changed, warnings = got
+    result["warnings"] += warnings
+    base = own["base"] if own and not warnings else None
+    result.update(git=True, changed=changed, base=base or (_git(project, "rev-parse", "HEAD") or "").strip() or None)
+    reached = _reach(project, graph, changed)
+    result["affected"] = sorted(reached)
+    result["conflicts"] = conflicts(project, {**reached, **{f: f for f in changed}}, exclude_id=result["session"], now=now)
+    return result

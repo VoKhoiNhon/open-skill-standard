@@ -81,7 +81,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 ### Tests for User Story 1 (write first, must fail)
 
-- [ ] T006 [P] [US1] Write failing tests for the walk in `tests/test_session_update.py`. `affected_files(graph, changed)`:
+- [X] T006 [P] [US1] Write failing tests for the walk in `tests/test_session_update.py`. `affected_files(graph, changed)`:
   - `affected_files(project, graph, changed)` returns `pkg/cli.py`, `pkg/deep.py`, `tests/test_route.py` and `tests/test_cli.py` for `changed=["pkg/route.py"]`;
   - `tests/test_route.py` is reached only through the package-import edge resolved from its multi-line `from pkg import (route,)` (finding C1);
   - `tests/test_cli.py` is reached through `from pkg import cli as c` → `pkg/cli.py` → route (2 hops);
@@ -89,12 +89,12 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - never returns `pkg/far.py` (three hops) or the changed file itself;
   - ignores `contains` links and nodes with an empty `source_file`;
   - follows only `calls`, `indirect_call`, `references`, `imports`, `imports_from` and the resolved package-import edges, in reverse, for 2 hops (R5).
-- [ ] T007 [P] [US1] Write failing tests for `changed_files(project, base=None)` in `tests/test_session_update.py`:
+- [X] T007 [P] [US1] Write failing tests for `changed_files(project, base=None)` in `tests/test_session_update.py`:
   - returns modified tracked files plus untracked files, compared with `HEAD` when `base` is None;
   - with `base` set to the start commit, a file **committed** after `base` is still returned (finding U1);
   - an unknown `base` sha falls back to `HEAD` and returns the warning `session base <sha> is gone; compared with HEAD`;
   - returns `None` in a folder that is not a git repository, and in a repository with no commits (R6).
-- [ ] T008 [P] [US1] Write failing CLI tests in `tests/test_session_update.py`, following contracts/cli.md § `session update`:
+- [X] T008 [P] [US1] Write failing CLI tests in `tests/test_session_update.py`, following contracts/cli.md § `session update`:
   - **conflict** (Acceptance 1): A changes `pkg/route.py` and B owns `tests/**`. Text output has a line starting with `⚠ tests/test_route.py is in session <B>`; exit code 0;
   - **imports-only** (Acceptance 2): `tests/test_route.py` is reported although it is linked only by `imports_from`;
   - **no conflict** (Acceptance 3): output lists affected files and has no `⚠` line;
@@ -110,7 +110,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement in `cli/open_skill/sessions.py`:
+- [X] T009 [US1] Implement in `cli/open_skill/sessions.py`:
   - `load_graph(project)`, which reads `graphify-out/graph.json` and uses only `nodes[].id`, `nodes[].source_file` and `links[].source|target|relation`;
   - `affected_files(project, graph, changed, hops=2)` as a reverse BFS over the five relations of R5, plus package-import edges. For each `imports_from` link whose target's `source_file` ends in `__init__.py`:
     1. read the statement at `source_location` in the importing file, joining lines until `)` when it opens a parenthesis;
@@ -118,13 +118,13 @@ description: "Task list for parallel sessions on one shared Graphify graph"
     3. for every `pkg/<name>.py` present in the graph, record importer node → that module file. Reaching any node of the module file also reaches those importers.
   - `changed_files(project, base=None)` from `git diff --name-only <base or HEAD>` plus `git ls-files --others --exclude-standard`, returning `(files, warnings)`. Check `base` with `git cat-file -e <base>^{commit}` and fall back to `HEAD` with the warning when it is gone. Return `None` when git fails.
   Make T006 and T007 pass.
-- [ ] T010 [US1] Implement `conflicts(project, files_with_via, exclude_id, now)` in `cli/open_skill/sessions.py`. A file conflicts when it matches a scope glob of another active session through `project._match` (R7). Return dicts with `file`, `session`, `task` and `via`.
-- [ ] T011 [US1] Implement `update(project, session_id=None)` in `cli/open_skill/sessions.py`. It returns the *Refresh result* dict of data-model.md and follows the steps of contracts/cli.md:
+- [X] T010 [US1] Implement `conflicts(project, files_with_via, exclude_id, now)` in `cli/open_skill/sessions.py`. A file conflicts when it matches a scope glob of another active session through `project._match` (R7). Return dicts with `file`, `session`, `task` and `via`.
+- [X] T011 [US1] Implement `update(project, session_id=None)` in `cli/open_skill/sessions.py`. It returns the *Refresh result* dict of data-model.md and follows the steps of contracts/cli.md:
   - read the install hint from the Graphify adapter's `install.cli` (loaded through `registry`), with the fallback `uv tool install graphifyy` when the adapter is missing;
   - run `subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True, text=True)`, with no lock of its own (R2);
   - raise dedicated exceptions for missing Graphify, a missing graph and a failed refresh, so the CLI can map them to exit codes 2, 2 and 1;
   - `graph.nodes` and `graph.edges` are the counts read from `graph.json` after the refresh.
-- [ ] T012 [US1] Add the `session` command with the `update` subcommand to `cli/open_skill/cli.py`, next to the other `sub.add_parser(...)` calls near line 748. Flags are `--session`, `--project` (default `.`) and `--json`.
+- [X] T012 [US1] Add the `session` command with the `update` subcommand to `cli/open_skill/cli.py`, next to the other `sub.add_parser(...)` calls near line 748. Flags are `--session`, `--project` (default `.`) and `--json`.
   - Text output follows the example in contracts/cli.md: `graph:` line, `changed:`, `affected: N files` with indented paths, then one `⚠` line per conflict.
   - Warnings and notes go to stderr.
   - Map the exceptions from T011 to exit codes: missing Graphify and missing graph → 2, failed refresh → 1.

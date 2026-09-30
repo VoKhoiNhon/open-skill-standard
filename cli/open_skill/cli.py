@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, sessions, upgrade, userdata
 
 
 def _registry(args):
@@ -301,6 +301,44 @@ def cmd_route(args):
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
                     record=not args.no_record, decisions=args.explain, agent=args.agent, phase=args.phase)
     _print(_explain(r) if args.explain else r, as_json=not args.explain)
+    return 0
+
+
+def _install_hint(args, source: str) -> str:
+    try:
+        return _registry(args).adapters[source]["install"]["cli"]
+    except (KeyError, TypeError, ValueError, OSError, knowledge.ProfileError):
+        return sessions.INSTALL_FALLBACK
+
+
+def cmd_session_update(args):
+    project = paths.folder(args.project)
+    try:
+        r = sessions.update(project, args.session, install_hint=_install_hint(args, "graphify"))
+    except (sessions.GraphifyMissing, sessions.GraphMissing) as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 2
+    except sessions.RefreshFailed as e:
+        print(f"{e}\nhint: if code was deleted on purpose, rerun: graphify update . --force", file=sys.stderr)
+        return 1
+    for w in r["warnings"]:
+        print(f"warning: {w}", file=sys.stderr)
+    if not r["git"]:
+        print("note: not a git repository (or no commits); conflict check skipped", file=sys.stderr)
+    if args.json:
+        _print(r)
+        return 0
+    g = r["graph"]
+    print(f"graph: {g['nodes']} nodes, {g['edges']} edges (refreshed)")
+    if r["git"]:
+        print(f"changed: {', '.join(r['changed']) or 'nothing'}")
+        print(f"affected: {len(r['affected'])} files")
+        for f in r["affected"]:
+            print(f"  {f}")
+        for c in r["conflicts"]:
+            print(f"⚠ {c['file']} is in session {c['session']} (\"{c['task']}\"), reached from {c['via']}")
+        if not r["conflicts"]:
+            print("no conflicts with other sessions")
     return 0
 
 
@@ -749,6 +787,13 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--format", choices=["mermaid", "json", "html"], default="mermaid")
     s.add_argument("--out", help="write to this file instead of stdout")
     s.set_defaults(fn=cmd_graph)
+    s = sub.add_parser("session", help="parallel sessions on one project: scopes, shared Graphify graph, conflicts")
+    ss = s.add_subparsers(dest="session_cmd", required=True)
+    u = ss.add_parser("update", help="refresh the Graphify graph and warn about changes reaching other sessions")
+    u.add_argument("--session", help="the session running this (its start commit is the diff base)")
+    u.add_argument("--project", default=".")
+    u.add_argument("--json", action="store_true")
+    u.set_defaults(fn=cmd_session_update)
     s = sub.add_parser("doctor", help="what is installed, missing, duplicated")
     s.add_argument("--project")
     s.set_defaults(fn=cmd_doctor)

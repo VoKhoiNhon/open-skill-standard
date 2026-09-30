@@ -58,7 +58,7 @@ def fake_graphify(tmp_path, monkeypatch):
 
     def configure(exit_code=0, stderr=""):
         script.write_text(
-            f"#!/bin/sh\necho \"$PWD $*\" >> '{log}'\nprintf '%s' '{stderr}' >&2\nexit {exit_code}\n", encoding="utf-8")
+            f"#!/bin/sh\necho \"$(pwd -P) $*\" >> '{log}'\nprintf '%s' '{stderr}' >&2\nexit {exit_code}\n", encoding="utf-8")
         script.chmod(0o755)
         return log
 
