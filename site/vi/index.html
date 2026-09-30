@@ -4,117 +4,177 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Open Skill Standard</title>
-<meta name="description" content="Một router, một skill graph, 28 vai trò IT: chuẩn mở, không phụ thuộc agent, để chọn đúng Agent Skill cho từng việc.">
+<meta name="description" content="Một router, một skill graph, %%roles%% vai trò IT: chuẩn mở, không phụ thuộc agent, để chọn đúng Agent Skill cho từng việc.">
+<meta name="theme-color" content="#fbfcfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
 <meta property="og:title" content="Open Skill Standard">
-<meta property="og:description" content="Một router, một skill graph, 28 vai trò IT. Chọn và sắp xếp đúng Agent Skill cho từng việc, có giải thích.">
+<meta property="og:description" content="Một router, một skill graph, %%roles%% vai trò IT. Chọn và sắp xếp đúng Agent Skill cho từng việc, có giải thích.">
 <meta property="og:image" content="https://vokhoinhon.github.io/open-skill-standard/assets/graph-viewer.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="alternate" hreflang="en" href="../">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../style.css">
+<script src="../site.js" defer></script>
 </head>
 <body>
+<div class="progress" aria-hidden="true"></div>
 <a class="skip" href="#main">Bỏ qua, tới nội dung</a>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="./">Open Skill Standard</a>
+    <a class="brand" href="./"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/logo-dark.svg"><img src="../assets/logo.svg" alt="" width="28" height="28"></picture><span>Open Skill Standard</span></a>
     <nav class="links" aria-label="Các mục">
+      <a class="opt" href="#what">Gồm những gì</a>
       <a class="opt" href="#how">Cách hoạt động</a>
       <a class="opt" href="#sessions">Session</a>
       <a href="../graph.html">Skill graph</a>
-      <a href="https://github.com/VoKhoiNhon/open-skill-standard">GitHub</a>
+      <a class="gh" href="https://github.com/VoKhoiNhon/open-skill-standard">GitHub</a>
       <a href="../" lang="en" hreflang="en">English</a>
     </nav>
   </div>
 </header>
 
 <main id="main">
-<div class="wrap">
-  <div class="hero">
-    <h1>Một router, một skill graph,<br>28 vai trò IT</h1>
-    <p class="tag">Chuẩn mở, không phụ thuộc agent, để chọn đúng Agent Skill cho từng việc. Repo kèm bản triển khai tham chiếu, nối superpowers, BMad Method, spec-kit, codegraph, skill của Anthropic và nhiều nguồn khác mà không sao chép nội dung của bộ nào.</p>
-    <div class="cta">
-      <a class="btn primary" href="#start">Bắt đầu</a>
-      <a class="btn" href="../graph.html">Xem skill graph</a>
-      <a class="btn" href="https://github.com/VoKhoiNhon/open-skill-standard">Xem trên GitHub</a>
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow reveal"><b></b>Chuẩn mở · không phụ thuộc agent · MIT</p>
+      <h1 class="reveal d1">Một router,<br>một skill graph,<br><em>%%roles%% vai trò IT</em></h1>
+      <p class="tag reveal d2">Chọn đúng Agent Skill cho từng việc, đúng thứ tự, kèm lý do cho từng bước. Bản triển khai tham chiếu nối superpowers, BMad Method, spec-kit, codegraph, skill của Anthropic và nhiều nguồn khác mà không sao chép nội dung của bộ nào.</p>
+      <div class="cta reveal d3">
+        <a class="btn primary" href="#start">Bắt đầu <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="../graph.html">Xem skill graph</a>
+        <a class="textlink" href="https://github.com/VoKhoiNhon/open-skill-standard">Xem trên GitHub</a>
+      </div>
     </div>
-    <div class="shot">
-      <img src="../assets/route-data.svg" alt="Terminal: open-skill route --explain cho data engineer thêm pipeline vào warehouse trả về một chuỗi có thứ tự và có giải thích: writing-plans, subagent-driven-development, explore-data, code-review, kèm điểm, ứng viên xếp sau và lệnh cài cho từng skill còn thiếu" width="790" height="588">
+    <div class="stage reveal d2">
+      <div class="shot">
+        <img src="../assets/route-data.svg" alt="Terminal: open-skill route --explain cho data engineer thêm pipeline vào warehouse trả về một chuỗi có thứ tự và có giải thích: writing-plans, subagent-driven-development, explore-data, code-review, kèm điểm, ứng viên xếp sau và lệnh cài cho từng skill còn thiếu" width="790" height="588">
+      </div>
     </div>
   </div>
 </div>
 
+<div class="wrap">
+  <div class="stats reveal" role="list" aria-label="Registry trong một cái nhìn">
+    <div role="listitem"><b data-count>%%roles%%</b><span>role pack</span></div>
+    <div role="listitem"><b data-count>%%skills%%</b><span>skill và tool được mô tả</span></div>
+    <div role="listitem"><b data-count>%%adapters%%</b><span>nguồn upstream</span></div>
+    <div role="listitem"><b data-count>%%phases%%</b><span>phase trong vòng đời</span></div>
+    <div role="listitem"><b data-count>%%agents%%</b><span>coding agent</span></div>
+  </div>
+</div>
+
 <section id="why">
-  <div class="wrap">
-    <h2>Vì sao cần</h2>
-    <p class="lead">Agent lập trình ngày nay nạp skill từ rất nhiều dự án độc lập. Một máy thường có hơn 100 skill trùng chức năng: ba quy trình build, vài kiểu review, hai kiểu brainstorm.</p>
-    <div class="problems">
-      <div class="card"><h3>Mô tả trùng nhau</h3><p>Agent chọn skill bằng cách so khớp mô tả, nên mô tả trùng khiến nó nạp sai skill hoặc bỏ sót skill đúng.</p></div>
-      <div class="card"><h3>Danh sách bị cắt</h3><p>Claude Code chỉ dành khoảng 1% context cho danh sách skill và cắt mô tả của skill ít dùng trước, nên càng cài nhiều, việc chọn càng kém.</p></div>
+  <div class="wrap why">
+    <div>
+      <p class="kicker reveal">01 · vì sao</p>
+      <p class="statement reveal d1">Một máy thường có hơn 100 skill trùng chức năng. Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục vụ <strong>vai trò nào, hoạt động ở phase nào, dùng và sinh ra artefact nào</strong>. Từ đó router dựng một chuỗi skill ngắn, đúng thứ tự và có giải thích.</p>
     </div>
-    <p>Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục vụ <strong>vai trò nào</strong>, hoạt động ở <strong>phase nào</strong>, và <strong>dùng hay sinh ra artefact nào</strong>. Từ đó router dựng được một chuỗi skill ngắn, đúng thứ tự và có giải thích cho mỗi việc.</p>
+    <ol class="problems">
+      <li class="reveal d1"><h3>Mô tả trùng nhau</h3><p>Agent chọn skill bằng cách so khớp mô tả. Ba quy trình build và vài kiểu review nghe na ná nhau khiến agent nạp sai skill hoặc bỏ sót skill đúng.</p></li>
+      <li class="reveal d2"><h3>Danh sách bị cắt</h3><p>Claude Code chỉ dành khoảng 1% context cho danh sách skill và cắt mô tả của skill ít dùng trước, nên càng cài nhiều skill, việc chọn càng kém.</p></li>
+    </ol>
   </div>
 </section>
 
 <section id="what">
   <div class="wrap">
-    <h2>Gồm những gì</h2>
-    <p class="lead">Bốn skill lõi, một CLI, và một registry mô tả skill upstream dưới dạng metadata, không bao giờ sao chép.</p>
-    <div class="grid">
-      <div class="card"><h3>open-skill-router</h3><p>Chọn chuỗi skill cho việc, báo chuỗi trong một dòng, chạy bước đầu và ghi lại những gì đã chạy.</p></div>
-      <div class="card"><h3>open-skill-standards</h3><p>Checklist "định nghĩa xong" chung và cho từng vai trò trong 28 vai trò.</p></div>
-      <div class="card"><h3>open-skill-intel</h3><p>Đưa mỗi câu hỏi tới nguồn tốt nhất: codegraph, Context7, schema, web, ghi chú của bạn.</p></div>
-      <div class="card"><h3>open-skill-learn</h3><p>Ghi nhớ bài học và thói quen ngay trên máy bạn, để các lần route sau dùng.</p></div>
-      <div class="card"><h3>CLI open-skill</h3><p><code>route</code>, <code>search</code>, <code>doctor</code>, <code>session</code>, <code>lint</code>, <code>audit</code>, <code>learn</code> và nhiều lệnh khác.</p></div>
-      <div class="card"><h3>Registry</h3><p>Adapter cho các nguồn upstream, role pack và hồ sơ model, được kiểm tra trong CI.</p></div>
+    <div class="head-split">
+      <div><p class="kicker reveal">02 · gồm những gì</p><h2 class="reveal d1">Bốn skill lõi, một CLI và một registry không bao giờ sao chép nội dung upstream</h2></div>
+      <p class="lead reveal d2">Skill upstream được mô tả bằng metadata và cài bằng lệnh chính thức của chúng. Router đọc metadata đó; agent của bạn chạy chuỗi skill.</p>
+    </div>
+    <div class="bento">
+      <article class="tile t-router reveal">
+        <span class="mono">open-skill-router</span>
+        <h3>Một chuỗi, không phải phỏng đoán</h3>
+        <p>Chọn chuỗi cho việc, báo chuỗi trong một dòng, chạy bước đầu và ghi lại những gì đã chạy.</p>
+        <ol class="chain" aria-label="Ví dụ chuỗi cho việc thêm pipeline vào warehouse">
+          <li><span class="ph">plan</span><span class="sk">superpowers:writing-plans</span><span class="sc">2.0</span></li>
+          <li><span class="ph">build</span><span class="sk">superpowers:subagent-driven-development</span><span class="sc">2.5</span></li>
+          <li><span class="ph">verify</span><span class="sk">data:explore-data</span><span class="sc">2.0</span></li>
+          <li><span class="ph">review</span><span class="sk">code-review</span><span class="sc">2.0</span></li>
+        </ol>
+      </article>
+      <article class="tile t-std reveal d1"><span class="mono">open-skill-standards</span><h3>Định nghĩa xong</h3><p>Checklist chung và cho từng vai trò trong %%roles%% vai trò.</p></article>
+      <article class="tile t-intel reveal d2"><span class="mono">open-skill-intel</span><h3>Đúng nguồn trước tiên</h3><p>codegraph, Context7, schema, web hoặc ghi chú của bạn, trước khi đoán.</p></article>
+      <article class="tile t-learn reveal"><span class="mono">open-skill-learn</span><h3>Hiểu bạn, ngay trên máy bạn</h3><p>Bài học và thói quen nằm trong <code>~/.open-skill/</code> và định hướng các lần route sau. Không gì rời khỏi máy bạn.</p></article>
+      <article class="tile t-cli reveal d1"><span class="mono">open-skill CLI</span><h3>Mọi quyết định đều xem được trên dòng lệnh</h3>
+        <div class="cmds" aria-label="Các lệnh CLI"><span>route --explain</span><span>--why-not</span><span>search</span><span>doctor</span><span>session</span><span>lint</span><span>audit</span><span>learn</span></div></article>
     </div>
   </div>
 </section>
 
 <section id="how">
-  <div class="wrap">
-    <h2>Cách hoạt động</h2>
-    <p class="lead">Registry và các skill đã cài đi vào một index trên máy; router thêm thông tin project và ghi chú của bạn, rồi đưa agent một chuỗi có thứ tự, kèm lý do cho từng bước.</p>
-    <figure>
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="../assets/architecture-dark.svg">
-        <img src="../assets/architecture.svg" alt="Kiến trúc: registry công khai và overlay của tổ chức đi vào scan và index SQLite FTS5; router kết hợp chúng với project của bạn và lớp ~/.open-skill trên máy, rồi coding agent chạy chuỗi skill" width="960" height="556" loading="lazy">
-      </picture>
-    </figure>
-    <figure>
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="../assets/routing-dark.svg">
-        <img src="../assets/routing.svg" alt="Pipeline routing: yêu cầu, phase và cỡ việc, dải phase, rồi với mỗi phase là lọc ứng viên, chấm điểm và chọn, cuối cùng cắt gọn và ra các bước theo thứ tự" width="960" height="788" loading="lazy">
-      </picture>
-      <figcaption>Mọi quyết định đều có giải thích: <code>route --explain</code> và <code>route --why-not &lt;skill&gt;</code>.</figcaption>
-    </figure>
+  <div class="wrap how">
+    <div class="side">
+      <p class="kicker reveal">03 · cách hoạt động</p>
+      <h2 class="reveal d1">Từ registry tới một chuỗi có giải thích</h2>
+      <ol class="steps">
+        <li data-step="0" class="on"><b>Mô tả và lập index</b>Registry và các skill đã cài trên máy đi vào một index SQLite FTS5 cục bộ.</li>
+        <li data-step="1"><b>Route theo phase và vai trò</b>Xác định phase, cỡ việc và dải phase trước, rồi chấm điểm và chọn theo từng phase, cuối cùng ra chuỗi có thứ tự.</li>
+        <li data-step="2"><b>Hỏi vì sao</b><code>route --explain</code> và <code>route --why-not &lt;skill&gt;</code> cho thấy mọi quyết định.</li>
+      </ol>
+    </div>
+    <div class="figs">
+      <figure class="panel wipe" data-step="0">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="../assets/architecture-dark.svg">
+          <img src="../assets/architecture.svg" alt="Kiến trúc: registry công khai và overlay của tổ chức đi vào scan và index SQLite FTS5; router kết hợp chúng với project của bạn và lớp ~/.open-skill trên máy, rồi coding agent chạy chuỗi skill" width="960" height="556">
+        </picture>
+      </figure>
+      <figure class="panel wipe" data-step="1">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="../assets/routing-dark.svg">
+          <img src="../assets/routing.svg" alt="Pipeline routing: yêu cầu, phase và cỡ việc, dải phase, rồi với mỗi phase là lọc ứng viên, chấm điểm và chọn, cuối cùng cắt gọn và ra các bước theo thứ tự" width="960" height="788">
+        </picture>
+      </figure>
+      <p data-step="2" class="figcaption">Cả hai sơ đồ được sinh từ code và registry sau mỗi thay đổi, nên không thể lệch với thực tế.</p>
+    </div>
   </div>
 </section>
 
 <section id="roles">
   <div class="wrap">
-    <h2>28 vai trò IT</h2>
-    <p class="lead">Mỗi role pack nêu rủi ro đặc trưng của vai trò, các nguyên tắc, những file trong project gợi ý vai trò đó, cùng skill chính và skill thay thế cho từng phase. Cùng một kiểu yêu cầu nhưng khác vai trò thì ra chuỗi khác.</p>
-    <div class="roles">
-      <div><h3>Kỹ thuật</h3><div class="chips"><span>frontend-developer</span><span>backend-developer</span><span>fullstack-developer</span><span>mobile-developer</span><span>embedded-engineer</span><span>game-developer</span></div></div>
-      <div><h3>Chất lượng &amp; vận hành</h3><div class="chips"><span>qa-engineer</span><span>devops-engineer</span><span>site-reliability-engineer</span><span>cloud-engineer</span><span>security-engineer</span><span>database-administrator</span><span>system-administrator</span></div></div>
-      <div><h3>Dữ liệu &amp; AI</h3><div class="chips"><span>data-engineer</span><span>analytics-engineer</span><span>data-analyst</span><span>data-scientist</span><span>ml-engineer</span><span>ai-engineer</span><span>data-ai-platform-engineer</span></div></div>
-      <div><h3>Kiến trúc &amp; lãnh đạo</h3><div class="chips"><span>software-architect</span><span>tech-lead</span><span>engineering-manager</span></div></div>
-      <div><h3>Sản phẩm &amp; triển khai</h3><div class="chips"><span>product-manager</span><span>business-analyst</span><span>ux-designer</span><span>technical-writer</span><span>scrum-master</span></div></div>
+    <div class="head-split">
+      <div><p class="kicker reveal">04 · vai trò</p><h2 class="reveal d1">%%roles%% role pack, mỗi vai trò một bộ rủi ro và skill riêng</h2></div>
+      <p class="lead reveal d2">Mỗi role pack nêu rủi ro đặc trưng của vai trò, các nguyên tắc, những file trong project gợi ý vai trò đó, cùng skill chính và skill thay thế cho từng phase.</p>
     </div>
-    <figure>
+  </div>
+  <div class="marquee" aria-label="Các vai trò">
+    <div class="row">
+      <div class="set"><span><i>eng</i>frontend-developer</span><span><i>eng</i>backend-developer</span><span><i>eng</i>fullstack-developer</span><span><i>eng</i>mobile-developer</span><span><i>eng</i>embedded-engineer</span><span><i>eng</i>game-developer</span><span><i>ops</i>qa-engineer</span><span><i>ops</i>devops-engineer</span><span><i>ops</i>site-reliability-engineer</span><span><i>ops</i>cloud-engineer</span><span><i>ops</i>security-engineer</span><span><i>ops</i>database-administrator</span><span><i>ops</i>system-administrator</span><span><i>lead</i>software-architect</span></div>
+      <div class="set" aria-hidden="true"><span><i>eng</i>frontend-developer</span><span><i>eng</i>backend-developer</span><span><i>eng</i>fullstack-developer</span><span><i>eng</i>mobile-developer</span><span><i>eng</i>embedded-engineer</span><span><i>eng</i>game-developer</span><span><i>ops</i>qa-engineer</span><span><i>ops</i>devops-engineer</span><span><i>ops</i>site-reliability-engineer</span><span><i>ops</i>cloud-engineer</span><span><i>ops</i>security-engineer</span><span><i>ops</i>database-administrator</span><span><i>ops</i>system-administrator</span><span><i>lead</i>software-architect</span></div>
+    </div>
+    <div class="row rev">
+      <div class="set"><span><i>data</i>data-engineer</span><span><i>data</i>analytics-engineer</span><span><i>data</i>data-analyst</span><span><i>data</i>data-scientist</span><span><i>ai</i>ml-engineer</span><span><i>ai</i>ai-engineer</span><span><i>ai</i>data-ai-platform-engineer</span><span><i>lead</i>tech-lead</span><span><i>lead</i>engineering-manager</span><span><i>prod</i>product-manager</span><span><i>prod</i>business-analyst</span><span><i>prod</i>ux-designer</span><span><i>prod</i>technical-writer</span><span><i>prod</i>scrum-master</span></div>
+      <div class="set" aria-hidden="true"><span><i>data</i>data-engineer</span><span><i>data</i>analytics-engineer</span><span><i>data</i>data-analyst</span><span><i>data</i>data-scientist</span><span><i>ai</i>ml-engineer</span><span><i>ai</i>ai-engineer</span><span><i>ai</i>data-ai-platform-engineer</span><span><i>lead</i>tech-lead</span><span><i>lead</i>engineering-manager</span><span><i>prod</i>product-manager</span><span><i>prod</i>business-analyst</span><span><i>prod</i>ux-designer</span><span><i>prod</i>technical-writer</span><span><i>prod</i>scrum-master</span></div>
+    </div>
+  </div>
+  <div class="wrap role-shot">
+    <div class="reveal">
+      <h3 class="subhead">Cùng kiểu yêu cầu, khác vai trò, khác chuỗi</h3>
+      <p class="lead">Site reliability engineer báo request checkout bị timeout thì bắt đầu bằng debug, không phải lập kế hoạch. Data engineer trong terminal phía trên thì bắt đầu bằng lập kế hoạch.</p>
+    </div>
+    <figure class="reveal d1">
       <div class="shot"><img src="../assets/route-sre.svg" alt="Terminal: open-skill route --explain cho site reliability engineer khi request checkout bị timeout, bắt đầu bằng debug" width="790" height="516" loading="lazy"></div>
-      <figcaption>Một site reliability engineer báo lỗi timeout thì bắt đầu bằng debug, không phải lập kế hoạch.</figcaption>
     </figure>
   </div>
 </section>
 
 <section id="sessions">
   <div class="wrap">
-    <h2>Nhiều session song song, một graph chung</h2>
-    <p class="lead">Nhiều session agent có thể cùng làm trên một project. Mỗi session khai báo đường dẫn mình phụ trách; sau khi sửa, <code>open-skill session update</code> cập nhật một code graph Graphify dùng chung và cảnh báo, không bao giờ chặn, khi thay đổi chạm tới phạm vi của session khác.</p>
-    <figure>
+    <div class="head-split">
+      <div><p class="kicker reveal">05 · session song song</p><h2 class="reveal d1">Nhiều agent, một project, một graph chung</h2></div>
+      <p class="lead reveal d2">Mỗi session khai báo đường dẫn mình phụ trách. Sau khi sửa, <code>open-skill session update</code> cập nhật một graph Graphify dùng chung và cảnh báo, không bao giờ chặn, khi thay đổi chạm tới phạm vi của session khác.</p>
+    </div>
+    <figure class="panel wipe">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="../assets/sessions-dark.svg">
-        <img src="../assets/sessions.svg" alt="Nhiều session song song: các session khai báo phạm vi, dùng chung một working tree và một graph Graphify; session update cập nhật graph, lấy các file đổi từ lúc session bắt đầu, tách riêng việc của session khác, duyệt ngược hai bước theo lời gọi, tham chiếu và import, rồi báo đụng độ, việc của session khác và các file bị ảnh hưởng" width="960" height="470" loading="lazy">
+        <img src="../assets/sessions.svg" alt="Nhiều session song song: các session khai báo phạm vi, dùng chung một working tree và một graph Graphify; session update cập nhật graph, lấy các file đổi từ lúc session bắt đầu, tách riêng việc của session khác, duyệt ngược hai bước theo lời gọi, tham chiếu và import, rồi báo đụng độ, việc của session khác và các file bị ảnh hưởng" width="960" height="470">
       </picture>
     </figure>
   </div>
@@ -122,12 +182,14 @@
 
 <section id="measured">
   <div class="wrap">
-    <h2>Có số đo, không chỉ lời nói</h2>
-    <p class="lead">Trên các yêu cầu holdout, router được chấm điểm so với các baseline và ablation bằng đúng các kiểm tra CI chạy, và mọi con số đều tái lập được bằng <code>python -m open_skill.benchmark</code>.</p>
-    <figure>
+    <div class="head-split">
+      <div><p class="kicker reveal">06 · đo lường</p><h2 class="reveal d1">Chấm điểm trên các yêu cầu chưa từng dùng để tinh chỉnh</h2></div>
+      <p class="lead reveal d2">Router được so với các baseline và ablation bằng đúng các kiểm tra CI chạy. Mọi con số đều tái lập được bằng <code>python -m open_skill.benchmark</code>.</p>
+    </div>
+    <figure class="panel wipe">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="../assets/benchmark-dark.svg">
-        <img src="../assets/benchmark.svg" alt="Benchmark routing trên các yêu cầu holdout: router Open Skill so với chỉ khớp description, skill ngẫu nhiên trong các phase của router, và router không phát hiện phase hoặc không có role prior, kèm khoảng tin cậy Wilson 95%" width="960" height="380" loading="lazy">
+        <img src="../assets/benchmark.svg" alt="Benchmark routing trên các yêu cầu holdout: router Open Skill so với chỉ khớp description, skill ngẫu nhiên trong các phase của router, và router không phát hiện phase hoặc không có role prior, kèm khoảng tin cậy Wilson 95%" width="960" height="380">
       </picture>
     </figure>
   </div>
@@ -135,26 +197,47 @@
 
 <section id="graph">
   <div class="wrap">
-    <h2>Xem toàn bộ skill graph</h2>
-    <p class="lead">Mọi skill theo phase, kèm artefact, điều kiện, xung đột và vai trò khuyên dùng. Lọc theo vai trò, phase và nguồn; chạy không cần mạng và dùng được bằng bàn phím.</p>
-    <figure>
-      <a href="../graph.html" class="shot" style="display:block">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="../assets/graph-viewer-dark.png">
-          <img src="../assets/graph-viewer.png" alt="Trang skill graph: skill nhóm theo phase, lọc theo vai trò, phase, nguồn và trạng thái cài đặt" width="1280" height="800" loading="lazy">
-        </picture>
+    <div class="head-split">
+      <div><p class="kicker reveal">07 · skill graph</p><h2 class="reveal d1">Mọi skill, theo phase, trong một trang</h2></div>
+      <p class="lead reveal d2">Artefact, điều kiện, xung đột và vai trò khuyên dùng cho từng skill trong %%skills%% skill. Lọc theo vai trò, phase và nguồn; chạy không cần mạng và dùng được bằng bàn phím.</p>
+    </div>
+    <figure class="tilt">
+      <a href="../graph.html" class="graph-link">
+        <div class="shot">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="../assets/graph-viewer-dark.png">
+            <img src="../assets/graph-viewer.png" alt="Trang skill graph: skill nhóm theo phase, lọc theo vai trò, phase, nguồn và trạng thái cài đặt" width="1280" height="800" loading="lazy">
+          </picture>
+        </div>
       </a>
-      <figcaption><a href="../graph.html">Mở skill graph trực tiếp</a>, dựng từ registry mỗi lần release.</figcaption>
+      <figcaption><a href="../graph.html">Mở skill graph trực tiếp →</a></figcaption>
     </figure>
   </div>
 </section>
 
 <section id="start">
-  <div class="wrap">
-    <h2>Bắt đầu</h2>
-    <p class="lead">Ba bước trong Claude Code; các agent khác đọc được Agent Skills cũng dùng được (<a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/README.vi.md#dùng-với-mọi-agent-đọc-được-agent-skills">xem danh sách</a>).</p>
-    <div class="code">
-      <button class="copy" type="button" data-copy="start-code" data-ok="Đã chép" data-fail="Hãy chọn và chép">Chép</button>
+  <div class="wrap start">
+    <div>
+      <p class="kicker reveal">08 · bắt đầu</p>
+      <h2 class="reveal d1">Ba bước trong Claude Code</h2>
+      <p class="lead reveal d2">Hoặc trong bất kỳ agent nào trong %%agents%% agent đọc được Agent Skills (<a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/README.vi.md#dùng-với-mọi-agent-đọc-được-agent-skills">xem danh sách</a>). Các framework upstream được mô tả, rồi cài bằng lệnh của chính chúng:</p>
+      <div class="frameworks reveal d3">
+        <a href="https://github.com/obra/superpowers">superpowers</a>
+        <a href="https://github.com/bmad-code-org/BMAD-METHOD">BMad Method</a>
+        <a href="https://github.com/github/spec-kit">spec-kit</a>
+        <a href="https://github.com/colbymchenry/codegraph">codegraph</a>
+        <a href="https://github.com/Graphify-Labs/graphify">Graphify</a>
+        <a href="https://github.com/anthropics/skills">Anthropic skills</a>
+        <a href="https://github.com/anthropics/knowledge-work-plugins">Knowledge-work plugins</a>
+        <a href="https://github.com/upstash/context7">Context7</a>
+        <a href="https://github.com/DietrichGebert/ponytail">ponytail</a>
+        <a href="https://github.com/leonxlnx/taste-skill">taste-skill</a>
+        <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a>
+        <a href="https://github.com/vercel-labs/agent-skills">vercel-labs/agent-skills</a>
+      </div>
+    </div>
+    <div class="code reveal d1">
+      <div class="bar"><i></i><i></i><i></i><button class="copy" type="button" data-copy="start-code" data-ok="Đã chép" data-fail="Hãy chọn và chép">Chép</button></div>
 <pre id="start-code"><span class="c"># 1. Cài skill (Claude Code); hoặc: npx skills add VoKhoiNhon/open-skill-standard -g</span>
 /plugin marketplace add VoKhoiNhon/open-skill-standard
 /plugin install open-skill@open-skill-standard
@@ -165,21 +248,16 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.2 open-ski
 <span class="c"># 3. Trong agent, ở bất kỳ project nào</span>
 /open-skill-router add a pipeline that loads orders into the warehouse</pre>
     </div>
-    <h3 style="margin-top:36px">Tích hợp, không sao chép</h3>
-    <p class="lead" style="margin-bottom:8px">Adapter mô tả skill upstream dưới dạng metadata và trỏ tới trình cài chính thức.</p>
-    <div class="frameworks">
-      <a href="https://github.com/obra/superpowers">superpowers</a>
-      <a href="https://github.com/bmad-code-org/BMAD-METHOD">BMad Method</a>
-      <a href="https://github.com/github/spec-kit">spec-kit</a>
-      <a href="https://github.com/colbymchenry/codegraph">codegraph</a>
-      <a href="https://github.com/Graphify-Labs/graphify">Graphify</a>
-      <a href="https://github.com/anthropics/skills">Anthropic skills</a>
-      <a href="https://github.com/anthropics/knowledge-work-plugins">Knowledge-work plugins</a>
-      <a href="https://github.com/upstash/context7">Context7</a>
-      <a href="https://github.com/DietrichGebert/ponytail">ponytail</a>
-      <a href="https://github.com/leonxlnx/taste-skill">taste-skill</a>
-      <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a>
-      <a href="https://github.com/vercel-labs/agent-skills">vercel-labs/agent-skills</a>
+  </div>
+  <div class="wrap">
+    <div class="closing reveal">
+      <h2>Thôi đoán xem nên nạp skill nào</h2>
+      <p class="lead">Đọc đặc tả, viết adapter cho skill của riêng bạn, hoặc thêm role pack cho team.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/VoKhoiNhon/open-skill-standard">Star trên GitHub <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md">Đọc đặc tả</a>
+        <a class="textlink" href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CONTRIBUTING.md">Đóng góp</a>
+      </div>
     </div>
   </div>
 </section>
@@ -188,18 +266,8 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.2 open-ski
 <footer>
   <div class="wrap">
     <span>Open Skill Standard · giấy phép MIT</span>
-    <span><a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md">Đặc tả</a> · <a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CONTRIBUTING.md">Đóng góp</a> · <a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CHANGELOG.md">Changelog</a></span>
+    <span><a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md">Đặc tả</a> · <a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CONTRIBUTING.md">Đóng góp</a> · <a href="https://github.com/VoKhoiNhon/open-skill-standard/blob/main/CHANGELOG.md">Changelog</a> · <a href="../" lang="en">English</a></span>
   </div>
 </footer>
-<script>
-document.querySelectorAll(".copy").forEach(function (b) {
-  b.addEventListener("click", function () {
-    var text = document.getElementById(b.dataset.copy).innerText;
-    var done = function (ok) { b.textContent = ok ? b.dataset.ok || "Copied" : b.dataset.fail || "Select and copy"; };
-    try { navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); }); }
-    catch (e) { done(false); }
-  });
-});
-</script>
 </body>
 </html>
