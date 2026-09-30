@@ -148,6 +148,16 @@ rule("browser-data", "high",
      "https://attack.mitre.org/techniques/T1555/003/")
 
 
+# Payloads found in malicious skills: a download run unread, a command hidden in an encoding, a known collection host.
+ATTACK_INGRESS = "https://attack.mitre.org/techniques/T1105/"
+DOWNLOAD = r"\b(curl|wget|iwr|irm|Invoke-WebRequest|Invoke-RestMethod)\b"
+RUNNER = r"(sudo\s+(-\w+\s+)*)?((ba|z|da|k|fi)?sh|python[23]?|node|perl|ruby|php|iex|Invoke-Expression|pwsh|powershell)\b"
+rule("remote-exec", "medium",
+     rf"{DOWNLOAD}[^|\n]*\|\s*{RUNNER}|(\b(ba|z)?sh|\bsource|(^|\s)\.)\s+<\(\s*{DOWNLOAD}|\b(iex|Invoke-Expression)\b[^\n]*\(\s*{DOWNLOAD}",
+     "downloads a script and runs it at once, so nobody reads what runs; download it, read it, then run it",
+     ATTACK_INGRESS)
+
+
 # Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
 # byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
 # scripts use them; add them if hidden payloads start using those.

