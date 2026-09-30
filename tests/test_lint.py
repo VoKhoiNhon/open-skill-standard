@@ -509,3 +509,38 @@ def test_reasoning_in_response(body, fires):
 ])
 def test_redundant_verification(body, fires):
     assert ("redundant-verification" in rules(doc(body))) is fires
+
+
+def with_fields(extra: str) -> str:
+    return f"---\nname: good-skill\ndescription: Does a thing.\n{extra}\n---\nBody.\n"
+
+
+@pytest.mark.parametrize("extra,fires", [
+    ("effort: high", False),
+    ("effort: xhigh", False),
+    ("effort: extreme", True),
+    ("context: fork", False),
+    ("context: subagent", True),
+    ("shell: powershell", False),
+    ("shell: zsh", True),
+    ("disable-model-invocation: true", False),
+    ("disable-model-invocation: 'yes'", True),
+    ("user-invocable: false", False),
+    ("user-invocable: no-thanks", True),
+    ("background: false", False),
+    ("background: 0", True),
+])
+def test_claude_code_field_values(extra, fires):
+    assert ("field-claude-code" in rules(with_fields(extra))) is fires
+
+
+def test_listing_length_counts_description_and_when_to_use():
+    assert "listing-length" not in rules(with_fields("when_to_use: " + "w" * 1500))
+    assert "listing-length" in rules(with_fields("when_to_use: " + "w" * 1530))
+
+
+@pytest.mark.parametrize("folder,fires", [("synced", True), ("Synced", True), ("anthropic-skills", True),
+                                          ("anthropic-skills:pdf", True), ("sync-notes", False)])
+def test_reserved_skill_folders(folder, fires):
+    text = f"---\nname: {folder}\ndescription: Does a thing.\n---\nBody.\n"
+    assert ("folder-reserved" in [f.rule for f in lint.lint_text(text, folder=folder)]) is fires

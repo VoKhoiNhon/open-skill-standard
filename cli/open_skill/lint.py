@@ -45,6 +45,11 @@ SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "a
 AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
                 "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"}
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
+# Claude Code frontmatter values (skills reference, "Frontmatter reference"); YAML reads true/false as booleans.
+CLAUDE_CODE_VALUES = {"effort": ("low", "medium", "high", "xhigh", "max"), "context": ("fork",),
+                      "shell": ("bash", "powershell"), "disable-model-invocation": (True, False),
+                      "user-invocable": (True, False), "background": (True, False)}
+LISTING_MAX = 1536
 FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
 
 
@@ -91,6 +96,13 @@ rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field
 rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
 rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
 rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
+rule("field-claude-code", "warning", "Claude Code fields hold values it accepts: `effort` low, medium, high, xhigh or max; "
+     "`context` fork; `shell` bash or powershell; true or false for `disable-model-invocation`, `user-invocable` and "
+     "`background`", CLAUDE_SKILLS + "#frontmatter-reference")
+rule("listing-length", "warning", "`description` and `when_to_use` together fit in the 1,536 characters Claude Code lists",
+     CLAUDE_SKILLS + "#frontmatter-reference")
+rule("folder-reserved", "warning", "the skill folder is not named `synced` (any case) or `anthropic-skills`, which Claude "
+     "Code keeps for skills synced from claude.ai and skips", CLAUDE_SKILLS + "#where-skills-live")
 rule("field-license", "warning", "`license`, when present, is a string", SPEC)
 rule("body-tokens", "warning", "the SKILL.md body is under about 5000 tokens", SPEC)
 rule("length", "warning", "SKILL.md is under 500 lines", BEST)
@@ -189,6 +201,16 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
         add("field-allowed-tools", "allowed-tools should be one space-separated string")
     if "license" in meta and not isinstance(meta["license"], str):
         add("field-license", "license should be a short string or the name of a bundled license file")
+    for key, allowed in CLAUDE_CODE_VALUES.items():
+        if key in meta and (type(meta[key]), meta[key]) not in {(type(a), a) for a in allowed}:  # 0 is not False
+            shown = " or ".join(str(a).lower() for a in allowed)
+            add("field-claude-code", f"{key} is {meta[key]!r}; Claude Code accepts {shown}")
+    listed = len(desc) + len(frontmatter.text(meta, "when_to_use"))
+    if listed > LISTING_MAX:
+        add("listing-length", f"description and when_to_use are {listed} characters; Claude Code cuts the listing at "
+                              f"{LISTING_MAX}, so put the key use case first")
+    if folder and (folder.lower() == "synced" or folder.startswith("anthropic-skills")):
+        add("folder-reserved", f"Claude Code does not load a skill folder named '{folder}'; rename it")
 
 
 def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
