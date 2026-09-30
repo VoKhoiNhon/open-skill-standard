@@ -4,7 +4,7 @@
 <rect x="20" y="40" width="300" height="164" rx="6" class="purple"/>
 <text x="32" y="62" class="b">L0 · public registry (this repository)</text>
 <text x="32" y="82" class="mono">registry/adapters/</text>
-<text x="178" y="82" class="m s">18 sources, 195 skills</text>
+<text x="178" y="82" class="m s">18 sources, 196 skills</text>
 <text x="32" y="99" class="mono">registry/roles/</text>
 <text x="178" y="99" class="m s">28 role packs</text>
 <text x="32" y="116" class="mono">registry/agents/</text>

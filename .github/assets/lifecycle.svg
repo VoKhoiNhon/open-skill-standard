@@ -43,8 +43,8 @@
 <path d="M565 168C657.5 168 657.5 198 750 198" class="e-orange" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
 <path d="M565 168C657.5 168 657.5 378 750 378" class="e-orange" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
 <path d="M565 228C657.5 228 657.5 318 750 318" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
-<path d="M565 228C657.5 228 657.5 258 750 258" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
-<path d="M565 228C657.5 228 657.5 498 750 498" class="e-orange" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
+<path d="M565 228C657.5 228 657.5 258 750 258" class="e-orange" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+<path d="M565 228C657.5 228 657.5 498 750 498" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
 <path d="M565 228C657.5 228 657.5 378 750 378" class="e-orange" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
 <rect x="40" y="64" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="82.5" class="b">1. discover</text>
@@ -57,7 +57,7 @@
 <text x="200" y="202.5" class="m s" text-anchor="end">16 skills</text>
 <rect x="40" y="244" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="262.5" class="b">4. plan</text>
-<text x="200" y="262.5" class="m s" text-anchor="end">33 skills</text>
+<text x="200" y="262.5" class="m s" text-anchor="end">34 skills</text>
 <rect x="40" y="304" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="322.5" class="b">5. build</text>
 <text x="200" y="322.5" class="m s" text-anchor="end">53 skills</text>
@@ -69,7 +69,7 @@
 <text x="200" y="442.5" class="m s" text-anchor="end">35 skills</text>
 <rect x="40" y="484" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="502.5" class="b">8. release</text>
-<text x="200" y="502.5" class="m s" text-anchor="end">25 skills</text>
+<text x="200" y="502.5" class="m s" text-anchor="end">26 skills</text>
 <rect x="40" y="544" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="562.5" class="b">9. operate</text>
 <text x="200" y="562.5" class="m s" text-anchor="end">14 skills</text>
@@ -87,7 +87,7 @@
 <text x="910" y="202.5" class="m s" text-anchor="end">16 skills</text>
 <rect x="750" y="244" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="262.5" class="b">4. plan</text>
-<text x="910" y="262.5" class="m s" text-anchor="end">33 skills</text>
+<text x="910" y="262.5" class="m s" text-anchor="end">34 skills</text>
 <rect x="750" y="304" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="322.5" class="b">5. build</text>
 <text x="910" y="322.5" class="m s" text-anchor="end">53 skills</text>
@@ -99,7 +99,7 @@
 <text x="910" y="442.5" class="m s" text-anchor="end">35 skills</text>
 <rect x="750" y="484" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="502.5" class="b">8. release</text>
-<text x="910" y="502.5" class="m s" text-anchor="end">25 skills</text>
+<text x="910" y="502.5" class="m s" text-anchor="end">26 skills</text>
 <rect x="750" y="544" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="562.5" class="b">9. operate</text>
 <text x="910" y="562.5" class="m s" text-anchor="end">14 skills</text>

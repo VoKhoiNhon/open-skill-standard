@@ -18,7 +18,7 @@
 <text x="20" y="246" fill="#8b949e" textLength="435" lengthAdjust="spacingAndGlyphs">   runner-ups: knowledge-work-engineering/architecture 0.7</text>
 <text x="20" y="264" fill="#79c0ff" textLength="697.5" lengthAdjust="spacingAndGlyphs">2. [build] superpowers:subagent-driven-development  score=2.5  — phase build; role prior 2.00</text>
 <text x="20" y="282" fill="#79c0ff" textLength="412.5" lengthAdjust="spacingAndGlyphs">  (primary for data-engineer); text 1.00; consumes plan</text>
-<text x="20" y="300" fill="#8b949e" textLength="705" lengthAdjust="spacingAndGlyphs">   runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/sql-queries 1.768,</text>
+<text x="20" y="300" fill="#8b949e" textLength="705" lengthAdjust="spacingAndGlyphs">   runner-ups: superpowers/test-driven-development 2.0, knowledge-work-data/sql-queries 1.769,</text>
 <text x="20" y="318" fill="#8b949e" textLength="300" lengthAdjust="spacingAndGlyphs">     knowledge-work-data/write-query 0.9</text>
 <text x="20" y="336" fill="#79c0ff" textLength="645" lengthAdjust="spacingAndGlyphs">3. [verify] data:explore-data  score=2.0  — phase verify; role prior 2.00 (primary for</text>
 <text x="20" y="354" fill="#79c0ff" textLength="202.5" lengthAdjust="spacingAndGlyphs">  data-engineer); text 1.00</text>
@@ -26,7 +26,7 @@
 <text x="20" y="390" fill="#8b949e" textLength="420" lengthAdjust="spacingAndGlyphs">     2.0, superpowers/verification-before-completion 0.7</text>
 <text x="20" y="408" fill="#79c0ff" textLength="720" lengthAdjust="spacingAndGlyphs">4. [review] code-review  score=2.0  — phase review; role prior 2.00 (primary for data-engineer);</text>
 <text x="20" y="426" fill="#79c0ff" textLength="82.5" lengthAdjust="spacingAndGlyphs">  text 1.00</text>
-<text x="20" y="444" fill="#8b949e" textLength="712.5" lengthAdjust="spacingAndGlyphs">   runner-ups: ponytail/ponytail-review 2.0 (close call), knowledge-work-data/sql-queries 1.768</text>
+<text x="20" y="444" fill="#8b949e" textLength="712.5" lengthAdjust="spacingAndGlyphs">   runner-ups: ponytail/ponytail-review 2.0 (close call), knowledge-work-data/sql-queries 1.769</text>
 <text x="20" y="462" fill="#e3b341" textLength="727.5" lengthAdjust="spacingAndGlyphs">missing: spec-kit/plan (needs .specify in the project) → specify init --here --integration claude</text>
 <text x="20" y="480" fill="#e3b341" textLength="735" lengthAdjust="spacingAndGlyphs">missing: spec-kit/tasks (needs .specify in the project) → specify init --here --integration claude</text>
 <text x="20" y="498" fill="#e3b341" textLength="712.5" lengthAdjust="spacingAndGlyphs">missing: spec-kit/implement (needs .specify in the project) → specify init --here --integration</text>

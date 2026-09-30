@@ -1,7 +1,7 @@
 source: superpowers
 upstream: https://github.com/obra/superpowers
 license: MIT
-tested_version: 5.1.0
+tested_version: 6.4.2
 summary: Execution discipline - design approval, plans, TDD, systematic debugging, verification.
 install:
   claude-plugin: "/plugin install superpowers@claude-plugins-official"
@@ -41,7 +41,7 @@ skills:
     conflicts: [spec-kit/implement, bmad-method/bmad-build, bmad-method/bmad-build-auto]
     task_size: [medium, large]
   - name: executing-plans
-    description: Execute a written plan inline with review checkpoints
+    description: Execute a written plan in this session, then review the whole change once
     phases: [build]
     consumes: [plan]
     produces: [code-change]

@@ -20,8 +20,8 @@
 <line x1="493.35" y1="98" x2="493.35" y2="110" class="edge"/>
 <text x="503.35" y="108" class="s">17%  [9%–30%]  9/52</text>
 <text x="24" y="150">Random skill in the router's phases</text>
-<rect x="330" y="134" width="274.45" height="24" rx="3" class="box"/>
-<text x="614.45" y="150" class="s">50% expected over 200 draws</text>
+<rect x="330" y="134" width="273.9" height="24" rx="3" class="box"/>
+<text x="613.9" y="150" class="s">50% expected over 200 draws</text>
 <text x="24" y="192">Router without phase detection</text>
 <rect x="330" y="176" width="179.85" height="24" rx="3" class="blue"/>
 <line x1="448.25" y1="188.0" x2="584.1" y2="188.0" class="edge"/>
