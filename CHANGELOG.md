@@ -20,6 +20,9 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill audit` flags `hardcoded-secret` (high): API tokens in their issuers' published shapes (Anthropic, OpenAI, GitHub, AWS, Slack, Google, Stripe, npm, GitLab) and private key headers at the start of a line; AWS's documented example key and placeholder bodies (`xxxxxxxx`, `00000000`, `YOUR...`) are ignored.
 - The audit's `hidden-unicode` rule also catches Hangul fillers and runs of variation selectors, which can carry a hidden payload one byte per character; a single selector (emoji, CJK glyph variants) is fine. Excerpts escape these characters and the soft hyphen too; Python counts some of them as printable, so they used to be shown raw. Every new rule's gaps are bounded, so a long line is audited in linear time.
 - Agent target `kiro-cli` (Kiro): skills in `~/.kiro/skills` and `.kiro/skills`, detected by `~/.kiro`, so `scan`, `agents` and `install --agent kiro-cli` cover it.
+- `open-skill lint` warns about a marketplace without a `description`, a marketplace that lists no plugins, and names Claude Desktop rejects (`org`, `org-provisioned`, `unknown`, or over 128 characters): `marketplace-description`, `marketplace-empty` and `marketplace-desktop`, from the validator messages in the marketplace reference.
+- `open-skill lint` checks plugin source objects in `marketplace.json` (`marketplace-source`): a known type (`github`, `url`, `git-subdir`, `npm`, `archive`, `command`) with its required fields, full lowercase commit SHAs, https archives with a 64-hex `sha256`, command sources in printable ASCII with a timeout of 1–600 seconds and mode `copy` or `link`, and `headersHelper` on an archive entry only with `"strict": false`.
+- `open-skill lint` checks the values of Claude Code frontmatter fields (`field-claude-code`: `effort`, `context`, `shell` and the three booleans), warns when `description` and `when_to_use` together pass the 1,536 characters Claude Code lists (`listing-length`), and warns about skill folders Claude Code skips (`folder-reserved`: `synced`, `anthropic-skills`).
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
@@ -27,6 +30,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The Codex target also reads `/etc/codex/skills`, the folder for skills an administrator installs for every user.
 - The `spec-kit` adapter is tested with 1.0.13 and describes the bundled `github` extension (`specify extension add github`): `github-taskstoissues` is the replacement for `taskstoissues`, which is leaving core; each lists the other as an alternative. Held-out routing is unchanged (35/52).
 - The `superpowers` adapter is tested with 6.4.2 (no skill added, renamed or removed since 5.1.0); `executing-plans` now runs the whole plan in the session and reviews it once at the end, and its description says so.
+- `open-skill lint` checks marketplace and plugin entry names against the characters Claude Code can install (ASCII letters, digits, `.`, `_`, `-`, starting with a letter or digit), as the current marketplace reference defines them; names like `my+tools` or `công-cụ` passed before, and a non-ASCII marketplace name counts as impersonating an official one.
 
 ### Fixed
 - On Windows, `learn` and `session` writes now hold the same lock as on Linux and macOS (`msvcrt` byte lock), so two processes updating one note or one session folder no longer overwrite each other.

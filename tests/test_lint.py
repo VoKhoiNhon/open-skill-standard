@@ -122,9 +122,9 @@ def write_json(tmp_path, name, obj):
 
 
 def test_marketplace_required_fields(tmp_path):
-    ok = {"name": "tools", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./"}]}
+    ok = {"name": "tools", "description": "d", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./"}]}
     assert lint.lint_marketplace(write_json(tmp_path, "marketplace.json", ok)) == []
-    bad = {"name": "tools", "plugins": [{"name": "a"}]}
+    bad = {"name": "tools", "description": "d", "plugins": [{"name": "a"}]}
     rules_found = [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", bad))]
     assert rules_found == ["marketplace-field", "marketplace-plugin"]
     assert [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", "{nope"))] == ["manifest-json"]
@@ -137,7 +137,7 @@ def test_repository_marketplace_is_valid():
 
 
 def test_marketplace_source_escape_and_impersonation(tmp_path):
-    doc_ = {"name": "anthropic-official-tools", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
+    doc_ = {"name": "anthropic-official-tools", "description": "d", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
     found = [(f.rule, f.severity) for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
     assert found == [("marketplace-source", "error"), ("marketplace-reserved", "warning")]
 
@@ -413,7 +413,8 @@ def test_plugin_manifest_cases(tmp_path, manifest, expected):
 
 
 def mkt(**kw):
-    base = {"name": "tools", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./plugins/a"}]}
+    base = {"name": "tools", "description": "d", "owner": {"name": "me"},
+            "plugins": [{"name": "a", "source": "./plugins/a"}]}
     base.update(kw)
     return base
 
@@ -422,6 +423,35 @@ def mkt(**kw):
     (mkt(), []),
     (mkt(plugins=[{"name": "a", "source": "."}]), []),
     (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r", "sha": "a" * 40}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github"}}]), ["marketplace-source"]),        # repo is required
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r", "sha": "A" * 40}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "gitlab", "repo": "o/r"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "url", "url": "https://git.example.org/a.git"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "url", "url": "o/r"}}]), ["marketplace-source"]),  # no shorthand
+    (mkt(plugins=[{"name": "a", "source": {"source": "git-subdir", "url": "o/r", "path": "tools/a"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "git-subdir", "url": "o/r"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "npm", "package": "@o/a", "version": "^2"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "npm", "package": "../a"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip",
+                                           "sha256": "AB" * 32}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "http://x.example.org/a.zip"}}]),
+     ["marketplace-source"]),                                                             # https only
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip",
+                                           "sha256": "abc"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool plugin-path", "timeout": 120}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool", "timeout": 0}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool    path"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool", "mode": "move"}}]),
+     ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip"},
+                   "headersHelper": "get-token"}]), ["marketplace-source"]),               # needs "strict": false
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip"},
+                   "headersHelper": "get-token", "strict": False}]), []),
+    (mkt(plugins=[{"name": "a", "source": 3}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": ["github"]}}]), ["marketplace-source"]),  # crashed: unhashable
+    (mkt(plugins=[{"name": "a", "source": {"source": {}}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r"}, "headersHelper": "h"}]), []),  # no effect
     (mkt(plugins=[{"name": "a", "source": "plugins/a"}]), ["marketplace-source"]),      # relative paths start with ./
     (mkt(plugins=[{"name": "a", "source": "a"}], metadata={"pluginRoot": "./plugins"}), []),
     (mkt(plugins=[{"name": "a", "source": "./x/../../y"}]), ["marketplace-source"]),
@@ -439,7 +469,20 @@ def mkt(**kw):
     (mkt(name="NPM"), ["marketplace-reserved"]),
     (mkt(name="claudeai-team"), ["marketplace-reserved"]),
     (mkt(name="acme-official-tools"), ["marketplace-reserved"]),
-    (mkt(name="công-cụ"), []),
+    (mkt(name="công-cụ"), ["marketplace-name"]),                                         # non-ASCII impersonates
+    (mkt(name="my+tools"), ["marketplace-name"]),                                        # only letters, digits, . _ -
+    (mkt(name="-tools"), ["marketplace-name"]),                                          # starts with a letter or digit
+    (mkt(name="tools_v2.1"), []),
+    (mkt(name="org"), ["marketplace-desktop"]),                                          # reserved in Claude Desktop
+    (mkt(name="t" * 129), ["marketplace-desktop"]),
+    (mkt(plugins=[{"name": "p" * 129, "source": "./a"}]), ["marketplace-desktop"]),
+    (mkt(description=None), ["marketplace-description"]),
+    ({k: v for k, v in mkt().items() if k != "description"}, ["marketplace-description"]),
+    ({**{k: v for k, v in mkt().items() if k != "description"}, "metadata": {"description": "d"}}, []),
+    (mkt(plugins=[]), ["marketplace-empty"]),
+    (mkt(plugins=[{"name": "a+b", "source": "./a"}]), ["marketplace-plugin"]),
+    (mkt(plugins=[{"name": "ünï", "source": "./a"}]), ["marketplace-plugin"]),
+    (mkt(plugins=[{"name": ".hidden", "source": "./a"}]), ["marketplace-plugin"]),
     ([], ["manifest-json"]),
 ])
 def test_marketplace_manifest_cases(tmp_path, manifest, expected):
@@ -469,3 +512,41 @@ def test_reasoning_in_response(body, fires):
 ])
 def test_redundant_verification(body, fires):
     assert ("redundant-verification" in rules(doc(body))) is fires
+
+
+def with_fields(extra: str) -> str:
+    return f"---\nname: good-skill\ndescription: Does a thing.\n{extra}\n---\nBody.\n"
+
+
+@pytest.mark.parametrize("extra,fires", [
+    ("effort: high", False),
+    ("effort: xhigh", False),
+    ("effort: extreme", True),
+    ("context: fork", False),
+    ("context: subagent", True),
+    ("shell: powershell", False),
+    ("shell: zsh", True),
+    ("disable-model-invocation: true", False),
+    ("disable-model-invocation: 'yes'", True),
+    ("user-invocable: false", False),
+    ("user-invocable: no-thanks", True),
+    ("background: false", False),
+    ("background: 0", True),
+    ("effort: [low]", True),  # crashed: a list is unhashable
+    ("context: {a: 1}", True),
+])
+def test_claude_code_field_values(extra, fires):
+    assert ("field-claude-code" in rules(with_fields(extra))) is fires
+
+
+def test_listing_length_counts_description_and_when_to_use():
+    assert "listing-length" not in rules(with_fields("when_to_use: " + "w" * 1500))
+    assert "listing-length" in rules(with_fields("when_to_use: " + "w" * 1530))
+
+
+@pytest.mark.parametrize("folder,fires", [("synced", True), ("Synced", True), ("anthropic-skills", True),
+                                          ("anthropic-skills:pdf", True), ("sync-notes", False),
+                                          ("anthropic-skillset", False), ("Anthropic-Skills", True)])
+def test_reserved_skill_folders(folder, fires):
+    text = f"---\nname: {folder}\ndescription: Does a thing.\n---\nBody.\n"
+    assert ("folder-reserved" in [f.rule for f in lint.lint_text(text, folder=folder)]) is fires

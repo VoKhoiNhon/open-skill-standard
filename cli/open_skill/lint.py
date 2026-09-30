@@ -45,6 +45,11 @@ SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "a
 AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
                 "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"}
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
+# Claude Code frontmatter values (skills reference, "Frontmatter reference"); YAML reads true/false as booleans.
+CLAUDE_CODE_VALUES = {"effort": ("low", "medium", "high", "xhigh", "max"), "context": ("fork",),
+                      "shell": ("bash", "powershell"), "disable-model-invocation": (True, False),
+                      "user-invocable": (True, False), "background": (True, False)}
+LISTING_MAX = 1536
 FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
 
 
@@ -91,6 +96,13 @@ rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field
 rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
 rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
 rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
+rule("field-claude-code", "warning", "Claude Code fields hold values it accepts: `effort` low, medium, high, xhigh or max; "
+     "`context` fork; `shell` bash or powershell; true or false for `disable-model-invocation`, `user-invocable` and "
+     "`background`", CLAUDE_SKILLS + "#frontmatter-reference")
+rule("listing-length", "warning", "`description` and `when_to_use` together fit in the 1,536 characters Claude Code lists",
+     CLAUDE_SKILLS + "#frontmatter-reference")
+rule("folder-reserved", "warning", "the skill folder is not named `synced` (any case) or `anthropic-skills`, which Claude "
+     "Code keeps for skills synced from claude.ai and skips", CLAUDE_SKILLS + "#where-skills-live")
 rule("field-license", "warning", "`license`, when present, is a string", SPEC)
 rule("body-tokens", "warning", "the SKILL.md body is under about 5000 tokens", SPEC)
 rule("length", "warning", "SKILL.md is under 500 lines", BEST)
@@ -105,14 +117,21 @@ rule("missing-mention", "warning", "every references/, scripts/ or assets/ path 
 rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
 rule("marketplace-field", "error", "marketplace.json has `name`, `owner` (with a `name`) and a list of `plugins`",
      MARKETPLACE_REF + "#validation-messages")
-rule("marketplace-plugin", "error", "every plugin entry is an object with a `name` (unique, no spaces) and a `source`",
+rule("marketplace-plugin", "error", "every plugin entry is an object with a unique `name` of ASCII letters, digits, '.', "
+     "'_' and '-' that starts with a letter or digit, and a `source`",
      MARKETPLACE_REF + "#validation-messages")
-rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`",
-     MARKETPLACE_DOCS)
-rule("marketplace-name", "error", "the marketplace name is a non-empty string without spaces, slashes, '..' or control "
-     "characters", MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`; "
+     "a source object has a known type and its required fields (github `repo`, url `url`, git-subdir `url` and `path`, "
+     "npm `package`, archive https `url`, command `command`) in the documented form", MARKETPLACE_REF + "#plugin-sources")
+rule("marketplace-name", "error", "the marketplace name uses only ASCII letters, digits, '.', '_' and '-', starts with a "
+     "letter or digit and has no '..'; Claude Code cannot install plugins from any other name", MARKETPLACE_REF + "#top-level-fields")
 rule("marketplace-reserved", "warning", "the marketplace name is not reserved for, and does not look like, an official "
      "Anthropic marketplace", MARKETPLACE_REF + "#reserved-names")
+rule("marketplace-desktop", "warning", "marketplace and plugin names are at most 128 characters, and the marketplace is "
+     "not named org, org-provisioned or unknown, which Claude Desktop rejects", MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-description", "warning", "marketplace.json has a `description` (or `metadata.description`)",
+     MARKETPLACE_REF + "#top-level-fields")
+rule("marketplace-empty", "warning", "marketplace.json lists at least one plugin", MARKETPLACE_REF + "#validation-messages")
 rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
      PLUGIN_DOCS + "#name")
 rule("plugin-name-style", "warning", "plugin.json `name` is kebab-case, as Claude Code recommends", PLUGIN_DOCS + "#name")
@@ -182,6 +201,17 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
         add("field-allowed-tools", "allowed-tools should be one space-separated string")
     if "license" in meta and not isinstance(meta["license"], str):
         add("field-license", "license should be a short string or the name of a bundled license file")
+    for key, allowed in CLAUDE_CODE_VALUES.items():
+        if key in meta and not any(type(meta[key]) is type(a) and meta[key] == a for a in allowed):  # 0 is not False
+            shown = " or ".join(str(a).lower() for a in allowed)
+            add("field-claude-code", f"{key} is {meta[key]!r}; Claude Code accepts {shown}")
+    listed = len(desc) + len(frontmatter.text(meta, "when_to_use"))
+    if listed > LISTING_MAX:
+        add("listing-length", f"description and when_to_use are {listed} characters; Claude Code cuts the listing at "
+                              f"{LISTING_MAX}, so put the key use case first")
+    if folder and (folder.lower() == "synced" or folder.lower() == "anthropic-skills"
+                   or folder.lower().startswith("anthropic-skills:")):
+        add("folder-reserved", f"Claude Code does not load a skill folder named '{folder}'; rename it")
 
 
 def lint_text(text: str, path: str = "<text>", folder: str | None = None) -> list[Finding]:
@@ -324,30 +354,96 @@ def lint_marketplace(path: Path) -> list[Finding]:
             if key not in p:
                 add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
         pname = p.get("name")
-        if isinstance(pname, str) and BAD_NAME_CHARS.search(pname):
-            add("marketplace-plugin", f"plugins[{i}].name '{pname}' must not contain spaces or control characters")
+        if isinstance(pname, str) and not PLUGIN_ID.match(pname):
+            add("marketplace-plugin", f"plugins[{i}].name {pname!r} may use only ASCII letters, digits, '.', '_' and '-', "
+                                      "starting with a letter or digit")
+        if isinstance(pname, str) and len(pname) > DESKTOP_MAX:
+            add("marketplace-desktop", f"plugins[{i}].name is {len(pname)} characters; Claude Desktop drops entries over "
+                                       f"{DESKTOP_MAX}")
         if isinstance(pname, str) and pname in seen:
             add("marketplace-plugin", f"duplicate plugin name '{pname}'")
         seen.add(pname if isinstance(pname, str) else None)
         src = p.get("source")
+        for why in _source_problems(src) if "source" in p else []:
+            add("marketplace-source", f"plugins[{i}].source: {why}")
+        if "headersHelper" in p and isinstance(src, dict) and src.get("source") == "archive" and p.get("strict") is not False:
+            add("marketplace-source", f"plugins[{i}] sets headersHelper, which needs \"strict\": false")
         if isinstance(src, str) and ".." in Path(src).parts:
             add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
         elif isinstance(src, str) and src != "." and not src.startswith("./") and not root:
             add("marketplace-source", f"plugins[{i}].source '{src}' is a relative path and must start with ./")
     name = doc.get("name", "")
-    if "name" in doc and (not isinstance(name, str) or not name or name in (".", "..") or ".." in name
-                          or BAD_NAME_CHARS.search(name)):
-        add("marketplace-name", f"marketplace name {name!r} must be a non-empty string without spaces, slashes, '..' "
-                                "or control characters")
+    if "name" in doc and (not isinstance(name, str) or not PLUGIN_ID.match(name) or ".." in name):
+        add("marketplace-name", f"marketplace name {name!r} may use only ASCII letters, digits, '.', '_' and '-', "
+                                "starting with a letter or digit and without '..' (a non-ASCII name counts as "
+                                "impersonating an official marketplace)")
+    elif name in DESKTOP_RESERVED or len(name) > DESKTOP_MAX:
+        add("marketplace-desktop", f"Claude Desktop rejects the marketplace name '{name[:40]}': reserved there, or over "
+                                   f"{DESKTOP_MAX} characters")
     elif isinstance(name, str) and _reserved(name):
         add("marketplace-reserved", f"marketplace name '{name}' is reserved for or looks like an official Anthropic "
                                     "marketplace; adding it fails unless it is hosted under github.com/anthropics")
+    meta = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
+    if not (isinstance(doc.get("description"), str) and doc["description"].strip()
+            or isinstance(meta.get("description"), str) and meta["description"].strip()):
+        add("marketplace-description", "add a description so people know what the marketplace offers")
+    if doc.get("plugins") == []:
+        add("marketplace-empty", "the marketplace lists no plugins")
     return out
 
 
+SOURCE_TYPES = {"github": ("repo",), "url": ("url",), "git-subdir": ("url", "path"), "npm": ("package",),
+                "archive": ("url",), "command": ("command",)}
+SHA1 = re.compile(r"[0-9a-f]{40}\Z")
+SHA256 = re.compile(r"[0-9A-Fa-f]{64}\Z")
+
+
+def _source_problems(src) -> list[str]:
+    """What the marketplace reference ("Plugin sources") rejects in an entry's source object; strings are checked apart."""
+    if isinstance(src, str):
+        return []
+    if not isinstance(src, dict):
+        return ["must be a relative path or an object"]
+    kind = src.get("source")
+    if not isinstance(kind, str) or kind not in SOURCE_TYPES:
+        return [f"unknown source type {kind!r}; use one of {', '.join(SOURCE_TYPES)}"]
+    out = [f"{kind} needs a non-empty string '{k}'" for k in SOURCE_TYPES[kind]
+           if not (isinstance(src.get(k), str) and src[k].strip())]
+    if out:
+        return out
+    if kind == "github" and not re.fullmatch(r"[\w.-]+/[\w.-]+", src["repo"]):
+        out.append(f"repo {src['repo']!r} is not owner/repo")
+    if kind == "url" and not src["url"].startswith(("https://", "http://", "file://", "git@")):
+        out.append(f"url {src['url']!r} must be a full git URL (https://, http://, file:// or git@)")
+    if kind == "git-subdir" and ".." in src["path"].replace("\\", "/").split("/"):
+        out.append("path must not contain '..'")
+    if kind == "npm" and ".." in src["package"]:
+        out.append("package must not contain '..'")
+    if kind == "archive" and not src["url"].startswith("https://"):
+        out.append("an archive url must use https://")
+    if kind == "archive" and "sha256" in src and not SHA256.match(str(src["sha256"])):
+        out.append("sha256 must be 64 hex characters")
+    if kind in ("github", "url", "git-subdir") and "sha" in src and not SHA1.match(str(src["sha"])):
+        out.append("sha must be a full 40-character lowercase commit SHA")
+    if kind == "command":
+        cmd = src["command"]
+        if not (cmd.isascii() and cmd.isprintable()) or len(cmd) > 500 or "    " in cmd:
+            out.append("command must be printable ASCII, at most 500 characters, without a run of four spaces")
+        t = src.get("timeout", 60)
+        if not (isinstance(t, int) and not isinstance(t, bool) and 1 <= t <= 600):
+            out.append("timeout must be a whole number of seconds from 1 to 600")
+        if src.get("mode", "copy") not in ("copy", "link"):
+            out.append("mode must be copy or link")
+    return out
+
+
+DESKTOP_MAX = 128
+DESKTOP_RESERVED = {"org", "org-provisioned", "unknown"}
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 
 
+# Each half of a plugin id (plugin@marketplace), as Claude Code installs it (marketplace reference, "Plugin entries").
+PLUGIN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 # What Claude Code rejects in a plugin or marketplace name: whitespace, @ and :, path separators, control and bidi characters.
 BAD_NAME_CHARS = re.compile(r"[\s@:/\\\x00-\x1f\x7f\u200e\u200f\u202a-\u202e\u2066-\u2069]")
 
