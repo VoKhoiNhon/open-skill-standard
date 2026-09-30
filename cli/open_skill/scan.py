@@ -64,7 +64,7 @@ def _latest_versions(paths: list[Path]) -> list[Path]:
 
 
 def _describe(path: Path) -> tuple[str, str]:
-    meta, _ = frontmatter.parse(path.read_text(errors="replace"))
+    meta, _ = frontmatter.parse(path.read_text(encoding="utf-8", errors="replace"))
     return frontmatter.text(meta, "name") or path.parent.name, frontmatter.text(meta, "description")
 
 

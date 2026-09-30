@@ -249,7 +249,7 @@ def test_unicode_name_matches_a_folder_in_another_normal_form(tmp_path):
     import unicodedata
     d = tmp_path / unicodedata.normalize("NFD", "phân-tích")
     d.mkdir()
-    (d / "SKILL.md").write_text(doc("x", name=unicodedata.normalize("NFC", "phân-tích")))
+    (d / "SKILL.md").write_text(doc("x", name=unicodedata.normalize("NFC", "phân-tích")), encoding="utf-8")
     assert "name-matches-folder" not in [f.rule for f in lint.lint_file(d / "SKILL.md")]
 
 

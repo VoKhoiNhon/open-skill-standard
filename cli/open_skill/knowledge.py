@@ -236,7 +236,7 @@ def import_agent_memory(root: Path | None = None) -> int:
     for p in sorted(root.glob("*/memory/*.md")):
         if p.name == "MEMORY.md":
             continue
-        meta, body = frontmatter.parse(p.read_text(errors="replace"))
+        meta, body = frontmatter.parse(p.read_text(encoding="utf-8", errors="replace"))
         text = body.strip()
         if not text or looks_sensitive(text):
             continue

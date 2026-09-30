@@ -247,7 +247,7 @@ def missing_mentions(body: str, base: Path) -> list[str]:
 def lint_file(path: Path) -> list[Finding]:
     path = Path(path)
     folder = path.parent.name if path.name == "SKILL.md" else None
-    text = path.read_text(errors="replace")
+    text = path.read_text(encoding="utf-8", errors="replace")
     out = lint_text(text, str(path), folder)
     body = frontmatter.parse(text)[1]
     for ref in missing_references(body, path.parent):
@@ -357,7 +357,7 @@ def _load_manifest(path: Path):
     import json
 
     try:
-        doc = json.loads(path.read_text(errors="replace"))
+        doc = json.loads(path.read_text(encoding="utf-8", errors="replace"))
     except json.JSONDecodeError as e:
         return None, f"invalid JSON: {e}"
     return (doc, None) if isinstance(doc, dict) else (None, "the manifest must be a JSON object")
