@@ -105,12 +105,13 @@ rule("missing-mention", "warning", "every references/, scripts/ or assets/ path 
 rule("manifest-json", "error", "a plugin or marketplace manifest is valid JSON", MARKETPLACE_DOCS)
 rule("marketplace-field", "error", "marketplace.json has `name`, `owner` (with a `name`) and a list of `plugins`",
      MARKETPLACE_REF + "#validation-messages")
-rule("marketplace-plugin", "error", "every plugin entry is an object with a `name` (unique, no spaces) and a `source`",
+rule("marketplace-plugin", "error", "every plugin entry is an object with a unique `name` of ASCII letters, digits, '.', "
+     "'_' and '-' that starts with a letter or digit, and a `source`",
      MARKETPLACE_REF + "#validation-messages")
 rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`",
      MARKETPLACE_DOCS)
-rule("marketplace-name", "error", "the marketplace name is a non-empty string without spaces, slashes, '..' or control "
-     "characters", MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-name", "error", "the marketplace name uses only ASCII letters, digits, '.', '_' and '-', starts with a "
+     "letter or digit and has no '..'; Claude Code cannot install plugins from any other name", MARKETPLACE_REF + "#top-level-fields")
 rule("marketplace-reserved", "warning", "the marketplace name is not reserved for, and does not look like, an official "
      "Anthropic marketplace", MARKETPLACE_REF + "#reserved-names")
 rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
@@ -324,8 +325,9 @@ def lint_marketplace(path: Path) -> list[Finding]:
             if key not in p:
                 add("marketplace-plugin", f"plugins[{i}] is missing '{key}'")
         pname = p.get("name")
-        if isinstance(pname, str) and BAD_NAME_CHARS.search(pname):
-            add("marketplace-plugin", f"plugins[{i}].name '{pname}' must not contain spaces or control characters")
+        if isinstance(pname, str) and not PLUGIN_ID.match(pname):
+            add("marketplace-plugin", f"plugins[{i}].name {pname!r} may use only ASCII letters, digits, '.', '_' and '-', "
+                                      "starting with a letter or digit")
         if isinstance(pname, str) and pname in seen:
             add("marketplace-plugin", f"duplicate plugin name '{pname}'")
         seen.add(pname if isinstance(pname, str) else None)
@@ -335,10 +337,10 @@ def lint_marketplace(path: Path) -> list[Finding]:
         elif isinstance(src, str) and src != "." and not src.startswith("./") and not root:
             add("marketplace-source", f"plugins[{i}].source '{src}' is a relative path and must start with ./")
     name = doc.get("name", "")
-    if "name" in doc and (not isinstance(name, str) or not name or name in (".", "..") or ".." in name
-                          or BAD_NAME_CHARS.search(name)):
-        add("marketplace-name", f"marketplace name {name!r} must be a non-empty string without spaces, slashes, '..' "
-                                "or control characters")
+    if "name" in doc and (not isinstance(name, str) or not PLUGIN_ID.match(name) or ".." in name):
+        add("marketplace-name", f"marketplace name {name!r} may use only ASCII letters, digits, '.', '_' and '-', "
+                                "starting with a letter or digit and without '..' (a non-ASCII name counts as "
+                                "impersonating an official marketplace)")
     elif isinstance(name, str) and _reserved(name):
         add("marketplace-reserved", f"marketplace name '{name}' is reserved for or looks like an official Anthropic "
                                     "marketplace; adding it fails unless it is hosted under github.com/anthropics")
@@ -348,6 +350,8 @@ def lint_marketplace(path: Path) -> list[Finding]:
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 
 
+# Each half of a plugin id (plugin@marketplace), as Claude Code installs it (marketplace reference, "Plugin entries").
+PLUGIN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 # What Claude Code rejects in a plugin or marketplace name: whitespace, @ and :, path separators, control and bidi characters.
 BAD_NAME_CHARS = re.compile(r"[\s@:/\\\x00-\x1f\x7f\u200e\u200f\u202a-\u202e\u2066-\u2069]")
 

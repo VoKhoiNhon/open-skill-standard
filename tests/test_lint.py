@@ -413,7 +413,8 @@ def test_plugin_manifest_cases(tmp_path, manifest, expected):
 
 
 def mkt(**kw):
-    base = {"name": "tools", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./plugins/a"}]}
+    base = {"name": "tools", "description": "d", "owner": {"name": "me"},
+            "plugins": [{"name": "a", "source": "./plugins/a"}]}
     base.update(kw)
     return base
 
@@ -439,7 +440,13 @@ def mkt(**kw):
     (mkt(name="NPM"), ["marketplace-reserved"]),
     (mkt(name="claudeai-team"), ["marketplace-reserved"]),
     (mkt(name="acme-official-tools"), ["marketplace-reserved"]),
-    (mkt(name="công-cụ"), []),
+    (mkt(name="công-cụ"), ["marketplace-name"]),                                         # non-ASCII impersonates
+    (mkt(name="my+tools"), ["marketplace-name"]),                                        # only letters, digits, . _ -
+    (mkt(name="-tools"), ["marketplace-name"]),                                          # starts with a letter or digit
+    (mkt(name="tools_v2.1"), []),
+    (mkt(plugins=[{"name": "a+b", "source": "./a"}]), ["marketplace-plugin"]),
+    (mkt(plugins=[{"name": "ünï", "source": "./a"}]), ["marketplace-plugin"]),
+    (mkt(plugins=[{"name": ".hidden", "source": "./a"}]), ["marketplace-plugin"]),
     ([], ["manifest-json"]),
 ])
 def test_marketplace_manifest_cases(tmp_path, manifest, expected):
