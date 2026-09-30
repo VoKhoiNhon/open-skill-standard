@@ -86,9 +86,9 @@ def test_export_excludes_events(home, tmp_path):
 def test_import_agent_memory(home, tmp_path):
     mem = tmp_path / "projects" / "-Users-me-app" / "memory"
     mem.mkdir(parents=True)
-    (mem / "MEMORY.md").write_text("- index")
-    (mem / "prefers-uv.md").write_text("---\nname: prefers-uv\ndescription: Use uv\nmetadata:\n  type: feedback\n---\nAlways use uv for Python.")
-    (mem / "secret.md").write_text("---\nname: s\n---\npassword=abc")
+    (mem / "MEMORY.md").write_text("- index", encoding="utf-8")
+    (mem / "prefers-uv.md").write_text("---\nname: prefers-uv\ndescription: Use uv\nmetadata:\n  type: feedback\n---\nAlways use uv for Python.", encoding="utf-8")
+    (mem / "secret.md").write_text("---\nname: s\n---\npassword=abc", encoding="utf-8")
     assert knowledge.import_agent_memory(tmp_path / "projects") == 1
     [node] = knowledge.load_knowledge()
     assert node["source"] == "agent-memory" and node["type"] == "preference"
@@ -124,7 +124,7 @@ def test_first_write_stamps_version(home):
 def test_old_layout_is_migrated_with_backup_before_first_write(home, capsys):
     from open_skill import userdata
     (home / "knowledge").mkdir(parents=True)
-    (home / "knowledge" / "k-old.md").write_text("---\nid: k-old\ntype: pitfall\nsource: seed\napplies_to: [role:qa-engineer]\n---\nOld seed text\n")
+    (home / "knowledge" / "k-old.md").write_text("---\nid: k-old\ntype: pitfall\nsource: seed\napplies_to: [role:qa-engineer]\n---\nOld seed text\n", encoding="utf-8")
     knowledge.learn("A new lesson", ["role:qa-engineer"])
     assert userdata.data_version(home) == userdata.SCHEMA_VERSION
     assert userdata.list_backups(home)
@@ -289,7 +289,7 @@ def test_upgrade_from_vietnamese_seeds_keeps_the_users_edit_and_the_ids(home):
     before = {n["seed_id"]: n["id"] for n in knowledge.load_knowledge()}
     edited = next(p for p in (home / "knowledge").glob("*.md") if "trùng lặp" in p.read_text(encoding="utf-8"))
     mine = edited.read_text(encoding="utf-8").replace("sau mỗi lần nạp.", "sau mỗi lần nạp, kể cả bảng tạm (quy tắc của tôi).")
-    edited.write_text(mine)
+    edited.write_text(mine, encoding="utf-8")
 
     actions = upgrade.upgrade(SEEDS_EN)
 
@@ -329,7 +329,7 @@ def test_reading_a_fresh_home_creates_nothing_so_it_is_not_mistaken_for_legacy_d
 def test_forget_never_deletes_files_outside_the_notes_folder(home, tmp_path):
     # Bug: forget() joined the id onto knowledge/ unchecked, so `forget ../../x` deleted x.md anywhere on disk.
     victim = tmp_path / "x.md"
-    victim.write_text("---\nid: x\n---\nnot a note\n")
+    victim.write_text("---\nid: x\n---\nnot a note\n", encoding="utf-8")
     knowledge.learn("Keep this.", ["role:*"])
     for bad in ("../../x", str(victim.with_suffix("")), "", ".", "sub/x"):
         assert knowledge.forget(bad) is False

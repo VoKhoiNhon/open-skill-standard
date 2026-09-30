@@ -54,8 +54,8 @@ def test_newer_data_blocks_writes(tmp_path):
 
 def _layer(home):
     (home / "knowledge").mkdir(parents=True)
-    (home / "knowledge" / "k-a.md").write_text("---\nid: k-a\n---\nA")
-    (home / "profile.yaml").write_text("roles: {qa-engineer: 1.0}\n")
+    (home / "knowledge" / "k-a.md").write_text("---\nid: k-a\n---\nA", encoding="utf-8")
+    (home / "profile.yaml").write_text("roles: {qa-engineer: 1.0}\n", encoding="utf-8")
     return home
 
 
@@ -92,8 +92,8 @@ def test_prune_keeps_newest_of_one_label_only(tmp_path):
 def test_restore_round_trip_with_safety_backup(tmp_path):
     home = _layer(tmp_path / "h")
     snap = userdata.backup(home)
-    (home / "knowledge" / "k-a.md").write_text("changed")
-    (home / "knowledge" / "k-new.md").write_text("new")
+    (home / "knowledge" / "k-a.md").write_text("changed", encoding="utf-8")
+    (home / "knowledge" / "k-new.md").write_text("new", encoding="utf-8")
     safety = userdata.restore(home, snap)
     assert (home / "knowledge" / "k-a.md").read_text(encoding="utf-8").endswith("A")
     assert not (home / "knowledge" / "k-new.md").exists()
@@ -143,9 +143,9 @@ def test_v0_to_v1_keeps_bodies_byte_for_byte(tmp_path):
     k.mkdir(parents=True)
     seed_body = "Use MERGE on the business key.\n\n  Keep   spacing  exactly.\n"
     user_body = "My own note, edited by hand.\n"
-    (k / "k-seed.md").write_text("---\nid: k-seed\ntype: pitfall\nsource: seed\napplies_to: [role:data-engineer]\n---\n" + seed_body)
-    (k / "k-user.md").write_text("---\nid: k-user\ntype: lesson\nsource: user\napplies_to: ['role:*']\n---\n" + user_body)
-    (k / "broken.md").write_text("no frontmatter at all")
+    (k / "k-seed.md").write_text("---\nid: k-seed\ntype: pitfall\nsource: seed\napplies_to: [role:data-engineer]\n---\n" + seed_body, encoding="utf-8")
+    (k / "k-user.md").write_text("---\nid: k-user\ntype: lesson\nsource: user\napplies_to: ['role:*']\n---\n" + user_body, encoding="utf-8")
+    (k / "broken.md").write_text("no frontmatter at all", encoding="utf-8")
     actions = userdata.migrate(home)
     assert userdata.data_version(home) == 1
     seed_meta, _ = frontmatter.parse((k / "k-seed.md").read_text(encoding="utf-8"))

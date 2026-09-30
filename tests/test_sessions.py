@@ -12,7 +12,7 @@ T0 = dt.datetime(2026, 9, 30, 8, 0, tzinfo=dt.timezone.utc)
 
 
 def _record(project, sid):
-    return json.loads((project / ".open-skill" / "sessions" / f"{sid}.json").read_text())
+    return json.loads((project / ".open-skill" / "sessions" / f"{sid}.json").read_text(encoding="utf-8"))
 
 
 # --- record store -------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ def test_start_writes_a_record_with_base_and_a_self_ignoring_folder(graph_projec
     assert set(rec) == {"id", "scope", "task", "started", "seen", "base"}
     assert rec["started"] == rec["seen"] == "2026-09-30T08:00:00Z"
     assert rec["base"] == git(graph_project, "rev-parse", "HEAD").strip()
-    assert (graph_project / ".open-skill" / ".gitignore").read_text() == "*\n"
+    assert (graph_project / ".open-skill" / ".gitignore").read_text(encoding="utf-8") == "*\n"
 
 
 def test_start_without_git_has_no_base(tmp_path):
@@ -52,8 +52,8 @@ def test_active_skips_stale_and_unreadable_records(tmp_path):
     fresh = sessions.start(tmp_path, ["a.py"], "fresh", now=T0)
     sessions.start(tmp_path, ["b.py"], "old", now=T0 - dt.timedelta(hours=7))
     folder = tmp_path / ".open-skill" / "sessions"
-    (folder / "bad001.json").write_text("{bad")
-    (folder / "bad002.json").write_text(json.dumps({"id": "other1"}))  # id differs from the file name
+    (folder / "bad001.json").write_text("{bad", encoding="utf-8")
+    (folder / "bad002.json").write_text(json.dumps({"id": "other1"}), encoding="utf-8")  # id differs from the file name
     assert [s["id"] for s in sessions.active(tmp_path, now=T0)] == [fresh["id"]]
 
 
@@ -78,7 +78,7 @@ def test_end_deletes_even_a_stale_record_and_rejects_unknown_ids(tmp_path):
 def test_prune_removes_stale_and_unreadable_records(tmp_path):
     keep = sessions.start(tmp_path, ["a.py"], "keep", now=T0)
     sessions.start(tmp_path, ["b.py"], "old", now=T0 - dt.timedelta(hours=7))
-    (tmp_path / ".open-skill" / "sessions" / "bad001.json").write_text("{bad")
+    (tmp_path / ".open-skill" / "sessions" / "bad001.json").write_text("{bad", encoding="utf-8")
     assert sessions.prune(tmp_path, now=T0) == 2
     left = sorted(p.name for p in (tmp_path / ".open-skill" / "sessions").glob("*.json"))
     assert left == [f"{keep['id']}.json"]
@@ -150,7 +150,7 @@ def test_cli_list_is_newest_first_and_never_touches_seen(graph_project, capsys):
 
 def test_cli_list_prune(graph_project, capsys):
     sessions.start(graph_project, ["x.py"], "stale", now=sessions._now() - dt.timedelta(hours=7))
-    (graph_project / ".open-skill" / "sessions" / "bad001.json").write_text("{bad")
+    (graph_project / ".open-skill" / "sessions" / "bad001.json").write_text("{bad", encoding="utf-8")
     code, out, err = _cli(capsys, "list", "--prune", "--project", str(graph_project))
     assert code == 0 and "pruned 2 record(s)" in err and out == ""
 

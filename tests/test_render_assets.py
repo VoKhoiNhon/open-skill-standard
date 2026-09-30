@@ -63,7 +63,7 @@ def test_wrap_keeps_every_line_within_the_terminal_width():
 
 def test_browser_comes_from_CHROME_first(tmp_path, monkeypatch):
     fake = tmp_path / "my-chromium"
-    fake.write_text("")
+    fake.write_text("", encoding="utf-8")
     monkeypatch.setenv("CHROME", str(fake))
     assert ra._browser() == str(fake)
     monkeypatch.setenv("CHROME", "")

@@ -21,7 +21,7 @@ def reg():
 
 def skill(folder: Path, name: str, body: str = "Body.\n") -> Path:
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / "SKILL.md").write_text(f"---\nname: {name}\ndescription: A demo skill.\n---\n\n{body}")
+    (folder / "SKILL.md").write_text(f"---\nname: {name}\ndescription: A demo skill.\n---\n\n{body}", encoding="utf-8")
     return folder
 
 
@@ -70,7 +70,7 @@ def test_agent_without_project_folders_cannot_install_in_a_project(tmp_path):
 def test_copy_install_writes_files_and_records_them(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/my-skill", "my-skill")))
     (src.path / "references").mkdir()
-    (src.path / "references/a.md").write_text("ref\n")
+    (src.path / "references/a.md").write_text("ref\n", encoding="utf-8")
     p = install.plan(src, reg.agents["codex"])
     install.apply(p)
     assert (p.dest / "SKILL.md").read_bytes() == (src.path / "SKILL.md").read_bytes()
@@ -127,7 +127,7 @@ def test_symlink_install_links_to_the_source(reg, tmp_path):
 
 def _installed(reg, tmp_path, name="my-skill", agent="codex", **kw):
     src = install.resolve_source(str(skill(tmp_path / "src" / name, name)))
-    (src.path / "notes.md").write_text("n\n")
+    (src.path / "notes.md").write_text("n\n", encoding="utf-8")
     p = install.plan(src, reg.agents[agent], **kw)
     install.apply(p)
     return p
@@ -135,8 +135,8 @@ def _installed(reg, tmp_path, name="my-skill", agent="codex", **kw):
 
 def test_remove_deletes_only_recorded_unchanged_files(reg, tmp_path):
     p = _installed(reg, tmp_path)
-    (p.dest / "notes.md").write_text("my edit\n")  # the user changed a file
-    (p.dest / "mine.txt").write_text("not from open-skill\n")  # and added one
+    (p.dest / "notes.md").write_text("my edit\n", encoding="utf-8")  # the user changed a file
+    (p.dest / "mine.txt").write_text("not from open-skill\n", encoding="utf-8")  # and added one
     removed, kept = install.remove(p.dest)
     assert removed == ["SKILL.md"]
     assert set(kept) == {"notes.md", "mine.txt"}
@@ -147,7 +147,7 @@ def test_remove_deletes_only_recorded_unchanged_files(reg, tmp_path):
 def test_remove_clears_empty_folders(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/deep", "deep")))
     (src.path / "sub/inner").mkdir(parents=True)
-    (src.path / "sub/inner/x.md").write_text("x\n")
+    (src.path / "sub/inner/x.md").write_text("x\n", encoding="utf-8")
     p = install.plan(src, reg.agents["codex"])
     install.apply(p)
     removed, kept = install.remove(p.dest)
@@ -171,12 +171,12 @@ def test_remove_dry_run_changes_nothing(reg, tmp_path):
 def test_remove_never_follows_a_link_out_of_the_skill(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/linked", "linked")))
     (src.path / "sub").mkdir()
-    (src.path / "sub/x.md").write_text("x\n")
+    (src.path / "sub/x.md").write_text("x\n", encoding="utf-8")
     p = install.plan(src, reg.agents["codex"])
     install.apply(p)
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
-    (elsewhere / "x.md").write_text("x\n")  # same content as the recorded file
+    (elsewhere / "x.md").write_text("x\n", encoding="utf-8")  # same content as the recorded file
     import shutil
     shutil.rmtree(p.dest / "sub")
     (p.dest / "sub").symlink_to(elsewhere, target_is_directory=True)
@@ -231,7 +231,7 @@ def test_update_reinstalls_core_skills_at_the_cli_version(reg, tmp_path):
 
 def test_update_skips_a_skill_the_user_changed(reg, tmp_path):
     dest = _old_core_install(reg, tmp_path)
-    (dest / "SKILL.md").write_text("my own edit\n")
+    (dest / "SKILL.md").write_text("my own edit\n", encoding="utf-8")
     assert "you changed it" in install.update()[0]
     assert (dest / "SKILL.md").read_text(encoding="utf-8") == "my own edit\n"
     assert install.manifest()[0]["version"] == "0.0.1"

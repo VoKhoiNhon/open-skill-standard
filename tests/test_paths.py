@@ -12,19 +12,19 @@ WORKER = textwrap.dedent("""
     counter, n = Path(sys.argv[1]), int(sys.argv[2])
     for _ in range(n):
         with paths.locked(counter.with_name(".lock")):
-            value = int(counter.read_text() or 0)
+            value = int(counter.read_text(encoding="utf-8") or 0)
             time.sleep(0.001)  # widen the window between read and write
-            counter.write_text(str(value + 1))
+            counter.write_text(str(value + 1), encoding="utf-8")
 """)
 
 
 def test_locked_serializes_read_modify_write_across_processes(tmp_path):
     counter = tmp_path / "counter"
-    counter.write_text("0")
+    counter.write_text("0", encoding="utf-8")
     procs, n = 4, 25
     workers = [subprocess.Popen([sys.executable, "-c", WORKER, str(counter), str(n)]) for _ in range(procs)]
     assert all(w.wait(timeout=120) == 0 for w in workers)
-    assert int(counter.read_text()) == procs * n
+    assert int(counter.read_text(encoding="utf-8")) == procs * n
 
 
 def test_locked_can_be_taken_again_after_release(tmp_path):

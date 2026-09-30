@@ -54,7 +54,7 @@ def test_changelog_title_takes_the_theme_from_the_first_line():
 def test_changelog_missing_section_fails_with_one_clear_error(tmp_path):
     import subprocess
     import sys
-    (tmp_path / "CHANGELOG.md").write_text("## [Unreleased]\n\n## [1.0.0] - x\n\nFirst.\n")
+    (tmp_path / "CHANGELOG.md").write_text("## [Unreleased]\n\n## [1.0.0] - x\n\nFirst.\n", encoding="utf-8")
     for args in (["v2.0.0"], ["title", "v2.0.0"]):
         r = subprocess.run([sys.executable, str(ROOT / "scripts/changelog.py"), *args, str(tmp_path / "CHANGELOG.md")],
                            capture_output=True, text=True)
@@ -104,8 +104,8 @@ def test_quoted_tested_version_is_read_as_its_value(tmp_path):
 def test_readme_pins_are_checked_like_bump_version_writes_them(tmp_path, capsys):
     root = _copy_versioned(tmp_path)
     good = cv.versions(root)["pyproject.toml"]
-    (root / "README.md").write_text(f"uvx --from {cv.GIT_URL}@v0.0.9 open-skill init\n")
-    (root / "README.vi.md").write_text(f"uvx --from {cv.GIT_URL}@v{good} open-skill init\n")
+    (root / "README.md").write_text(f"uvx --from {cv.GIT_URL}@v0.0.9 open-skill init\n", encoding="utf-8")
+    (root / "README.vi.md").write_text(f"uvx --from {cv.GIT_URL}@v{good} open-skill init\n", encoding="utf-8")
     assert cv.main(str(root)) == 1
     assert "README.md" in capsys.readouterr().out
 

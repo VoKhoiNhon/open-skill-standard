@@ -43,10 +43,10 @@ def test_routing_report_counts_by_role():
 def test_load_trigger_sets(tmp_path):
     sets = evals.load_trigger_sets(ROOT / "tests" / "fixtures" / "triggers")
     assert sets == {"demo-skill": [{"q": "do the demo thing", "trigger": True}, {"q": "something unrelated", "trigger": False}]}
-    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi}\n")
+    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi}\n", encoding="utf-8")
     with pytest.raises(ValueError):
         evals.load_trigger_sets(tmp_path)
-    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, holdout: yes please}\n")
+    (tmp_path / "bad.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, holdout: yes please}\n", encoding="utf-8")
     with pytest.raises(ValueError):
         evals.load_trigger_sets(tmp_path)
 
@@ -114,10 +114,10 @@ def test_locale_triggers_come_from_the_registry():
 
 
 def test_trigger_query_locale_is_a_language_tag(tmp_path):
-    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, locale: Vietnamese}\n")
+    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hi, trigger: true, locale: Vietnamese}\n", encoding="utf-8")
     with pytest.raises(ValueError):
         evals.load_trigger_sets(tmp_path)
-    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hola, trigger: true, locale: es}\n")
+    (tmp_path / "s.yaml").write_text("skill: x\nqueries:\n  - {q: hola, trigger: true, locale: es}\n", encoding="utf-8")
     assert evals.load_trigger_sets(tmp_path)["x"][0]["locale"] == "es"
 
 
