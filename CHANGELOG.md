@@ -16,6 +16,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The README shows the held-out benchmark as a chart (light and dark), drawn by `scripts/render_assets.py` from the benchmark itself, so CI keeps it current.
 - `open-skill audit` flags `remote-exec` (medium): a download piped straight into a shell or interpreter (`curl ... | sh`, `bash <(curl ...)`, `iwr ... | iex`), which runs code nobody read.
 - `open-skill audit` flags `encoded-exec` (high): text decoded and run as a command (`base64 -d | sh`, `eval "$(echo ... | base64 -d)"`, `exec(b64decode(...))`, `powershell -enc`), a way to hide a payload from a reviewer.
+- `open-skill audit` flags `exfil-endpoint` (high): request-collection and paste services, Discord webhooks and the Telegram bot API, where stolen data is usually sent.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.

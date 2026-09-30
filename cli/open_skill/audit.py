@@ -168,6 +168,15 @@ rule("encoded-exec", "high",
      "decodes text and runs it as a command; the encoding hides what runs from a reviewer", ATTACK_OBFUSCATION)
 
 
+ATTACK_EXFIL_WEB = "https://attack.mitre.org/techniques/T1567/"
+rule("exfil-endpoint", "high",
+     r"\b(webhook\.site|requestbin\.(com|net)|[\w-]+\.m\.pipedream\.net|interact\.sh|oast\.(fun|pro|live|site|online|me)"
+     r"|burpcollaborator\.net|oastify\.com|canarytokens\.com|pastebin\.com/api|transfer\.sh|ptpb\.pw)\b"
+     r"|\bdiscord(app)?\.com/api/webhooks/|\bapi\.telegram\.org/bot",
+     "names a request-collection or paste service, a webhook or a chat bot API that attackers use to receive stolen data",
+     ATTACK_EXFIL_WEB)
+
+
 # Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
 # byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
 # scripts use them; add them if hidden payloads start using those.

