@@ -6,6 +6,8 @@
 
 [Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
 
+<img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain cho data engineer thêm pipeline vào warehouse trả về một chuỗi có thứ tự và có giải thích: writing-plans, subagent-driven-development, explore-data, code-review, kèm điểm, ứng viên xếp sau và lệnh cài cho từng skill còn thiếu" width="790">
+
 ## Vì sao cần
 
 Agent lập trình ngày nay nạp skill từ rất nhiều dự án độc lập. Một máy thường có hơn 100 skill trùng chức năng: ba quy trình build, vài kiểu review, hai kiểu brainstorm. Có hai thực tế gây khó:
@@ -137,8 +139,6 @@ phase window: plan → build → verify → review (medium build task: starts at
 
 Khi không có từ khoá phase nào khớp, dòng phase ghi `phase: build (guessed, no signal)` và JSON có `"phase_from": "guessed"`. Agent đã đọc cuộc hội thoại nên tự truyền `--phase` (và `--size`); dò từ khoá chỉ là phương án dự phòng.
 
-<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route “add an endpoint that exports invoices as CSV” --role backend-developer --explain, cho thấy phase đích, dải phase và từng bước kèm điểm cùng các ứng viên xếp sau" width="790">
-
 **Sao không chọn skill kia?** `--why-not` nhận id hoặc tên gọi của skill và nêu lý do: chưa cài (kèm lệnh cài), sai phase hoặc sai cỡ việc, project chưa đủ điều kiện, xung đột với skill đã chọn, điểm dưới ngưỡng hoặc thua skill thắng (hiện cả hai điểm), bị cắt vì giới hạn số bước của model, hoặc việc đủ nhỏ để làm thẳng.
 
 ```text
@@ -170,6 +170,11 @@ $ open-skill search --role data-engineer --phase verify --installed
 ## Nhiều session song song
 
 Nhiều session agent có thể cùng làm trên một project và dùng chung một code graph [Graphify](https://github.com/Graphify-Labs/graphify). Mỗi session khai báo các đường dẫn mình phụ trách. Sau khi sửa, `session update` cập nhật graph (Graphify tự khoá và ghi lại, khoảng 2.4 s trên repo này) rồi liệt kê các file cách những gì đã đổi từ lúc session bắt đầu, đã commit hay chưa, trong vòng hai bước theo lời gọi, tham chiếu hoặc import. Nếu một file trong đó thuộc phạm vi của session khác thì lệnh cảnh báo. Lệnh không bao giờ chặn và không bao giờ báo lỗi vì đụng độ.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/sessions-dark.svg">
+  <img src=".github/assets/sessions.svg" alt="Nhiều session song song: các session khai báo phạm vi, dùng chung một working tree và một graph Graphify; session update cập nhật graph, lấy các file đổi từ lúc session bắt đầu, tách riêng việc của session khác, duyệt ngược hai bước theo lời gọi, tham chiếu và import, rồi báo đụng độ, việc của session khác và các file bị ảnh hưởng" width="960">
+</picture>
 
 ```bash
 uv tool install graphifyy && graphify extract . --code-only    # once per project
@@ -206,7 +211,7 @@ Mỗi role pack ghi rủi ro đặc thù của vai trò, các nguyên tắc (dù
 
 Cùng một kiểu yêu cầu nhưng khác vai trò thì ra chuỗi khác:
 
-<img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain cho data engineer thêm pipeline vào warehouse, từ plan tới review bằng các skill dữ liệu" width="790">
+<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route --explain cho backend developer thêm endpoint xuất CSV, lập kế hoạch và build bằng các skill backend" width="790">
 <img src=".github/assets/route-sre.svg" alt="Terminal: open-skill route --explain cho site reliability engineer khi request checkout bị timeout, bắt đầu bằng debug" width="790">
 
 ## Các framework được tích hợp

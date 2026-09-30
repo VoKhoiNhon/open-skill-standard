@@ -6,6 +6,8 @@
 
 [Specification](spec/SPEC.md) · [Contributing](CONTRIBUTING.md)
 
+<img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain for a data engineer adding a warehouse pipeline returns an ordered, explained chain: writing-plans, subagent-driven-development, explore-data, code-review, with scores, runner-ups and the install command for each missing skill" width="790">
+
 ## Why
 
 Coding agents now load skills from many independent projects. A typical setup has 100+ skills that overlap: three build workflows, several reviewers, two kinds of brainstorming. Two facts make that hard:
@@ -126,8 +128,6 @@ phase window: plan → build → verify → review (medium build task: starts at
 
 When no phase keyword matches, the phase line reads `phase: build (guessed, no signal)` and the JSON has `"phase_from": "guessed"`. An agent that has read the conversation should pass `--phase` (and `--size`) itself; keyword detection is the fallback.
 
-<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route “add an endpoint that exports invoices as CSV” --role backend-developer --explain, showing the target phase, the phase window and each step with its score and runner-ups" width="790">
-
 **Why not that skill?** `--why-not` takes a skill id or invoke name and names the reason: not installed (with the install command), wrong phase or size, a requirement the project does not meet, a conflict with a chosen skill, a score below the minimum or below the winner's (both scores), the model's step limit, or a task small enough to do directly.
 
 ```text
@@ -159,6 +159,11 @@ $ open-skill search --role data-engineer --phase verify --installed
 ## Parallel sessions
 
 Several agent sessions can work on one project at once and share one [Graphify](https://github.com/Graphify-Labs/graphify) code graph. Each session declares the paths it works on. After an edit, `session update` refreshes the graph (Graphify locks and rewrites it, about 2.4 s on this repository) and lists the files within two steps of calls, references or imports of what changed since the session started, committed or not. It warns when one of them lies in another session's scope. It never blocks and never fails because of a conflict.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/sessions-dark.svg">
+  <img src=".github/assets/sessions.svg" alt="Parallel sessions: sessions declare scopes and share one working tree and one Graphify graph; session update refreshes the graph, takes the files changed since the session started, sets aside other sessions' own edits, walks two hops back over calls, references and imports, and reports conflicts, others and affected files" width="960">
+</picture>
 
 ```bash
 uv tool install graphifyy && graphify extract . --code-only    # once per project
@@ -195,7 +200,7 @@ Each role pack states the role's characteristic risk, its principles, the projec
 
 The same kind of request routes differently by role:
 
-<img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain for a data engineer adding a warehouse pipeline, plan to review with data skills" width="790">
+<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route --explain for a backend developer adding a CSV export endpoint, planned and built with backend skills" width="790">
 <img src=".github/assets/route-sre.svg" alt="Terminal: open-skill route --explain for a site reliability engineer whose checkout requests time out, starting with debugging" width="790">
 
 ## Integrated frameworks
