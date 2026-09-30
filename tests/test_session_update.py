@@ -120,7 +120,7 @@ def test_update_json_shape(graph_project, fake_graphify, two_sessions, capsys):
     code, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")
     r = json.loads(out)
     assert code == 0
-    assert set(r) == {"session", "graph", "base", "changed", "git", "affected", "conflicts", "warnings"}
+    assert set(r) == {"session", "graph", "base", "changed", "git", "affected", "conflicts", "others", "warnings"}
     assert r["session"] == a and r["git"] is True and r["changed"] == ["pkg/route.py"]
     assert r["graph"] == {"refreshed": True, "nodes": 13, "edges": 11}
     assert "tests/test_route.py" in r["affected"]
@@ -139,11 +139,39 @@ def test_update_after_committing_still_sees_the_change(graph_project, fake_graph
     assert any(c["session"] == b and c["file"] == "tests/test_route.py" for c in r["conflicts"])
 
 
-def test_changed_file_in_another_scope_is_a_conflict_via_itself(graph_project, fake_graphify, two_sessions, capsys):
+def test_another_sessions_own_change_is_its_work_not_a_conflict(graph_project, fake_graphify, two_sessions, capsys):
+    a, b = two_sessions
+    (graph_project / "tests" / "test_cli.py").write_text("x\n")  # inside B's scope only: B's work (N1, option b)
+    code, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")
+    r = json.loads(out)
+    assert code == 0 and r["conflicts"] == [] and r["changed"] == ["tests/test_cli.py"]
+    assert r["others"] == [{"file": "tests/test_cli.py", "session": b, "task": "add fixtures for route tests"}]
+    assert r["affected"] == []  # another session's change is not walked for this session
+
+
+def test_others_are_listed_in_text_output(graph_project, fake_graphify, two_sessions, capsys):
     a, b = two_sessions
     (graph_project / "tests" / "test_cli.py").write_text("x\n")
-    _, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")
-    r = json.loads(out)
+    _, out, _ = _run(capsys, "update", "--session", a, "--project", str(graph_project))
+    assert f'· tests/test_cli.py changed in session {b} ("add fixtures for route tests"); counted as its work' in out
+    assert "⚠" not in out
+
+
+def test_own_edit_inside_another_scope_is_still_a_conflict(graph_project, fake_graphify, capsys):
+    a = sessions.start(graph_project, ["pkg/**", "tests/test_cli.py"], "mine")["id"]
+    b = sessions.start(graph_project, ["tests/**"], "theirs")["id"]
+    (graph_project / "tests" / "test_cli.py").write_text("x\n")  # in both scopes: A may edit it, B must hear
+    r = json.loads(_run(capsys, "update", "--session", a, "--project", str(graph_project), "--json")[1])
+    assert r["others"] == []
+    assert {"file": "tests/test_cli.py", "session": b, "task": "theirs", "via": "tests/test_cli.py"} in r["conflicts"]
+
+
+def test_without_a_session_every_changed_file_in_a_scope_is_a_conflict(graph_project, fake_graphify, two_sessions,
+                                                                       capsys):
+    _, b = two_sessions
+    (graph_project / "tests" / "test_cli.py").write_text("x\n")
+    r = json.loads(_run(capsys, "update", "--project", str(graph_project), "--json")[1])
+    assert r["others"] == []
     assert {"file": "tests/test_cli.py", "session": b, "task": "add fixtures for route tests",
             "via": "tests/test_cli.py"} in r["conflicts"]
 

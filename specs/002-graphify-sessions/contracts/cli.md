@@ -49,7 +49,7 @@ Steps and what the user sees:
    - No `graphify-out/graph.json` → exit 2, stderr: `open-skill: no graph yet; build it once with: graphify extract . --code-only`.
 2. **Refresh.** Runs `graphify update .` in the project root and waits on Graphify's own lock (R2). If it exits non-zero, open-skill passes Graphify's stderr through, adds `hint: if code was deleted on purpose, rerun: graphify update . --force`, and exits 1.
 3. **Changes.** Reads the files that differ from the base commit (R6): the session's `base` with `--session`, else `HEAD`. If the base commit is gone, it falls back to `HEAD` with the warning `session base <sha> is gone; compared with HEAD`. If git is unavailable, prints `note: not a git repository (or no commits); conflict check skipped` and exits 0 after reporting the refresh.
-4. **Impact.** Computes the files affected by the changes, including package imports resolved to modules (R5), and the conflicts with other active sessions (R7). The session given with `--session` is excluded from conflicts.
+4. **Impact.** Computes the files affected by the changes, including package imports resolved to modules (R5), and the conflicts with other active sessions (R7). The session given with `--session` is excluded from conflicts. With an active `--session`, a changed file that lies only in other sessions' scopes is listed under `others` as their work, and is neither walked nor a conflict.
 5. **Activity.** If `--session` is active, refreshes its `seen`. If the id is unknown or stale, adds the warning `session ID is unknown or stale; checked against all active sessions`.
 
 Text output:
@@ -63,6 +63,7 @@ affected: 4 files
   tests/test_route.py
   tests/test_why_not.py
 ⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
+· tests/fixtures/new.yaml changed in session b4c5d6 ("add fixtures for route tests"); counted as its work
 ```
 
 `--json` prints exactly one object with the fields of *Refresh result* in [data-model.md](../data-model.md), and nothing else on stdout.

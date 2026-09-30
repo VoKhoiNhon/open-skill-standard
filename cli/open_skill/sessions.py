@@ -309,7 +309,8 @@ def update(project, session_id=None, install_hint=INSTALL_FALLBACK, now=None) ->
     graph = load_graph(project)
     result = {"session": None, "graph": {"refreshed": True, "nodes": len(graph.get("nodes", [])),
                                          "edges": len(graph.get("links", []))},
-              "base": None, "changed": [], "git": False, "affected": [], "conflicts": [], "warnings": []}
+              "base": None, "changed": [], "git": False, "affected": [], "conflicts": [], "others": [],
+              "warnings": []}
     own = get(project, session_id) if session_id else None
     if session_id:
         if touch(project, session_id, now):
@@ -324,7 +325,25 @@ def update(project, session_id=None, install_hint=INSTALL_FALLBACK, now=None) ->
     result["warnings"] += warnings
     base = own["base"] if own and not warnings else None
     result.update(git=True, changed=changed, base=base or (_git(project, "rev-parse", "HEAD") or "").strip() or None)
-    reached = _reach(project, graph, changed)
+    mine, result["others"] = _split(project, changed, own if result["session"] else None, now)
+    reached = _reach(project, graph, mine)
     result["affected"] = sorted(reached)
-    result["conflicts"] = conflicts(project, {**reached, **{f: f for f in changed}}, exclude_id=result["session"], now=now)
+    result["conflicts"] = conflicts(project, {**reached, **{f: f for f in mine}}, exclude_id=result["session"], now=now)
     return result
+
+
+def _split(project, changed, own, now=None) -> tuple[list[str], list[dict]]:
+    """(this session's changes, other sessions' own work). Sessions share one working tree, so a changed file that
+    lies only in another session's scope is taken as that session's edit, not a conflict; without a session every
+    change is ours."""
+    if own is None:
+        return list(changed), []
+    others = [s for s in active(project, now) if s["id"] != own["id"]]
+    mine, theirs = [], []
+    for f in changed:
+        owners = [s for s in others if any(project_mod._match(f, g) for g in s["scope"])]
+        if owners and not any(project_mod._match(f, g) for g in own["scope"]):
+            theirs += [{"file": f, "session": s["id"], "task": s["task"]} for s in owners]
+        else:
+            mine.append(f)
+    return mine, theirs

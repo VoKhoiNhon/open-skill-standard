@@ -377,6 +377,8 @@ def cmd_session_update(args):
             print(f"  {f}")
         for c in r["conflicts"]:
             print(f"⚠ {c['file']} is in session {c['session']} (\"{c['task']}\"), reached from {c['via']}")
+        for o in r["others"]:
+            print(f'· {o["file"]} changed in session {o["session"]} ("{o["task"]}"); counted as its work')
         if not r["conflicts"]:
             print("no conflicts with other sessions")
     return 0

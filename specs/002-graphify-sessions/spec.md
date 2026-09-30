@@ -22,7 +22,7 @@ Measurements on this repository (93 code files, ~11k lines of Python, 2026-09-30
 
 ### User Story 1 - Refresh the shared graph and see who my change affects (Priority: P1)
 
-A developer finishes an edit in session A and runs one command. The shared project graph is brought up to date, and the command lists the files the change affects. It also warns about any affected file that lies inside another active session's declared scope, naming that session and its task.
+A developer finishes an edit in session A and runs one command. The shared project graph is brought up to date, and the command lists the files the change affects. It also warns about any affected file that lies inside another active session's declared scope, naming that session and its task. With a named session, changed files that lie only in other sessions' scopes are reported as those sessions' work instead of as conflicts.
 
 **Why this priority**: This is the core value: parallel sessions learn about collisions from the graph while they still can act, instead of at merge time.
 
@@ -78,7 +78,7 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - Graphify refuses to replace the graph with a smaller one (after a large deletion): its message is passed on with the hint to rerun with force; open-skill never forces on its own.
 - The project is not a git repository: the graph is refreshed, the change-and-conflict step is skipped, and one line explains why.
 - The session's start commit no longer exists (history rewritten and cleaned up): changes are compared with the current commit instead, with a warning naming the missing commit.
-- Other sessions share the working tree, so their edits since the start commit also count as changes: the check over-reports rather than misses.
+- Other sessions share the working tree, so their edits since the start commit also show up in the diff. A changed file that lies only in another session's scope is counted as that session's work: it is listed, not walked and not a conflict. An edit this session makes inside another session's scope is caught when the file is in both scopes (declared overlap, already warned at start); outside its own scope it cannot be told apart from the other session's work.
 - A session record is corrupt or unreadable: it is ignored everywhere and removed by `--prune`.
 - The session id given to `session update` does not exist or is stale: the refresh still runs, conflicts are computed against all active sessions, and a warning names the unknown id.
 - A scope glob matches no file: the session is still created, with a warning.

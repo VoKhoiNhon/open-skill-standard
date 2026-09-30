@@ -66,7 +66,11 @@ All findings were checked on 2026-09-30 against Graphify 0.9.72 (`uv tool instal
   - When `base` is no longer a valid commit (`git cat-file -e <base>^{commit}` fails, for example after a history rewrite and gc), fall back to `HEAD` and add the warning `session base <sha> is gone; compared with HEAD`.
   - If git fails entirely (not a repository, no commits), skip the change and conflict step, print one line and exit 0.
 - **Rationale**: diffing only against `HEAD` misses every change a session has already committed. Committing before refreshing is common, and Graphify's own git hooks even rebuild on commit, so such a session would report nothing and conflicts would be missed. A base recorded at start covers the whole life of the session with one extra field.
-- **Known limit**: sessions share one working tree, so the diff also contains edits other sessions made after `base`, whether committed or not. This is the same situation as before for uncommitted edits. It over-reports, which is the safe direction for a warning-only check.
+- **Attribution (N1, option b, chosen 2026-09-30)**: sessions share one working tree, so the diff also contains edits other sessions made after `base`, committed or not. Reporting all of them as conflicts turns every edit another session makes in its own scope into a warning for this session (`via` the file itself), so warnings would fire on routine parallel work and get ignored. With an active `--session`:
+  - a changed file that matches another active session's scope and **not** this session's scope is taken as that session's work. It goes to `others`, is not walked, and is not a conflict;
+  - every other changed file, whether in this session's scope or in no session's scope, is this session's change.
+  - Without `--session` nothing can be attributed, so every change counts.
+  - Cost: an edit this session makes outside its own scope, inside another session's scope, looks like that session's work and is not flagged. The start-time overlap warning covers declared overlap, and a file in both scopes is still a conflict.
 - **Alternatives considered**:
   - `HEAD` only (misses committed work, finding U1).
   - `git merge-base HEAD <default branch>` (needs to know the default branch and differs per remote).

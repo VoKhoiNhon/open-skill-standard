@@ -65,6 +65,7 @@ Returned by `session update`, printed as text or with `--json` (see [contracts/c
 | `git` | bool | whether changed files could be determined |
 | `affected` | list of paths | files reached within 2 reverse hops, excluding `changed` (R5) |
 | `conflicts` | list of objects | `{"file", "session", "task", "via"}`: an affected (or changed) file inside another active session's scope, and the changed file that reaches it |
+| `others` | list of objects | `{"file", "session", "task"}`: with an active `--session`, a changed file that lies only in other sessions' scopes (not in this one's), taken as their work: not walked and not a conflict (N1, option b) |
 | `warnings` | list of strings | unknown or stale session id, and similar |
 
-A changed file that lies inside another session's scope is also a conflict, with `via` equal to the file itself.
+A changed file of this session (in its own scope, or in no session's scope) that also lies inside another session's scope is a conflict, with `via` equal to the file itself. Without `--session`, every changed file counts as this run's change.

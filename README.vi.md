@@ -173,7 +173,7 @@ affected: 14 files
 ⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
 ```
 
-Graphify nối `from pkg import mod` tới package chứ không tới `mod.py`, và không nhận `mod.fn()` là một lời gọi hàm; `session update` tự nối các import qua package, nên test có import module vẫn được tìm thấy. Với câu hỏi ở mức lời gọi hàm (ai gọi, ảnh hưởng) thì vẫn dùng codegraph. Bản ghi session nằm trong `.open-skill/sessions/` của project, thư mục này tự bỏ qua trong git. `--json` trả danh sách file đổi, bị ảnh hưởng và đụng độ cho agent dùng tiếp.
+Graphify nối `from pkg import mod` tới package chứ không tới `mod.py`, và không nhận `mod.fn()` là một lời gọi hàm; `session update` tự nối các import qua package, nên test có import module vẫn được tìm thấy. Khi có `--session`, file đã đổi chỉ nằm trong phạm vi của session khác được tính là việc của session đó (liệt kê với `·`), vì các session dùng chung một working tree. Với câu hỏi ở mức lời gọi hàm (ai gọi, ảnh hưởng) thì vẫn dùng codegraph. Bản ghi session nằm trong `.open-skill/sessions/` của project, thư mục này tự bỏ qua trong git. `--json` trả danh sách file đổi, bị ảnh hưởng và đụng độ cho agent dùng tiếp.
 
 ## 28 vai trò
 

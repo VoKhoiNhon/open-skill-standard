@@ -162,7 +162,7 @@ affected: 14 files
 ⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
 ```
 
-Graphify links `from pkg import mod` to the package, not to `mod.py`, and does not resolve `mod.fn()` as a call; `session update` resolves package imports itself, so a test that imports the module is still found. For call-level questions (callers, impact) keep codegraph. Session records live in `.open-skill/sessions/` inside the project, which ignores itself in git. `--json` gives the changed, affected and conflicting files to an agent.
+Graphify links `from pkg import mod` to the package, not to `mod.py`, and does not resolve `mod.fn()` as a call; `session update` resolves package imports itself, so a test that imports the module is still found. With `--session`, a changed file that lies only in another session's scope is counted as that session's work (listed with `·`), since sessions share one working tree. For call-level questions (callers, impact) keep codegraph. Session records live in `.open-skill/sessions/` inside the project, which ignores itself in git. `--json` gives the changed, affected and conflicting files to an agent.
 
 ## Roles
 
