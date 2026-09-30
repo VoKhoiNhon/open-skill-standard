@@ -15,6 +15,29 @@ def _no_agent_relocation(monkeypatch):
         monkeypatch.delenv(var, raising=False)
 
 
+@pytest.fixture(autouse=True, scope="session")
+def _home_is_the_fixture_home():
+    """Tests point HOME at a fixture home. On Windows `~` expands to USERPROFILE, so `~` would reach the real home
+    folder and its installed skills; expand it to HOME there too, as POSIX does. Session-wide, because module
+    fixtures scan before function fixtures run."""
+    if os.name != "nt":
+        yield
+        return
+    import ntpath
+    real = ntpath.expanduser
+
+    def expanduser(path):
+        p, home = os.fspath(path), os.environ.get("HOME")
+        if home and isinstance(p, str) and (p == "~" or p.startswith(("~/", "~\\"))):
+            return home + p[1:]
+        return real(path)
+
+    mp = pytest.MonkeyPatch()
+    mp.setattr(ntpath, "expanduser", expanduser)
+    yield
+    mp.undo()
+
+
 GRAPHIFY_FIXTURE = Path(__file__).parent / "fixtures" / "graphify" / "graph.json"
 # Source files the fixture graph names; the import lines match its source_location values.
 GRAPH_SOURCES = {
