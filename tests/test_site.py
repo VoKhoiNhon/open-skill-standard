@@ -26,7 +26,9 @@ def test_every_image_exists_and_every_img_tag_is_well_formed_with_alt_and_size()
             assert (REPO / ".github" / "assets" / name).is_file(), f"{page}: missing asset {name}"
         for tag in re.findall(r"<img [^>]*>", html):
             assert re.fullmatch(r'<img(?: [a-z-]+="[^"]*")+>', tag), f"{page}: malformed {tag[:80]}"
-            assert re.search(r'alt="[^"]+"', tag) and 'width="' in tag and 'height="' in tag, tag[:80]
+            assert 'alt="' in tag and 'width="' in tag and 'height="' in tag, tag[:80]
+            # Only the logo beside the brand name is decorative (alt=""); every other image says what it shows.
+            assert re.search(r'alt="[^"]+"', tag) or re.search(r'src="[^"]*assets/logo\.svg"', tag), tag[:80]
 
 
 def test_local_links_resolve_in_the_built_site():
@@ -53,6 +55,13 @@ def test_build_writes_pages_assets_and_a_graph_without_the_builders_installs(tmp
     assert (out / "assets" / "sessions.svg").is_file()
     graph = (out / "graph.html").read_text(encoding="utf-8")
     assert '"installed": true' not in graph and '"installed":true' not in graph
+    sys.path.insert(0, str(REPO / "scripts"))
+    from build_site import counts
+    for page in (out / "index.html", out / "vi" / "index.html"):
+        html = page.read_text(encoding="utf-8")
+        assert "%%" not in html, f"{page}: placeholder left"
+        shown = [int(n) for n in re.findall(r"<b data-count>(\d+)</b>", html)]
+        assert shown == [counts()[k] for k in ("roles", "skills", "adapters", "phases", "agents")]
 
 
 def test_the_site_version_pin_is_checked_with_every_other_one():
@@ -61,3 +70,10 @@ def test_the_site_version_pin_is_checked_with_every_other_one():
     found = versions(REPO)
     pins = [k for k in found if k.startswith("site/")]
     assert pins and len(set(found.values())) == 1
+
+
+def test_build_with_a_relative_out_dir_still_writes_the_graph(tmp_path):
+    # CI runs `build_site.py _site`; the graph step runs in a temporary home, so the path must not stay relative.
+    subprocess.run([sys.executable, str(REPO / "scripts" / "build_site.py"), "_site"], cwd=tmp_path, check=True,
+                   capture_output=True, text=True)
+    assert (tmp_path / "_site" / "graph.html").is_file()

@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo-dark.svg">
+  <img src=".github/assets/logo.svg" alt="Open Skill Standard logo: a skill graph with one ordered route through it" width="72" height="72">
+</picture>
+
 # Open Skill Standard
 
 **One router, one skill graph, 28 IT roles.** An open, agent-agnostic standard for choosing the right Agent Skills for a task, and a reference implementation that ties together superpowers, BMad Method, spec-kit, codegraph, Anthropic's skills and more, without copying any of them.

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Open Skill Standard logo: a skill graph with one ordered route through it">
+<circle cx="50" cy="14" r="3.5" fill="#313b46"/><circle cx="14" cy="32" r="3.5" fill="#313b46"/><circle cx="14" cy="50" r="3.5" fill="#313b46"/><circle cx="32" cy="50" r="3.5" fill="#313b46"/>
+<path d="M14 14H32V32H50V50" fill="none" stroke="#4493f8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="14" cy="14" r="7" fill="#e8eef4"/><circle cx="32" cy="32" r="7" fill="#e8eef4"/><circle cx="50" cy="50" r="7" fill="#e8eef4"/>
+</svg>
