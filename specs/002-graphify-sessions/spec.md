@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "Graphify-backed parallel session management for open-skill (approach A: one shared graph + per-session scopes). Add a graphify adapter alongside codegraph; sessions with scope and task; `open-skill graph update` refreshes the shared graph and warns (never blocks) when a change affects another active session's scope. Out of scope: sharded extraction, daemon/lock server, web UI, automatic scope claiming."
+**Input**: User description: "Graphify-backed parallel session management for open-skill (approach A: one shared graph + per-session scopes). Add a graphify adapter alongside codegraph; sessions with scope and task; `open-skill session update` refreshes the shared graph and warns (never blocks) when a change affects another active session's scope. Out of scope: sharded extraction, daemon/lock server, web UI, automatic scope claiming."
 
 ## Context
 
@@ -30,7 +30,7 @@ A developer finishes an edit in session A and runs one command. The shared proje
 
 **Acceptance Scenarios**:
 
-1. **Given** sessions A (scope `cli/open_skill/route.py`) and B (scope `tests/**`) are active and `route.py` changed, **When** the user runs `open-skill graph update --session A`, **Then** the graph is refreshed and the output warns that `tests/test_route.py` (session B, with its task) is affected.
+1. **Given** sessions A (scope `cli/open_skill/route.py`) and B (scope `tests/**`) are active and `route.py` changed, **When** the user runs `open-skill session update --session A`, **Then** the graph is refreshed and the output warns that `tests/test_route.py` (session B, with its task) is affected.
 2. **Given** a test file reaches the changed module only by importing it, **When** the refresh runs, **Then** that test file is still reported as affected.
 3. **Given** no other session's scope is affected, **When** the refresh runs, **Then** it reports the affected files and says there are no conflicts.
 4. **Given** `--json` is passed, **When** the refresh runs, **Then** the output is one JSON object listing changed files, affected files and conflicts, so an agent can act on it.
@@ -77,9 +77,9 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - Graphify refuses to replace the graph with a smaller one (after a large deletion): its message is passed on with the hint to rerun with force; open-skill never forces on its own.
 - The project is not a git repository: the graph is refreshed, the change-and-conflict step is skipped, and one line explains why.
 - A session record is corrupt or unreadable: it is ignored everywhere and removed by `--prune`.
-- The session id given to `graph update` does not exist or is stale: the refresh still runs, conflicts are computed against all active sessions, and a warning names the unknown id.
+- The session id given to `session update` does not exist or is stale: the refresh still runs, conflicts are computed against all active sessions, and a warning names the unknown id.
 - A scope glob matches no file: the session is still created, with a warning.
-- On Windows, where the file lock used today is unavailable, writes run without a lock, as the knowledge store already does; this limit is documented.
+- On Windows, where the file lock used today is unavailable, session-record writes run without a lock, as the knowledge store already does; this limit is documented. Graph refreshes stay serialized by Graphify's own lock on every platform.
 
 ## Requirements *(mandatory)*
 
@@ -92,7 +92,7 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - **FR-005**: Users MUST be able to list active sessions and end a session; listing with `--prune` MUST remove stale and unreadable records.
 - **FR-006**: A session with no activity for more than 6 hours MUST be treated as ended by every command.
 - **FR-007**: Starting a session whose scope overlaps an active session's scope MUST warn and MUST still create the session.
-- **FR-008**: `open-skill graph update` MUST refresh the project's Graphify graph incrementally, with only one refresh per project running at a time.
+- **FR-008**: `open-skill session update` MUST refresh the project's Graphify graph incrementally, with only one refresh per project running at a time.
 - **FR-009**: After refreshing, the command MUST determine the changed files (tracked changes plus untracked files) and the files affected by them within two steps of calls, references or imports in the graph.
 - **FR-010**: The command MUST warn, and never block or fail, when an affected file falls inside another active session's scope, naming that session and its task.
 - **FR-011**: The command MUST offer a machine-readable output with changed files, affected files and conflicts.
