@@ -33,8 +33,8 @@ def _expand(pattern: str, project: Path | None, agent: dict | None = None) -> st
     if "{project}" in pattern:
         if project is None:
             return None
-        pattern = pattern.replace("{project}", str(Path(project).resolve()))
-    return str(agents.expand(agent or {}, pattern)) if pattern.startswith("~") else pattern
+        pattern = pattern.replace("{project}", Path(project).resolve().as_posix())
+    return agents.expand(agent or {}, pattern).as_posix() if pattern.startswith("~") else pattern
 
 
 def _regex(pattern: str) -> re.Pattern:
@@ -76,7 +76,7 @@ def _targets(pattern: str, project: Path | None, reg, agent: str) -> list[tuple[
             dirs: dict[str, list[tuple[int, str]]] = {}
             for aid, a in reg.agents.items():
                 for rank, d in enumerate(agents.folders(a, scope, project)):
-                    dirs.setdefault(str(d), []).append((rank, aid))
+                    dirs.setdefault(d.as_posix(), []).append((rank, aid))
             return [(d + pattern[len(placeholder):], [aid for _, aid in sorted(ids)]) for d, ids in dirs.items()]
     pat = _expand(pattern, project, reg.agents.get(agent))
     return [(pat, [agent])] if pat else []
@@ -106,7 +106,7 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
             for pat, seen_by in _targets(rule["glob"], project, reg, rule.get("agent", DEFAULT_AGENT)):
                 rx = _regex(pat)
                 for path in _latest_versions(_glob(pat)):
-                    m = rx.match(str(path))
+                    m = rx.match(path.as_posix())  # patterns use /, as Windows paths do after as_posix
                     if not m:
                         continue
                     folder = m.group("name")
