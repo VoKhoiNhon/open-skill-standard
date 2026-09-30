@@ -24,13 +24,13 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 **Purpose**: test scaffolding that several stories use.
 
-- [ ] T001 [P] Create the fixture graph `tests/fixtures/graphify/graph.json` in networkx node-link form, with top-level keys `directed`, `multigraph`, `graph`, `nodes` and `links`. It needs:
+- [X] T001 [P] Create the fixture graph `tests/fixtures/graphify/graph.json` in networkx node-link form, with top-level keys `directed`, `multigraph`, `graph`, `nodes` and `links`. It needs:
   - one file node per file, each with `id` and `source_file`: `pkg_init` (`pkg/__init__.py`), `pkg_route` (`pkg/route.py`), `pkg_cli` (`pkg/cli.py`), `pkg_deep` (`pkg/deep.py`), `pkg_far` (`pkg/far.py`), `tests_test_route` (`tests/test_route.py`), `tests_test_cli` (`tests/test_cli.py`), plus an external node `Path` with `source_file: ""`;
   - symbol nodes: `route_fit` and `route_target_phase` in `pkg/route.py`; `cli_cmd_route` in `pkg/cli.py`, which `calls` `route_target_phase`; `deep_run` in `pkg/deep.py`, which `calls` `cli_cmd_route` (two hops from route); `far_x` in `pkg/far.py`, which `calls` `deep_run` (three hops, must NOT be reached);
   - the **real Graphify shape of a package import** (R5, finding C1): `tests_test_route` → `pkg_init` with `relation: "imports_from"`, `source_file: "tests/test_route.py"`, `source_location: "L3"`, and **no** link from any node of `tests/test_route.py` to `pkg/route.py`. The fixture's `tests/test_route.py` has `from pkg import (\n    route,\n)` at line 3, a parenthesized multi-line statement. Likewise `tests_test_cli` → `pkg_init` at `L1`, where `tests/test_cli.py` line 1 is `from pkg import cli as c`, so it reaches route only through `pkg/cli.py`;
   - `contains` links from each file node to its symbols. The walk must ignore them.
   The source files named here are created by `graph_project` (T002) with exactly these import lines.
-- [ ] T002 [P] Add a fake-Graphify helper to `tests/conftest.py`. The fixture `fake_graphify(tmp_path, monkeypatch, exit_code=0, stderr="")`:
+- [X] T002 [P] Add a fake-Graphify helper to `tests/conftest.py`. The fixture `fake_graphify(tmp_path, monkeypatch, exit_code=0, stderr="")`:
   - writes an executable `graphify` script into `tmp_path/bin`;
   - makes that script append its argv to `tmp_path/graphify-calls.log` and exit with `exit_code`, printing `stderr`;
   - prepends `tmp_path/bin` to `PATH`.
@@ -47,11 +47,11 @@ description: "Task list for parallel sessions on one shared Graphify graph"
 
 **⚠️ CRITICAL**: no user story work can begin until this phase is complete.
 
-- [ ] T003 Move `_locked()` from `cli/open_skill/knowledge.py:103-116` to `cli/open_skill/paths.py` as `locked(path: Path)`:
+- [X] T003 Move `_locked()` from `cli/open_skill/knowledge.py:103-116` to `cli/open_skill/paths.py` as `locked(path: Path)`:
   - it creates `path.parent` if missing and keeps the no-`fcntl` fallback and its `ponytail:` comment verbatim;
   - in `cli/open_skill/knowledge.py`, delete `_locked` and replace `with _locked():` with `with paths.locked(home() / ".lock"):`;
   - run `.venv/bin/pytest tests/test_knowledge.py -q`: it must stay green, including the concurrent-learn test (R3).
-- [ ] T004 Write failing tests in `tests/test_sessions.py` for the record store in `cli/open_skill/sessions.py`:
+- [X] T004 Write failing tests in `tests/test_sessions.py` for the record store in `cli/open_skill/sessions.py`:
   - **start**: `start(project, scope, task)` writes `<project>/.open-skill/sessions/<id>.json` with the fields `id`, `scope`, `task`, `started`, `seen` and `base`. `base` is "full commit sha from `git rev-parse HEAD` at `start`; `null` without git or before the first commit" (R6). `id` is "6 lowercase hex characters, equal to the file name without `.json`". It also writes `<project>/.open-skill/.gitignore` containing `*` (R10);
   - **scope validation**: a scope needs "at least one glob, relative to the project root, forward slashes, no `..` and not absolute". Otherwise raise `ValueError`;
   - **task validation**: task "1–200 characters; one line (newlines replaced by spaces)". An empty task raises `ValueError`; a longer one raises `ValueError`;
@@ -60,7 +60,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - **end**: `end(project, id)` deletes the record (stale ones too) and raises `KeyError` for an unknown id;
   - **prune**: `prune(project, now=...)` deletes stale and unreadable records, keeps active ones and returns the count;
   - **concurrency**: 8 processes calling `start` at once (via `multiprocessing`) leave 8 readable records (FR-014).
-- [ ] T005 Implement the record store in `cli/open_skill/sessions.py`:
+- [X] T005 Implement the record store in `cli/open_skill/sessions.py`:
   - `STALE = dt.timedelta(hours=6)`;
   - ids from `secrets.token_hex(3)`, retried on collision (R8);
   - UTC ISO-8601 timestamps ending in `Z`;

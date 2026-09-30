@@ -1,0 +1,152 @@
+{
+ "directed": true,
+ "multigraph": false,
+ "graph": {},
+ "nodes": [
+  {
+   "id": "pkg_init",
+   "label": "__init__.py",
+   "source_file": "pkg/__init__.py"
+  },
+  {
+   "id": "pkg_route",
+   "label": "route.py",
+   "source_file": "pkg/route.py"
+  },
+  {
+   "id": "route_fit",
+   "label": "fit()",
+   "source_file": "pkg/route.py"
+  },
+  {
+   "id": "route_target_phase",
+   "label": "target_phase()",
+   "source_file": "pkg/route.py"
+  },
+  {
+   "id": "pkg_cli",
+   "label": "cli.py",
+   "source_file": "pkg/cli.py"
+  },
+  {
+   "id": "cli_cmd_route",
+   "label": "cmd_route()",
+   "source_file": "pkg/cli.py"
+  },
+  {
+   "id": "pkg_deep",
+   "label": "deep.py",
+   "source_file": "pkg/deep.py"
+  },
+  {
+   "id": "deep_run",
+   "label": "run()",
+   "source_file": "pkg/deep.py"
+  },
+  {
+   "id": "pkg_far",
+   "label": "far.py",
+   "source_file": "pkg/far.py"
+  },
+  {
+   "id": "far_x",
+   "label": "x()",
+   "source_file": "pkg/far.py"
+  },
+  {
+   "id": "tests_test_route",
+   "label": "test_route.py",
+   "source_file": "tests/test_route.py"
+  },
+  {
+   "id": "tests_test_cli",
+   "label": "test_cli.py",
+   "source_file": "tests/test_cli.py"
+  },
+  {
+   "id": "Path",
+   "label": "Path",
+   "source_file": ""
+  }
+ ],
+ "links": [
+  {
+   "source": "pkg_route",
+   "target": "route_fit",
+   "relation": "contains",
+   "source_file": "pkg/route.py",
+   "source_location": "L1"
+  },
+  {
+   "source": "pkg_route",
+   "target": "route_target_phase",
+   "relation": "contains",
+   "source_file": "pkg/route.py",
+   "source_location": "L4"
+  },
+  {
+   "source": "pkg_cli",
+   "target": "cli_cmd_route",
+   "relation": "contains",
+   "source_file": "pkg/cli.py",
+   "source_location": "L3"
+  },
+  {
+   "source": "pkg_deep",
+   "target": "deep_run",
+   "relation": "contains",
+   "source_file": "pkg/deep.py",
+   "source_location": "L3"
+  },
+  {
+   "source": "pkg_far",
+   "target": "far_x",
+   "relation": "contains",
+   "source_file": "pkg/far.py",
+   "source_location": "L3"
+  },
+  {
+   "source": "cli_cmd_route",
+   "target": "route_target_phase",
+   "relation": "calls",
+   "source_file": "pkg/cli.py",
+   "source_location": "L4"
+  },
+  {
+   "source": "deep_run",
+   "target": "cli_cmd_route",
+   "relation": "calls",
+   "source_file": "pkg/deep.py",
+   "source_location": "L4"
+  },
+  {
+   "source": "far_x",
+   "target": "deep_run",
+   "relation": "calls",
+   "source_file": "pkg/far.py",
+   "source_location": "L4"
+  },
+  {
+   "source": "tests_test_route",
+   "target": "pkg_init",
+   "relation": "imports_from",
+   "source_file": "tests/test_route.py",
+   "source_location": "L3"
+  },
+  {
+   "source": "tests_test_cli",
+   "target": "pkg_init",
+   "relation": "imports_from",
+   "source_file": "tests/test_cli.py",
+   "source_location": "L1"
+  },
+  {
+   "source": "tests_test_route",
+   "target": "Path",
+   "relation": "imports",
+   "source_file": "tests/test_route.py",
+   "source_location": "L1"
+  }
+ ],
+ "hyperedges": []
+}
