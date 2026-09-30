@@ -1795,7 +1795,7 @@
     "build"
    ],
    "installed": false,
-   "description": "Execute a written plan inline with review checkpoints"
+   "description": "Execute a written plan in this session, then review the whole change once"
   },
   {
    "id": "superpowers/finishing-a-development-branch",
