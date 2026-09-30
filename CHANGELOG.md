@@ -15,6 +15,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `python -m open_skill.benchmark` scores the router against baselines and ablations with the same checks as `open-skill eval routing`, on the tuned and held-out cases: description match only (BM25 top-1 over the router's own index), a random skill in the router's phases (expected pass over 200 seeded draws), the router without phase detection and without role priors. It reports 95% Wilson intervals, wins and losses against description match with an exact McNemar test, and route latency; `--json` for machine output.
 - The README shows the held-out benchmark as a chart (light and dark), drawn by `scripts/render_assets.py` from the benchmark itself, so CI keeps it current.
 - `open-skill audit` flags `remote-exec` (medium): a download piped straight into a shell or interpreter (`curl ... | sh`, `bash <(curl ...)`, `iwr ... | iex`), which runs code nobody read.
+- `open-skill audit` flags `encoded-exec` (high): text decoded and run as a command (`base64 -d | sh`, `eval "$(echo ... | base64 -d)"`, `exec(b64decode(...))`, `powershell -enc`), a way to hide a payload from a reviewer.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.

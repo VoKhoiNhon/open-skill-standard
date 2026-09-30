@@ -158,6 +158,16 @@ rule("remote-exec", "medium",
      ATTACK_INGRESS)
 
 
+ATTACK_OBFUSCATION = "https://attack.mitre.org/techniques/T1027/"
+rule("encoded-exec", "high",
+     r"\bbase(32|64)\s+(-d|-D|--decode)\b[^\n]*\|\s*" + RUNNER
+     + r"|\beval\s*[\"'(]?\s*[\"']?\$\(\s*(echo|printf|base(32|64))\b"
+     r"|\bexec\s*\([^\n]*\b(b64decode|b32decode|decodebytes|fromhex|codecs\.decode)\b"
+     r"|\bFromBase64String\b[^\n]*\b(iex|Invoke-Expression)\b|\b(iex|Invoke-Expression)\b[^\n]*\bFromBase64String\b"
+     r"|\b(powershell|pwsh)(\.exe)?\b[^\n]*\s-(e|ec|enc|encodedcommand)\s+[A-Za-z0-9+/=]{16,}",
+     "decodes text and runs it as a command; the encoding hides what runs from a reviewer", ATTACK_OBFUSCATION)
+
+
 # Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
 # byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
 # scripts use them; add them if hidden payloads start using those.

@@ -551,3 +551,24 @@ def test_remote_exec_flags(text):
 ])
 def test_remote_exec_ignores_downloads_that_are_read_first(text):
     assert "remote-exec" not in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "echo ZWNobyBoaQ== | base64 -d | sh",
+    "base64 --decode payload.txt | bash",
+    'eval "$(echo ZWNobyBoaQ== | base64 -d)"',
+    "python3 -c \"import base64; exec(base64.b64decode('cHJpbnQoMSk='))\"",
+    "powershell -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoA",
+    "iex ([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($p)))",
+])
+def test_encoded_exec_flags(text):
+    assert "encoded-exec" in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "Decode the fixture with base64 -d fixture.b64 > fixture.bin",
+    'eval "$(ssh-agent -s)"',
+    "exec(compile(source, path, 'exec'))",
+])
+def test_encoded_exec_ignores_ordinary_decoding(text):
+    assert "encoded-exec" not in fired(text)
