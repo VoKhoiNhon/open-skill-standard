@@ -24,6 +24,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
 - The Windsurf target also reads `.agents/skills`, `~/.agents/skills` and Claude Code's skill folders, as Devin Desktop documents, so `scan` lists skills there as seen by Windsurf.
+- The Codex target also reads `/etc/codex/skills`, the folder for skills an administrator installs for every user.
 
 ### Fixed
 - On Windows, `learn` and `session` writes now hold the same lock as on Linux and macOS (`msvcrt` byte lock), so two processes updating one note or one session folder no longer overwrite each other.
