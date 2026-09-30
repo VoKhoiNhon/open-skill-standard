@@ -31,6 +31,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - On Windows the CLI no longer crashes at start with `UnicodeDecodeError`: every file it reads or writes (taxonomy, registry, evals, notes, generated files) is opened as UTF-8 instead of the locale code page.
 - Output piped on Windows (cp1252) no longer fails with `UnicodeEncodeError` on Vietnamese text or arrows: stdout and stderr are switched to UTF-8.
 - `open-skill audit`'s `hidden-comment` rule no longer takes seconds on a line of repeated `<!--` openers (about 10 s for 200 KB): a comment is read up to the next opener.
+- `open-skill build` writes generated files (playbooks, schemas, `dist/`) with LF line endings on Windows too; it wrote CRLF there, rewriting every generated file.
 
 ## [0.7.2] - 2026-09-29
 
