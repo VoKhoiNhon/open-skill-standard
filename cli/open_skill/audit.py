@@ -227,7 +227,7 @@ rule("hidden-unicode", "high", HIDDEN + r"|(?<!^)\ufeff",
 # Markdown hides HTML comments when rendered, so a reviewer reading the page never sees them; the agent does.
 # Keywords must stand alone: <!-- prettier-ignore --> and <!-- simplify-ignore-start --> are tool directives.
 rule("hidden-comment", "medium",
-     r"<!--(?:(?!-->).){0,2000}?(?<![\w-])(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
+     r"<!--(?:(?!-->|<!--).){0,2000}?(?<![\w-])(ignore|disregard|exfiltrat\w*|(do not|don't|without)\s+tell\w*|(ai|llm)\s+(agents?|assistants?|models?)"
      r"|assistant|you\s+(are|must|should)|curl|wget|base64)(?![\w-])",
      "an HTML comment, invisible once rendered, speaks to the agent or carries a command", OWASP_LLM01, whole=True,
      only=r"\.(md|mdx|markdown|html?)$")

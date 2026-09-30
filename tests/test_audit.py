@@ -645,7 +645,7 @@ def test_hardcoded_secret_ignores_placeholders(text):
 
 
 @pytest.mark.parametrize("unit", ["curl a ", "iex (curl ", "FromBase64String ", "exec(", "sk-ant-api03-", "abc-",
-                                  "base64 -d ", "eval $(echo ", "powershell ", "| ", "x"])
+                                  "base64 -d ", "eval $(echo ", "powershell ", "| ", "<!-- ", "x"])
 def test_a_long_line_is_audited_in_linear_time(unit):
     # A skill must not be able to stall its own audit: a rule that rescans the rest of the line from every start
     # took minutes on 200 KB. 60 KB keeps the test fast; a quadratic rule still takes several seconds on it.
