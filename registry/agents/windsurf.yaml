@@ -5,12 +5,10 @@ global:
   - {path: "~/.codeium/windsurf/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
   - {path: "~/.config/devin/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
   - {path: "~/.agents/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
-  - {path: "~/.claude/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
 project:
   - {path: ".windsurf/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
   - {path: ".devin/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
   - {path: ".agents/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
-  - {path: ".claude/skills", source: "https://docs.devin.ai/desktop/cascade/skills"}
 detect:
   - {path: "~/.codeium/windsurf", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L734"}
-notes: Invoked as @skill-name. The Windsurf docs now live under Devin Desktop, which prefers .devin/skills and still reads .windsurf/skills. It also reads .agents/skills, and Claude Code's folders when reading Claude Code config is turned on.
+notes: Invoked as @skill-name. The Windsurf docs now live under Devin Desktop, which prefers .devin/skills and still reads .windsurf/skills. It also reads .agents/skills, and Claude Code's skill folders only when reading Claude Code config is turned on, so scan does not count those for Windsurf.

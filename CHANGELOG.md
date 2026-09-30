@@ -26,7 +26,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
-- The Windsurf target also reads `.agents/skills`, `~/.agents/skills` and Claude Code's skill folders, as Devin Desktop documents, so `scan` lists skills there as seen by Windsurf.
+- The Windsurf target also reads `.agents/skills` and `~/.agents/skills`, as Devin Desktop documents, so `scan` lists skills there as seen by Windsurf. Claude Code's folders are left out: Windsurf reads them only when reading Claude Code config is turned on.
 - The Codex target also reads `/etc/codex/skills`, the folder for skills an administrator installs for every user.
 - The `spec-kit` adapter is tested with 1.0.13 and describes the bundled `github` extension (`specify extension add github`): `github-taskstoissues` is the replacement for `taskstoissues`, which is leaving core; each lists the other as an alternative. Held-out routing is unchanged (35/52).
 - The `superpowers` adapter is tested with 6.4.2 (no skill added, renamed or removed since 5.1.0); `executing-plans` now runs the whole plan in the session and reviews it once at the end, and its description says so.
