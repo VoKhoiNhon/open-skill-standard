@@ -114,6 +114,11 @@ rule("marketplace-name", "error", "the marketplace name uses only ASCII letters,
      "letter or digit and has no '..'; Claude Code cannot install plugins from any other name", MARKETPLACE_REF + "#top-level-fields")
 rule("marketplace-reserved", "warning", "the marketplace name is not reserved for, and does not look like, an official "
      "Anthropic marketplace", MARKETPLACE_REF + "#reserved-names")
+rule("marketplace-desktop", "warning", "marketplace and plugin names are at most 128 characters, and the marketplace is "
+     "not named org, org-provisioned or unknown, which Claude Desktop rejects", MARKETPLACE_REF + "#validation-messages")
+rule("marketplace-description", "warning", "marketplace.json has a `description` (or `metadata.description`)",
+     MARKETPLACE_REF + "#top-level-fields")
+rule("marketplace-empty", "warning", "marketplace.json lists at least one plugin", MARKETPLACE_REF + "#validation-messages")
 rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
      PLUGIN_DOCS + "#name")
 rule("plugin-name-style", "warning", "plugin.json `name` is kebab-case, as Claude Code recommends", PLUGIN_DOCS + "#name")
@@ -328,6 +333,9 @@ def lint_marketplace(path: Path) -> list[Finding]:
         if isinstance(pname, str) and not PLUGIN_ID.match(pname):
             add("marketplace-plugin", f"plugins[{i}].name {pname!r} may use only ASCII letters, digits, '.', '_' and '-', "
                                       "starting with a letter or digit")
+        if isinstance(pname, str) and len(pname) > DESKTOP_MAX:
+            add("marketplace-desktop", f"plugins[{i}].name is {len(pname)} characters; Claude Desktop drops entries over "
+                                       f"{DESKTOP_MAX}")
         if isinstance(pname, str) and pname in seen:
             add("marketplace-plugin", f"duplicate plugin name '{pname}'")
         seen.add(pname if isinstance(pname, str) else None)
@@ -341,12 +349,23 @@ def lint_marketplace(path: Path) -> list[Finding]:
         add("marketplace-name", f"marketplace name {name!r} may use only ASCII letters, digits, '.', '_' and '-', "
                                 "starting with a letter or digit and without '..' (a non-ASCII name counts as "
                                 "impersonating an official marketplace)")
+    elif name in DESKTOP_RESERVED or len(name) > DESKTOP_MAX:
+        add("marketplace-desktop", f"Claude Desktop rejects the marketplace name '{name[:40]}': reserved there, or over "
+                                   f"{DESKTOP_MAX} characters")
     elif isinstance(name, str) and _reserved(name):
         add("marketplace-reserved", f"marketplace name '{name}' is reserved for or looks like an official Anthropic "
                                     "marketplace; adding it fails unless it is hosted under github.com/anthropics")
+    meta = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
+    if not (isinstance(doc.get("description"), str) and doc["description"].strip()
+            or isinstance(meta.get("description"), str) and meta["description"].strip()):
+        add("marketplace-description", "add a description so people know what the marketplace offers")
+    if doc.get("plugins") == []:
+        add("marketplace-empty", "the marketplace lists no plugins")
     return out
 
 
+DESKTOP_MAX = 128
+DESKTOP_RESERVED = {"org", "org-provisioned", "unknown"}
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 
 

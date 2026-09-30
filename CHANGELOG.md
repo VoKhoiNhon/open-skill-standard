@@ -20,6 +20,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill audit` flags `hardcoded-secret` (high): API tokens in their issuers' published shapes (Anthropic, OpenAI, GitHub, AWS, Slack, Google, Stripe, npm, GitLab) and private key headers at the start of a line; AWS's documented example key and placeholder bodies (`xxxxxxxx`, `00000000`, `YOUR...`) are ignored.
 - The audit's `hidden-unicode` rule also catches Hangul fillers and runs of variation selectors, which can carry a hidden payload one byte per character; a single selector (emoji, CJK glyph variants) is fine. Excerpts escape these characters and the soft hyphen too; Python counts some of them as printable, so they used to be shown raw. Every new rule's gaps are bounded, so a long line is audited in linear time.
 - Agent target `kiro-cli` (Kiro): skills in `~/.kiro/skills` and `.kiro/skills`, detected by `~/.kiro`, so `scan`, `agents` and `install --agent kiro-cli` cover it.
+- `open-skill lint` warns about a marketplace without a `description`, a marketplace that lists no plugins, and names Claude Desktop rejects (`org`, `org-provisioned`, `unknown`, or over 128 characters): `marketplace-description`, `marketplace-empty` and `marketplace-desktop`, from the validator messages in the marketplace reference.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.

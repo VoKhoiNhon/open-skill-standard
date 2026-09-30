@@ -122,9 +122,9 @@ def write_json(tmp_path, name, obj):
 
 
 def test_marketplace_required_fields(tmp_path):
-    ok = {"name": "tools", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./"}]}
+    ok = {"name": "tools", "description": "d", "owner": {"name": "me"}, "plugins": [{"name": "a", "source": "./"}]}
     assert lint.lint_marketplace(write_json(tmp_path, "marketplace.json", ok)) == []
-    bad = {"name": "tools", "plugins": [{"name": "a"}]}
+    bad = {"name": "tools", "description": "d", "plugins": [{"name": "a"}]}
     rules_found = [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", bad))]
     assert rules_found == ["marketplace-field", "marketplace-plugin"]
     assert [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", "{nope"))] == ["manifest-json"]
@@ -137,7 +137,7 @@ def test_repository_marketplace_is_valid():
 
 
 def test_marketplace_source_escape_and_impersonation(tmp_path):
-    doc_ = {"name": "anthropic-official-tools", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
+    doc_ = {"name": "anthropic-official-tools", "description": "d", "owner": {"name": "x"}, "plugins": [{"name": "a", "source": "../elsewhere"}]}
     found = [(f.rule, f.severity) for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
     assert found == [("marketplace-source", "error"), ("marketplace-reserved", "warning")]
 
@@ -444,6 +444,13 @@ def mkt(**kw):
     (mkt(name="my+tools"), ["marketplace-name"]),                                        # only letters, digits, . _ -
     (mkt(name="-tools"), ["marketplace-name"]),                                          # starts with a letter or digit
     (mkt(name="tools_v2.1"), []),
+    (mkt(name="org"), ["marketplace-desktop"]),                                          # reserved in Claude Desktop
+    (mkt(name="t" * 129), ["marketplace-desktop"]),
+    (mkt(plugins=[{"name": "p" * 129, "source": "./a"}]), ["marketplace-desktop"]),
+    (mkt(description=None), ["marketplace-description"]),
+    ({k: v for k, v in mkt().items() if k != "description"}, ["marketplace-description"]),
+    ({**{k: v for k, v in mkt().items() if k != "description"}, "metadata": {"description": "d"}}, []),
+    (mkt(plugins=[]), ["marketplace-empty"]),
     (mkt(plugins=[{"name": "a+b", "source": "./a"}]), ["marketplace-plugin"]),
     (mkt(plugins=[{"name": "ünï", "source": "./a"}]), ["marketplace-plugin"]),
     (mkt(plugins=[{"name": ".hidden", "source": "./a"}]), ["marketplace-plugin"]),
