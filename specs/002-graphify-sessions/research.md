@@ -80,6 +80,10 @@ All findings were checked on 2026-09-30 against Graphify 0.9.72 (`uv tool instal
 
 - **Decision**: A scope is a list of globs relative to the project root, matched with `project._match` (fnmatch, where `*` also crosses `/`, and a leading `**/` also matches at the root). Two sessions overlap when any project file (from `project._files`, same skip list) matches a glob of both. A file is in conflict when it matches a glob of another active session.
 - **Rationale**: this reuses the matcher that artifacts and role signals already use, so scopes behave like the rest of open-skill. Comparing globs through real files avoids glob-intersection logic. A glob that matches no file triggers the "matches no file" warning (edge case).
+- **Limits (U3)**: `project._files` skips generated folders and stops at 5,000 files (`MAX_FILES`). So:
+  - an identical glob in both scopes counts as an overlap without looking at files;
+  - otherwise an overlap is only found among the listed files;
+  - the conflict check of `session update` matches changed files against globs directly, so it has neither limit.
 - **Alternatives considered**: `pathlib.PurePath.full_match` (needs Python 3.13; the project supports 3.11); prefix matching only (cannot express `tests/test_route*.py`).
 
 ## R8. Session ids and staleness

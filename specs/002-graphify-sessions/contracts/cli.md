@@ -18,6 +18,8 @@ warning: scope overlaps session b4c5d6 ("add fixtures for route tests"): tests/t
 warning: scope glob matches no file: docs/new/**
 ```
 
+Overlap is judged on the project's listed files (generated folders skipped, first 5,000 files), and an identical glob in both scopes always overlaps (research R7).
+
 The command exits 2 when:
 - no `--scope` is given;
 - a glob is absolute or contains `..`;

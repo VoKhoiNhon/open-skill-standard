@@ -82,6 +82,7 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - A session record is corrupt or unreadable: it is ignored everywhere and removed by `--prune`.
 - The session id given to `session update` does not exist or is stale: the refresh still runs, conflicts are computed against all active sessions, and a warning names the unknown id.
 - A scope glob matches no file: the session is still created, with a warning.
+- Overlap between scopes is judged on the project's files as open-skill lists them, which skip generated folders (`build/`, `dist/`, `node_modules/`, `.venv/`, ...) and stop at 5,000 files. Two scopes that contain the same glob always overlap. A glob that only matches skipped paths gets the "matches no file" warning, and in a larger project an overlap past the first 5,000 files can go unreported at start. Conflicts from `session update` are not affected, because they match changed files directly.
 - On Windows, where the file lock used today is unavailable, session-record writes run without a lock, as the knowledge store already does; this limit is documented. Graph refreshes stay serialized by Graphify's own lock on every platform.
 
 ## Requirements *(mandatory)*
@@ -99,7 +100,7 @@ In a project that has a Graphify graph, the router can place Graphify's query, a
 - **FR-009**: After refreshing, the command MUST determine the changed files, meaning every file that differs from the session's start commit (committed, staged, unstaged or untracked; the current commit when no session is named), and the files affected by them within two steps of calls, references or imports in the graph, where an import of a package counts as an import of each module it names.
 - **FR-010**: The command MUST warn, and never block or fail, when an affected file falls inside another active session's scope, naming that session and its task.
 - **FR-011**: The command MUST offer a machine-readable output with changed files, affected files and conflicts.
-- **FR-012**: Every command that names a session MUST update that session's last activity time.
+- **FR-012**: Every command that names an **active** session MUST update that session's last activity time; naming a stale session MUST NOT revive it.
 - **FR-013**: The error cases listed under Edge Cases MUST behave as described, with exit code 2 for a missing Graphify install and no automatic full builds or forced writes.
 - **FR-014**: Concurrent writes to one session record MUST never lose data: two sessions started at the same moment both end up recorded.
 - **FR-015**: Routing evals MUST gain cases for session-conflict tasks, and README (English and Vietnamese) and CHANGELOG MUST document the feature.

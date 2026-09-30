@@ -160,3 +160,10 @@ def test_cli_end(graph_project, capsys):
     assert _cli(capsys, "end", s["id"], "--project", str(graph_project))[0] == 0
     code, _, err = _cli(capsys, "end", s["id"], "--project", str(graph_project))
     assert code == 2 and f"open-skill: no such session: {s['id']}" in err
+
+
+def test_identical_globs_overlap_even_without_matching_files(graph_project):
+    # project._files skips build/, dist/, ... and stops at 5000 files; the same glob string still overlaps (U3)
+    a = sessions.start(graph_project, ["build/out/**"], "a")
+    assert [o[:2] for o in sessions.overlaps(graph_project, ["build/out/**"])] == [(a["id"], "a")]
+    assert sessions.overlaps(graph_project, ["build/other/**"]) == []

@@ -175,14 +175,15 @@ def _project_files(project: Path) -> list[str]:
 
 
 def overlaps(project, scope, exclude_id=None, now=None) -> list[tuple[str, str, str]]:
-    """(session id, task, a file both scopes match) for each active session whose scope shares a file with scope."""
+    """(session id, task, a shared glob or a file both match) for each active session whose scope overlaps scope."""
     files = _project_files(Path(project))
     out = []
     for s in active(project, now):
         if s["id"] == exclude_id:
             continue
-        hit = next((f for f in files if any(project_mod._match(f, g) for g in scope)
-                    and any(project_mod._match(f, g) for g in s["scope"])), None)
+        same = next((g for g in scope if g in s["scope"]), None)  # also for paths project._files skips (build/, ...)
+        hit = same or next((f for f in files if any(project_mod._match(f, g) for g in scope)
+                            and any(project_mod._match(f, g) for g in s["scope"])), None)
         if hit:
             out.append((s["id"], s["task"], hit))
     return out

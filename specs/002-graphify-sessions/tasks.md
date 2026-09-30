@@ -96,7 +96,7 @@ description: "Task list for parallel sessions on one shared Graphify graph"
   - returns `None` in a folder that is not a git repository, and in a repository with no commits (R6).
 - [X] T008 [P] [US1] Write failing CLI tests in `tests/test_session_update.py`, following contracts/cli.md § `session update`:
   - **conflict** (Acceptance 1): A changes `pkg/route.py` and B owns `tests/**`. Text output has a line starting with `⚠ tests/test_route.py is in session <B>`; exit code 0;
-  - **imports-only** (Acceptance 2): `tests/test_route.py` is reported although it is linked only by `imports_from`;
+  - **package import** (Acceptance 2): `tests/test_route.py` is reported although it reaches the module only through a package import (`from pkg import (route,)`, which Graphify links to `pkg/__init__.py`);
   - **no conflict** (Acceptance 3): output lists affected files and has no `⚠` line;
   - **`--json`** (Acceptance 4): stdout is exactly one JSON object with the keys `session`, `graph`, `changed`, `git`, `affected`, `conflicts` and `warnings`. Each conflict has `file`, `session`, `task` and `via`. A changed file inside another session's scope is a conflict with `via` equal to the file;
   - **committed before refresh** (Acceptance 3): A commits its change to `pkg/route.py`, then runs `session update --session A`. `changed` still lists `pkg/route.py`, the conflict with B is still reported, and `base` in `--json` equals A's start commit;
