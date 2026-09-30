@@ -592,3 +592,25 @@ def test_exfil_endpoint_flags(text):
 ])
 def test_exfil_endpoint_ignores_ordinary_webhooks(text):
     assert "exfil-endpoint" not in fired(text)
+
+
+# Built by concatenation so the test file itself never holds a token in its issuer's shape.
+@pytest.mark.parametrize("text", [
+    "export ANTHROPIC_API_KEY=" + "sk-ant-" + "api03-" + "Ab3dE" * 8,
+    "token: " + "gh" + "p_" + "a1B2c3D4e5" * 3 + "F6g7H8",
+    "aws_access_key_id = " + "AKIA" + "Q3VZ7K2M4N6P8R1T",
+    "SLACK_TOKEN=" + "xo" + "xb-" + "123456789012-" + "Ab1Cd2Ef3Gh4",
+    "-----BEGIN OPENSSH " + "PRIVATE KEY-----",
+])
+def test_hardcoded_secret_flags(text):
+    assert "hardcoded-secret" in fired(text)
+
+
+@pytest.mark.parametrize("text", [
+    "aws_access_key_id = AKIAIOSFODNN7EXAMPLE",  # AWS's documented example key
+    "GITHUB_TOKEN=" + "gh" + "p_" + "x" * 36,
+    "Set ANTHROPIC_API_KEY to your key from the console.",
+    "-----BEGIN PUBLIC KEY-----",
+])
+def test_hardcoded_secret_ignores_placeholders(text):
+    assert "hardcoded-secret" not in fired(text)

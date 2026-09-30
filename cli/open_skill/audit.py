@@ -177,6 +177,17 @@ rule("exfil-endpoint", "high",
      ATTACK_EXFIL_WEB)
 
 
+# Tokens in the shape their issuers publish; a documented example key (AKIA...EXAMPLE) and a run of x's are placeholders.
+ATTACK_CRED_IN_FILES = "https://attack.mitre.org/techniques/T1552/001/"
+rule("hardcoded-secret", "high",
+     r"\bsk-ant-(api|admin)\d{2}-[A-Za-z0-9_-]{20,}|\bgh[pousr]_(?![xX]{8})[A-Za-z0-9]{36}\b|\bgithub_pat_[A-Za-z0-9_]{60,}"
+     r"|\b(AKIA|ASIA)(?![0-9A-Z]{0,12}EXAMPLE)[0-9A-Z]{16}\b|\bxox[abpr]-[0-9]{6,}-[A-Za-z0-9-]{6,}"
+     r"|\bAIza[0-9A-Za-z_-]{35}\b|\b[rs]k_live_[0-9A-Za-z]{20,}|\bnpm_[A-Za-z0-9]{36}\b|\bglpat-[A-Za-z0-9_-]{20}\b"
+     r"|-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED |PGP )?PRIVATE KEY( BLOCK)?-----",
+     "contains what looks like a real API token or private key; anyone who installs the skill can read and use it",
+     ATTACK_CRED_IN_FILES)
+
+
 # Invisible text: zero-width space, word joiners, bidi overrides and isolates, Unicode tag characters and a
 # byte-order mark inside a line. ponytail: ZWJ/ZWNJ and LRM/RLM are left out because emoji and right-to-left
 # scripts use them; add them if hidden payloads start using those.
