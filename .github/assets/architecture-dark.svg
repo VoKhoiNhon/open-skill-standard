@@ -8,7 +8,7 @@
 <text x="32" y="99" class="mono">registry/roles/</text>
 <text x="178" y="99" class="m s">28 role packs</text>
 <text x="32" y="116" class="mono">registry/agents/</text>
-<text x="178" y="116" class="m s">9 coding agents</text>
+<text x="178" y="116" class="m s">10 coding agents</text>
 <text x="32" y="133" class="mono">registry/models/</text>
 <text x="178" y="133" class="m s">9 model profiles</text>
 <text x="32" y="150" class="mono">spec/taxonomy.yaml</text>
@@ -37,7 +37,7 @@
 <rect x="20" y="290" width="170" height="104" rx="6" class="box"/>
 <text x="32" y="312" class="b">Agent skill folders</text>
 <text x="32" y="332" class="m s">user and project folders</text>
-<text x="32" y="349" class="m s">of 9 agents, plus</text>
+<text x="32" y="349" class="m s">of 10 agents, plus</text>
 <text x="32" y="366" class="m s">Claude plugin caches</text>
 <rect x="215" y="290" width="165" height="104" rx="6" class="blue"/>
 <text x="227" y="312" class="b">scan</text>

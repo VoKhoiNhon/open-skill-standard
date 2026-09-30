@@ -1,0 +1,10 @@
+id: kiro-cli
+name: Kiro
+docs: https://kiro.dev/docs/skills/
+global:
+  - {path: "~/.kiro/skills", source: "https://kiro.dev/docs/skills/"}
+project:
+  - {path: ".kiro/skills", source: "https://kiro.dev/docs/skills/"}
+detect:
+  - {path: "~/.kiro", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L476"}
+notes: Loads a skill when a request matches its description, or through /skill-name. A workspace skill wins over a global one with the same name. The id follows the skills CLI (kiro-cli); the IDE reads the same folders.

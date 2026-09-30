@@ -19,9 +19,12 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill audit` flags `exfil-endpoint` (high): request-collection and paste services (webhook.site, RequestBin, Pipedream, interactsh and OAST hosts, Burp Collaborator, canary tokens, the Pastebin API), where stolen data is usually sent. Chat webhooks are left out because notification skills use them openly.
 - `open-skill audit` flags `hardcoded-secret` (high): API tokens in their issuers' published shapes (Anthropic, OpenAI, GitHub, AWS, Slack, Google, Stripe, npm, GitLab) and private key headers at the start of a line; AWS's documented example key and placeholder bodies (`xxxxxxxx`, `00000000`, `YOUR...`) are ignored.
 - The audit's `hidden-unicode` rule also catches Hangul fillers and runs of variation selectors, which can carry a hidden payload one byte per character; a single selector (emoji, CJK glyph variants) is fine. Excerpts escape these characters and the soft hyphen too; Python counts some of them as printable, so they used to be shown raw. Every new rule's gaps are bounded, so a long line is audited in linear time.
+- Agent target `kiro-cli` (Kiro): skills in `~/.kiro/skills` and `.kiro/skills`, detected by `~/.kiro`, so `scan`, `agents` and `install --agent kiro-cli` cover it.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
+- The Windsurf target also reads `.agents/skills`, `~/.agents/skills` and Claude Code's skill folders, as Devin Desktop documents, so `scan` lists skills there as seen by Windsurf.
+- The Codex target also reads `/etc/codex/skills`, the folder for skills an administrator installs for every user.
 
 ### Fixed
 - On Windows, `learn` and `session` writes now hold the same lock as on Linux and macOS (`msvcrt` byte lock), so two processes updating one note or one session folder no longer overwrite each other.

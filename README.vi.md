@@ -57,7 +57,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.2 open-ski
 
 ## Dùng với mọi agent đọc được Agent Skills
 
-Các skill theo định dạng [Agent Skills](https://agentskills.io), nên chạy được trên mọi agent đọc định dạng này. `registry/agents/` mô tả chín agent: mỗi agent nạp skill từ thư mục nào (cho người dùng và cho project), và làm sao biết agent đó đã được cài. Mỗi đường dẫn đều ghi nguồn là tài liệu chính thức của agent, hoặc dòng mã tương ứng trong [vercel-labs/skills](https://github.com/vercel-labs/skills) khi tài liệu không nói.
+Các skill theo định dạng [Agent Skills](https://agentskills.io), nên chạy được trên mọi agent đọc định dạng này. `registry/agents/` mô tả mười agent: mỗi agent nạp skill từ thư mục nào (cho người dùng và cho project), và làm sao biết agent đó đã được cài. Mỗi đường dẫn đều ghi nguồn là tài liệu chính thức của agent, hoặc dòng mã tương ứng trong [vercel-labs/skills](https://github.com/vercel-labs/skills) khi tài liệu không nói.
 
 | Agent | id | Cài vào (người dùng) | Cài vào (project) |
 |---|---|---|---|
@@ -70,6 +70,7 @@ Các skill theo định dạng [Agent Skills](https://agentskills.io), nên ch�
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
 | Windsurf | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
+| Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 
 Mỗi agent còn đọc thêm vài thư mục khác (ví dụ Cursor, Copilot, OpenCode, Goose và Amp đọc cả thư mục của Claude Code); `scan` biết hết các thư mục này và liệt kê mỗi skill một lần, kèm mọi agent nhìn thấy nó.
 
