@@ -15,11 +15,11 @@ def test_readme_agent_table_matches_the_registry():
     reg = registry.load()
     want = {aid: (a["global"][0]["path"], a["project"][0]["path"]) for aid, a in reg.agents.items()}
     for name in ("README.md", "README.vi.md"):
-        assert _agent_rows((REPO / name).read_text()) == want, f"{name}: update the agent table from registry/agents"
+        assert _agent_rows((REPO / name).read_text(encoding="utf-8")) == want, f"{name}: update the agent table from registry/agents"
 
 
 def test_router_skill_lists_the_taxonomy_phases_the_agent_passes():
-    skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text()
+    skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text(encoding="utf-8")
     assert "--phase" in skill and "--size" in skill
     listed = set(re.findall(r"`([a-z]+)` \(", skill))
     assert {p["id"] for p in registry.load().taxonomy["phases"]} <= listed, "list every phase id in the router skill"
@@ -27,7 +27,7 @@ def test_router_skill_lists_the_taxonomy_phases_the_agent_passes():
 
 def test_router_manual_path_follows_the_playbooks_build_window():
     # The manual fallback walked plan → build → verify → review for every role; eleven roles set a build_window.
-    skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text()
+    skill = (REPO / "skills" / "open-skill-router" / "SKILL.md").read_text(encoding="utf-8")
     manual = skill.split("## Without the CLI")[1]
     assert "Build tasks for this role walk" in manual and "done directly" in manual
 
@@ -40,7 +40,7 @@ VIETNAMESE = re.compile("[ăâđêôơư]|[aeiouy][̣̀́̃̉]"
 def test_skills_are_english_only():
     """Vietnamese requests find the skills through the registry's vi blocks (SPEC §3.1), not their text."""
     found = [f"{p.relative_to(REPO)}:{n}" for p in sorted((REPO / "skills").rglob("*.md"))
-             for n, line in enumerate(p.read_text().splitlines(), 1) if VIETNAMESE.search(line)]
+             for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1) if VIETNAMESE.search(line)]
     assert not found, found
 
 
@@ -70,7 +70,7 @@ def test_code_comments_and_test_names_are_english():
 def _vietnamese_prose(path: Path) -> list[int]:
     """Lines with Vietnamese outside fenced code blocks and code spans, where examples of the vi locale belong."""
     out, fenced = [], False
-    for n, line in enumerate(path.read_text().splitlines(), 1):
+    for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         if line.startswith("```"):
             fenced = not fenced
         elif not fenced and VIETNAMESE.search(re.sub(r"`[^`]*`", "", line)):
@@ -104,7 +104,7 @@ def _structure(text: str) -> tuple[list[int], list[tuple[str, list[str]]]]:
 
 
 def test_vietnamese_readme_is_a_structural_translation():
-    en, vi = (REPO / "README.md").read_text(), (REPO / "README.vi.md").read_text()
+    en, vi = (REPO / "README.md").read_text(encoding="utf-8"), (REPO / "README.vi.md").read_text(encoding="utf-8")
     (en_levels, en_blocks), (vi_levels, vi_blocks) = _structure(en), _structure(vi)
     assert vi_levels == en_levels, "README.vi.md needs the same sections as README.md"
     assert vi_blocks == en_blocks, "README.vi.md needs the same command and output blocks as README.md"
@@ -119,7 +119,7 @@ def _images(text: str) -> tuple[list[str], list[str]]:
 
 
 def test_readme_images_exist_have_alt_text_and_match_between_the_readmes():
-    (en, en_alts), (vi, vi_alts) = (_images((REPO / n).read_text()) for n in ("README.md", "README.vi.md"))
+    (en, en_alts), (vi, vi_alts) = (_images((REPO / n).read_text(encoding="utf-8")) for n in ("README.md", "README.vi.md"))
     for path in en + vi:
         assert path.startswith(".github/assets/") and (REPO / path).is_file(), f"missing image {path}"
     assert all(a.strip() for a in en_alts + vi_alts), "every <img> needs alt text"

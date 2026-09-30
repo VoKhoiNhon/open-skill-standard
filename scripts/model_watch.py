@@ -28,7 +28,7 @@ def uncovered(ids: set[str], profiles: list[dict]) -> list[str]:
 def main() -> int:
     req = urllib.request.Request(URL, headers={"User-Agent": "open-skill-standard model-watch"})
     text = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
-    profiles = [yaml.safe_load(p.read_text()) for p in sorted(Path("registry/models").glob("*.yaml"))]
+    profiles = [yaml.safe_load(p.read_text(encoding="utf-8")) for p in sorted(Path("registry/models").glob("*.yaml"))]
     ids = model_ids(text)
     missing = uncovered(ids, profiles)
     print(f"models named in the guide: {', '.join(sorted(ids)) or 'none found'}")

@@ -52,7 +52,7 @@ def problem(command: str) -> str | None:
     return None
 
 
-CASES = list({c: (p.relative_to(REPO).as_posix(), c) for p in reversed(DOCS) for c in commands(p.read_text())}.values())
+CASES = list({c: (p.relative_to(REPO).as_posix(), c) for p in reversed(DOCS) for c in commands(p.read_text(encoding="utf-8"))}.values())
 
 
 def test_the_skills_name_commands_at_all():

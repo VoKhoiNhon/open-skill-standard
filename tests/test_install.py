@@ -74,7 +74,7 @@ def test_copy_install_writes_files_and_records_them(reg, tmp_path):
     p = install.plan(src, reg.agents["codex"])
     install.apply(p)
     assert (p.dest / "SKILL.md").read_bytes() == (src.path / "SKILL.md").read_bytes()
-    assert (p.dest / "references/a.md").read_text() == "ref\n"
+    assert (p.dest / "references/a.md").read_text(encoding="utf-8") == "ref\n"
     [rec] = install.manifest()
     assert rec["skill"] == "my-skill" and rec["agent"] == "codex" and rec["dest"] == str(p.dest)
     assert rec["kind"] == "local" and rec["mode"] == "copy" and rec["source"] == str(src.path)
@@ -140,7 +140,7 @@ def test_remove_deletes_only_recorded_unchanged_files(reg, tmp_path):
     removed, kept = install.remove(p.dest)
     assert removed == ["SKILL.md"]
     assert set(kept) == {"notes.md", "mine.txt"}
-    assert (p.dest / "notes.md").read_text() == "my edit\n" and (p.dest / "mine.txt").exists()
+    assert (p.dest / "notes.md").read_text(encoding="utf-8") == "my edit\n" and (p.dest / "mine.txt").exists()
     assert install.manifest() == []
 
 
@@ -233,7 +233,7 @@ def test_update_skips_a_skill_the_user_changed(reg, tmp_path):
     dest = _old_core_install(reg, tmp_path)
     (dest / "SKILL.md").write_text("my own edit\n")
     assert "you changed it" in install.update()[0]
-    assert (dest / "SKILL.md").read_text() == "my own edit\n"
+    assert (dest / "SKILL.md").read_text(encoding="utf-8") == "my own edit\n"
     assert install.manifest()[0]["version"] == "0.0.1"
 
 
@@ -241,7 +241,7 @@ def test_update_dry_run_and_agent_filter_change_nothing(reg, tmp_path):
     dest = _old_core_install(reg, tmp_path)
     assert install.update(dry_run=True)[0].startswith("would update")
     assert install.update(agent="cursor") == []
-    assert "old wording" in (dest / "SKILL.md").read_text()
+    assert "old wording" in (dest / "SKILL.md").read_text(encoding="utf-8")
 
 
 def test_update_leaves_local_skills_to_the_user(reg, tmp_path):

@@ -8,9 +8,15 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill session start|list|end|update`: parallel agent sessions on one project declare their scope, share one Graphify graph, and get a warning (never an error) when a change reaches another session's scope. Changes count from the session's start commit, so committed work is included; `from pkg import mod` is resolved to `mod.py` because Graphify links it to the package.
 - Adapters `graphify` (query, affected, update; Apache-2.0, tested with 0.9.72) and `open-skill-cli` (`session-update`), and routing evals for session conflicts.
 - `project.inspect` and `route` report whether a project has a Graphify graph (`graphify-out/`).
+- `python -m open_skill.benchmark` scores the router against baselines and ablations with the same checks as `open-skill eval routing`, on the tuned and held-out cases: description match only (BM25 top-1 over the router's own index), a random skill in the router's phases (expected pass over 200 seeded draws), the router without phase detection and without role priors. It reports 95% Wilson intervals, wins and losses against description match with an exact McNemar test, and route latency; `--json` for machine output.
+- The README shows the held-out benchmark as a chart (light and dark), drawn by `scripts/render_assets.py` from the benchmark itself, so CI keeps it current.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
+
+### Fixed
+- On Windows the CLI no longer crashes at start with `UnicodeDecodeError`: every file it reads or writes (taxonomy, registry, evals, notes, generated files) is opened as UTF-8 instead of the locale code page.
+- Output piped on Windows (cp1252) no longer fails with `UnicodeEncodeError` on Vietnamese text or arrows: stdout and stderr are switched to UTF-8.
 
 ## [0.7.2] - 2026-09-29
 

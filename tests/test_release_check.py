@@ -26,7 +26,7 @@ First.
 
 
 def test_current_release_passes():
-    version = (ROOT / "cli/open_skill/__init__.py").read_text().split('"')[1]
+    version = (ROOT / "cli/open_skill/__init__.py").read_text(encoding="utf-8").split('"')[1]
     # Between releases main may hold [Unreleased] entries; everything else must already be in place.
     assert [p for p in rc.problems(ROOT, version) if not p.startswith("entries left under [Unreleased]")] == []
 

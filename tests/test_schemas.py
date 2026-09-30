@@ -5,7 +5,7 @@ import yaml
 
 from open_skill import schemas
 
-TAX = yaml.safe_load((Path(__file__).parents[1] / "spec" / "taxonomy.yaml").read_text())
+TAX = yaml.safe_load((Path(__file__).parents[1] / "spec" / "taxonomy.yaml").read_text(encoding="utf-8"))
 
 
 def test_every_schema_is_valid_draft_2020_12():

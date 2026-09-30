@@ -22,10 +22,10 @@ def copy_tree(tmp_path):
 def test_bump_sets_every_version_and_pins_skills(tmp_path):
     root = copy_tree(tmp_path)
     changed = bv.bump(root, "9.8.7")
-    assert 'version = "9.8.7"' in (root / "pyproject.toml").read_text()
-    assert '__version__ = "9.8.7"' in (root / "cli/open_skill/__init__.py").read_text()
-    assert '"version": "9.8.7"' in (root / ".claude-plugin/plugin.json").read_text()
-    router = (root / "skills/open-skill-router/SKILL.md").read_text()
+    assert 'version = "9.8.7"' in (root / "pyproject.toml").read_text(encoding="utf-8")
+    assert '__version__ = "9.8.7"' in (root / "cli/open_skill/__init__.py").read_text(encoding="utf-8")
+    assert '"version": "9.8.7"' in (root / ".claude-plugin/plugin.json").read_text(encoding="utf-8")
+    router = (root / "skills/open-skill-router/SKILL.md").read_text(encoding="utf-8")
     assert "open-skill-standard@v9.8.7 open-skill" in router
     assert "skills/open-skill-router/SKILL.md" in changed
     assert bv.bump(root, "9.8.7") == []

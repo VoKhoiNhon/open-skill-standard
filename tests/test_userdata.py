@@ -9,7 +9,7 @@ def test_atomic_write_creates_parents_and_replaces(tmp_path):
     p = tmp_path / "a" / "b.txt"
     userdata.atomic_write(p, "one")
     userdata.atomic_write(p, "two")
-    assert p.read_text() == "two"
+    assert p.read_text(encoding="utf-8") == "two"
     assert [x.name for x in p.parent.iterdir()] == ["b.txt"]  # no temp files left behind
 
 
@@ -23,7 +23,7 @@ def test_atomic_write_keeps_old_content_on_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(userdata.os, "replace", boom)
     with pytest.raises(OSError):
         userdata.atomic_write(p, "partial")
-    assert p.read_text() == "safe"
+    assert p.read_text(encoding="utf-8") == "safe"
     assert [x.name for x in tmp_path.iterdir()] == ["b.txt"]
 
 
@@ -43,7 +43,7 @@ def test_version_file_round_trip(tmp_path):
 
 def test_ensure_writable_stamps_fresh_home(tmp_path):
     userdata.ensure_writable(tmp_path / "h")
-    assert (tmp_path / "h" / "VERSION").read_text().strip() == str(userdata.SCHEMA_VERSION)
+    assert (tmp_path / "h" / "VERSION").read_text(encoding="utf-8").strip() == str(userdata.SCHEMA_VERSION)
 
 
 def test_newer_data_blocks_writes(tmp_path):
@@ -95,7 +95,7 @@ def test_restore_round_trip_with_safety_backup(tmp_path):
     (home / "knowledge" / "k-a.md").write_text("changed")
     (home / "knowledge" / "k-new.md").write_text("new")
     safety = userdata.restore(home, snap)
-    assert (home / "knowledge" / "k-a.md").read_text().endswith("A")
+    assert (home / "knowledge" / "k-a.md").read_text(encoding="utf-8").endswith("A")
     assert not (home / "knowledge" / "k-new.md").exists()
     assert safety.exists() and safety in userdata.list_backups(home) and snap.exists()
 
@@ -148,11 +148,11 @@ def test_v0_to_v1_keeps_bodies_byte_for_byte(tmp_path):
     (k / "broken.md").write_text("no frontmatter at all")
     actions = userdata.migrate(home)
     assert userdata.data_version(home) == 1
-    seed_meta, _ = frontmatter.parse((k / "k-seed.md").read_text())
+    seed_meta, _ = frontmatter.parse((k / "k-seed.md").read_text(encoding="utf-8"))
     assert seed_meta["schema"] == 1 and seed_meta["seed_hash"] == userdata.text_hash(seed_body)
-    assert (k / "k-seed.md").read_text().endswith(seed_body)
-    assert (k / "k-user.md").read_text().endswith(user_body)
-    assert "seed_hash" not in frontmatter.parse((k / "k-user.md").read_text())[0]
-    assert (k / "broken.md").read_text() == "no frontmatter at all"
+    assert (k / "k-seed.md").read_text(encoding="utf-8").endswith(seed_body)
+    assert (k / "k-user.md").read_text(encoding="utf-8").endswith(user_body)
+    assert "seed_hash" not in frontmatter.parse((k / "k-user.md").read_text(encoding="utf-8"))[0]
+    assert (k / "broken.md").read_text(encoding="utf-8") == "no frontmatter at all"
     assert any(a.startswith("backed up to") for a in actions)
     assert userdata.migrate(home) == []

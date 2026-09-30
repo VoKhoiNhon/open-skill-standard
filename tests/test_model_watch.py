@@ -16,7 +16,7 @@ def test_extracts_ids_from_guide_text():
 
 
 def test_every_currently_listed_model_has_a_profile():
-    profiles = [yaml.safe_load(p.read_text()) for p in (ROOT / "registry/models").glob("*.yaml")]
+    profiles = [yaml.safe_load(p.read_text(encoding="utf-8")) for p in (ROOT / "registry/models").glob("*.yaml")]
     listed = {"claude-fable-5-1", "claude-mythos-5-1", "claude-fable-5", "claude-mythos-5", "claude-opus-5-5",
               "claude-opus-5", "claude-opus-4-8", "claude-sonnet-5-5", "claude-sonnet-5", "claude-haiku-4-5"}
     assert mw.uncovered(listed, profiles) == []

@@ -18,7 +18,7 @@ def all_installed(reg) -> list[Installed]:
 def load_routing_cases(path: Path | None = None, name: str = "routing.yaml") -> list[dict]:
     """Bundled cases by file name: routing.yaml (tuned on) or routing-holdout.yaml (never tuned on)."""
     path = Path(path) if path else paths.data_root() / "evals" / name
-    return yaml.safe_load(path.read_text())["cases"]
+    return yaml.safe_load(path.read_text(encoding="utf-8"))["cases"]
 
 
 def route_case(case: dict, reg, installed) -> dict:
@@ -27,14 +27,18 @@ def route_case(case: dict, reg, installed) -> dict:
         proj = Path(tmp)
         for f in case.get("files", []):
             (proj / f).parent.mkdir(parents=True, exist_ok=True)
-            (proj / f).write_text("x")
+            (proj / f).write_text("x", encoding="utf-8")
         return route.route(case["task"], proj, reg, installed, role=case.get("role"), size=case.get("size"),
                            phase=case.get("phase"), model=case.get("model"), record=False)
 
 
 def run_case(case: dict, reg, installed) -> list[str]:
     """Run one routing case in a scratch project; return the list of failed expectations (empty = pass)."""
-    r = route_case(case, reg, installed)
+    return check_case(case, route_case(case, reg, installed))
+
+
+def check_case(case: dict, r: dict) -> list[str]:
+    """Failed expectations of a case against a route result ({"chain": [{"id", "phase"}, ...], "advice"})."""
     ids = [s["id"] for s in r["chain"]]
     shown = " → ".join(f"{s['phase']}:{s['id']}" for s in r["chain"]) or str(r["advice"])
     fails = [f"{sid} missing from {shown}" for sid in case.get("include", []) if sid not in ids]
@@ -81,7 +85,7 @@ def load_trigger_sets(folder: Path | None = None) -> dict[str, list[dict]]:
     folder = paths.folder(folder) if folder else paths.data_root() / "evals" / "triggers"
     out = {}
     for p in sorted(folder.glob("*.yaml")):
-        doc = yaml.safe_load(p.read_text())
+        doc = yaml.safe_load(p.read_text(encoding="utf-8"))
         queries = doc.get("queries", [])
         if not all(isinstance(q.get("q"), str) and isinstance(q.get("trigger"), bool) for q in queries):
             raise ValueError(f"{p}: every query needs a string 'q' and a boolean 'trigger'")
@@ -99,7 +103,7 @@ def skill_descriptions(reg, skills_dir: Path | None = None) -> dict[str, str]:
 
     out = {sid.split("/", 1)[1]: s.get("description", "") for sid, s in reg.skills.items()}
     for p in sorted((Path(skills_dir) if skills_dir else paths.data_root() / "skills").glob("*/SKILL.md")):
-        meta, _ = frontmatter.parse(p.read_text())
+        meta, _ = frontmatter.parse(p.read_text(encoding="utf-8"))
         if meta.get("name"):
             out[meta["name"]] = str(meta.get("description", ""))
     return out

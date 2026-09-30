@@ -201,6 +201,13 @@ Prompting advice changes between model generations; instructions that helped one
 
 ## Measuring it
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/benchmark-dark.svg">
+  <img src=".github/assets/benchmark.svg" alt="Routing benchmark on 52 held-out requests: description match 17%, random skill in the router's phases 50%, router without phase detection 33%, without role priors 54%, Open Skill router 67%, with 95% Wilson intervals" width="960">
+</picture>
+
+On the 52 held-out requests, the router passes 67% [54–78%] of cases, against 17% [9–30%] for picking the one skill whose description matches best (BM25 over the same index): 29 wins, 3 losses, exact McNemar p = 3×10⁻⁶. Removing phase detection drops it to 33%, removing role priors to 54%; a random skill in the router's own phases passes 50%. The 196 tuned cases all pass, as CI requires. A route takes a few milliseconds and 1,114 tests guard it. The labels are the maintainer's, 52 cases give wide intervals, and this measures routing, not the work that follows. `uv run python -m open_skill.benchmark` reproduces every number (`--json` for machine output); `scripts/render_assets.py` redraws the chart from it and CI checks it is current.
+
 - `open-skill eval routing` runs the labeled routing cases (every role, frameworks, models) and reports pass rates per role, then the score on held-out cases the router was never tuned on (paraphrased, messy requests in English and Vietnamese, with and without accents). CI requires every tuned case to pass and the holdout to stay above a floor.
 - `open-skill eval triggers` measures how well each core skill's description catches the requests it should and leaves near misses alone, using about 30 labeled queries per skill, of which the ones marked `holdout: true` are never used for tuning. By default it uses a deterministic lexical proxy (fast, runs in CI with regression floors) and lists misses and false alarms for the tuning queries only; `--agent claude --runs 3` runs every query through Claude Code, counts a trigger when the skill is invoked in at least half the runs, and reports precision and recall on the tuning and holdout queries, following the [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions). `--suggest` adds, per skill, the words and phrases that missed tuning queries share but the description lacks, and the description words behind false alarms: hints at a missing concept, not words to paste in.
 

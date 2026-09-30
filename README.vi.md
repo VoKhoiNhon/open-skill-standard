@@ -217,6 +217,13 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
 
 ## Đo lường
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/benchmark-dark.svg">
+  <img src=".github/assets/benchmark.svg" alt="Benchmark routing trên 52 yêu cầu holdout: chỉ khớp description 17%, skill ngẫu nhiên trong các phase của router 50%, router không phát hiện phase 33%, không có role prior 54%, router Open Skill 67%, kèm khoảng tin cậy Wilson 95%" width="960">
+</picture>
+
+Trên 52 yêu cầu holdout, router đạt 67% [54–78%] số ca, so với 17% [9–30%] khi chỉ chọn một skill có description khớp nhất (BM25 trên cùng index): thắng 29, thua 3, kiểm định McNemar chính xác p = 3×10⁻⁶. Bỏ phát hiện phase thì còn 33%, bỏ role prior còn 54%; chọn skill ngẫu nhiên trong chính các phase của router đạt 50%. Cả 196 ca đã tinh chỉnh đều đạt, đúng như CI yêu cầu. Một lần route mất vài mili giây và có 1.114 test bảo vệ. Nhãn do maintainer tự gán, 52 ca cho khoảng tin cậy rộng, và đây là đo routing chứ không đo phần việc sau đó. `uv run python -m open_skill.benchmark` tái lập mọi con số (`--json` để lấy dạng máy đọc); `scripts/render_assets.py` vẽ lại biểu đồ từ đó và CI kiểm tra biểu đồ luôn cập nhật.
+
 - `open-skill eval routing` chạy các ca routing đã gán nhãn (mọi vai trò, framework, model) và báo tỉ lệ đạt theo vai trò, rồi điểm trên bộ ca giữ riêng (holdout) mà router chưa từng được chỉnh theo (yêu cầu diễn đạt lại, viết lộn xộn, tiếng Anh và tiếng Việt có dấu lẫn không dấu). CI đòi mọi ca đã chỉnh phải đạt và holdout không tụt dưới một ngưỡng sàn.
 - `open-skill eval triggers` đo xem description của mỗi core skill có bắt đúng các yêu cầu cần bắt và bỏ qua các câu "suýt khớp" hay không, với khoảng 30 câu gán nhãn cho mỗi skill; các câu có `holdout: true` không bao giờ được dùng để tinh chỉnh. Mặc định dùng proxy lexical tất định (nhanh, chạy trong CI với ngưỡng chống tụt hạng) và chỉ liệt kê câu bị bỏ sót hoặc kích hoạt nhầm trong tập tinh chỉnh; `--agent claude --runs 3` chạy từng câu qua Claude Code, tính là kích hoạt khi skill được gọi ở ít nhất nửa số lần, và báo precision/recall trên tập tinh chỉnh và tập holdout. `--suggest` liệt kê thêm, cho mỗi skill, các từ và cụm từ chung của những câu tinh chỉnh bị bỏ sót mà description còn thiếu, và các từ trong description gây kích hoạt nhầm: gợi ý về khái niệm còn thiếu, không phải từ để chép nguyên văn.
 

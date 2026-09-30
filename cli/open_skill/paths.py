@@ -32,7 +32,7 @@ def folder(path) -> Path:
 def locked(path: Path):
     """Exclusive lock on the file at path for the length of a read-modify-write."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a") as f:
+    with path.open("a", encoding="utf-8") as f:
         try:
             import fcntl
         except ImportError:  # ponytail: no lock on Windows (no fcntl); use msvcrt.locking if concurrent writers appear there
