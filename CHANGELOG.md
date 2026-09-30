@@ -21,6 +21,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The audit's `hidden-unicode` rule also catches Hangul fillers and runs of variation selectors, which can carry a hidden payload one byte per character; a single selector (emoji, CJK glyph variants) is fine. Excerpts escape these characters and the soft hyphen too; Python counts some of them as printable, so they used to be shown raw. Every new rule's gaps are bounded, so a long line is audited in linear time.
 - Agent target `kiro-cli` (Kiro): skills in `~/.kiro/skills` and `.kiro/skills`, detected by `~/.kiro`, so `scan`, `agents` and `install --agent kiro-cli` cover it.
 - `open-skill lint` warns about a marketplace without a `description`, a marketplace that lists no plugins, and names Claude Desktop rejects (`org`, `org-provisioned`, `unknown`, or over 128 characters): `marketplace-description`, `marketplace-empty` and `marketplace-desktop`, from the validator messages in the marketplace reference.
+- `open-skill lint` checks plugin source objects in `marketplace.json` (`marketplace-source`): a known type (`github`, `url`, `git-subdir`, `npm`, `archive`, `command`) with its required fields, full lowercase commit SHAs, https archives with a 64-hex `sha256`, command sources in printable ASCII with a timeout of 1–600 seconds and mode `copy` or `link`, and `headersHelper` only with `"strict": false`.
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.

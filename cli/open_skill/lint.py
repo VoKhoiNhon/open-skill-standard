@@ -108,8 +108,9 @@ rule("marketplace-field", "error", "marketplace.json has `name`, `owner` (with a
 rule("marketplace-plugin", "error", "every plugin entry is an object with a unique `name` of ASCII letters, digits, '.', "
      "'_' and '-' that starts with a letter or digit, and a `source`",
      MARKETPLACE_REF + "#validation-messages")
-rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`",
-     MARKETPLACE_DOCS)
+rule("marketplace-source", "error", "a relative plugin `source` starts with ./ and does not leave the marketplace with `..`; "
+     "a source object has a known type and its required fields (github `repo`, url `url`, git-subdir `url` and `path`, "
+     "npm `package`, archive https `url`, command `command`) in the documented form", MARKETPLACE_REF + "#plugin-sources")
 rule("marketplace-name", "error", "the marketplace name uses only ASCII letters, digits, '.', '_' and '-', starts with a "
      "letter or digit and has no '..'; Claude Code cannot install plugins from any other name", MARKETPLACE_REF + "#top-level-fields")
 rule("marketplace-reserved", "warning", "the marketplace name is not reserved for, and does not look like, an official "
@@ -340,6 +341,10 @@ def lint_marketplace(path: Path) -> list[Finding]:
             add("marketplace-plugin", f"duplicate plugin name '{pname}'")
         seen.add(pname if isinstance(pname, str) else None)
         src = p.get("source")
+        for why in _source_problems(src) if "source" in p else []:
+            add("marketplace-source", f"plugins[{i}].source: {why}")
+        if "headersHelper" in p and p.get("strict") is not False:
+            add("marketplace-source", f"plugins[{i}] sets headersHelper, which needs \"strict\": false")
         if isinstance(src, str) and ".." in Path(src).parts:
             add("marketplace-source", f"plugins[{i}].source '{src}' must not leave the marketplace with '..'")
         elif isinstance(src, str) and src != "." and not src.startswith("./") and not root:
@@ -361,6 +366,51 @@ def lint_marketplace(path: Path) -> list[Finding]:
         add("marketplace-description", "add a description so people know what the marketplace offers")
     if doc.get("plugins") == []:
         add("marketplace-empty", "the marketplace lists no plugins")
+    return out
+
+
+SOURCE_TYPES = {"github": ("repo",), "url": ("url",), "git-subdir": ("url", "path"), "npm": ("package",),
+                "archive": ("url",), "command": ("command",)}
+SHA1 = re.compile(r"[0-9a-f]{40}\Z")
+SHA256 = re.compile(r"[0-9A-Fa-f]{64}\Z")
+
+
+def _source_problems(src) -> list[str]:
+    """What the marketplace reference ("Plugin sources") rejects in an entry's source object; strings are checked apart."""
+    if isinstance(src, str):
+        return []
+    if not isinstance(src, dict):
+        return ["must be a relative path or an object"]
+    kind = src.get("source")
+    if kind not in SOURCE_TYPES:
+        return [f"unknown source type {kind!r}; use one of {', '.join(SOURCE_TYPES)}"]
+    out = [f"{kind} needs a non-empty string '{k}'" for k in SOURCE_TYPES[kind]
+           if not (isinstance(src.get(k), str) and src[k].strip())]
+    if out:
+        return out
+    if kind == "github" and not re.fullmatch(r"[\w.-]+/[\w.-]+", src["repo"]):
+        out.append(f"repo {src['repo']!r} is not owner/repo")
+    if kind == "url" and not src["url"].startswith(("https://", "http://", "file://", "git@")):
+        out.append(f"url {src['url']!r} must be a full git URL (https://, http://, file:// or git@)")
+    if kind == "git-subdir" and ".." in src["path"].replace("\\", "/").split("/"):
+        out.append("path must not contain '..'")
+    if kind == "npm" and ".." in src["package"]:
+        out.append("package must not contain '..'")
+    if kind == "archive" and not src["url"].startswith("https://"):
+        out.append("an archive url must use https://")
+    if kind == "archive" and "sha256" in src and not SHA256.match(str(src["sha256"])):
+        out.append("sha256 must be 64 hex characters")
+    if kind in ("github", "url", "git-subdir") and "sha" in src and not SHA1.match(str(src["sha"])):
+        out.append("sha must be a full 40-character lowercase commit SHA")
+    if kind == "command":
+        cmd = src["command"]
+        if not (cmd.isascii() and cmd.isprintable()) or len(cmd) > 500 or "    " in cmd:
+            out.append("command must be printable ASCII, at most 500 characters, without a run of four spaces")
+        t = src.get("timeout", 60)
+        if not (isinstance(t, int) and not isinstance(t, bool) and 1 <= t <= 600):
+            out.append("timeout must be a whole number of seconds from 1 to 600")
+        if src.get("mode", "copy") not in ("copy", "link"):
+            out.append("mode must be copy or link")
     return out
 
 

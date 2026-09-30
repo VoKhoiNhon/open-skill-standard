@@ -423,6 +423,32 @@ def mkt(**kw):
     (mkt(), []),
     (mkt(plugins=[{"name": "a", "source": "."}]), []),
     (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r", "sha": "a" * 40}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "github"}}]), ["marketplace-source"]),        # repo is required
+    (mkt(plugins=[{"name": "a", "source": {"source": "github", "repo": "o/r", "sha": "A" * 40}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "gitlab", "repo": "o/r"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "url", "url": "https://git.example.org/a.git"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "url", "url": "o/r"}}]), ["marketplace-source"]),  # no shorthand
+    (mkt(plugins=[{"name": "a", "source": {"source": "git-subdir", "url": "o/r", "path": "tools/a"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "git-subdir", "url": "o/r"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "npm", "package": "@o/a", "version": "^2"}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "npm", "package": "../a"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip",
+                                           "sha256": "AB" * 32}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "http://x.example.org/a.zip"}}]),
+     ["marketplace-source"]),                                                             # https only
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip",
+                                           "sha256": "abc"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool plugin-path", "timeout": 120}}]), []),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool", "timeout": 0}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool    path"}}]), ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "command", "command": "tool", "mode": "move"}}]),
+     ["marketplace-source"]),
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip"},
+                   "headersHelper": "get-token"}]), ["marketplace-source"]),               # needs "strict": false
+    (mkt(plugins=[{"name": "a", "source": {"source": "archive", "url": "https://x.example.org/a.zip"},
+                   "headersHelper": "get-token", "strict": False}]), []),
+    (mkt(plugins=[{"name": "a", "source": 3}]), ["marketplace-source"]),
     (mkt(plugins=[{"name": "a", "source": "plugins/a"}]), ["marketplace-source"]),      # relative paths start with ./
     (mkt(plugins=[{"name": "a", "source": "a"}], metadata={"pluginRoot": "./plugins"}), []),
     (mkt(plugins=[{"name": "a", "source": "./x/../../y"}]), ["marketplace-source"]),
