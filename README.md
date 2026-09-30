@@ -6,6 +6,8 @@
 
 [Specification](spec/SPEC.md) · [Contributing](CONTRIBUTING.md)
 
+<img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain for a data engineer adding a warehouse pipeline returns an ordered, explained chain: writing-plans, subagent-driven-development, explore-data, code-review, with scores, runner-ups and the install command for each missing skill" width="790">
+
 ## Why
 
 Coding agents now load skills from many independent projects. A typical setup has 100+ skills that overlap: three build workflows, several reviewers, two kinds of brainstorming. Two facts make that hard:
@@ -24,7 +26,12 @@ Open Skill Standard adds the missing layer: metadata about **which role a skill 
 | `open-skill-intel` skill | Sends each question to the best source: codegraph, Context7, schemas, the web, your notes, the skill graph |
 | `open-skill-learn` skill | Remembers your lessons and preferences so future routes use them |
 | `open-skill` CLI | `route`, `search`, `scan`, `doctor`, `build`, `validate`, `lint`, `init`, `learn`, `feedback`… |
-| Registry | 16 adapters describing 190+ upstream skills and tools, 28 role packs, 9 model profiles |
+| Registry | 18 adapters describing 190+ upstream skills and tools, 28 role packs, 9 model profiles |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/architecture-dark.svg">
+  <img src=".github/assets/architecture.svg" alt="Architecture: the public registry and organization overlays feed scan and a SQLite FTS5 index; the router combines them with your project and your local ~/.open-skill layer, and the coding agent runs the chain" width="960">
+</picture>
 
 ## Quick start
 
@@ -72,6 +79,11 @@ open-skill remove open-skill-router --agent codex
 `install` never overwrites a skill it did not put there. It records every folder it creates, with a hash of each file, in `~/.open-skill/installed.json`; `remove` and `update` act only on those, and leave alone any file you changed or added.
 
 ## How routing works
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/routing-dark.svg">
+  <img src=".github/assets/routing.svg" alt="Routing pipeline: request, phase and size, phase window, then for each phase candidate filters, scoring and selection, then trimming and the ordered steps" width="960">
+</picture>
 
 ```text
 registry (adapters, roles, models) ─┐
@@ -139,6 +151,41 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 **The whole graph.** `open-skill graph --format html --out graph.html` writes one self-contained page (no network access): skills by phase, each skill's artifacts, requirements, conflicts and recommending roles, an artifact table and the roles, with filters by role, phase, source and installed state and a search box. It works with the keyboard (`/` searches, `Esc` clears) and follows your light or dark theme. `--format json` and `--format mermaid` export the same graph for other tools.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/graph-viewer-dark.png">
+  <img src=".github/assets/graph-viewer.png" alt="The skill graph page from open-skill graph --format html: skills grouped by phase, with filters by role, phase, source and installed state" width="960">
+</picture>
+
+## Parallel sessions
+
+Several agent sessions can work on one project at once and share one [Graphify](https://github.com/Graphify-Labs/graphify) code graph. Each session declares the paths it works on. After an edit, `session update` refreshes the graph (Graphify locks and rewrites it, about 2.4 s on this repository) and lists the files within two steps of calls, references or imports of what changed since the session started, committed or not. It warns when one of them lies in another session's scope. It never blocks and never fails because of a conflict.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/sessions-dark.svg">
+  <img src=".github/assets/sessions.svg" alt="Parallel sessions: sessions declare scopes and share one working tree and one Graphify graph; session update refreshes the graph, takes the files changed since the session started, sets aside other sessions' own edits, walks two hops back over calls, references and imports, and reports conflicts, others and affected files" width="960">
+</picture>
+
+```bash
+uv tool install graphifyy && graphify extract . --code-only    # once per project
+open-skill session start --scope "cli/open_skill/route.py" --task "speed up fit"
+open-skill session start --scope "tests/**" --task "add fixtures for route tests"
+open-skill session update --session <id>          # after an edit, from the session that made it
+open-skill session list                           # --prune drops sessions idle for more than 6 hours
+open-skill session end <id>
+```
+
+```text
+$ open-skill session update --session a1b2c3
+graph: 2204 nodes, 3566 edges (refreshed)
+changed: cli/open_skill/route.py
+affected: 14 files
+  cli/open_skill/cli.py
+  …
+⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
+```
+
+Graphify links `from pkg import mod` to the package, not to `mod.py`, and does not resolve `mod.fn()` as a call; `session update` resolves package imports itself, so a test that imports the module is still found. With `--session`, a changed file that lies only in another session's scope is counted as that session's work (listed with `·`), since sessions share one working tree. For call-level questions (callers, impact) keep codegraph. Session records live in `.open-skill/sessions/` inside the project, which ignores itself in git. `--json` gives the changed, affected and conflicting files to an agent.
+
 ## Roles
 
 | Family | Roles |
@@ -151,6 +198,11 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 Each role pack states the role's characteristic risk, its principles, the project files that suggest it, and its primary and alternative skills per phase. Readable playbooks are generated into [`skills/open-skill-router/references/roles/`](skills/open-skill-router/references/roles/README.md).
 
+The same kind of request routes differently by role:
+
+<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route --explain for a backend developer adding a CSV export endpoint, planned and built with backend skills" width="790">
+<img src=".github/assets/route-sre.svg" alt="Terminal: open-skill route --explain for a site reliability engineer whose checkout requests time out, starting with debugging" width="790">
+
 ## Integrated frameworks
 
 Adapters describe upstream skills as metadata and point to the official installers; nothing is vendored.
@@ -161,6 +213,7 @@ Adapters describe upstream skills as metadata and point to the official installe
 | [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) | Thinking partners, personas, planning artifacts, right-sized build (needs `bmad setup`) | MIT, trademark |
 | [spec-kit](https://github.com/github/spec-kit) | Durable spec → plan → tasks → implement → converge (needs `specify init`) | MIT |
 | [codegraph](https://github.com/colbymchenry/codegraph) | Code knowledge graph: call paths, impact, affected tests | MIT |
+| [Graphify](https://github.com/Graphify-Labs/graphify) | Shared code graph for parallel sessions; refreshed by `open-skill session update` | Apache-2.0 |
 | [Anthropic skills](https://github.com/anthropics/skills) | Documents, skill authoring, MCP servers, web testing, frontend design | per skill |
 | [Knowledge-work plugins](https://github.com/anthropics/knowledge-work-plugins) | Data, engineering, product management, design | Apache-2.0 |
 | [Context7](https://github.com/upstash/context7) | Current library documentation | MIT |
@@ -169,6 +222,15 @@ Adapters describe upstream skills as metadata and point to the official installe
 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Engineering lifecycle: specs, task breakdown, thin slices, observability, hardening, migrations, launch | MIT |
 | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | React, Next.js and React Native rules, UI and writing guideline reviews, Vercel deploys and cost tuning | MIT |
 | Claude Code built-ins | code-review, security-review, run, claude-api, schedule… | — |
+
+How the integrated frameworks chain: each phase's skills produce the artifacts the next phase consumes. `open-skill doctor` shows which sources are installed and the install command for the rest:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/lifecycle-dark.svg">
+  <img src=".github/assets/lifecycle.svg" alt="Lifecycle graph: the 10 phases and 19 artifacts of the taxonomy, with the artifacts the skills in each phase produce and consume" width="960">
+</picture>
+
+<img src=".github/assets/doctor.svg" alt="Terminal: open-skill doctor listing each integrated source with installed and described skill counts and the install command for what is missing" width="790">
 
 ## Adapts to the model
 
@@ -181,7 +243,7 @@ Prompting advice changes between model generations; instructions that helped one
   <img src=".github/assets/benchmark.svg" alt="Routing benchmark on 52 held-out requests: description match 17%, random skill in the router's phases 50%, router without phase detection 33%, without role priors 54%, Open Skill router 67%, with 95% Wilson intervals" width="960">
 </picture>
 
-On the 52 held-out requests, the router passes 67% [54–78%] of cases, against 17% [9–30%] for picking the one skill whose description matches best (BM25 over the same index): 29 wins, 3 losses, exact McNemar p = 3×10⁻⁶. Removing phase detection drops it to 33%, removing role priors to 54%; a random skill in the router's own phases passes 50%. The 196 tuned cases all pass, as CI requires. A route takes a few milliseconds and 1,114 tests guard it. The labels are the maintainer's, 52 cases give wide intervals, and this measures routing, not the work that follows. `uv run python -m open_skill.benchmark` reproduces every number (`--json` for machine output); `scripts/render_assets.py` redraws the chart from it and CI checks it is current.
+On the 52 held-out requests, the router passes 67% [54–78%] of cases, against 17% [9–30%] for picking the one skill whose description matches best (BM25 over the same index): 29 wins, 3 losses, exact McNemar p = 3×10⁻⁶. Removing phase detection drops it to 33%, removing role priors to 54%; a random skill in the router's own phases passes 50%. The 199 tuned cases all pass, as CI requires. A route takes a few milliseconds and 1,179 tests guard it. The labels are the maintainer's, 52 cases give wide intervals, and this measures routing, not the work that follows. `uv run python -m open_skill.benchmark` reproduces every number (`--json` for machine output); `scripts/render_assets.py` redraws the chart from it and CI checks it is current.
 
 - `open-skill eval routing` runs the labeled routing cases (every role, frameworks, models) and reports pass rates per role, then the score on held-out cases the router was never tuned on (paraphrased, messy requests in English and Vietnamese, with and without accents). CI requires every tuned case to pass and the holdout to stay above a floor.
 - `open-skill eval triggers` measures how well each core skill's description catches the requests it should and leaves near misses alone, using about 30 labeled queries per skill, of which the ones marked `holdout: true` are never used for tuning. By default it uses a deterministic lexical proxy (fast, runs in CI with regression floors) and lists misses and false alarms for the tuning queries only; `--agent claude --runs 3` runs every query through Claude Code, counts a trigger when the skill is invoked in at least half the runs, and reports precision and recall on the tuning and holdout queries, following the [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions). `--suggest` adds, per skill, the words and phrases that missed tuning queries share but the description lacks, and the description words behind false alarms: hints at a missing concept, not words to paste in.
@@ -204,6 +266,8 @@ It flags text that tries to override the user's or system's instructions, hide a
 
 This is a heuristic reviewer, not a guarantee. A finding can be harmless in context, and a clean report only means no rule matched: a careful attacker can phrase things the rules do not catch. Still read skills from unknown sources yourself, and prefer skills you or your organization maintain.
 
+<img src=".github/assets/audit.svg" alt="Terminal: open-skill audit ./downloaded-skill reporting heuristic findings by severity with file and line" width="790">
+
 ## Learns you, locally
 
 `~/.open-skill/` holds your profile, one-fact-per-file notes and a usage log. Routes attach the notes that apply to the chosen skills, roles, project or phases, and your history nudges rankings (with a 90-day half-life). `learn` refuses text that looks like a secret or personal data; `forget` and `export` are one command each; nothing in this folder is ever published. `open-skill scan --memory` imports Claude Code memory files read-only.
@@ -223,6 +287,13 @@ open-skill upgrade             # back up, migrate the data schema, sync starter 
 
 Organizations can add private skills and house rules as an **L1 overlay** (a separate repository with the same layout) via `--overlay` or `overlays:` in the profile, without forking this repository.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/safety-dark.svg">
+  <img src=".github/assets/safety.svg" alt="User data safety: an upgrade backs up, migrates and syncs starter notes; unedited seeds are updated, edited seeds are kept with a proposal, dismissed seeds are never re-created, your own notes are never touched" width="960">
+</picture>
+
+<img src=".github/assets/upgrade.svg" alt="Terminal: open-skill upgrade --dry-run showing what an upgrade would do to notes from an older release" width="790">
+
 ## CLI
 
 ```text
@@ -236,6 +307,7 @@ open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forg
 open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
 open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
+open-skill session start --scope <glob> --task "..." | list [--prune] | end <id> | update [--session <id>] [--json]
 ```
 
 Exit codes: 0 success, 1 a check failed (lint errors, a high audit finding, stale build, adapter drift, nothing to remove), 2 bad input (unknown role, phase, agent or path), 3 your data was written by a newer open-skill.

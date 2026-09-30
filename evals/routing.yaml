@@ -343,6 +343,9 @@ cases:
   - {id: game-bmad-brainstorm, role: game-developer, task: "brainstorm mechanics for a co-op puzzle level", phase: discover, files: [_bmad/config.toml], include: [bmad-method/bmad-brainstorming]}
   - {id: sre-explore, role: site-reliability-engineer, task: "how does the retry logic in the job runner work", phase: research, files: [.codegraph/codegraph.db], include: [codegraph/explore]}
   - {id: qa-affected, role: qa-engineer, task: "find the test files affected by my changed source files", phase: verify, files: [.codegraph/codegraph.db], include: [codegraph/affected]}
+  - {id: dev-session-conflict, role: backend-developer, task: "which other session does my change affect", phase: review, files: [graphify-out/graph.json], include: [open-skill-cli/session-update]}
+  - {id: qa-graphify-affected, role: qa-engineer, task: "what is affected by my change in the graphify graph", phase: review, files: [graphify-out/graph.json], include_any: [graphify/affected, open-skill-cli/session-update]}
+  - {id: no-graphify-no-tools, role: backend-developer, task: "which other session does my change affect", phase: review, exclude: [open-skill-cli/session-update, graphify/affected]}
   - {id: sec-code-review, role: security-engineer, task: "review this change for performance and correctness, N+1 queries and error handling gaps", phase: review, include: [knowledge-work-engineering/code-review]}
   - {id: ai-claude-api, role: ai-engineer, task: "look up prompt caching limits in the Claude API docs", phase: research, include_any: [anthropic-skills/claude-api, claude-code-builtin/claude-api]}
   - {id: ae-data-context, role: analytics-engineer, task: "capture the analysts' tribal knowledge about our warehouse tables as a data context skill", phase: learn, include: [knowledge-work-data/data-context-extractor]}

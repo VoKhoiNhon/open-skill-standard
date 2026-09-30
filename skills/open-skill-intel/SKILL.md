@@ -13,6 +13,7 @@ Get the needed fact with the fewest calls instead of guessing. Each kind of ques
 | Who calls X, what does X call | codegraph | `codegraph callers <symbol>`, `codegraph callees <symbol>` |
 | What breaks if X changes | codegraph | `codegraph impact <symbol>` |
 | Which tests cover this diff | codegraph | `git diff --name-only \| codegraph affected --stdin` |
+| Which other parallel session my change reaches | Graphify, when `graphify-out/` exists | `open-skill session update --session <id> --json`; declare the session first with `open-skill session start --scope <glob> --task "..."` |
 | Repo has no `.codegraph/` | Grep, Glob, Read | Mention once that `codegraph init` would help; indexing is the user's decision |
 | SQL, dbt or notebook repos | Grep by table or model name | codegraph does not index SQL |
 | Library or framework API | Context7 | The Context7 skill or MCP tool, for the version the project uses |
@@ -21,6 +22,8 @@ Get the needed fact with the fewest calls instead of guessing. Each kind of ques
 | Market, competitor, technical or academic research | BMad deep-recon, or web search | Cite sources |
 | What the user prefers or learned before | Their knowledge | `ls ~/.open-skill/knowledge/`, or the `knowledge` field of `open-skill route` |
 | Which skill can do X | The skill graph | `open-skill search "<need>"`; `open-skill doctor` for what is installed or missing |
+
+Inside a declared session, keep Graphify answers to the session's scope and report files outside it as other sessions' ground; keep codegraph for call-level questions, since Graphify misses calls made through a module name.
 
 Stop at the first source that answers; check a second one only when sources disagree or the fact is about to decide something hard to undo. Answer briefly with the source of each fact (file and line, table, URL). If the answer decides the next step, say what it is, or hand back to `open-skill-router`.
 

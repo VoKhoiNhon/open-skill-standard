@@ -601,6 +601,52 @@ def benchmark_chart(rep: dict) -> dict[str, str]:
     return out
 
 
+# --- parallel sessions: declared scopes, one shared Graphify graph, conflicts vs other sessions' work (sessions.py) ---
+
+def sessions_diagram() -> dict[str, str]:
+    w, h = 960, 470
+    steps = [("1  Refresh the graph", ["graphify update .; Graphify", "locks and rewrites graph.json"], "blue"),
+             ("2  Changed since base", ["git diff <start commit> plus", "untracked files, committed or not"], "blue"),
+             ("3  Split by scope", ["a file only in another scope", "is that session's own work"], "blue"),
+             ("4  Walk two hops back", ["calls, references, imports;", "from pkg import mod → mod.py"], "blue")]
+    outcomes = [("⚠ conflict", ["an affected file, or one you changed,", "inside another session's scope"], "red"),
+                ("· others", ["another session's own edit:", "listed, not walked, not a warning"], "orange"),
+                ("affected", ["every file within two hops;", "--json hands all three to an agent"], "green")]
+
+    def draw(theme):
+        b = [*card(20, 20, 290, 86, "Session A · a1b2c3", ["scope  cli/open_skill/route.py",
+                                                           "task   speed up fit"], "purple"),
+             *card(335, 20, 290, 86, "Session B · b4c5d6", ["scope  tests/**",
+                                                           "task   add fixtures for route tests"], "purple"),
+             *card(650, 20, 290, 86, "Shared by both", ["one working tree, one graph:",
+                                                        "graphify-out/graph.json"], "box"),
+             line([(165, 106), (165, 128), (126, 128), (126, 149)], arrow="purple", cls="edge e-purple"),
+             text(174, 124, "open-skill session update --session a1b2c3", "m s")]
+        x = 20
+        for i, (title, lines, cls) in enumerate(steps):
+            b += card(x, 150, 212, 86, title, lines, cls)
+            if i:
+                b.append(line([(x - 23, 193), (x - 1, 193)]))
+            x += 236
+        b.append(line([(795, 106), (795, 149)], dashed=True, arrow=None))
+        b.append(line([(832, 236), (832, 262), (166, 262), (166, 289)]))
+        for i, (title, lines, cls) in enumerate(outcomes):
+            ox = 20 + i * 313
+            b += card(ox, 290, 293, 86, title, lines, cls)
+            if i:
+                b.append(line([(ox + 146, 262), (ox + 146, 289)]))
+        b += [text(20, 404, "Never blocks and never fails on a conflict. Sessions idle for more than 6 hours are "
+                            "ignored; overlapping scopes are warned about at start.", "m s"),
+              text(20, 424, "Package imports are resolved because Graphify links them to the package's "
+                            "__init__.py, not to the module.", "m s"),
+              footer(w, h - 12, "sessions.py", "as implemented in")]
+        return svg(w, h, b, theme, "Parallel sessions: sessions declare scopes and share one working tree and one "
+                   "Graphify graph; session update refreshes the graph, takes the files changed since the session "
+                   "started, sets aside other sessions' own edits, walks two hops back over calls, references and "
+                   "imports, and reports conflicts, others and affected files")
+    return themed("sessions", draw)
+
+
 def render() -> dict[str, str]:
     reg = registry.load(ROOT)
     out = {}
@@ -609,6 +655,7 @@ def render() -> dict[str, str]:
     out.update(lifecycle(reg))
     out.update(pipeline())
     out.update(safety())
+    out.update(sessions_diagram())
     out.update(captures(reg))
     return out
 

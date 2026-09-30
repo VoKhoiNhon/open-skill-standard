@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="470" viewBox="0 0 960 470" role="img" aria-label="Parallel sessions: sessions declare scopes and share one working tree and one Graphify graph; session update refreshes the graph, takes the files changed since the session started, sets aside other sessions' own edits, walks two hops back over calls, references and imports, and reports conflicts, others and affected files">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-size:13px;fill:#e6edf3}.m{fill:#9198a1}.b{font-weight:600}.s{font-size:11.5px}.h{font-size:15px;font-weight:600}.mono{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;font-size:12px}.box{fill:#151b23;stroke:#3d444d;stroke-width:1}.dash{fill:none;stroke:#3d444d;stroke-width:1;stroke-dasharray:4 3}.edge{fill:none;stroke:#9198a1;stroke-width:1.4}.blue{fill:#0f2542;stroke:#4493f8;stroke-width:1.2}.t-blue{fill:#4493f8}.e-blue{fill:none;stroke:#4493f8}#arrow-blue path{fill:#4493f8}.green{fill:#11281a;stroke:#3fb950;stroke-width:1.2}.t-green{fill:#3fb950}.e-green{fill:none;stroke:#3fb950}#arrow-green path{fill:#3fb950}.orange{fill:#2e1c10;stroke:#db6d28;stroke-width:1.2}.t-orange{fill:#db6d28}.e-orange{fill:none;stroke:#db6d28}#arrow-orange path{fill:#db6d28}.purple{fill:#241a38;stroke:#ab7df8;stroke-width:1.2}.t-purple{fill:#ab7df8}.e-purple{fill:none;stroke:#ab7df8}#arrow-purple path{fill:#ab7df8}.red{fill:#3a1716;stroke:#f85149;stroke-width:1.2}.t-red{fill:#f85149}.e-red{fill:none;stroke:#f85149}#arrow-red path{fill:#f85149}#arrow path{fill:#9198a1}</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<rect x="20" y="20" width="290" height="86" rx="6" class="purple"/>
+<text x="32" y="42" class="b">Session A · a1b2c3</text>
+<text x="32" y="62" class="m s">scope  cli/open_skill/route.py</text>
+<text x="32" y="79" class="m s">task   speed up fit</text>
+<rect x="335" y="20" width="290" height="86" rx="6" class="purple"/>
+<text x="347" y="42" class="b">Session B · b4c5d6</text>
+<text x="347" y="62" class="m s">scope  tests/**</text>
+<text x="347" y="79" class="m s">task   add fixtures for route tests</text>
+<rect x="650" y="20" width="290" height="86" rx="6" class="box"/>
+<text x="662" y="42" class="b">Shared by both</text>
+<text x="662" y="62" class="m s">one working tree, one graph:</text>
+<text x="662" y="79" class="m s">graphify-out/graph.json</text>
+<path d="M165 106L165 128L126 128L126 149" class="edge e-purple" marker-end="url(#arrow-purple)"/>
+<text x="174" y="124" class="m s">open-skill session update --session a1b2c3</text>
+<rect x="20" y="150" width="212" height="86" rx="6" class="blue"/>
+<text x="32" y="172" class="b">1  Refresh the graph</text>
+<text x="32" y="192" class="m s">graphify update .; Graphify</text>
+<text x="32" y="209" class="m s">locks and rewrites graph.json</text>
+<rect x="256" y="150" width="212" height="86" rx="6" class="blue"/>
+<text x="268" y="172" class="b">2  Changed since base</text>
+<text x="268" y="192" class="m s">git diff &lt;start commit&gt; plus</text>
+<text x="268" y="209" class="m s">untracked files, committed or not</text>
+<path d="M233 193L255 193" class="edge" marker-end="url(#arrow)"/>
+<rect x="492" y="150" width="212" height="86" rx="6" class="blue"/>
+<text x="504" y="172" class="b">3  Split by scope</text>
+<text x="504" y="192" class="m s">a file only in another scope</text>
+<text x="504" y="209" class="m s">is that session's own work</text>
+<path d="M469 193L491 193" class="edge" marker-end="url(#arrow)"/>
+<rect x="728" y="150" width="212" height="86" rx="6" class="blue"/>
+<text x="740" y="172" class="b">4  Walk two hops back</text>
+<text x="740" y="192" class="m s">calls, references, imports;</text>
+<text x="740" y="209" class="m s">from pkg import mod → mod.py</text>
+<path d="M705 193L727 193" class="edge" marker-end="url(#arrow)"/>
+<path d="M795 106L795 149" class="edge" stroke-dasharray="5 4"/>
+<path d="M832 236L832 262L166 262L166 289" class="edge" marker-end="url(#arrow)"/>
+<rect x="20" y="290" width="293" height="86" rx="6" class="red"/>
+<text x="32" y="312" class="b">⚠ conflict</text>
+<text x="32" y="332" class="m s">an affected file, or one you changed,</text>
+<text x="32" y="349" class="m s">inside another session's scope</text>
+<rect x="333" y="290" width="293" height="86" rx="6" class="orange"/>
+<text x="345" y="312" class="b">· others</text>
+<text x="345" y="332" class="m s">another session's own edit:</text>
+<text x="345" y="349" class="m s">listed, not walked, not a warning</text>
+<path d="M479 262L479 289" class="edge" marker-end="url(#arrow)"/>
+<rect x="646" y="290" width="293" height="86" rx="6" class="green"/>
+<text x="658" y="312" class="b">affected</text>
+<text x="658" y="332" class="m s">every file within two hops;</text>
+<text x="658" y="349" class="m s">--json hands all three to an agent</text>
+<path d="M792 262L792 289" class="edge" marker-end="url(#arrow)"/>
+<text x="20" y="404" class="m s">Never blocks and never fails on a conflict. Sessions idle for more than 6 hours are ignored; overlapping scopes are warned about at start.</text>
+<text x="20" y="424" class="m s">Package imports are resolved because Graphify links them to the package's __init__.py, not to the module.</text>
+<text x="944" y="458" class="m s" text-anchor="end">as implemented in sessions.py · scripts/render_assets.py</text>
+</svg>

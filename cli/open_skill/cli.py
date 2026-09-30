@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, upgrade, userdata
+from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, sessions, upgrade, userdata
 
 
 def _registry(args):
@@ -301,6 +301,86 @@ def cmd_route(args):
     r = route.route(args.task, proj, reg, installed, role=args.role, size=args.size, model=args.model,
                     record=not args.no_record, decisions=args.explain, agent=args.agent, phase=args.phase)
     _print(_explain(r) if args.explain else r, as_json=not args.explain)
+    return 0
+
+
+def _install_hint(args, source: str) -> str:
+    try:
+        return _registry(args).adapters[source]["install"]["cli"]
+    except (KeyError, TypeError, ValueError, OSError, knowledge.ProfileError):
+        return sessions.INSTALL_FALLBACK
+
+
+def cmd_session_start(args):
+    project = paths.folder(args.project)
+    try:
+        rec = sessions.start(project, args.scope, args.task)
+    except ValueError as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 2
+    for sid, task, f in sessions.overlaps(project, rec["scope"], exclude_id=rec["id"]):
+        print(f'warning: scope overlaps session {sid} ("{task}"): {f}', file=sys.stderr)
+    for g in sessions.unmatched(project, rec["scope"]):
+        print(f"warning: scope glob matches no file: {g}", file=sys.stderr)
+    _print(rec) if args.json else print(rec["id"])
+    return 0
+
+
+def cmd_session_list(args):
+    project = paths.folder(args.project)
+    if args.prune:
+        print(f"pruned {sessions.prune(project)} record(s)", file=sys.stderr)
+        return 0
+    now = sessions._now()
+    recs = sorted(sessions.active(project, now), key=lambda r: r["seen"], reverse=True)
+    if args.json:
+        _print(recs)
+        return 0
+    for r in recs:
+        ago = int((now - sessions._parse(r["seen"])).total_seconds() // 60)
+        print(f"{r['id']}  seen {ago}m ago  {r['scope'][0]:<30} {r['task']}")
+    return 0
+
+
+def cmd_session_end(args):
+    try:
+        sessions.end(paths.folder(args.project), args.id)
+    except KeyError:
+        print(f"open-skill: no such session: {args.id}", file=sys.stderr)
+        return 2
+    return 0
+
+
+def cmd_session_update(args):
+    project = paths.folder(args.project)
+    try:
+        r = sessions.update(project, args.session, install_hint=_install_hint(args, "graphify"))
+    except (sessions.GraphifyMissing, sessions.GraphMissing) as e:
+        print(f"open-skill: {e}", file=sys.stderr)
+        return 2
+    except sessions.RefreshFailed as e:
+        print(f"{e}\nhint: if code was deleted on purpose, rerun: graphify update . --force", file=sys.stderr)
+        return 1
+    for w in r["warnings"]:
+        print(f"warning: {w}", file=sys.stderr)
+    if not r["git"]:
+        print("note: not a git repository (or no commits); conflict check skipped", file=sys.stderr)
+    if args.json:
+        _print(r)
+        return 0
+    g = r["graph"]
+    print(f"graph: {g['nodes']} nodes, {g['edges']} edges (refreshed)")
+    if r["git"]:
+        print(f"changed: {', '.join(r['changed']) or 'nothing'}")
+        print(f"affected: {len(r['affected'])} files")
+        for f in r["affected"]:
+            print(f"  {f}")
+        for c in r["conflicts"]:
+            print(f"⚠ {c['file']} is in session {c['session']} (\"{c['task']}\"), reached from {c['via']}")
+        for o in r["others"]:
+            print(f'· {o["file"]} changed in session {o["session"]} ("{o["task"]}"); counted as its work')
+        if not r["conflicts"]:
+            print("no conflicts with other sessions")
     return 0
 
 
@@ -749,6 +829,28 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--format", choices=["mermaid", "json", "html"], default="mermaid")
     s.add_argument("--out", help="write to this file instead of stdout")
     s.set_defaults(fn=cmd_graph)
+    s = sub.add_parser("session", help="parallel sessions on one project: scopes, shared Graphify graph, conflicts")
+    ss = s.add_subparsers(dest="session_cmd", required=True)
+    u = ss.add_parser("start", help="declare a session: the paths it works on and its task; prints its id")
+    u.add_argument("--scope", action="append", required=True, help="glob relative to the project root (repeatable)")
+    u.add_argument("--task", required=True)
+    u.add_argument("--project", default=".")
+    u.add_argument("--json", action="store_true")
+    u.set_defaults(fn=cmd_session_start)
+    u = ss.add_parser("list", help="active sessions, most recently seen first")
+    u.add_argument("--project", default=".")
+    u.add_argument("--json", action="store_true")
+    u.add_argument("--prune", action="store_true", help="delete stale and unreadable session records instead")
+    u.set_defaults(fn=cmd_session_list)
+    u = ss.add_parser("end", help="end a session")
+    u.add_argument("id")
+    u.add_argument("--project", default=".")
+    u.set_defaults(fn=cmd_session_end)
+    u = ss.add_parser("update", help="refresh the Graphify graph and warn about changes reaching other sessions")
+    u.add_argument("--session", help="the session running this (its start commit is the diff base)")
+    u.add_argument("--project", default=".")
+    u.add_argument("--json", action="store_true")
+    u.set_defaults(fn=cmd_session_update)
     s = sub.add_parser("doctor", help="what is installed, missing, duplicated")
     s.add_argument("--project")
     s.set_defaults(fn=cmd_doctor)

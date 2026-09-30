@@ -48,6 +48,7 @@ def inspect(root: Path, taxonomy: dict, roles: dict) -> dict:
         "markers": markers,
         "artifacts": artifacts,
         "codegraph": any((root / p).exists() for p in taxonomy.get("tool_markers", {}).get("codegraph", [])),
+        "graphify": any((root / p).exists() for p in taxonomy.get("tool_markers", {}).get("graphify", [])),
         "languages": dict(langs.most_common(10)),
         "role_signals": signals,
     }

@@ -358,7 +358,7 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
         "size": size,
         "target_phase": target,
         "phase_from": phase_from,
-        "project": {k: proj[k] for k in ("path", "native", "artifacts", "codegraph")},
+        "project": {k: proj[k] for k in ("path", "native", "artifacts", "codegraph", "graphify")},
         "chain": chain,
         "advice": advice,
         "knowledge": [{"id": k["id"], "type": k.get("type"), "text": k.get("text", "")} for k in nodes[:5]],

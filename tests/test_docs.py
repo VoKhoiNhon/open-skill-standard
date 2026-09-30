@@ -124,3 +124,10 @@ def test_readme_images_exist_have_alt_text_and_match_between_the_readmes():
         assert path.startswith(".github/assets/") and (REPO / path).is_file(), f"missing image {path}"
     assert all(a.strip() for a in en_alts + vi_alts), "every <img> needs alt text"
     assert en == vi, "README.vi.md needs the same images in the same order as README.md"
+
+
+def test_readme_img_tags_are_well_formed():
+    # A '"' inside alt ends the attribute early; GitHub then drops the whole image.
+    for name in ("README.md", "README.vi.md"):
+        for tag in re.findall(r"<img [^>]*>", (REPO / name).read_text(encoding="utf-8")):
+            assert re.fullmatch(r'<img(?: [a-z-]+="[^"]*")+>', tag), f"{name}: malformed tag {tag[:80]}"

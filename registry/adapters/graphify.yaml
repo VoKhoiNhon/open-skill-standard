@@ -1,0 +1,35 @@
+source: graphify
+upstream: https://github.com/Graphify-Labs/graphify
+license: Apache-2.0
+tested_version: 0.9.72
+summary: Local code knowledge graph (tree-sitter, no LLM for code) with query, impact and incremental update CLIs. Misses calls made through a module name (mod.fn()), so codegraph stays the tool for call-level questions.
+install:
+  cli: "uv tool install graphifyy"
+  project-init: "graphify extract . --code-only"
+available_cmd: graphify
+portability: [claude-code, codex, cursor, copilot, gemini]
+skills:
+  - name: query
+    kind: tool
+    invoke: "graphify query"
+    description: Answer a question from the project graph by traversal (graphify query)
+    phases: [research]
+    requires: ["project:graphify-out"]
+    task_size: [small, medium, large]
+    triggers: ["graphify", "graph query", "knowledge graph"]
+  - name: affected
+    kind: tool
+    invoke: "graphify affected"
+    description: Nodes impacted by changing a symbol, by reverse traversal (graphify affected)
+    phases: [plan, review]
+    requires: ["project:graphify-out"]
+    task_size: [medium, large]
+    triggers: ["affected", "impacted", "graphify graph"]
+  - name: update
+    kind: tool
+    invoke: "graphify update ."
+    description: Re-extract changed code into the project graph, no LLM (graphify update)
+    phases: [verify]
+    requires: ["project:graphify-out"]
+    task_size: [small, medium, large]
+    triggers: ["update the graph", "refresh the graph", "rebuild the graph"]

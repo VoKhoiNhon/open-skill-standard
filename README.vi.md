@@ -6,6 +6,8 @@
 
 [Đặc tả](spec/SPEC.md) · [Đóng góp](CONTRIBUTING.md)
 
+<img src=".github/assets/route-data.svg" alt="Terminal: open-skill route --explain cho data engineer thêm pipeline vào warehouse trả về một chuỗi có thứ tự và có giải thích: writing-plans, subagent-driven-development, explore-data, code-review, kèm điểm, ứng viên xếp sau và lệnh cài cho từng skill còn thiếu" width="790">
+
 ## Vì sao cần
 
 Agent lập trình ngày nay nạp skill từ rất nhiều dự án độc lập. Một máy thường có hơn 100 skill trùng chức năng: ba quy trình build, vài kiểu review, hai kiểu brainstorm. Có hai thực tế gây khó:
@@ -24,7 +26,12 @@ Open Skill Standard bổ sung lớp thông tin còn thiếu: mỗi skill phục 
 | Skill `open-skill-intel` | Đưa mỗi câu hỏi tới nguồn tốt nhất: codegraph, Context7, schema, web, ghi chú của bạn, skill graph |
 | Skill `open-skill-learn` | Ghi nhớ bài học và thói quen để các lần route sau dùng |
 | CLI `open-skill` | `route`, `search`, `scan`, `doctor`, `build`, `validate`, `lint`, `init`, `learn`, `feedback`… |
-| Registry | 16 adapter mô tả hơn 190 skill và tool upstream, 28 role pack, 9 hồ sơ model |
+| Registry | 18 adapter mô tả hơn 190 skill và tool upstream, 28 role pack, 9 hồ sơ model |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/architecture-dark.svg">
+  <img src=".github/assets/architecture.svg" alt="Kiến trúc: registry công khai và overlay của tổ chức đi vào scan và index SQLite FTS5; router kết hợp chúng với project của bạn và lớp ~/.open-skill trên máy, rồi coding agent chạy chuỗi skill" width="960">
+</picture>
 
 ## Bắt đầu nhanh
 
@@ -73,6 +80,11 @@ open-skill remove open-skill-router --agent codex
 `install` không bao giờ ghi đè skill mà nó không tự cài. Nó ghi lại mọi thư mục nó tạo, kèm mã băm của từng file, vào `~/.open-skill/installed.json`; `remove` và `update` chỉ đụng tới những thư mục đó, và để nguyên mọi file bạn đã sửa hoặc thêm.
 
 ## Router hoạt động thế nào
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/routing-dark.svg">
+  <img src=".github/assets/routing.svg" alt="Pipeline routing: yêu cầu, phase và cỡ việc, dải phase, rồi với mỗi phase là lọc ứng viên, chấm điểm và chọn, cuối cùng cắt gọn và ra các bước theo thứ tự" width="960">
+</picture>
 
 ```text
 registry (adapters, roles, models) ─┐
@@ -150,6 +162,41 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 **Toàn bộ graph.** `open-skill graph --format html --out graph.html` ghi ra một trang HTML duy nhất, tự chứa, không cần mạng: skill theo phase; artefact, điều kiện, xung đột và vai trò khuyên dùng của từng skill; bảng artefact và danh sách vai trò; lọc theo vai trò, phase, nguồn, đã cài hay chưa, và ô tìm kiếm. Dùng được bằng bàn phím (`/` để tìm, `Esc` để xoá) và theo giao diện sáng/tối của máy. `--format json` và `--format mermaid` xuất cùng graph cho công cụ khác.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/graph-viewer-dark.png">
+  <img src=".github/assets/graph-viewer.png" alt="Trang skill graph từ open-skill graph --format html: skill nhóm theo phase, lọc theo vai trò, phase, nguồn và trạng thái cài đặt" width="960">
+</picture>
+
+## Nhiều session song song
+
+Nhiều session agent có thể cùng làm trên một project và dùng chung một code graph [Graphify](https://github.com/Graphify-Labs/graphify). Mỗi session khai báo các đường dẫn mình phụ trách. Sau khi sửa, `session update` cập nhật graph (Graphify tự khoá và ghi lại, khoảng 2.4 s trên repo này) rồi liệt kê các file cách những gì đã đổi từ lúc session bắt đầu, đã commit hay chưa, trong vòng hai bước theo lời gọi, tham chiếu hoặc import. Nếu một file trong đó thuộc phạm vi của session khác thì lệnh cảnh báo. Lệnh không bao giờ chặn và không bao giờ báo lỗi vì đụng độ.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/sessions-dark.svg">
+  <img src=".github/assets/sessions.svg" alt="Nhiều session song song: các session khai báo phạm vi, dùng chung một working tree và một graph Graphify; session update cập nhật graph, lấy các file đổi từ lúc session bắt đầu, tách riêng việc của session khác, duyệt ngược hai bước theo lời gọi, tham chiếu và import, rồi báo đụng độ, việc của session khác và các file bị ảnh hưởng" width="960">
+</picture>
+
+```bash
+uv tool install graphifyy && graphify extract . --code-only    # once per project
+open-skill session start --scope "cli/open_skill/route.py" --task "speed up fit"
+open-skill session start --scope "tests/**" --task "add fixtures for route tests"
+open-skill session update --session <id>          # after an edit, from the session that made it
+open-skill session list                           # --prune drops sessions idle for more than 6 hours
+open-skill session end <id>
+```
+
+```text
+$ open-skill session update --session a1b2c3
+graph: 2204 nodes, 3566 edges (refreshed)
+changed: cli/open_skill/route.py
+affected: 14 files
+  cli/open_skill/cli.py
+  …
+⚠ tests/test_route.py is in session b4c5d6 ("add fixtures for route tests"), reached from cli/open_skill/route.py
+```
+
+Graphify nối `from pkg import mod` tới package chứ không tới `mod.py`, và không nhận `mod.fn()` là một lời gọi hàm; `session update` tự nối các import qua package, nên test có import module vẫn được tìm thấy. Khi có `--session`, file đã đổi chỉ nằm trong phạm vi của session khác được tính là việc của session đó (liệt kê với `·`), vì các session dùng chung một working tree. Với câu hỏi ở mức lời gọi hàm (ai gọi, ảnh hưởng) thì vẫn dùng codegraph. Bản ghi session nằm trong `.open-skill/sessions/` của project, thư mục này tự bỏ qua trong git. `--json` trả danh sách file đổi, bị ảnh hưởng và đụng độ cho agent dùng tiếp.
+
 ## 28 vai trò
 
 | Nhóm | Vai trò |
@@ -162,6 +209,11 @@ $ open-skill search --role data-engineer --phase verify --installed
 
 Mỗi role pack ghi rủi ro đặc thù của vai trò, các nguyên tắc (dùng làm constitution cho spec-kit), tín hiệu nhận diện project, và skill primary/alternative cho từng phase.
 
+Cùng một kiểu yêu cầu nhưng khác vai trò thì ra chuỗi khác:
+
+<img src=".github/assets/route-backend.svg" alt="Terminal: open-skill route --explain cho backend developer thêm endpoint xuất CSV, lập kế hoạch và build bằng các skill backend" width="790">
+<img src=".github/assets/route-sre.svg" alt="Terminal: open-skill route --explain cho site reliability engineer khi request checkout bị timeout, bắt đầu bằng debug" width="790">
+
 ## Các framework được tích hợp
 
 Adapter mô tả skill của từng nguồn dưới dạng metadata và trỏ tới trình cài đặt chính thức; repo không chép nội dung của nguồn nào.
@@ -172,6 +224,7 @@ Adapter mô tả skill của từng nguồn dưới dạng metadata và trỏ t�
 | [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) | Bạn đồng hành tư duy, persona, artefact lập kế hoạch, build vừa cỡ (cần `bmad setup`) | MIT, nhãn hiệu |
 | [spec-kit](https://github.com/github/spec-kit) | Spec bền vững → plan → tasks → implement → converge (cần `specify init`) | MIT |
 | [codegraph](https://github.com/colbymchenry/codegraph) | Đồ thị tri thức về code: đường gọi hàm, tác động, test bị ảnh hưởng | MIT |
+| [Graphify](https://github.com/Graphify-Labs/graphify) | Code graph dùng chung cho các session song song; cập nhật bằng `open-skill session update` | Apache-2.0 |
 | [Anthropic skills](https://github.com/anthropics/skills) | Tài liệu, viết skill, MCP server, kiểm thử web, thiết kế frontend | theo từng skill |
 | [Knowledge-work plugins](https://github.com/anthropics/knowledge-work-plugins) | Dữ liệu, kỹ thuật, quản lý sản phẩm, thiết kế | Apache-2.0 |
 | [Context7](https://github.com/upstash/context7) | Tài liệu thư viện mới nhất | MIT |
@@ -180,6 +233,15 @@ Adapter mô tả skill của từng nguồn dưới dạng metadata và trỏ t�
 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | Vòng đời kỹ thuật: spec, chia task, lát mỏng, observability, hardening, migration, launch | MIT |
 | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | Quy tắc React, Next.js và React Native, review UI và văn phong, deploy Vercel và tối ưu chi phí | MIT |
 | Skill có sẵn của Claude Code | code-review, security-review, run, claude-api, schedule… | — |
+
+Các framework nối với nhau thế nào: skill ở mỗi phase tạo ra artefact mà phase sau dùng tới. `open-skill doctor` cho biết nguồn nào đã cài và lệnh cài cho phần còn lại:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/lifecycle-dark.svg">
+  <img src=".github/assets/lifecycle.svg" alt="Graph vòng đời: 10 phase và 19 artefact của taxonomy, cùng các artefact mà skill ở mỗi phase tạo ra và dùng tới" width="960">
+</picture>
+
+<img src=".github/assets/doctor.svg" alt="Terminal: open-skill doctor liệt kê từng nguồn được tích hợp, số skill đã cài và đã mô tả, và lệnh cài cho những gì còn thiếu" width="790">
 
 ## Thích ứng theo model
 
@@ -197,7 +259,7 @@ Cách prompt tốt thay đổi theo từng thế hệ model; chỉ dẫn từng 
   <img src=".github/assets/benchmark.svg" alt="Benchmark routing trên 52 yêu cầu holdout: chỉ khớp description 17%, skill ngẫu nhiên trong các phase của router 50%, router không phát hiện phase 33%, không có role prior 54%, router Open Skill 67%, kèm khoảng tin cậy Wilson 95%" width="960">
 </picture>
 
-Trên 52 yêu cầu holdout, router đạt 67% [54–78%] số ca, so với 17% [9–30%] khi chỉ chọn một skill có description khớp nhất (BM25 trên cùng index): thắng 29, thua 3, kiểm định McNemar chính xác p = 3×10⁻⁶. Bỏ phát hiện phase thì còn 33%, bỏ role prior còn 54%; chọn skill ngẫu nhiên trong chính các phase của router đạt 50%. Cả 196 ca đã tinh chỉnh đều đạt, đúng như CI yêu cầu. Một lần route mất vài mili giây và có 1.114 test bảo vệ. Nhãn do maintainer tự gán, 52 ca cho khoảng tin cậy rộng, và đây là đo routing chứ không đo phần việc sau đó. `uv run python -m open_skill.benchmark` tái lập mọi con số (`--json` để lấy dạng máy đọc); `scripts/render_assets.py` vẽ lại biểu đồ từ đó và CI kiểm tra biểu đồ luôn cập nhật.
+Trên 52 yêu cầu holdout, router đạt 67% [54–78%] số ca, so với 17% [9–30%] khi chỉ chọn một skill có description khớp nhất (BM25 trên cùng index): thắng 29, thua 3, kiểm định McNemar chính xác p = 3×10⁻⁶. Bỏ phát hiện phase thì còn 33%, bỏ role prior còn 54%; chọn skill ngẫu nhiên trong chính các phase của router đạt 50%. Cả 199 ca đã tinh chỉnh đều đạt, đúng như CI yêu cầu. Một lần route mất vài mili giây và có 1.179 test bảo vệ. Nhãn do maintainer tự gán, 52 ca cho khoảng tin cậy rộng, và đây là đo routing chứ không đo phần việc sau đó. `uv run python -m open_skill.benchmark` tái lập mọi con số (`--json` để lấy dạng máy đọc); `scripts/render_assets.py` vẽ lại biểu đồ từ đó và CI kiểm tra biểu đồ luôn cập nhật.
 
 - `open-skill eval routing` chạy các ca routing đã gán nhãn (mọi vai trò, framework, model) và báo tỉ lệ đạt theo vai trò, rồi điểm trên bộ ca giữ riêng (holdout) mà router chưa từng được chỉnh theo (yêu cầu diễn đạt lại, viết lộn xộn, tiếng Anh và tiếng Việt có dấu lẫn không dấu). CI đòi mọi ca đã chỉnh phải đạt và holdout không tụt dưới một ngưỡng sàn.
 - `open-skill eval triggers` đo xem description của mỗi core skill có bắt đúng các yêu cầu cần bắt và bỏ qua các câu "suýt khớp" hay không, với khoảng 30 câu gán nhãn cho mỗi skill; các câu có `holdout: true` không bao giờ được dùng để tinh chỉnh. Mặc định dùng proxy lexical tất định (nhanh, chạy trong CI với ngưỡng chống tụt hạng) và chỉ liệt kê câu bị bỏ sót hoặc kích hoạt nhầm trong tập tinh chỉnh; `--agent claude --runs 3` chạy từng câu qua Claude Code, tính là kích hoạt khi skill được gọi ở ít nhất nửa số lần, và báo precision/recall trên tập tinh chỉnh và tập holdout. `--suggest` liệt kê thêm, cho mỗi skill, các từ và cụm từ chung của những câu tinh chỉnh bị bỏ sót mà description còn thiếu, và các từ trong description gây kích hoạt nhầm: gợi ý về khái niệm còn thiếu, không phải từ để chép nguyên văn.
@@ -219,6 +281,8 @@ open-skill audit --installed --format json # cho công cụ khác
 Lệnh đánh dấu câu chữ tìm cách ghi đè chỉ dẫn của người dùng hay của hệ thống, giấu hành động khỏi người dùng, bỏ qua hoặc giả mạo sự đồng ý, mạo danh hệ thống hay quản trị viên, hoặc nhắm tới khoá SSH, thông tin đăng nhập cloud, file `.env`, dữ liệu trình duyệt và kho mật khẩu; ký tự Unicode vô hình và chú thích HTML nói với agent; quyền shell không giới hạn trong `allowed-tools` và lệnh chạy ngay khi skill được nạp; liên kết trỏ ra ngoài thư mục skill và file thực thi đi kèm. Mỗi phát hiện ghi file, dòng, đoạn trích đã được escape, lý do, và nguồn công khai của luật (OWASP Top 10 cho ứng dụng LLM, MITRE ATT&CK, tài liệu của Anthropic và Claude Code). Lệnh trả mã 1 khi có phát hiện mức high; `--strict` coi cả medium và low là lỗi. `open-skill doctor` hiện một dòng tóm tắt.
 
 Đây là công cụ rà soát theo heuristic, không phải lời bảo đảm. Một phát hiện có thể vô hại trong ngữ cảnh của nó, và báo cáo sạch chỉ có nghĩa là không luật nào khớp: kẻ tấn công cẩn thận có thể viết theo cách các luật không bắt được. Vẫn hãy tự đọc skill từ nguồn lạ, và ưu tiên skill do bạn hoặc tổ chức của bạn duy trì.
+
+<img src=".github/assets/audit.svg" alt="Terminal: open-skill audit ./downloaded-skill báo các phát hiện theo mức độ, kèm file và dòng" width="790">
 
 ## Hiểu bạn, ngay trên máy bạn
 
@@ -245,6 +309,13 @@ open-skill upgrade             # backup, nâng schema dữ liệu, đồng bộ 
 
 **Skill nội bộ của công ty** được đặt trong một **overlay L1**: một repo riêng có cùng cấu trúc, nạp qua `--overlay`. Bạn không cần fork repo này và cũng không phải đưa gì nội bộ lên public.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/safety-dark.svg">
+  <img src=".github/assets/safety.svg" alt="An toàn dữ liệu: khi cập nhật, open-skill sao lưu, migrate và đồng bộ ghi chú khởi đầu; seed chưa sửa được cập nhật, seed đã sửa được giữ lại kèm đề xuất, seed đã bỏ không bao giờ tạo lại, ghi chú của bạn không bao giờ bị đụng tới" width="960">
+</picture>
+
+<img src=".github/assets/upgrade.svg" alt="Terminal: open-skill upgrade --dry-run cho thấy lần cập nhật sẽ làm gì với ghi chú từ bản cũ" width="790">
+
 ## CLI
 
 ```text
@@ -258,6 +329,7 @@ open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forg
 open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
 open-skill audit [paths] [--installed] [--format json] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
+open-skill session start --scope <glob> --task "..." | list [--prune] | end <id> | update [--session <id>] [--json]
 ```
 
 Mã thoát: 0 thành công, 1 một kiểm tra thất bại (lint có lỗi, audit có phát hiện mức high, build cũ, adapter lệch upstream, không có gì để gỡ), 2 đầu vào sai (vai trò, phase, agent hoặc đường dẫn không tồn tại), 3 dữ liệu của bạn do một open-skill mới hơn ghi.

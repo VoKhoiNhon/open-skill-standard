@@ -51,22 +51,22 @@
 <text x="200" y="82.5" class="m s" text-anchor="end">17 skills</text>
 <rect x="40" y="124" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="142.5" class="b">2. research</text>
-<text x="200" y="142.5" class="m s" text-anchor="end">18 skills</text>
+<text x="200" y="142.5" class="m s" text-anchor="end">19 skills</text>
 <rect x="40" y="184" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="202.5" class="b">3. specify</text>
 <text x="200" y="202.5" class="m s" text-anchor="end">16 skills</text>
 <rect x="40" y="244" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="262.5" class="b">4. plan</text>
-<text x="200" y="262.5" class="m s" text-anchor="end">32 skills</text>
+<text x="200" y="262.5" class="m s" text-anchor="end">33 skills</text>
 <rect x="40" y="304" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="322.5" class="b">5. build</text>
 <text x="200" y="322.5" class="m s" text-anchor="end">53 skills</text>
 <rect x="40" y="364" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="382.5" class="b">6. verify</text>
-<text x="200" y="382.5" class="m s" text-anchor="end">23 skills</text>
+<text x="200" y="382.5" class="m s" text-anchor="end">25 skills</text>
 <rect x="40" y="424" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="442.5" class="b">7. review</text>
-<text x="200" y="442.5" class="m s" text-anchor="end">33 skills</text>
+<text x="200" y="442.5" class="m s" text-anchor="end">35 skills</text>
 <rect x="40" y="484" width="170" height="28" rx="6" class="blue"/>
 <text x="52" y="502.5" class="b">8. release</text>
 <text x="200" y="502.5" class="m s" text-anchor="end">25 skills</text>
@@ -81,22 +81,22 @@
 <text x="910" y="82.5" class="m s" text-anchor="end">17 skills</text>
 <rect x="750" y="124" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="142.5" class="b">2. research</text>
-<text x="910" y="142.5" class="m s" text-anchor="end">18 skills</text>
+<text x="910" y="142.5" class="m s" text-anchor="end">19 skills</text>
 <rect x="750" y="184" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="202.5" class="b">3. specify</text>
 <text x="910" y="202.5" class="m s" text-anchor="end">16 skills</text>
 <rect x="750" y="244" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="262.5" class="b">4. plan</text>
-<text x="910" y="262.5" class="m s" text-anchor="end">32 skills</text>
+<text x="910" y="262.5" class="m s" text-anchor="end">33 skills</text>
 <rect x="750" y="304" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="322.5" class="b">5. build</text>
 <text x="910" y="322.5" class="m s" text-anchor="end">53 skills</text>
 <rect x="750" y="364" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="382.5" class="b">6. verify</text>
-<text x="910" y="382.5" class="m s" text-anchor="end">23 skills</text>
+<text x="910" y="382.5" class="m s" text-anchor="end">25 skills</text>
 <rect x="750" y="424" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="442.5" class="b">7. review</text>
-<text x="910" y="442.5" class="m s" text-anchor="end">33 skills</text>
+<text x="910" y="442.5" class="m s" text-anchor="end">35 skills</text>
 <rect x="750" y="484" width="170" height="28" rx="6" class="orange"/>
 <text x="762" y="502.5" class="b">8. release</text>
 <text x="910" y="502.5" class="m s" text-anchor="end">25 skills</text>

@@ -1059,6 +1059,37 @@
    "description": "Look up documentation for a library"
   },
   {
+   "id": "graphify/affected",
+   "kind": "tool",
+   "source": "graphify",
+   "phases": [
+    "plan",
+    "review"
+   ],
+   "installed": false,
+   "description": "Nodes impacted by changing a symbol, by reverse traversal (graphify affected)"
+  },
+  {
+   "id": "graphify/query",
+   "kind": "tool",
+   "source": "graphify",
+   "phases": [
+    "research"
+   ],
+   "installed": false,
+   "description": "Answer a question from the project graph by traversal (graphify query)"
+  },
+  {
+   "id": "graphify/update",
+   "kind": "tool",
+   "source": "graphify",
+   "phases": [
+    "verify"
+   ],
+   "installed": false,
+   "description": "Re-extract changed code into the project graph, no LLM (graphify update)"
+  },
+  {
    "id": "knowledge-work-data/analyze",
    "kind": "skill",
    "source": "knowledge-work-data",
@@ -1417,6 +1448,17 @@
    ],
    "installed": false,
    "description": "Feature spec or PRD from a problem statement or idea"
+  },
+  {
+   "id": "open-skill-cli/session-update",
+   "kind": "tool",
+   "source": "open-skill-cli",
+   "phases": [
+    "review",
+    "verify"
+   ],
+   "installed": false,
+   "description": "Refresh the shared Graphify graph and warn when a change reaches another parallel session's scope"
   },
   {
    "id": "open-skill/open-skill-intel",
@@ -2708,6 +2750,21 @@
    "type": "requires"
   },
   {
+   "from": "graphify/affected",
+   "to": "project:graphify-out",
+   "type": "requires"
+  },
+  {
+   "from": "graphify/query",
+   "to": "project:graphify-out",
+   "type": "requires"
+  },
+  {
+   "from": "graphify/update",
+   "to": "project:graphify-out",
+   "type": "requires"
+  },
+  {
    "from": "knowledge-work-data/analyze",
    "to": "artifact:analysis-report",
    "type": "produces"
@@ -2811,6 +2868,11 @@
    "from": "knowledge-work-product-management/write-spec",
    "to": "artifact:prd",
    "type": "produces"
+  },
+  {
+   "from": "open-skill-cli/session-update",
+   "to": "project:graphify-out",
+   "type": "requires"
   },
   {
    "from": "artifact:spec",
