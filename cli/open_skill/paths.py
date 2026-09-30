@@ -35,11 +35,34 @@ def locked(path: Path):
     with path.open("a", encoding="utf-8") as f:
         try:
             import fcntl
-        except ImportError:  # ponytail: no lock on Windows (no fcntl); use msvcrt.locking if concurrent writers appear there
-            yield
+        except ImportError:  # Windows
+            with _msvcrt_locked(f):
+                yield
             return
         fcntl.flock(f, fcntl.LOCK_EX)
         try:
             yield
         finally:
             fcntl.flock(f, fcntl.LOCK_UN)
+
+
+@contextlib.contextmanager
+def _msvcrt_locked(f):
+    """Lock the first byte of f; msvcrt has no blocking wait of its own (LK_LOCK gives up after 10 s), so poll."""
+    import msvcrt
+    import time
+
+    f.seek(0)
+    while True:
+        try:
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+            break
+        except OSError as e:
+            if e.errno not in (errno.EACCES, errno.EDEADLOCK):  # held by another process; anything else is real
+                raise
+            time.sleep(0.01)
+    try:
+        yield
+    finally:
+        f.seek(0)
+        msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
