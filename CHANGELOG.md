@@ -31,6 +31,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The `spec-kit` adapter is tested with 1.0.13 and describes the bundled `github` extension (`specify extension add github`): `github-taskstoissues` is the replacement for `taskstoissues`, which is leaving core; each lists the other as an alternative. Held-out routing is unchanged (35/52).
 - The `superpowers` adapter is tested with 6.4.2 (no skill added, renamed or removed since 5.1.0); `executing-plans` now runs the whole plan in the session and reviews it once at the end, and its description says so.
 - `open-skill lint` checks marketplace and plugin entry names against the characters Claude Code can install (ASCII letters, digits, `.`, `_`, `-`, starting with a letter or digit), as the current marketplace reference defines them; names like `my+tools` or `công-cụ` passed before, and a non-ASCII marketplace name counts as impersonating an official one.
+- `install` refuses, with exit 1, to put a skill named `synced` or `anthropic-skills` into a Claude Code skill folder: Claude Code keeps those names for skills synced from claude.ai and never loads them. Other agents still take them.
 
 ### Fixed
 - On Windows, `learn` and `session` writes now hold the same lock as on Linux and macOS (`msvcrt` byte lock), so two processes updating one note or one session folder no longer overwrite each other.
