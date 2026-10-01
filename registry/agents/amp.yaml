@@ -13,5 +13,6 @@ detect:
   - {path: "~/.config/amp", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L96"}
 relocate:
   - {var: XDG_CONFIG_HOME, replaces: "~/.config", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L9"}
+nested: {depth: 5, source: "https://ampcode.com/docs/customize/skills"}
 walk_up: {source: "https://ampcode.com/docs/customize/skills"}
 notes: The model picks skills from their name and description. Project skills are also read from parent folders; the docs do not say where that search stops, so open-skill stops at the repository root.
