@@ -172,3 +172,16 @@ def test_project_path_with_glob_characters_keeps_its_skills(reg, tmp_path, folde
     (skill / "SKILL.md").write_text("---\nname: speckit-plan\ndescription: plan\n---\n", encoding="utf-8")
     got = by_invoke(scan.scan(reg, project=project))
     assert got["speckit-plan"].id == "spec-kit/plan"
+
+
+def test_skills_at_the_repository_root_are_seen_from_a_subfolder(tmp_path):
+    root = tmp_path / "repo"
+    (root / ".git").mkdir(parents=True)
+    skill = root / ".agents" / "skills" / "release-notes"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text("---\nname: release-notes\ndescription: notes\n---\n", encoding="utf-8")
+    sub = root / "packages" / "web"
+    sub.mkdir(parents=True)
+    got = by_invoke(scan.scan(registry.load(), project=sub))  # the real registry: Codex walks up
+    assert got["release-notes"].id == "harvested/release-notes"
+    assert "codex" in got["release-notes"].agents

@@ -13,4 +13,5 @@ detect:
   - {path: "~/.config/opencode", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L558"}
 relocate:
   - {var: XDG_CONFIG_HOME, replaces: "~/.config", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L9"}
+walk_up: {source: "https://opencode.ai/docs/skills/"}
 notes: The agent loads skills through its skill tool.

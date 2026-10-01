@@ -16,12 +16,19 @@ def expand(agent: dict, path: str) -> Path:
 
 
 def folders(agent: dict, scope: str, project: Path | None = None) -> list[Path]:
-    """Skill folders for scope "global" or "project", install target first. Project folders need a project."""
+    """Skill folders for scope "global" or "project", install target first. Project folders need a project; an agent
+    that walks up also reads them in every parent folder up to the repository root (the nearest folder with `.git`)."""
     if scope == "global":
         return [expand(agent, f["path"]) for f in agent.get("global", [])]
     if project is None:
         return []
-    return [Path(project).resolve() / f["path"] for f in agent.get("project", [])]
+    start = Path(project).resolve()
+    dirs = [start]
+    if agent.get("walk_up"):
+        root = next((d for d in [start, *start.parents] if (d / ".git").exists()), None)
+        if root is not None and root != start:
+            dirs += start.parents[: start.parents.index(root) + 1]
+    return [d / f["path"] for d in dirs for f in agent.get("project", [])]
 
 
 def detected(agent: dict) -> bool:

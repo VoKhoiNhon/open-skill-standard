@@ -225,6 +225,10 @@ def agent_schema(tax: dict) -> dict:
                                "replaces": {"type": "string", "pattern": absolute},
                                "source": {"type": "string", "pattern": URL}},
             }, description="an env var that, when set, replaces a path prefix"),
+            "walk_up": {"type": "object", "required": ["source"], "additionalProperties": False,
+                        "properties": {"source": {"type": "string", "pattern": URL}},
+                        "description": "the agent also reads its project folders in every parent folder up to the "
+                                       "repository root"},
             "notes": {"type": "string"},
         },
     }
