@@ -68,6 +68,16 @@ def test_changed_files_are_tracked_edits_plus_untracked_files(graph_project):
     assert files == ["new.py", "pkg/route.py"] and warnings == []
 
 
+def test_changed_files_keep_non_ascii_names_as_they_are(graph_project):
+    # git quotes such paths ("pkg/t\303\263m...") unless asked not to, and they then match no scope
+    (graph_project / "pkg" / "tóm tắt.py").write_text("x\n", encoding="utf-8")
+    git(graph_project, "add", "-A")
+    git(graph_project, "commit", "-qm", "add")
+    (graph_project / "pkg" / "tóm tắt.py").write_text("y\n", encoding="utf-8")
+    (graph_project / "ghi chú.md").write_text("x\n", encoding="utf-8")
+    assert sessions.changed_files(graph_project)[0] == ["ghi chú.md", "pkg/tóm tắt.py"]
+
+
 def test_changed_files_since_base_include_committed_work(graph_project):
     base = git(graph_project, "rev-parse", "HEAD").strip()
     (graph_project / "pkg" / "route.py").write_text("changed\n", encoding="utf-8")

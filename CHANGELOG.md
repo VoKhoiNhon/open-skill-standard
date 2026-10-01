@@ -44,6 +44,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - On Windows, `scan` (and so `doctor`, `agents`, `search --installed` and routing) matched installed skills against adapter rules with mixed `\` and `/` separators, so every skill in a project folder and every relocated agent home was reported as an unknown harvested skill instead of its registry id; paths are compared in `/` form.
 - `scan` (and so `doctor`, `agents` and routing) finds project skills when the project's folder name contains `[`, `]` or `?`, such as `app [v2]`; the folder was read as a glob pattern and every project skill was missed.
 - `open-skill lint` no longer warns (`field-claude-code`) about `disable-model-invocation`, `user-invocable` or `background` set to `yes`, `no`, `on`, `off`, `1` or `0` in any case: Claude Code accepts them since 2.1.218. Other values, such as `2` or `maybe`, still warn.
+- `session update` sees changed files with non-ASCII names, such as `pkg/tóm tắt.py`: git quoted them (`"pkg/t\303\263m..."`), so they matched no session's scope and their conflicts went unreported. Git's output is also read as UTF-8 on Windows.
 
 ## [0.7.2] - 2026-09-29
 
