@@ -57,7 +57,7 @@ def git_env() -> dict:
 
 def tracked(root: Path) -> list[str]:
     """Tracked paths relative to root; -z keeps spaces and non-ASCII names exactly as they are."""
-    out = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True,
+    out = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, encoding="utf-8", check=True,
                          env=git_env()).stdout
     return [f for f in out.split("\0") if f]
 

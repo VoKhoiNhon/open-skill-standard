@@ -58,7 +58,7 @@ def _parse(stamp: str) -> dt.datetime:
 
 def _git(project: Path, *args) -> str | None:
     try:
-        p = subprocess.run(["git", *args], cwd=project, capture_output=True, text=True)
+        p = subprocess.run(["git", *args], cwd=project, capture_output=True, encoding="utf-8", errors="replace")
     except OSError:  # no git at all
         return None
     return p.stdout if p.returncode == 0 else None
@@ -277,11 +277,12 @@ def changed_files(project, base: str | None = None):
     if base and _git(project, "cat-file", "-e", f"{base}^{{commit}}") is None:
         warnings.append(f"session base {base} is gone; compared with HEAD")
         base = None
-    diff = _git(project, "diff", "--name-only", base or "HEAD")
-    new = _git(project, "ls-files", "--others", "--exclude-standard")
+    # -z: paths exactly as they are; without it git quotes non-ASCII names, which then match no scope
+    diff = _git(project, "diff", "--name-only", "-z", base or "HEAD")
+    new = _git(project, "ls-files", "-z", "--others", "--exclude-standard")
     if diff is None or new is None:
         return None
-    files = {f for f in (diff + new).splitlines() if f and not f.startswith(OWN)}
+    files = {f for f in (diff + new).split("\0") if f and not f.startswith(OWN)}
     return sorted(files), warnings
 
 
@@ -304,7 +305,8 @@ def update(project, session_id=None, install_hint=INSTALL_FALLBACK, now=None) ->
         raise GraphifyMissing(f"graphify is not installed; install it with: {install_hint}")
     if not (project / GRAPH).is_file():
         raise GraphMissing("no graph yet; build it once with: graphify extract . --code-only")
-    p = subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True, text=True)  # Graphify locks
+    p = subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True,
+                       encoding="utf-8", errors="replace")  # Graphify locks
     if p.returncode != 0:
         raise RefreshFailed((p.stderr or p.stdout).strip())
     graph = load_graph(project)

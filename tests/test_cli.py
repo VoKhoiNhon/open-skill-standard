@@ -252,7 +252,7 @@ def test_seeds_review_commands(capsys, tmp_path):
     from open_skill import knowledge
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "n", "text": "Old."}]})
     p = next((tmp_path / "h" / "knowledge").glob("*.md"))
-    p.write_text(p.read_text(encoding="utf-8").replace("Old.", "Mine."))
+    p.write_text(p.read_text(encoding="utf-8").replace("Old.", "Mine."), encoding="utf-8")
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "n", "text": "New."}]})
     code, out = run(capsys, "seeds", "diff")
     assert code == 0 and "-Mine." in out and "+New." in out

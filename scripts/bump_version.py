@@ -42,7 +42,7 @@ def bump(root: Path, v: str) -> list[str]:
             new = pin(text, v)
             if new != text:
                 p.write_text(new, encoding="utf-8")
-                changed.append(str(p.relative_to(root)))
+                changed.append(p.relative_to(root).as_posix())
     return changed
 
 
