@@ -243,7 +243,7 @@ def claude_runner(timeout: int = 180):
 
     def run(query: str) -> set[str]:
         out = subprocess.run(["claude", "-p", query, "--output-format", "stream-json", "--verbose", "--max-turns", "2"],
-                             capture_output=True, text=True, timeout=timeout)
+                             capture_output=True, encoding="utf-8", errors="replace", timeout=timeout)
         return invoked_skills(out.stdout)
 
     return run

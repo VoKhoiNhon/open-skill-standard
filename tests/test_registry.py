@@ -85,7 +85,7 @@ def test_validate_reports_agent_path_without_source(tmp_path):
         "id: bad\nname: Bad\ndocs: https://example.org\nglobal: [{path: ~/.bad/skills}]\n"
         "detect: [{path: ~/.bad, source: https://example.org}]\n", encoding="utf-8")
     errors = registry.validate(registry.load(root))
-    assert any("agents/bad.yaml" in e and "source" in e for e in errors)
+    assert any("agents/bad.yaml" in e.replace("\\", "/") and "source" in e for e in errors)
 
 
 def test_relocation_vars_are_cleared_for_tests():

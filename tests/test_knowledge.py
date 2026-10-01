@@ -152,7 +152,7 @@ def test_sync_adds_then_is_idempotent(home):
 def test_sync_updates_untouched_but_keeps_user_edits(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
     edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
-    edited.write_text(edited.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls AND duplicates on keys (my rule)."))
+    edited.write_text(edited.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls AND duplicates on keys (my rule)."), encoding="utf-8")
     v2 = {"data-engineer": [{"id": "merge", "text": "Use MERGE on the business key."},
                             {"id": "nulls", "text": "Check nulls on primary keys."}]}
     actions = knowledge.sync_seeds(["data-engineer"], v2)
@@ -189,7 +189,7 @@ def test_sync_dry_run_writes_nothing(home):
 def test_sync_is_quiet_about_edits_when_upstream_did_not_change(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
     p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
-    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls on keys, always."))
+    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls on keys, always."), encoding="utf-8")
     assert knowledge.sync_seeds(["data-engineer"], SEEDS_V1) == []
 
 
@@ -207,7 +207,7 @@ def test_retired_seeds_are_reported_once(home):
 def _edit_and_change_upstream(home):
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
     p = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
-    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "My stricter null rule."))
+    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "My stricter null rule."), encoding="utf-8")
     v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]}
     knowledge.sync_seeds(["data-engineer"], v2)
     return v2
@@ -267,7 +267,7 @@ def test_bug_dry_run_said_it_saved_upstream_wording_and_kept_retired_seeds(home)
     # A dry run reported "upstream wording saved for review" and "kept ...", past tense, while writing nothing.
     knowledge.sync_seeds(["data-engineer"], SEEDS_V1)
     edited = next(p for p in (home / "knowledge").glob("*.md") if "nulls" in p.read_text(encoding="utf-8"))
-    edited.write_text(edited.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls AND duplicates (my rule)."))
+    edited.write_text(edited.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls AND duplicates (my rule)."), encoding="utf-8")
     v2 = {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]}
     assert knowledge.sync_seeds(["data-engineer"], v2, dry_run=True) == [
         "would keep your edit of data-engineer/nulls; upstream wording would wait for review "
@@ -311,7 +311,7 @@ def test_bug_untouched_seed_resaved_in_nfd_counted_as_a_user_edit(home):
     seeds = {"data-engineer": [SEEDS_VI["data-engineer"][0]]}
     knowledge.init({"roles": {"data-engineer": 1.0}}, seeds=seeds)
     p = next((home / "knowledge").glob("*.md"))
-    p.write_text(unicodedata.normalize("NFD", p.read_text(encoding="utf-8")))
+    p.write_text(unicodedata.normalize("NFD", p.read_text(encoding="utf-8")), encoding="utf-8")
     actions = upgrade.upgrade({"data-engineer": [SEEDS_EN["data-engineer"][0]]})
     assert "updated data-engineer/merge (you had not edited it)" in actions
     assert _note("data-engineer/merge")["text"] == SEEDS_EN["data-engineer"][0]["text"]
@@ -340,7 +340,7 @@ def _edited_seed_with_proposal(home) -> dict:
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [SEEDS_V1["data-engineer"][1]]})
     note = _note("data-engineer/nulls")
     p = home / "knowledge" / f"{note['id']}.md"
-    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls, my way."))
+    p.write_text(p.read_text(encoding="utf-8").replace("Check nulls on keys.", "Check nulls, my way."), encoding="utf-8")
     knowledge.sync_seeds(["data-engineer"], {"data-engineer": [{"id": "nulls", "text": "Check nulls on primary keys."}]})
     assert "data-engineer/nulls" in knowledge.proposals()
     return note
