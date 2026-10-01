@@ -527,11 +527,16 @@ def with_fields(extra: str) -> str:
     ("shell: powershell", False),
     ("shell: zsh", True),
     ("disable-model-invocation: true", False),
-    ("disable-model-invocation: 'yes'", True),
+    ("disable-model-invocation: 'yes'", False),  # Claude Code reads yes/no/on/off/1/0 in any case
+    ("disable-model-invocation: 'Off'", False),
+    ("disable-model-invocation: 'maybe'", True),
     ("user-invocable: false", False),
     ("user-invocable: no-thanks", True),
     ("background: false", False),
-    ("background: 0", True),
+    ("background: 0", False),
+    ("background: 2", True),
+    ("background: 1.0", True),
+    ("background: [true]", True),
     ("effort: [low]", True),  # crashed: a list is unhashable
     ("context: {a: 1}", True),
 ])

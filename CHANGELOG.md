@@ -42,6 +42,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - On Windows, `scan`, `lint`, `install`, `adapter check`, the agent memory import and the privacy guard read SKILL.md files, plugin manifests and memory notes as UTF-8; non-ASCII names and descriptions came out garbled, so a skill named `tóm-tắt` failed `name-matches-folder` and imported memory notes were stored mangled.
 - On Windows, `scan` (and so `doctor`, `agents`, `search --installed` and routing) matched installed skills against adapter rules with mixed `\` and `/` separators, so every skill in a project folder and every relocated agent home was reported as an unknown harvested skill instead of its registry id; paths are compared in `/` form.
 - `scan` (and so `doctor`, `agents` and routing) finds project skills when the project's folder name contains `[`, `]` or `?`, such as `app [v2]`; the folder was read as a glob pattern and every project skill was missed.
+- `open-skill lint` no longer warns (`field-claude-code`) about `disable-model-invocation`, `user-invocable` or `background` set to `yes`, `no`, `on`, `off`, `1` or `0` in any case: Claude Code accepts them since 2.1.218. Other values, such as `2` or `maybe`, still warn.
 
 ## [0.7.2] - 2026-09-29
 
