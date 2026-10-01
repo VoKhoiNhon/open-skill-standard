@@ -206,14 +206,22 @@ rule("exfil-endpoint", "high",
 # outlive the skill and apply to every later session. A project's own AGENTS.md or CLAUDE.md is left out: editing it is
 # ordinary work that shows up in review. ponytail: the shell forms and a few verbs are covered; add more if needed.
 OWASP_AGENTIC = "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"
-HOME = r"(~|\$HOME|\$\{HOME\}|%USERPROFILE%)[/\\]"
+HOME = r"(~|\$HOME|\$\{HOME\}|\$USERPROFILE|\$env:USERPROFILE|%USERPROFILE%)[/\\]"
 AGENT_SETTINGS = (r"\.claude[/\\]settings(\.local)?\.json|\.codex[/\\]config\.toml|\.gemini[/\\]settings\.json"
                   r"|\.cursor[/\\]mcp\.json")
-AGENT_TARGET = (rf"[\"'`]?({HOME}[^\s\"'`|;&<>]{{0,120}}?\b(CLAUDE|AGENTS|GEMINI|MEMORY)(\.local)?\.md\b"
-                rf"|[^\s\"'`|;&<>]{{0,120}}?({AGENT_SETTINGS}))")
+PATHCHARS = r"[^\s\"'`|;&<>]"
+USER_TARGET = rf"[\"'`]?{HOME}{PATHCHARS}{{0,120}}?(\b(CLAUDE|AGENTS|GEMINI|MEMORY)(\.local)?\.md\b|{AGENT_SETTINGS})"
+ANY_TARGET = rf"({USER_TARGET}|[\"'`]?{PATHCHARS}{{0,120}}?({AGENT_SETTINGS}))"
+ARG = r"(\s+(\"[^\"\n]{0,300}\"|'[^'\n]{0,300}'|[^\s|;&]+))"  # one shell argument
+# Shell writes reach project settings too (a project's .claude/settings.json can grant permissions and hooks);
+# prose only counts for the user's own files, since setup docs routinely say "add the server to .cursor/mcp.json".
 rule("agent-config-write", "medium",
-     rf"((?<![-=>])>>?|\btee\s+(-a\s+|--append\s+)?)\s*{AGENT_TARGET}"
-     rf"|\b(append|add|write|insert|save|put)\b[^.\n]{{0,80}}?\b(to|into|in)\s+{AGENT_TARGET}",
+     rf"((?<![-=>])>>?|\btee\s+(-a\s+|--append\s+)?)\s*{ANY_TARGET}"
+     rf"|\b(cp|mv|ln|install)\b(\s+-[-\w]+)*{ARG}{{1,3}}?\s+{ANY_TARGET}"
+     rf"|\bsed\s+(-\w+\s+)*-i\S*{ARG}{{1,3}}?\s+{ANY_TARGET}"
+     rf"|\b(Add-Content|Set-Content|Out-File)\b(\s+-\w+)*\s+{ANY_TARGET}"
+     rf"|\b(append|add|write|insert|save|put)\b[^.\n]{{0,80}}?\b(to|into|in)\s+((your|the|a|my)\s+)?{USER_TARGET}"
+     rf"|\b(update|edit|modify|change|overwrite|replace)\s+((your|the|a|my)\s+)?{USER_TARGET}",
      "writes the agent's user-level instructions, memory or settings, which then apply to every later session; a "
      "skill that changes them can plant instructions or grant itself permissions", OWASP_AGENTIC)
 
