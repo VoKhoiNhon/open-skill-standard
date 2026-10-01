@@ -43,6 +43,21 @@ def test_truncated_events_log_is_read_up_to_the_damage(home, capsys):
     assert '"route_id": "r-2", "ta' in (home / "events.jsonl").read_text(encoding="utf-8")  # damage kept, not rewritten
 
 
+def test_an_events_line_nested_too_deeply_is_skipped_like_a_damaged_one(home, capsys):
+    knowledge.record({"type": "proposed", "route_id": "r-1", "task": "t", "chain": [{"id": "s/a", "invoke": "a"}]})
+    knowledge.record({"type": "feedback", "route_id": "r-1", "ran": ["a"], "outcome": "ok"})
+    with (home / "events.jsonl").open("a", encoding="utf-8") as f:
+        f.write("[" * 100_000 + "]" * 100_000 + "\n")
+    assert knowledge.personal_weights()["s/a"] > 0
+
+
+def test_a_session_record_nested_too_deeply_is_unreadable_not_a_crash(tmp_path):
+    from open_skill import sessions
+    p = tmp_path / "s-1.json"
+    p.write_text("[" * 100_000 + "]" * 100_000, encoding="utf-8")
+    assert sessions._read(p) is None
+
+
 @pytest.mark.parametrize("text", ["roles: {data-engineer: 1.0\n", "- just\n- a list\n"])
 def test_broken_profile_is_reported_and_left_alone(home, capsys, text):
     # Every command used to die with a yaml traceback (or AttributeError for a list), since all of them read it.

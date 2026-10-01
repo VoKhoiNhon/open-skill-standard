@@ -50,6 +50,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill lint` reports a plugin or marketplace manifest nested too deeply to read (`manifest-json`) instead of crashing with `RecursionError`.
 - `session update` sees changed files with non-ASCII names, such as `pkg/tóm tắt.py`: git quoted them (`"pkg/t\303\263m..."`), so they matched no session's scope and their conflicts went unreported. Git's output is also read as UTF-8 on Windows.
 - On Windows, the output of `graphify update` (shown when a session refresh fails) and of the agent CLI behind `eval triggers` is read as UTF-8 instead of the locale code page, so non-ASCII paths and text are no longer garbled.
+- A line of `events.jsonl` or a session record nested too deeply to parse is skipped like any other damaged line, instead of failing every route and `session` command with `RecursionError`; `eval triggers` also skips agent output lines that are not the objects it expects.
 - `scan` names a skill in a folder called `cache` (such as `~/.agents/skills/cache/SKILL.md`) by its own name; any path with a `cache` segment was taken for the Claude Code plugin cache and got a garbled `plugin:skill` invocation.
 
 ## [0.7.2] - 2026-09-29
