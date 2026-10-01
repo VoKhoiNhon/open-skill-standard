@@ -201,6 +201,23 @@ rule("exfil-endpoint", "high",
      "names a request-collection or paste service that attackers use to receive stolen data", ATTACK_EXFIL_WEB)
 
 
+# Memory and context poisoning: a skill that writes the agent's user-level instructions (~/.claude/CLAUDE.md,
+# ~/.codex/AGENTS.md, a MEMORY.md) or its settings (permissions, hooks, MCP servers) plants text or grants that
+# outlive the skill and apply to every later session. A project's own AGENTS.md or CLAUDE.md is left out: editing it is
+# ordinary work that shows up in review. ponytail: the shell forms and a few verbs are covered; add more if needed.
+OWASP_AGENTIC = "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"
+HOME = r"(~|\$HOME|\$\{HOME\}|%USERPROFILE%)[/\\]"
+AGENT_SETTINGS = (r"\.claude[/\\]settings(\.local)?\.json|\.codex[/\\]config\.toml|\.gemini[/\\]settings\.json"
+                  r"|\.cursor[/\\]mcp\.json")
+AGENT_TARGET = (rf"[\"'`]?({HOME}[^\s\"'`|;&<>]{{0,120}}?\b(CLAUDE|AGENTS|GEMINI|MEMORY)(\.local)?\.md\b"
+                rf"|[^\s\"'`|;&<>]{{0,120}}?({AGENT_SETTINGS}))")
+rule("agent-config-write", "medium",
+     rf"((?<![-=>])>>?|\btee\s+(-a\s+|--append\s+)?)\s*{AGENT_TARGET}"
+     rf"|\b(append|add|write|insert|save|put)\b[^.\n]{{0,80}}?\b(to|into|in)\s+{AGENT_TARGET}",
+     "writes the agent's user-level instructions, memory or settings, which then apply to every later session; a "
+     "skill that changes them can plant instructions or grant itself permissions", OWASP_AGENTIC)
+
+
 # Tokens in the shape their issuers publish. Placeholders are skipped: AWS's documented example key (AKIA...EXAMPLE)
 # and a body that starts with a filler (xxxxxxxx, 00000000, aaaaaaaa, ********, YOUR...). A key header only counts at a line's start,
 # so prose that names the header ("starts with -----BEGIN ...") is left alone.
