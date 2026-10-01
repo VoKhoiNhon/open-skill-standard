@@ -139,6 +139,16 @@ rule("plugin-name-style", "warning", "plugin.json `name` is kebab-case, as Claud
 rule("plugin-version", "warning", "plugin.json `version`, when present, is semantic (x.y.z); Claude Code accepts any string",
      PLUGIN_DOCS + "#version")
 rule("plugin-description", "warning", "plugin.json has a `description`", PLUGIN_DOCS)
+rule("plugin-path", "error", "every component path in plugin.json starts with ./ (`skills` may be \".\", `mcpServers` an "
+     "https bundle URL), has no `..`, exists, and has the right kind: `skills` folders, `agents` .md files, MCP bundles "
+     ".mcpb or .dxt", PLUGIN_DOCS + "#path-rules")
+rule("plugin-command", "error", "each entry of a `commands` object map sets exactly one of `source` and `content`",
+     PLUGIN_DOCS + "#commands")
+rule("plugin-user-config", "error", "`userConfig` maps identifiers (letters, digits, `_`, not starting with a digit) to "
+     "strict options with a `type` (string, number, boolean, directory or file), `title` and `description`, and only "
+     "documented keys; `options` only on a plain string field, each 1-64 characters", PLUGIN_DOCS + "#user-configuration")
+rule("plugin-field", "warning", "plugin.json has only documented top-level fields; Claude Code strips the others, and "
+     "`themes` and `monitors` belong under `experimental`", PLUGIN_DOCS + "#unrecognized-fields")
 
 
 @dataclass
@@ -482,6 +492,100 @@ def lint_plugin(path: Path) -> list[Finding]:
         out.append(_finding(path, "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)"))
     if not doc.get("description"):
         out.append(_finding(path, "plugin-description", "add a description so people know what the plugin does"))
+    root = path.parent.parent if path.parent.name == ".claude-plugin" else path.parent
+    for rule_id, why in _plugin_components(doc, root) + _user_config(doc.get("userConfig")):
+        out.append(_finding(path, rule_id, why))
+    for key in sorted(set(doc) - PLUGIN_FIELDS, key=str):
+        why = "belongs under `experimental`" if key in ("themes", "monitors") else "is not a plugin.json field"
+        out.append(_finding(path, "plugin-field", f"'{key}' {why}; Claude Code strips unknown top-level fields"))
+    return out
+
+
+PLUGIN_FIELDS = {"$schema", "name", "displayName", "version", "description", "author", "homepage", "repository", "license",
+                 "keywords", "metadata", "defaultEnabled", "dependencies", "settings", "userConfig", "channels", "skills",
+                 "commands", "agents", "hooks", "mcpServers", "lspServers", "outputStyles", "workflows", "experimental"}
+# Component key -> what each of its paths must be: "dir", "md" (a Markdown file) or "any".
+PLUGIN_PATHS = {"skills": "dir", "agents": "md", "outputStyles": "any", "workflows": "any", "commands": "any",
+                "hooks": "any", "mcpServers": "any", "lspServers": "any"}
+EXPERIMENTAL_PATHS = {"themes": "any", "monitors": "any", "evals": "dir"}
+INLINE = {"hooks", "mcpServers", "lspServers"}  # also take inline objects
+USER_CONFIG_KEYS = {"type", "title", "description", "required", "default", "options", "multiple", "sensitive", "min", "max"}
+USER_CONFIG_TYPES = ("string", "number", "boolean", "directory", "file")
+CONFIG_KEY = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+
+
+def _component_path(key: str, value: str, kind: str, root: Path) -> str | None:
+    """Why a component path breaks Claude Code's path rules, or None."""
+    if key == "mcpServers" and value.startswith("https://"):
+        return None if value.lower().endswith((".mcpb", ".dxt")) else f"{key}: a bundle URL must end in .mcpb or .dxt"
+    if not (value.startswith("./") or (key == "skills" and value == ".")):
+        return f"{key}: '{value}' must start with ./"
+    if ".." in value.replace("\\", "/").split("/"):
+        return f"{key}: '{value}' contains '..', which Claude Code rejects as a path traversal attempt"
+    target = root / value
+    if not target.exists():
+        return f"{key}: '{value}' does not exist"
+    if kind == "dir" and not target.is_dir():
+        return f"{key}: '{value}' must be a folder"
+    if kind == "md" and not (target.is_file() and target.suffix == ".md"):
+        return f"{key}: '{value}' must be a Markdown file; folders are not accepted"
+    if key == "mcpServers" and target.suffix.lower() not in (".json", ".mcpb", ".dxt"):
+        return f"{key}: '{value}' must be a .json config or a .mcpb or .dxt bundle"
+    return None
+
+
+def _plugin_components(doc: dict, root: Path) -> list[tuple[str, str]]:
+    out = []
+    exp = doc.get("experimental") if isinstance(doc.get("experimental"), dict) else {}
+    keys = [(k, kind, doc[k]) for k, kind in PLUGIN_PATHS.items() if k in doc]
+    keys += [(k, kind, exp[k]) for k, kind in EXPERIMENTAL_PATHS.items() if k in exp]
+    for key, kind, value in keys:
+        if key == "commands" and isinstance(value, dict):
+            for name, entry in value.items():
+                if not isinstance(entry, dict) or ("source" in entry) == ("content" in entry):
+                    out.append(("plugin-command", f"commands.{name}: set exactly one of source and content"))
+                elif isinstance(entry.get("source"), str):
+                    why = _component_path("commands", entry["source"], "md", root)
+                    out += [("plugin-path", why)] if why else []
+            continue
+        if key == "monitors" and isinstance(value, list):
+            continue  # the inline monitors array
+        for item in value if isinstance(value, list) else [value]:
+            if isinstance(item, str):
+                why = _component_path(key, item, kind, root)
+            elif isinstance(item, dict) and key in INLINE:
+                why = None
+            else:
+                why = f"{key}: expected a path{' or an inline object' if key in INLINE else ''}, not {type(item).__name__}"
+            if why:
+                out.append(("plugin-path", why))
+    return out
+
+
+def _user_config(config) -> list[tuple[str, str]]:
+    if config is None:
+        return []
+    if not isinstance(config, dict):
+        return [("plugin-user-config", "userConfig must be an object of options keyed by name")]
+    out = []
+    for key, opt in config.items():
+        why = []
+        if not (isinstance(key, str) and CONFIG_KEY.match(key)):
+            why.append("the key must be letters, digits and _, not starting with a digit")
+        if not isinstance(opt, dict):
+            out.append(("plugin-user-config", f"userConfig.{key}: must be an object with type, title and description"))
+            continue
+        why += [f"unknown key '{k}'" for k in sorted(set(opt) - USER_CONFIG_KEYS, key=str)]
+        if opt.get("type") not in USER_CONFIG_TYPES:
+            why.append(f"type must be one of {', '.join(USER_CONFIG_TYPES)}")
+        why += [f"{k} is required" for k in ("title", "description") if not isinstance(opt.get(k), str) or not opt[k]]
+        if "options" in opt:
+            opts = opt["options"]
+            if opt.get("type") != "string" or opt.get("multiple") or opt.get("sensitive"):
+                why.append("options apply only to a string field that is not multiple or sensitive")
+            if not (isinstance(opts, list) and opts and all(isinstance(o, str) and 1 <= len(o) <= 64 for o in opts)):
+                why.append("options must be a list of labels of 1-64 characters")
+        out += [("plugin-user-config", f"userConfig.{key}: {w}") for w in why]
     return out
 
 

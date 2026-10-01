@@ -555,3 +555,55 @@ def test_listing_length_counts_description_and_when_to_use():
 def test_reserved_skill_folders(folder, fires):
     text = f"---\nname: {folder}\ndescription: Does a thing.\n---\nBody.\n"
     assert ("folder-reserved" in [f.rule for f in lint.lint_text(text, folder=folder)]) is fires
+
+
+def plugin_rules(tmp_path, **fields):
+    for rel in ("skills/extra", "commands", "agents", "config", "styles"):
+        (tmp_path / rel).mkdir(parents=True, exist_ok=True)
+    for rel in ("agents/reviewer.md", "config/hooks.json", "commands/status.md", "bundle.mcpb"):
+        (tmp_path / rel).write_text("x", encoding="utf-8")
+    found = lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "tools", "description": "d", **fields}))
+    return [f.rule for f in found]
+
+
+@pytest.mark.parametrize("fields,expected", [
+    ({"skills": ["./skills/extra/", "."], "agents": ["./agents/reviewer.md"], "hooks": "./config/hooks.json",
+      "outputStyles": "./styles/", "mcpServers": ["./bundle.mcpb", "https://example.com/s.mcpb", {"api": {"command": "x"}}],
+      "commands": {"status": {"source": "./commands/status.md"}, "about": {"content": "About."}}}, []),
+    ({"skills": "skills/extra"}, ["plugin-path"]),                      # no ./ prefix
+    ({"agents": ["./agents/../agents/reviewer.md"]}, ["plugin-path"]),  # .. is rejected even inside the root
+    ({"hooks": "./config/missing.json"}, ["plugin-path"]),              # must exist
+    ({"agents": ["./agents/"]}, ["plugin-path"]),                       # agents are .md files, not folders
+    ({"skills": ["./agents/reviewer.md"]}, ["plugin-path"]),            # skills are folders
+    ({"mcpServers": "https://example.com/server.zip"}, ["plugin-path"]),
+    ({"experimental": {"themes": "themes/"}}, ["plugin-path"]),
+    ({"commands": {"about": {"source": "./commands/status.md", "content": "x"}}}, ["plugin-command"]),
+    ({"commands": {"about": {"description": "neither"}}}, ["plugin-command"]),
+    ({"skills": 7}, ["plugin-path"]),
+    ({"colour": "blue"}, ["plugin-field"]),
+    ({"themes": "./styles/"}, ["plugin-field"]),                        # loads, but belongs under experimental
+])
+def test_plugin_component_paths(tmp_path, fields, expected):
+    assert plugin_rules(tmp_path, **fields) == expected
+
+
+OPTION = {"type": "string", "title": "Token", "description": "API token"}
+
+
+@pytest.mark.parametrize("config,fires", [
+    ({"api_token": {**OPTION, "sensitive": True}}, False),
+    ({"tone": {**OPTION, "options": ["neutral", "warm"], "default": "neutral"}}, False),
+    ({"port": {"type": "number", "title": "Port", "description": "d", "min": 1, "max": 65535}}, False),
+    ({"api_token": {**OPTION, "secret": True}}, True),                    # strict: unknown key
+    ({"api_token": {"type": "string", "title": "Token"}}, True),          # description is required
+    ({"api_token": {**OPTION, "type": "secret"}}, True),
+    ({"1token": OPTION}, True),                                           # keys cannot start with a digit
+    ({"api-token": OPTION}, True),
+    ({"tone": {**OPTION, "type": "number", "options": ["a"]}}, True),     # options only for strings
+    ({"tone": {**OPTION, "options": ["a"], "sensitive": True}}, True),
+    ({"tone": {**OPTION, "options": ["x" * 65]}}, True),
+    ({"api_token": "token"}, True),
+    ([OPTION], True),
+])
+def test_plugin_user_config(tmp_path, config, fires):
+    assert ("plugin-user-config" in plugin_rules(tmp_path, userConfig=config)) is fires
