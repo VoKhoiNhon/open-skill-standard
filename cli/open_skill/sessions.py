@@ -305,7 +305,8 @@ def update(project, session_id=None, install_hint=INSTALL_FALLBACK, now=None) ->
         raise GraphifyMissing(f"graphify is not installed; install it with: {install_hint}")
     if not (project / GRAPH).is_file():
         raise GraphMissing("no graph yet; build it once with: graphify extract . --code-only")
-    p = subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True, text=True)  # Graphify locks
+    p = subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True,
+                       encoding="utf-8", errors="replace")  # Graphify locks
     if p.returncode != 0:
         raise RefreshFailed((p.stderr or p.stdout).strip())
     graph = load_graph(project)

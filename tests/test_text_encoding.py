@@ -39,3 +39,17 @@ def unnamed_encodings(path: Path) -> list[str]:
 @pytest.mark.parametrize("path", SOURCES, ids=lambda p: p.name)
 def test_text_io_names_its_encoding(path):
     assert unnamed_encodings(path) == []
+
+
+def locale_decoded(path: Path) -> list[str]:
+    """subprocess calls with text=True and no encoding decode the child's output with the locale code page."""
+    return [f"{path.name}:{node.lineno}" for node in ast.walk(ast.parse(path.read_text(encoding="utf-8")))
+            if isinstance(node, ast.Call) and not any(kw.arg == "encoding" for kw in node.keywords)
+            and any(kw.arg in ("text", "universal_newlines") and getattr(kw.value, "value", None) is True
+                    for kw in node.keywords)]
+
+
+@pytest.mark.parametrize("path", [p for p in SOURCES if p.parent.name != "tests"], ids=lambda p: p.name)
+def test_child_output_is_decoded_as_utf8(path):
+    # git, graphify and agent CLIs print UTF-8 paths and text; cp1252 garbles them on Windows
+    assert locale_decoded(path) == []
