@@ -622,3 +622,10 @@ def test_plugin_user_config(tmp_path, config, fires):
 def test_a_bad_option_name_is_reported_with_a_bad_value(tmp_path):
     found = lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "t", "description": "d", "userConfig": {"a b": 5}}))
     assert len([f for f in found if f.rule == "plugin-user-config"]) == 2
+
+
+@pytest.mark.parametrize("name", ["plugin.json", "marketplace.json"])
+def test_deeply_nested_manifest_is_reported_not_a_crash(tmp_path, name):
+    p = write_json(tmp_path, name, "[" * 100_000 + "]" * 100_000)
+    found = lint.lint_plugin(p) if name == "plugin.json" else lint.lint_marketplace(p)
+    assert [f.rule for f in found] == ["manifest-json"]

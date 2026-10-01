@@ -472,6 +472,8 @@ def _load_manifest(path: Path):
         doc = json.loads(path.read_text(encoding="utf-8", errors="replace"))
     except json.JSONDecodeError as e:
         return None, f"invalid JSON: {e}"
+    except RecursionError:
+        return None, "invalid JSON: nested too deeply to read"
     return (doc, None) if isinstance(doc, dict) else (None, "the manifest must be a JSON object")
 
 
