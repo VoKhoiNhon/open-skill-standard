@@ -14,6 +14,7 @@ from . import __version__, agents, frontmatter, knowledge, paths, userdata
 
 MANIFEST = "installed.json"  # in ~/.open-skill: every folder open-skill created, with the hash of each file
 NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")  # Agent Skills name rule; also keeps the folder inside the target
+CLAUDE_RESERVED = {"synced", "anthropic-skills"}  # folders Claude Code keeps for skills synced from claude.ai and skips
 
 
 @dataclass
@@ -70,7 +71,9 @@ def plan(src: Source, agent: dict, project: Path | None = None, mode: str = "cop
     """Where `src` goes for this agent: its first project folder with `project`, else its first global folder."""
     scope = "project" if project is not None else "global"
     p = Plan(src, agent["id"], scope, target(agent, src.name, project), mode)
-    if os.path.lexists(p.dest):
+    if src.name in CLAUDE_RESERVED and (agent["id"] == "claude-code" or p.dest.parent.as_posix().endswith("/.claude/skills")):
+        p.action, p.reason = "refuse", f"Claude Code does not load a skill folder named '{src.name}'; rename the skill"
+    elif os.path.lexists(p.dest):
         if _same(src.path, p.dest):
             p.action, p.reason = "unchanged", f"{p.dest} already holds this skill"
         else:

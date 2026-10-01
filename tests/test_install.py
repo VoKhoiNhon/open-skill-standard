@@ -262,3 +262,11 @@ def test_update_relinks_a_core_symlink_to_this_cli(reg, tmp_path):
     assert install.update()[0].startswith("updated")
     assert os.readlink(dest) == str(REPO / "skills/open-skill-router")
     assert old.is_dir()  # the old target is not ours to delete
+
+
+@pytest.mark.parametrize("name", ["synced", "anthropic-skills"])
+def test_folder_claude_code_skips_is_refused(reg, tmp_path, name):
+    src = install.resolve_source(str(skill(tmp_path / name, name)))
+    p = install.plan(src, reg.agents["claude-code"])
+    assert p.action == "refuse" and "does not load" in p.reason
+    assert install.plan(src, reg.agents["codex"]).action == "install"  # only Claude Code reserves the name
