@@ -185,3 +185,34 @@ def test_skills_at_the_repository_root_are_seen_from_a_subfolder(tmp_path):
     got = by_invoke(scan.scan(registry.load(), project=sub))  # the real registry: Codex walks up
     assert got["release-notes"].id == "harvested/release-notes"
     assert "codex" in got["release-notes"].agents
+
+
+def _skill(folder, name):
+    folder.mkdir(parents=True)
+    (folder / "SKILL.md").write_text(f"---\nname: {name}\ndescription: d\n---\n", encoding="utf-8")
+
+
+def test_skills_in_category_folders_are_seen_by_agents_that_look_deeper(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+    _skill(tmp_path / ".agents/skills/shipping/land-it", "land-it")
+    _skill(tmp_path / ".agents/skills/plain", "plain")
+    got = by_invoke(scan.scan(registry.load()))
+    assert got["land-it"].id == "harvested/land-it"
+    assert {"amp", "cursor"} <= set(got["land-it"].agents)
+    assert "codex" not in got["land-it"].agents  # Codex reads only <folder>/<name>/SKILL.md
+    assert "codex" in got["plain"].agents
+
+
+def test_nested_search_stops_at_the_agents_depth(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".agents/skills/a/b/c/d/e/too-deep", "too-deep")  # six levels below the skills folder
+    _skill(tmp_path / ".agents/skills/a/b/c/d/five-down", "five-down")
+    got = by_invoke(scan.scan(registry.load()))
+    assert "too-deep" not in got and "amp" in got["five-down"].agents
+
+
+def test_a_skill_folder_named_cache_is_not_a_plugin_cache(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".agents/skills/cache", "cache-tools")
+    assert "cache-tools" in by_invoke(scan.scan(registry.load()))

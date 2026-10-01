@@ -13,4 +13,5 @@ project:
   - {path: ".codex/skills", source: "https://cursor.com/docs/context/skills"}
 detect:
   - {path: "~/.cursor", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L275"}
-notes: Invoked by typing / in Agent chat and searching for the skill name. Claude and Codex folders are read for compatibility.
+nested: {depth: 5, source: "https://cursor.com/docs/context/skills"}
+notes: Invoked by typing / in Agent chat and searching for the skill name. Claude and Codex folders are read for compatibility. Skills may sit in category folders at any depth; open-skill looks five levels down.

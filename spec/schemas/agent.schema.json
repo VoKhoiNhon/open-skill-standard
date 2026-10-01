@@ -117,6 +117,26 @@
       },
       "description": "an env var that, when set, replaces a path prefix"
     },
+    "nested": {
+      "type": "object",
+      "required": [
+        "depth",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "depth": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 8
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^https://[^\\s]+$"
+        }
+      },
+      "description": "the agent also finds SKILL.md this many folder levels below a skill folder"
+    },
     "walk_up": {
       "type": "object",
       "required": [
