@@ -49,3 +49,29 @@ def test_detected_follows_relocation(tmp_path, monkeypatch):
     (tmp_path / "moved").mkdir()
     monkeypatch.setenv("DEMO_HOME", str(tmp_path / "moved"))
     assert agents.detected({**AGENT, "detect": [{"path": "~/.demo"}]}) is True
+
+
+WALKER = {**AGENT, "walk_up": {"source": "https://example.com/docs"}}
+
+
+def test_walk_up_reads_project_folders_up_to_the_repository_root(tmp_path):
+    root = tmp_path / "outer" / "repo"
+    (root / ".git").mkdir(parents=True)
+    sub = root / "packages" / "web"
+    sub.mkdir(parents=True)
+    assert agents.folders(WALKER, "project", sub) == [
+        sub.resolve() / ".demo/skills", (root / "packages").resolve() / ".demo/skills", root.resolve() / ".demo/skills"]
+    assert agents.folders(AGENT, "project", sub) == [sub.resolve() / ".demo/skills"]  # only agents that walk up
+
+
+def test_walk_up_stops_at_a_worktree_root(tmp_path):
+    (tmp_path / ".git").mkdir()
+    tree = tmp_path / "wt"
+    tree.mkdir()
+    (tree / ".git").write_text("gitdir: ../.git/worktrees/wt\n", encoding="utf-8")  # a linked worktree's .git is a file
+    assert agents.folders(WALKER, "project", tree / "src") == [
+        (tree / "src").resolve() / ".demo/skills", tree.resolve() / ".demo/skills"]
+
+
+def test_walk_up_outside_a_repository_reads_only_the_project(tmp_path):
+    assert agents.folders(WALKER, "project", tmp_path / "a" / "b") == [(tmp_path / "a/b").resolve() / ".demo/skills"]
