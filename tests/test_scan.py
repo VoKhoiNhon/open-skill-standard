@@ -210,3 +210,9 @@ def test_nested_search_stops_at_the_agents_depth(tmp_path, monkeypatch):
     _skill(tmp_path / ".agents/skills/a/b/c/d/five-down", "five-down")
     got = by_invoke(scan.scan(registry.load()))
     assert "too-deep" not in got and "amp" in got["five-down"].agents
+
+
+def test_a_skill_folder_named_cache_is_not_a_plugin_cache(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".agents/skills/cache", "cache-tools")
+    assert "cache-tools" in by_invoke(scan.scan(registry.load()))
