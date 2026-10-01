@@ -34,14 +34,14 @@ def bump(root: Path, v: str) -> list[str]:
         if n != 1:
             raise ValueError(f"version pattern not found in {rel}")
         if new != text:
-            p.write_text(new, encoding="utf-8")
+            p.write_text(new, encoding="utf-8", newline="\n")
             changed.append(rel)
     for p in sorted([*root.glob("skills/*/SKILL.md"), root / "README.md", root / "README.vi.md", *root.glob("site/**/*.html")]):
         if p.exists():
             text = p.read_text(encoding="utf-8")
             new = pin(text, v)
             if new != text:
-                p.write_text(new, encoding="utf-8")
+                p.write_text(new, encoding="utf-8", newline="\n")
                 changed.append(p.relative_to(root).as_posix())
     return changed
 

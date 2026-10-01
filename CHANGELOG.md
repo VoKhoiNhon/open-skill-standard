@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-10-01
+
+Sessions, a site and wider agent coverage: parallel agent sessions on one Graphify graph, a routing benchmark, new audit and lint rules for plugins and agent config, project skills found up to the repository root and in category folders, and Windows fixes.
+
 ### Added
 - A GitHub Pages site at https://vokhoinhon.github.io/open-skill-standard/ (English, with a Vietnamese page): a landing page built from the README's diagrams and a live skill graph page, built by `scripts/build_site.py` and deployed by `.github/workflows/pages.yml` on every push to `main`. The build uses a clean home and an empty PATH, so the graph shows the registry and nothing installed on the build machine. The site's install command is version-checked with the READMEs.
 - A project logo: a skill graph with one ordered route through it (`.github/assets/logo.svg`, `logo-dark.svg`, and `site/favicon.svg` as the app icon), shown at the top of both READMEs and in the site header.
@@ -52,6 +56,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - On Windows, the output of `graphify update` (shown when a session refresh fails) and of the agent CLI behind `eval triggers` is read as UTF-8 instead of the locale code page, so non-ASCII paths and text are no longer garbled.
 - A line of `events.jsonl` or a session record nested too deeply to parse is skipped like any other damaged line, instead of failing every route and `session` command with `RecursionError`; `eval triggers` also skips agent output lines that are not the objects it expects.
 - `scan` names a skill in a folder called `cache` (such as `~/.agents/skills/cache/SKILL.md`) by its own name; any path with a `cache` segment was taken for the Claude Code plugin cache and got a garbled `plugin:skill` invocation.
+- `scripts/bump_version.py` writes LF line endings on Windows too; it rewrote every file it bumped with CRLF.
 
 ## [0.7.2] - 2026-09-29
 
@@ -272,7 +277,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.6.0...v0.7.0

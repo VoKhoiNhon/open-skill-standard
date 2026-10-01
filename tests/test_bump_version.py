@@ -39,3 +39,11 @@ def test_pin_replaces_existing_refs():
 def test_rejects_non_semver(tmp_path):
     with pytest.raises(ValueError):
         bv.bump(copy_tree(tmp_path), "v1")
+
+
+def test_bump_keeps_lf_line_endings(tmp_path):
+    root = copy_tree(tmp_path)
+    changed = bv.bump(root, "9.8.7")
+    assert changed
+    for rel in changed:
+        assert b"\r\n" not in (root / rel).read_bytes(), rel  # Windows would write CRLF
