@@ -188,6 +188,14 @@ def test_core_skills_trigger_proxy_holds_per_locale():
                 assert m["precision"] >= precision and m["recall"] >= recall, (loc, skill, part, m)
 
 
+@pytest.mark.parametrize("line", ['[1]', '"text"', '{"message": 5}', '{"message": {"content": "x"}}',
+                                  '{"message": {"content": [{"type": "tool_use", "name": "Skill", "input": "x"}]}}',
+                                  pytest.param("[" * 100_000 + "]" * 100_000, id="nested-too-deeply")])
+def test_invoked_skills_skips_lines_of_another_shape(line):
+    ok = '{"message": {"content": [{"type": "tool_use", "name": "Skill", "input": {"skill": "p:s"}}]}}'
+    assert evals.invoked_skills(line + "\n" + ok) == {"s"}
+
+
 def test_invoked_skills_parses_stream_json():
     import json
     lines = [
