@@ -24,6 +24,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill lint` checks plugin source objects in `marketplace.json` (`marketplace-source`): a known type (`github`, `url`, `git-subdir`, `npm`, `archive`, `command`) with its required fields, full lowercase commit SHAs, https archives with a 64-hex `sha256`, command sources in printable ASCII with a timeout of 1–600 seconds and mode `copy` or `link`, and `headersHelper` on an archive entry only with `"strict": false`.
 - `open-skill lint` checks the values of Claude Code frontmatter fields (`field-claude-code`: `effort`, `context`, `shell` and the three booleans), warns when `description` and `when_to_use` together pass the 1,536 characters Claude Code lists (`listing-length`), and warns about skill folders Claude Code skips (`folder-reserved`: `synced`, `anthropic-skills`).
 - Agent targets may set `walk_up` (SPEC §4.6): the agent also reads its project skill folders in every parent folder up to the repository root, stopping at a linked worktree's root. Claude Code, Codex, OpenCode and Amp do, as their docs say, so `scan`, `agents` and routing run from `packages/web` now see the skills in the repository's `.claude/skills` or `.agents/skills`. Skills are still installed in the project folder given.
+- `open-skill lint` checks a plugin's `plugin.json` against Claude Code's manifest reference: component paths start with `./`, contain no `..`, exist and are the right kind (`skills` folders, `agents` Markdown files, MCP bundles `.mcpb` or `.dxt`) (`plugin-path`); each `commands` map entry sets exactly one of `source` and `content` (`plugin-command`); `userConfig` options are strict objects with a known `type`, a `title`, a `description` and values of the documented types, and a `default` among the `options` (`plugin-user-config`); and unknown top-level fields, which Claude Code strips, are warned about (`plugin-field`).
 
 ### Changed
 - The file lock used by `learn` moved to `paths.locked(path)` so session records share it.
@@ -44,6 +45,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - On Windows, `scan` (and so `doctor`, `agents`, `search --installed` and routing) matched installed skills against adapter rules with mixed `\` and `/` separators, so every skill in a project folder and every relocated agent home was reported as an unknown harvested skill instead of its registry id; paths are compared in `/` form.
 - `scan` (and so `doctor`, `agents` and routing) finds project skills when the project's folder name contains `[`, `]` or `?`, such as `app [v2]`; the folder was read as a glob pattern and every project skill was missed.
 - `open-skill lint` no longer warns (`field-claude-code`) about `disable-model-invocation`, `user-invocable` or `background` set to `yes`, `no`, `on`, `off`, `1` or `0` in any case: Claude Code accepts them since 2.1.218. Other values, such as `2` or `maybe`, still warn.
+- `open-skill lint` reports a plugin or marketplace manifest nested too deeply to read (`manifest-json`) instead of crashing with `RecursionError`.
 
 ## [0.7.2] - 2026-09-29
 
