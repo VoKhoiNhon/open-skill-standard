@@ -43,7 +43,8 @@ def _regex(pattern: str) -> re.Pattern:
 
 
 def _glob(pattern: str) -> list[Path]:
-    p = Path(pattern.replace("{name}", "*"))
+    """Patterns only use `*` and `{name}` as wildcards; `[`, `]` and `?` in a folder name are literal."""
+    p = Path(re.sub(r"[\[\]?]", lambda m: f"[{m.group()}]", pattern).replace("{name}", "*"))
     anchor = Path(p.anchor)
     return sorted(anchor.glob(str(p.relative_to(anchor))))
 
