@@ -117,6 +117,20 @@
       },
       "description": "an env var that, when set, replaces a path prefix"
     },
+    "walk_up": {
+      "type": "object",
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "pattern": "^https://[^\\s]+$"
+        }
+      },
+      "description": "the agent also reads its project folders in every parent folder up to the repository root"
+    },
     "notes": {
       "type": "string"
     }

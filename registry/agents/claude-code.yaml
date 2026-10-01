@@ -9,4 +9,5 @@ detect:
   - {path: "~/.claude", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L163"}
 relocate:
   - {var: CLAUDE_CONFIG_DIR, replaces: "~/.claude", source: "https://code.claude.com/docs/en/env-vars"}
+walk_up: {source: "https://code.claude.com/docs/en/skills"}
 notes: Plugin skills live in the plugin cache and are invoked as plugin:skill; adapter detect rules cover them.
