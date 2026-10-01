@@ -40,6 +40,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill build` writes generated files (playbooks, schemas, `dist/`) with LF line endings on Windows too; it wrote CRLF there, rewriting every generated file.
 - On Windows, `scan`, `lint`, `install`, `adapter check`, the agent memory import and the privacy guard read SKILL.md files, plugin manifests and memory notes as UTF-8; non-ASCII names and descriptions came out garbled, so a skill named `tóm-tắt` failed `name-matches-folder` and imported memory notes were stored mangled.
 - On Windows, `scan` (and so `doctor`, `agents`, `search --installed` and routing) matched installed skills against adapter rules with mixed `\` and `/` separators, so every skill in a project folder and every relocated agent home was reported as an unknown harvested skill instead of its registry id; paths are compared in `/` form.
+- `scan` (and so `doctor`, `agents` and routing) finds project skills when the project's folder name contains `[`, `]` or `?`, such as `app [v2]`; the folder was read as a glob pattern and every project skill was missed.
 
 ## [0.7.2] - 2026-09-29
 

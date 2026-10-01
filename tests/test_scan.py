@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import pytest
@@ -160,3 +161,14 @@ def test_skill_installed_under_its_frontmatter_name_maps_to_its_registry_id(tmp_
     monkeypatch.setenv("HOME", str(tmp_path))
     got = by_invoke(scan.scan(registry.load()))["design-taste-frontend"]
     assert got.id == "taste-skill/taste-skill" and got.inferred is False
+
+
+@pytest.mark.parametrize("folder", ["app [v2]", "x[!a]", pytest.param("build?", marks=pytest.mark.skipif(
+    sys.platform == "win32", reason="? is not allowed in Windows file names"))])
+def test_project_path_with_glob_characters_keeps_its_skills(reg, tmp_path, folder):
+    project = tmp_path / folder
+    skill = project / ".claude" / "skills" / "speckit-plan"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text("---\nname: speckit-plan\ndescription: plan\n---\n", encoding="utf-8")
+    got = by_invoke(scan.scan(reg, project=project))
+    assert got["speckit-plan"].id == "spec-kit/plan"
