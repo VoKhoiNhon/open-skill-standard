@@ -1,4 +1,4 @@
-"""Every text file the CLI and scripts read or write names its encoding; the locale default is cp1252 on Windows."""
+"""Every text file the CLI, scripts and tests read or write names its encoding; the locale default is cp1252 on Windows."""
 
 import ast
 from pathlib import Path
@@ -6,7 +6,8 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parent.parent
-SOURCES = sorted([*(REPO / "cli" / "open_skill").glob("*.py"), *(REPO / "scripts").glob("*.py")])
+SOURCES = sorted([*(REPO / "cli" / "open_skill").glob("*.py"), *(REPO / "scripts").glob("*.py"),
+                  *(REPO / "tests").glob("*.py")])
 
 
 def _mode(call: ast.Call, index: int) -> str:
