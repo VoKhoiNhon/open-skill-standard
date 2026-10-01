@@ -580,6 +580,10 @@ def plugin_rules(tmp_path, **fields):
     ({"commands": {"about": {"source": "./commands/status.md", "content": "x"}}}, ["plugin-command"]),
     ({"commands": {"about": {"description": "neither"}}}, ["plugin-command"]),
     ({"skills": 7}, ["plugin-path"]),
+    ({"experimental": ["./styles/"]}, ["plugin-path"]),                 # an object, not a list
+    ({"mcpServers": "HTTPS://example.com/s.mcpb"}, []),
+    ({"commands": {"about": {"source": 5}}}, ["plugin-command"]),
+    ({"commands": {"about": {"content": "x", "hint": "[file]"}}}, ["plugin-command"]),
     ({"colour": "blue"}, ["plugin-field"]),
     ({"themes": "./styles/"}, ["plugin-field"]),                        # loads, but belongs under experimental
 ])
@@ -603,7 +607,18 @@ OPTION = {"type": "string", "title": "Token", "description": "API token"}
     ({"tone": {**OPTION, "options": ["a"], "sensitive": True}}, True),
     ({"tone": {**OPTION, "options": ["x" * 65]}}, True),
     ({"api_token": "token"}, True),
+    ({"a b": 5}, True),
+    ({"port": {"type": "number", "title": "Port", "description": "d", "min": "1"}}, True),
+    ({"api_token": {**OPTION, "required": "yes"}}, True),
+    ({"api_token": {**OPTION, "default": {"a": 1}}}, True),
+    ({"tone": {**OPTION, "options": ["neutral"], "default": "loud"}}, True),
+    ({"paths": {**OPTION, "multiple": True, "default": ["a", "b"]}}, False),
     ([OPTION], True),
 ])
 def test_plugin_user_config(tmp_path, config, fires):
     assert ("plugin-user-config" in plugin_rules(tmp_path, userConfig=config)) is fires
+
+
+def test_a_bad_option_name_is_reported_with_a_bad_value(tmp_path):
+    found = lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "t", "description": "d", "userConfig": {"a b": 5}}))
+    assert len([f for f in found if f.rule == "plugin-user-config"]) == 2

@@ -511,12 +511,13 @@ EXPERIMENTAL_PATHS = {"themes": "any", "monitors": "any", "evals": "dir"}
 INLINE = {"hooks", "mcpServers", "lspServers"}  # also take inline objects
 USER_CONFIG_KEYS = {"type", "title", "description", "required", "default", "options", "multiple", "sensitive", "min", "max"}
 USER_CONFIG_TYPES = ("string", "number", "boolean", "directory", "file")
+COMMAND_KEYS = {"source", "content", "description", "argumentHint", "model", "allowedTools"}
 CONFIG_KEY = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 
 
 def _component_path(key: str, value: str, kind: str, root: Path) -> str | None:
     """Why a component path breaks Claude Code's path rules, or None."""
-    if key == "mcpServers" and value.startswith("https://"):
+    if key == "mcpServers" and value.lower().startswith("https://"):
         return None if value.lower().endswith((".mcpb", ".dxt")) else f"{key}: a bundle URL must end in .mcpb or .dxt"
     if not (value.startswith("./") or (key == "skills" and value == ".")):
         return f"{key}: '{value}' must start with ./"
@@ -536,7 +537,10 @@ def _component_path(key: str, value: str, kind: str, root: Path) -> str | None:
 
 def _plugin_components(doc: dict, root: Path) -> list[tuple[str, str]]:
     out = []
-    exp = doc.get("experimental") if isinstance(doc.get("experimental"), dict) else {}
+    exp = doc.get("experimental", {})
+    if not isinstance(exp, dict):
+        out.append(("plugin-path", f"experimental: expected an object, not {type(exp).__name__}"))
+        exp = {}
     keys = [(k, kind, doc[k]) for k, kind in PLUGIN_PATHS.items() if k in doc]
     keys += [(k, kind, exp[k]) for k, kind in EXPERIMENTAL_PATHS.items() if k in exp]
     for key, kind, value in keys:
@@ -544,7 +548,13 @@ def _plugin_components(doc: dict, root: Path) -> list[tuple[str, str]]:
             for name, entry in value.items():
                 if not isinstance(entry, dict) or ("source" in entry) == ("content" in entry):
                     out.append(("plugin-command", f"commands.{name}: set exactly one of source and content"))
-                elif isinstance(entry.get("source"), str):
+                    continue
+                for k in sorted(set(entry) - COMMAND_KEYS, key=str):
+                    out.append(("plugin-command", f"commands.{name}: unknown key '{k}'"))
+                for k in ("source", "content", "description", "argumentHint", "model"):
+                    if k in entry and not isinstance(entry[k], str):
+                        out.append(("plugin-command", f"commands.{name}: {k} must be a string"))
+                if isinstance(entry.get("source"), str):
                     why = _component_path("commands", entry["source"], "md", root)
                     out += [("plugin-path", why)] if why else []
             continue
@@ -573,18 +583,29 @@ def _user_config(config) -> list[tuple[str, str]]:
         if not (isinstance(key, str) and CONFIG_KEY.match(key)):
             why.append("the key must be letters, digits and _, not starting with a digit")
         if not isinstance(opt, dict):
-            out.append(("plugin-user-config", f"userConfig.{key}: must be an object with type, title and description"))
+            why.append("must be an object with type, title and description")
+            out += [("plugin-user-config", f"userConfig.{key}: {w}") for w in why]
             continue
         why += [f"unknown key '{k}'" for k in sorted(set(opt) - USER_CONFIG_KEYS, key=str)]
         if opt.get("type") not in USER_CONFIG_TYPES:
             why.append(f"type must be one of {', '.join(USER_CONFIG_TYPES)}")
         why += [f"{k} is required" for k in ("title", "description") if not isinstance(opt.get(k), str) or not opt[k]]
+        why += [f"{k} must be true or false" for k in ("required", "multiple", "sensitive")
+                if k in opt and not isinstance(opt[k], bool)]
+        why += [f"{k} must be a number" for k in ("min", "max")
+                if k in opt and (isinstance(opt[k], bool) or not isinstance(opt[k], (int, float)))]
+        d = opt.get("default")
+        if "default" in opt and not (isinstance(d, (str, int, float, bool))
+                                     or (isinstance(d, list) and all(isinstance(x, str) for x in d))):
+            why.append("default must be a string, number, boolean or list of strings")
         if "options" in opt:
             opts = opt["options"]
             if opt.get("type") != "string" or opt.get("multiple") or opt.get("sensitive"):
                 why.append("options apply only to a string field that is not multiple or sensitive")
             if not (isinstance(opts, list) and opts and all(isinstance(o, str) and 1 <= len(o) <= 64 for o in opts)):
                 why.append("options must be a list of labels of 1-64 characters")
+            elif "default" in opt and d not in opts:
+                why.append("default must be one of the options")
         out += [("plugin-user-config", f"userConfig.{key}: {w}") for w in why]
     return out
 
