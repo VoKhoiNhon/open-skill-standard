@@ -47,8 +47,9 @@ AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invo
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
 # Claude Code frontmatter values (skills reference, "Frontmatter reference"); YAML reads true/false as booleans.
 CLAUDE_CODE_VALUES = {"effort": ("low", "medium", "high", "xhigh", "max"), "context": ("fork",),
-                      "shell": ("bash", "powershell"), "disable-model-invocation": (True, False),
-                      "user-invocable": (True, False), "background": (True, False)}
+                      "shell": ("bash", "powershell")}
+CLAUDE_CODE_BOOLEANS = ("disable-model-invocation", "user-invocable", "background")
+BOOLEAN_WORDS = {"true", "false", "yes", "no", "on", "off", "1", "0"}  # any case, since Claude Code 2.1.218
 LISTING_MAX = 1536
 FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
 
@@ -97,8 +98,8 @@ rule("field-compatibility", "error", "`compatibility`, when present, is a string
 rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
 rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
 rule("field-claude-code", "warning", "Claude Code fields hold values it accepts: `effort` low, medium, high, xhigh or max; "
-     "`context` fork; `shell` bash or powershell; true or false for `disable-model-invocation`, `user-invocable` and "
-     "`background`", CLAUDE_SKILLS + "#frontmatter-reference")
+     "`context` fork; `shell` bash or powershell; true, false, yes, no, on, off, 1 or 0 (any case) for "
+     "`disable-model-invocation`, `user-invocable` and `background`", CLAUDE_SKILLS + "#frontmatter-reference")
 rule("listing-length", "warning", "`description` and `when_to_use` together fit in the 1,536 characters Claude Code lists",
      CLAUDE_SKILLS + "#frontmatter-reference")
 rule("folder-reserved", "warning", "the skill folder is not named `synced` (any case) or `anthropic-skills`, which Claude "
@@ -205,6 +206,11 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
         if key in meta and not any(type(meta[key]) is type(a) and meta[key] == a for a in allowed):  # 0 is not False
             shown = " or ".join(str(a).lower() for a in allowed)
             add("field-claude-code", f"{key} is {meta[key]!r}; Claude Code accepts {shown}")
+    for key in CLAUDE_CODE_BOOLEANS:
+        v = meta.get(key)
+        if key in meta and not (isinstance(v, bool) or (type(v) is int and v in (0, 1))
+                                or (isinstance(v, str) and v.lower() in BOOLEAN_WORDS)):
+            add("field-claude-code", f"{key} is {v!r}; Claude Code accepts true, false, yes, no, on, off, 1 or 0")
     listed = len(desc) + len(frontmatter.text(meta, "when_to_use"))
     if listed > LISTING_MAX:
         add("listing-length", f"description and when_to_use are {listed} characters; Claude Code cuts the listing at "
