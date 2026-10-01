@@ -97,7 +97,7 @@ def _read(path: Path) -> dict | None:
             return None
         _parse(rec["seen"])
         return rec
-    except (OSError, ValueError, TypeError, KeyError):
+    except (OSError, ValueError, TypeError, KeyError, RecursionError):
         return None
 
 

@@ -47,6 +47,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `scan` (and so `doctor`, `agents` and routing) finds project skills when the project's folder name contains `[`, `]` or `?`, such as `app [v2]`; the folder was read as a glob pattern and every project skill was missed.
 - `open-skill lint` no longer warns (`field-claude-code`) about `disable-model-invocation`, `user-invocable` or `background` set to `yes`, `no`, `on`, `off`, `1` or `0` in any case: Claude Code accepts them since 2.1.218. Other values, such as `2` or `maybe`, still warn.
 - `open-skill lint` reports a plugin or marketplace manifest nested too deeply to read (`manifest-json`) instead of crashing with `RecursionError`.
+- A line of `events.jsonl` or a session record nested too deeply to parse is skipped like any other damaged line, instead of failing every route and `session` command with `RecursionError`; `eval triggers` also skips agent output lines that are not the objects it expects.
 
 ## [0.7.2] - 2026-09-29
 

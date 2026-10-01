@@ -176,7 +176,7 @@ def _events() -> list[dict]:
     for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
         try:
             event = json.loads(line) if line.strip() else None
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, RecursionError):  # RecursionError: nested too deeply to read
             continue
         if isinstance(event, dict):
             out.append(event)
