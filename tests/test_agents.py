@@ -75,3 +75,8 @@ def test_walk_up_stops_at_a_worktree_root(tmp_path):
 
 def test_walk_up_outside_a_repository_reads_only_the_project(tmp_path):
     assert agents.folders(WALKER, "project", tmp_path / "a" / "b") == [(tmp_path / "a/b").resolve() / ".demo/skills"]
+
+
+def test_depth_defaults_to_one_level():
+    assert agents.depth(AGENT) == 1
+    assert agents.depth({**AGENT, "nested": {"depth": 5, "source": "https://example.com"}}) == 5

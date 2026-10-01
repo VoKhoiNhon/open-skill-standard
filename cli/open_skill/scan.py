@@ -69,16 +69,24 @@ def _describe(path: Path) -> tuple[str, str]:
     return frontmatter.text(meta, "name") or path.parent.name, frontmatter.text(meta, "description")
 
 
-def _targets(pattern: str, project: Path | None, reg, agent: str) -> list[tuple[str, list[str]]]:
+def _targets(pattern: str, project: Path | None, reg, agent: str, nested: bool = False) -> list[tuple[str, list[str]]]:
     """(glob, agents that read it). `{skills}` and `{project_skills}` fan out over every agent's skill folders;
-    a folder several agents share is globbed once, its owners (the agents listing it first) ahead of the rest."""
+    a folder several agents share is globbed once, its owners (the agents listing it first) ahead of the rest.
+    With `nested`, a `{skills}/*/SKILL.md` pattern also reaches deeper folders for the agents that read them."""
     for placeholder, scope in (("{skills}", "global"), ("{project_skills}", "project")):
         if pattern.startswith(placeholder):
             dirs: dict[str, list[tuple[int, str]]] = {}
             for aid, a in reg.agents.items():
                 for rank, d in enumerate(agents.folders(a, scope, project)):
                     dirs.setdefault(d.as_posix(), []).append((rank, aid))
-            return [(d + pattern[len(placeholder):], [aid for _, aid in sorted(ids)]) for d, ids in dirs.items()]
+            rest = pattern[len(placeholder):]
+            out = [(d + rest, [aid for _, aid in sorted(ids)]) for d, ids in dirs.items()]
+            if nested and rest == "/*/SKILL.md":
+                for d, ids in dirs.items():
+                    for level in range(2, 1 + max(agents.depth(reg.agents[aid]) for _, aid in ids)):
+                        deeper = [aid for _, aid in sorted(ids) if agents.depth(reg.agents[aid]) >= level]
+                        out.append((d + "/*" * level + "/SKILL.md", deeper))
+            return out
     pat = _expand(pattern, project, reg.agents.get(agent))
     return [(pat, [agent])] if pat else []
 
@@ -134,13 +142,13 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                 _add(found, sid, Installed(sid, inv, f"command:{cmd}", s.get("description", ""), False), list(reg.agents))
     taken = {(a, inv) for i in found.values() for a, inv in i.agents.items()}
     for pattern in GENERIC:
-        for pat, seen_by in _targets(pattern, project, reg, DEFAULT_AGENT):
+        for pat, seen_by in _targets(pattern, project, reg, DEFAULT_AGENT, nested=True):
             for path in _latest_versions(_glob(pat)):
                 if path.resolve() in claimed:
                     continue
                 name, desc = _describe(path)
                 parts = path.parts
-                inv = f"{parts[parts.index('skills') - 2]}:{name}" if "cache" in parts else name
+                inv = f"{parts[parts.index('skills') - 2]}:{name}" if "/plugins/cache/" in pattern else name
                 free = [a for a in seen_by if (a, inv) not in taken]
                 if free:
                     _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True), free)

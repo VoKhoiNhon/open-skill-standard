@@ -225,6 +225,10 @@ def agent_schema(tax: dict) -> dict:
                                "replaces": {"type": "string", "pattern": absolute},
                                "source": {"type": "string", "pattern": URL}},
             }, description="an env var that, when set, replaces a path prefix"),
+            "nested": {"type": "object", "required": ["depth", "source"], "additionalProperties": False,
+                       "properties": {"depth": {"type": "integer", "minimum": 2, "maximum": 8},
+                                      "source": {"type": "string", "pattern": URL}},
+                       "description": "the agent also finds SKILL.md this many folder levels below a skill folder"},
             "walk_up": {"type": "object", "required": ["source"], "additionalProperties": False,
                         "properties": {"source": {"type": "string", "pattern": URL}},
                         "description": "the agent also reads its project folders in every parent folder up to the "

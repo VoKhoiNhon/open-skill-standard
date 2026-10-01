@@ -31,6 +31,11 @@ def folders(agent: dict, scope: str, project: Path | None = None) -> list[Path]:
     return [d / f["path"] for d in dirs for f in agent.get("project", [])]
 
 
+def depth(agent: dict) -> int:
+    """How many folder levels below a skill folder the agent looks for SKILL.md (1: only <folder>/<name>/SKILL.md)."""
+    return int(agent.get("nested", {}).get("depth", 1))
+
+
 def detected(agent: dict) -> bool:
     """Installed on this machine: any detect path exists (after relocation)."""
     return any(expand(agent, d["path"]).exists() for d in agent.get("detect", []))
