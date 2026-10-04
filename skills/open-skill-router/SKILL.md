@@ -8,7 +8,7 @@ description: Picks which installed skills to use for a task and in what order, f
 Your job is to turn a request into a short, ordered chain of the right skills and start on it. The chain matters because this machine may have many overlapping skills (several build workflows, several reviewers); mixing workflows corrupts their artifacts and wastes the user's time.
 
 `open-skill` below means the CLI. If it is not on PATH, run it as
-`uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.3 open-skill`.
+`uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.4 open-skill`.
 
 ## 1. Classify, then route
 
