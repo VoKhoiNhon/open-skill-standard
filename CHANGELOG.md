@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- `install --symlink` where the user cannot create symbolic links (Windows without Developer Mode) says so and suggests installing without `--symlink`, instead of passing on "A required privilege is not held by the client". `update` creates a core skill's new link before removing the old one, so a refused link no longer leaves the skill uninstalled.
+
 ### Added
 - `open-skill audit --format sarif` writes a SARIF 2.1.0 log for code scanning: every rule with its source link and a `security-severity` (high 8.0, medium 5.0, low 2.0), and each finding with its file, line and excerpt. Paths under the current folder are relative to it, so a log made at a repository root uploads as is; each result names its group (the folder audited, or the source with `--installed`).
 - `open-skill lint --format sarif` writes the same kind of log for lint findings, one result per file (lint reports files, not lines).
