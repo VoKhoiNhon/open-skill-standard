@@ -503,6 +503,7 @@ def test_session_lifecycle(cli):
     bin_dir.mkdir()
     (bin_dir / "graphify").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     (bin_dir / "graphify").chmod(0o755)
+    (bin_dir / "graphify.cmd").write_text("@exit /b 0\n", encoding="utf-8")  # what Windows runs through PATHEXT
     cli.env["PATH"] = f"{bin_dir}{os.pathsep}{cli.env['PATH']}"
     missing = cli.run("session", "update", "--session", sid, code=2)
     assert "graphify extract . --code-only" in missing.stderr
