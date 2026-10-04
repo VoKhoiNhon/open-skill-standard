@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- `open-skill doctor` reads the `skills-lock.json` that `npx skills` writes at a project root (in the current folder, or the one given with `--project`) and reports how many of its skills are as installed, which were edited since (their folder no longer has the locked hash) and which are no longer in any agent's project skill folder. The hash is computed as `npx skills` computes it, including its file order.
+- `open-skill doctor` reads the `skills-lock.json` that `npx skills` writes at a project root (in the current folder, or the one given with `--project`) and reports how many of its skills are as installed, which were edited since (their folder no longer has the locked hash) and which are no longer in any agent's project skill folder. The hash is computed as `npx skills` computes it, including its file order; a skill with non-ASCII or unreadable file names is reported as not checked rather than guessed.
 
 ### Added
 - `open-skill audit --format sarif` writes a SARIF 2.1.0 log for code scanning: every rule with its source link and a `security-severity` (high 8.0, medium 5.0, low 2.0), and each finding with its file, line and excerpt. Paths under the current folder are relative to it, so a log made at a repository root uploads as is; each result names its group (the folder audited, or the source with `--installed`).

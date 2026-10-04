@@ -429,10 +429,11 @@ def cmd_doctor(args):
     locked = skills_lock.check(project, [p["path"] for a in reg.agents.values() for p in a.get("project", [])])
     if locked is not None:
         n = sum(len(v) for v in locked.values())
-        parts = [f"{len(locked['changed'])} changed since install ({', '.join(locked['changed'])})"] if locked["changed"] else []
-        parts += [f"{len(locked['missing'])} not in a skill folder ({', '.join(locked['missing'])})"] if locked["missing"] else []
+        what = {"changed": "changed since install → npx skills update", "missing": "not in a skill folder",
+                "unchecked": "not checked (non-ASCII or unreadable file names)"}
+        parts = [f"{len(locked[k])} {w} ({', '.join(locked[k])})" for k, w in what.items() if locked[k]]
         print(f"  {skills_lock.LOCK_FILE}: {n} skill(s) installed by npx skills"
-              + (f"; {'; '.join(parts)} → npx skills update" if parts else ", all as installed"))
+              + (f"; {'; '.join(parts)}" if parts else ", all as installed"))
     rep = lint.health(installed)
     errs = sum(r["errors"] for r in rep.values())
     warns = sum(r["warnings"] for r in rep.values())
