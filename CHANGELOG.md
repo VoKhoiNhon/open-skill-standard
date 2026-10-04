@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The `spec-kit` adapter is tested with 1.1.0. `taskstoissues` no longer says it is moving to the `github` extension: upstream now keeps the core command and adds the extension's `github-taskstoissues` beside it.
+
 ## [0.7.3] - 2026-10-01
 
 Sessions, a site and wider agent coverage: parallel agent sessions on one Graphify graph, a routing benchmark, new audit and lint rules for plugins and agent config, project skills found up to the repository root and in category folders, and Windows fixes.
