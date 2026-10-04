@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "demo": {
+      "source": "example-org/demo-skills",
+      "sourceType": "github",
+      "computedHash": "f4fc796fc942c15a795cb10c25e3ba97e7fadcc017b30c94d3db534012a09e6b"
+    },
+    "edited": {
+      "source": "example-org/demo-skills",
+      "sourceType": "github",
+      "computedHash": "8fc99a25a8433c1d93fa936bdb1f71bbde5aaf40136cbd047f3eac258b42cc10"
+    },
+    "gone": {
+      "source": "example-org/demo-skills",
+      "sourceType": "github",
+      "computedHash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}

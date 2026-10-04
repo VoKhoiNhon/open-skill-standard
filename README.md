@@ -52,7 +52,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.3 open-ski
 /open-skill-router add a pipeline that loads orders into the warehouse
 ```
 
-`open-skill doctor` shows which frameworks are installed and the official command for each one that is missing.
+`open-skill doctor` shows which frameworks are installed and the official command for each one that is missing. In a project where `npx skills` keeps a `skills-lock.json`, it also says which of those skills were edited since install or are no longer in a skill folder.
 
 ## Any agent that loads Agent Skills
 
