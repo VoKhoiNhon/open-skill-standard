@@ -49,6 +49,9 @@ CASES = [
     ("spec-kit/plan", "claude-code", "speckit-plan"),
     ("spec-kit/implement", "codex", "speckit-implement"),
     ("spec-kit/specify", "github-copilot", "speckit-specify"),
+    ("spec-kit/tasks", "gemini-cli", "/speckit.tasks"),
+    ("spec-kit/analyze", "opencode", "/speckit.analyze"),
+    ("spec-kit/clarify", "amp", "/speckit.clarify"),
 ]
 
 
