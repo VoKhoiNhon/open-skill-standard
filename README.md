@@ -343,7 +343,8 @@ These outputs are for other tools; the keys listed are always present (more may 
 | `open-skill lint --format json` | list of objects | `path`, `severity`, `rule`, `message`, `source` |
 | `open-skill lint --installed --format json` | object per source | `skills`, `errors`, `warnings`, `worst` |
 | `open-skill audit --format json` | object | `disclaimer`, `summary`, `groups` |
-| `open-skill audit --format sarif`, `lint --format sarif` | SARIF 2.1.0 log | `version`, `runs` (one run: `tool.driver.rules`, `results`) |
+| `open-skill audit --format sarif` | object | `version`, `runs` (a SARIF 2.1.0 log with one run) |
+| `open-skill lint --format sarif` | object | `version`, `runs` (a SARIF 2.1.0 log with one run) |
 | `open-skill graph --format json` | object | `version`, `nodes`, `edges` |
 | `open-skill eval routing --format json` | object | `cases`, `passed`, `pass_rate`, `by_role`, `results` |
 | `open-skill eval triggers --format json` | object per skill | `train`, `validation` |

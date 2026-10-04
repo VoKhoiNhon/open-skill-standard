@@ -88,7 +88,8 @@ def _check_shape(cmd: str, data) -> None:
 def test_readme_documents_every_json_output():
     assert set(_documented_shapes()) == {
         "route", "scan --json", "agents --json", "status --json", "lint --format json",
-        "lint --installed --format json", "audit --format json", "graph --format json",
+        "lint --installed --format json", "audit --format json", "graph --format json", "lint --format sarif",
+        "audit --format sarif",
         "eval routing --format json", "eval triggers --format json"}
 
 
@@ -114,6 +115,9 @@ def test_lint(cli):
     loose = _skill(cli.tmp / "loose", "loose", body="".join(f"{i}. You MUST ALWAYS do this.\n" for i in range(7)))
     cli.run("lint", str(loose), "--format", "text")
     cli.run("lint", str(loose), "--strict", code=1)
+    log = cli.json("lint", str(bad), "--format", "sarif", code=1)
+    _check_shape("lint --format sarif", log)
+    assert {r["level"] for r in log["runs"][0]["results"]} >= {"error"}
 
 
 def test_lint_installed(cli):
@@ -127,6 +131,9 @@ def test_audit(cli):
     _check_shape("audit --format json", rep)
     assert rep["summary"]["high"] == 0
     assert "high" in cli.run("audit", str(FIX / "audit" / "risky-skill"), code=1).stdout
+    log = cli.json("audit", str(FIX / "audit" / "risky-skill"), "--format", "sarif", code=1)
+    _check_shape("audit --format sarif", log)
+    assert log["version"] == "2.1.0" and log["runs"][0]["results"]
     low = _skill(cli.tmp / "low", "low", body="Current branch: !`git branch --show-current`\n")
     assert "0 high, 0 medium, 1 low" in cli.run("audit", str(low), "--format", "text").stdout
     cli.run("audit", str(low), "--strict", code=1)

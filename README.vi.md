@@ -365,7 +365,8 @@ Các đầu ra này dành cho công cụ khác; các khoá liệt kê luôn có 
 | `open-skill lint --format json` | list of objects | `path`, `severity`, `rule`, `message`, `source` |
 | `open-skill lint --installed --format json` | object per source | `skills`, `errors`, `warnings`, `worst` |
 | `open-skill audit --format json` | object | `disclaimer`, `summary`, `groups` |
-| `open-skill audit --format sarif`, `lint --format sarif` | log SARIF 2.1.0 | `version`, `runs` (một run: `tool.driver.rules`, `results`) |
+| `open-skill audit --format sarif` | object | `version`, `runs` (log SARIF 2.1.0 có một run) |
+| `open-skill lint --format sarif` | object | `version`, `runs` (log SARIF 2.1.0 có một run) |
 | `open-skill graph --format json` | object | `version`, `nodes`, `edges` |
 | `open-skill eval routing --format json` | object | `cases`, `passed`, `pass_rate`, `by_role`, `results` |
 | `open-skill eval triggers --format json` | object per skill | `train`, `validation` |
