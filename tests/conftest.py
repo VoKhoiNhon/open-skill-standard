@@ -88,3 +88,27 @@ def fake_graphify(tmp_path, monkeypatch):
     configure()
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
     return configure
+
+
+def _can_symlink() -> bool:
+    """Whether this user may create symbolic links; Windows allows it only with Developer Mode or as administrator."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        try:
+            os.symlink(d, os.path.join(d, "link"), target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return False
+    return True
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "symlinks: the test creates symbolic links")
+
+
+def pytest_collection_modifyitems(config, items):
+    marked = [item for item in items if "symlinks" in item.keywords]
+    if marked and not _can_symlink():
+        skip = pytest.mark.skip(reason="this user cannot create symbolic links (on Windows, turn on Developer Mode)")
+        for item in marked:
+            item.add_marker(skip)

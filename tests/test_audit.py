@@ -44,6 +44,7 @@ def test_audit_paths_accepts_a_single_file(toy_rule, tmp_path):
     assert [f.line for f in audit.audit_paths([tmp_path / "SKILL.md"])] == [1]
 
 
+@pytest.mark.symlinks
 def test_link_leaving_the_skill_is_reported_and_never_read(toy_rule, tmp_path):
     outside = tmp_path / "outside.txt"
     outside.write_text("danger\n", encoding="utf-8")
@@ -56,12 +57,14 @@ def test_link_leaving_the_skill_is_reported_and_never_read(toy_rule, tmp_path):
     assert "toy" not in {f.rule for f in found}
 
 
+@pytest.mark.symlinks
 def test_link_inside_the_skill_is_fine(toy_rule, tmp_path):
     (tmp_path / "a.md").write_text("ok\n", encoding="utf-8")
     (tmp_path / "b.md").symlink_to(tmp_path / "a.md")
     assert audit.audit_paths([tmp_path]) == []
 
 
+@pytest.mark.symlinks
 def test_a_linked_skill_folder_given_by_the_user_is_audited_at_its_target(toy_rule, tmp_path):
     real = tmp_path / "real"
     real.mkdir()
@@ -87,6 +90,7 @@ def test_oversized_text_is_reported_as_unscanned(toy_rule, tmp_path, monkeypatch
     assert [(f.rule, f.severity) for f in audit.audit_paths([tmp_path])] == [("unscanned-file", "low")]
 
 
+@pytest.mark.skipif(not hasattr(__import__("os"), "mkfifo"), reason="no FIFOs on this platform")
 def test_special_files_are_skipped_without_opening(toy_rule, tmp_path):
     import os
 
