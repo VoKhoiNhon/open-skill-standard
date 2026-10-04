@@ -329,7 +329,9 @@ def _mask(out: str, tmp: Path) -> str:
     out = out.replace(str(ROOT) + "/", "").replace(str(ROOT) + os.sep, "").replace(str(ROOT), "<checkout>")
     out = re.sub(r"\br-\d{8}-\d{6}-[0-9a-f]{6}\b", "r-<id>", out)
     # masked Windows paths read as the POSIX ones the committed captures show
-    out = re.sub(r"(?:~|\.|<tmp>|<checkout>)(?:\\[^\s\\:]+)+", lambda m: m.group().replace("\\", "/"), out)
+    # (a masked prefix starting a word, then path segments), so escapes and sentences ending in "." stay as they are
+    out = re.sub(r"(?<![^\s=(\[\"'])(?:~|\.|<tmp>|<checkout>)(?:\\[\w.@+-]+)+",
+                 lambda m: m.group().replace("\\", "/"), out)
     return out.replace(f"open-skill {__version__}", "open-skill X.Y.Z")
 
 
