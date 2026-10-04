@@ -21,7 +21,7 @@ def run(capsys, *argv):
 
 def test_audit_paths_prints_findings_and_the_disclaimer(capsys):
     code, out = run(capsys, "audit", str(AUDIT / "risky-skill"))
-    assert "[override-instructions]" in out and "risky-skill/SKILL.md:" in out
+    assert "[override-instructions]" in out and str(Path("risky-skill", "SKILL.md")) + ":" in out
     assert "https://genai.owasp.org/llmrisk/llm01-prompt-injection/" in out
     assert audit.DISCLAIMER in out
 

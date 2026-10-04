@@ -1,7 +1,7 @@
 source: graphify
 upstream: https://github.com/Graphify-Labs/graphify
 license: Apache-2.0
-tested_version: 0.9.72
+tested_version: 0.9.75
 summary: Local code knowledge graph (tree-sitter, no LLM for code) with query, impact and incremental update CLIs. Misses calls made through a module name (mod.fn()), so codegraph stays the tool for call-level questions.
 install:
   cli: "uv tool install graphifyy"

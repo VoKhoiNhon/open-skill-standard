@@ -1753,7 +1753,7 @@
     "release"
    ],
    "installed": false,
-   "description": "Turn tasks into dependency-ordered GitHub issues (moving to the github extension)"
+   "description": "Turn tasks into dependency-ordered GitHub issues"
   },
   {
    "id": "superpowers/brainstorming",

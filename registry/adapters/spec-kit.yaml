@@ -1,7 +1,7 @@
 source: spec-kit
 upstream: https://github.com/github/spec-kit
 license: MIT
-tested_version: 1.0.13
+tested_version: 1.1.0
 summary: Spec-driven development - constitution, spec, plan, tasks, implement, converge; bug, assessment and GitHub extensions.
 install:
   cli: "uv tool install specify-cli"
@@ -84,7 +84,7 @@ skills:
     requires: ["project:.specify"]
     task_size: [medium, large]
   - name: taskstoissues
-    description: Turn tasks into dependency-ordered GitHub issues (moving to the github extension)
+    description: Turn tasks into dependency-ordered GitHub issues
     phases: [plan, release]
     consumes: [tasks]
     alternatives: [spec-kit/github-taskstoissues]
