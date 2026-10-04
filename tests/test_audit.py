@@ -705,6 +705,9 @@ def test_skill_hooks_flags_hooks_in_skill_and_agent_frontmatter():
     (f,) = [f for f in audit.audit_text(HOOKS, "fmt/SKILL.md") if f.rule == "skill-hooks"]
     assert f.line == 4 and f.severity == "medium"
     assert "skill-hooks" in {f.rule for f in audit.audit_text(HOOKS, "plugin/agents/reviewer.md")}
+    assert "skill-hooks" in {f.rule for f in audit.audit_text(HOOKS, ".claude/commands/fmt.md")}
+    for quoted in ('"hooks":', "'hooks' :"):
+        assert "skill-hooks" in {f.rule for f in audit.audit_text(HOOKS.replace("hooks:", quoted), "SKILL.md")}
     assert "skill-hooks" in {f.rule for f in audit.audit_text("﻿" + HOOKS.replace("\n", "\r\n"), "x/SKILL.md")}
 
 

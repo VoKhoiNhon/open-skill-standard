@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- `open-skill audit` flags `skill-hooks` (medium): `hooks` in the frontmatter of a SKILL.md or a plugin agent. Claude Code registers them when the skill is invoked and runs their commands on agent events for the rest of the session, long after the skill's own turn. Only the frontmatter counts, so a skill that documents hooks in its body is not flagged.
+- `open-skill audit` flags `skill-hooks` (medium): `hooks` (the key may be quoted) in the frontmatter of a SKILL.md, a command or an agent file. Claude Code registers them when the skill is invoked and runs their commands on agent events for the rest of the session, long after the skill's own turn. Only the frontmatter counts, so a skill that documents hooks in its body is not flagged.
 
 ## [0.7.3] - 2026-10-01
 

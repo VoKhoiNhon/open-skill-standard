@@ -287,11 +287,11 @@ rule("broad-allowed-tools", "medium",
      "https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill", whole=True)
 
 
-rule("skill-hooks", "medium", r"^(?-i:hooks)[ \t]*:",  # YAML keys are case-sensitive
-     "registers hooks when the skill or agent is invoked; their commands run on agent events for the rest of the "
-     "session, long after the skill's own turn, so read every command they run",
+rule("skill-hooks", "medium", r"""^(?-i:hooks|"hooks"|'hooks')[ \t]*:""",  # YAML keys are case-sensitive, may be quoted
+     "registers hooks when the skill, command or agent is invoked; their commands run on agent events for the rest of "
+     "the session, long after the skill's own turn, so read every command they run",
      "https://code.claude.com/docs/en/hooks#hooks-in-skills-and-agents",
-     only=r"(^|[/\\])(SKILL\.md|agents[/\\].+\.md)$", frontmatter=True)
+     only=r"(^|[/\\])(SKILL\.md|(agents|commands)[/\\].+\.md)$", frontmatter=True)
 
 
 rule("shell-at-load", "low", r"(^|\s)!`[^`]+`|^\s*```!",
