@@ -19,6 +19,11 @@ install:
   github-extension: "specify extension add github"
 detect:
   - {glob: "{project_skills}/speckit-{name}/SKILL.md", invoke: "speckit-{name}"}
+  # Integrations that write command files instead of skills (docs/reference/integrations.md, "Command directory");
+  # extension commands there are named speckit.<extension>.<command>, so only the core commands are listed.
+  - {glob: "{project}/.gemini/commands/speckit.{name}.toml", invoke: "/speckit.{name}", agent: gemini-cli, names: &core [constitution, specify, clarify, plan, checklist, tasks, analyze, implement, converge, taskstoissues]}
+  - {glob: "{project}/.opencode/commands/speckit.{name}.md", invoke: "/speckit.{name}", agent: opencode, names: *core}
+  - {glob: "{project}/.agents/commands/speckit.{name}.md", invoke: "/speckit.{name}", agent: amp, names: *core}
 portability: [claude-code, codex, cursor, copilot, gemini]
 skills:
   - name: constitution

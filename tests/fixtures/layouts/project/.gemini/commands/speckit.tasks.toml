@@ -1,0 +1,4 @@
+description = "Generate tasks.md from the plan"
+prompt = """
+stand-in for a spec-kit command
+"""
