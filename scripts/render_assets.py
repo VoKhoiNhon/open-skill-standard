@@ -313,16 +313,23 @@ def _fixture_machine(tmp: Path, reg) -> dict:
     (tmp / "project" / "tests").mkdir(parents=True)
     (tmp / "project" / "tests" / "test_orders.py").write_text("", "utf-8")
     (tmp / "bin").mkdir()  # an empty PATH: tools found on this machine (codegraph...) must not change the output
-    return {"HOME": str(home), "OPEN_SKILL_HOME": str(home / ".open-skill"), "CLAUDECODE": "1",
-            "PATH": str(tmp / "bin"), "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"}
+    env = {"HOME": str(home), "OPEN_SKILL_HOME": str(home / ".open-skill"), "CLAUDECODE": "1",
+           "PATH": str(tmp / "bin"), "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"}
+    if os.name == "nt":  # Python needs SYSTEMROOT to start there, and `~` follows USERPROFILE rather than HOME
+        env.update(SYSTEMROOT=os.environ.get("SYSTEMROOT", r"C:\Windows"), USERPROFILE=str(home))
+    return env
 
 
 def _mask(out: str, tmp: Path) -> str:
     """No local paths, run ids or versions: captures must not change between machines or releases."""
     for t in sorted({str(tmp), str(tmp.resolve())}, key=len, reverse=True):  # /private/var before /var
-        out = out.replace(t + "/home", "~").replace(t + "/project", ".").replace(t, "<tmp>")
-    out = out.replace(str(ROOT) + "/", "").replace(str(ROOT), "<checkout>")
+        for sep in ("/", "\\"):  # Windows paths use backslashes
+            out = out.replace(t + sep + "home", "~").replace(t + sep + "project", ".")
+        out = out.replace(t, "<tmp>")
+    out = out.replace(str(ROOT) + "/", "").replace(str(ROOT) + os.sep, "").replace(str(ROOT), "<checkout>")
     out = re.sub(r"\br-\d{8}-\d{6}-[0-9a-f]{6}\b", "r-<id>", out)
+    # masked Windows paths read as the POSIX ones the committed captures show
+    out = re.sub(r"(?:~|\.|<tmp>|<checkout>)(?:\\[^\s\\:]+)+", lambda m: m.group().replace("\\", "/"), out)
     return out.replace(f"open-skill {__version__}", "open-skill X.Y.Z")
 
 

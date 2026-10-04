@@ -53,6 +53,13 @@ def test_mask_hides_temp_paths_route_ids_and_the_version(tmp_path):
     assert out == "open-skill X.Y.Z  home=~/.open-skill\n== ./skill\nroute r-<id> in tests"
 
 
+def test_mask_writes_windows_paths_the_way_the_captures_show_them(tmp_path):
+    t = str(tmp_path)
+    out = ra._mask(f"home={t}\\home\\.open-skill\n  high [x] {t}\\project\\skill\\SKILL.md:9\n"
+                   "  excerpt keeps \\x1b escapes", tmp_path)
+    assert out == "home=~/.open-skill\n  high [x] ./skill/SKILL.md:9\n  excerpt keeps \\x1b escapes"
+
+
 def test_wrap_keeps_every_line_within_the_terminal_width():
     long = "   runner-ups: " + ", ".join(f"source/skill-{i} 0.{i}" for i in range(30))
     parts = ra._wrap(long)
