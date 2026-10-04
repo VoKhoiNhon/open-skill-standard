@@ -629,3 +629,12 @@ def health(installed) -> dict[str, dict]:
         if errs:
             row["worst"].append(f"{inst.invoke}: {errs[0].rule}")
     return dict(sorted(report.items()))
+
+
+def sarif_log(findings: list[Finding], base=None) -> dict:
+    """A SARIF 2.1.0 log of lint findings; lint reports files, not lines, so results carry no region."""
+    from . import sarif
+
+    rules = [{"id": r.id, "severity": r.severity, "text": r.checks, "source": r.source} for r in RULES.values()]
+    return sarif.log(rules, [{"rule": f.rule, "severity": f.severity, "message": f.message, "path": f.path}
+                             for f in findings], base)

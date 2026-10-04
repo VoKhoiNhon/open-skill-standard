@@ -32,6 +32,9 @@ def cmd_validate(args):
 
 
 def cmd_lint(args):
+    if args.installed and args.format == "sarif":
+        print("--format sarif lists findings by file; the --installed report is a summary by source", file=sys.stderr)
+        return 2
     if args.installed:
         report = lint.health(scan.scan(_registry(args)))
         if args.format == "json":
@@ -52,6 +55,8 @@ def cmd_lint(args):
     errors = [f for f in findings if f.severity == "error"]
     if args.format == "json":
         _print([f.__dict__ for f in findings])
+    elif args.format == "sarif":
+        _print(lint.sarif_log(findings))
     else:
         for f in findings:
             print(f"{f.path}: {f.severity} [{f.rule}] {f.message} ({f.source})")
@@ -763,7 +768,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("paths", nargs="*")
     s.add_argument("--strict", action="store_true", help="fail on warnings too")
     s.add_argument("--installed", action="store_true", help="health report of every installed skill, by source")
-    s.add_argument("--format", choices=["text", "json"], default="text")
+    s.add_argument("--format", choices=["text", "json", "sarif"], default="text",
+                   help="sarif: a SARIF 2.1.0 log for code scanning (not with --installed)")
     s.set_defaults(fn=cmd_lint)
     s = sub.add_parser("audit", help="heuristic security review of skill folders; reads files, never runs them")
     s.add_argument("paths", nargs="*", help="skill folders or files (default: every installed skill)")
