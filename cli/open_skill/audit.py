@@ -35,19 +35,20 @@ class Rule:
     whole: bool = False  # match across lines; the finding points at the line where the match starts
     only: re.Pattern | None = None  # when set, the rule applies only to file paths this matches
     unless: re.Pattern | None = None  # a line match is skipped when the text before it on the line matches this
+    frontmatter: bool = False  # a line rule that applies only inside the file's leading YAML frontmatter
 
 
 RULES: dict[str, Rule] = {}
 
 
 def rule(id: str, severity: str, pattern: str | None, message: str, source: str, whole: bool = False,
-         only: str | None = None, unless: str | None = None) -> None:
+         only: str | None = None, unless: str | None = None, frontmatter: bool = False) -> None:
     """Register a rule; every rule cites the public guidance it comes from. Patterns ignore case."""
     assert severity in SEVERITIES and id not in RULES, id
     flags = re.IGNORECASE | (re.DOTALL if whole else 0)
     RULES[id] = Rule(id, severity, re.compile(pattern, flags) if pattern else None, message, source, whole,
                      re.compile(only, re.IGNORECASE) if only else None,
-                     re.compile(unless, re.IGNORECASE) if unless else None)
+                     re.compile(unless, re.IGNORECASE) if unless else None, frontmatter)
 
 
 def _applies(r: Rule, file: str) -> bool:
@@ -75,12 +76,23 @@ def _excerpt(line: str, limit: int = 160) -> str:
     return s if len(s) <= limit else s[: limit - 3] + "..."
 
 
+def _frontmatter_end(lines: list[str]) -> int:
+    """The 1-based line number of the --- that closes leading frontmatter, or 0 when the file has none."""
+    if not lines or lines[0].lstrip("\ufeff").rstrip() != "---":
+        return 0
+    return next((n for n, line in enumerate(lines[1:], 2) if line.rstrip() in ("---", "...")), 0)
+
+
 def audit_text(text: str, file: str = "<text>") -> list[Finding]:
     """Findings for one file's text; rules limited to some files (only=) are skipped elsewhere, except for "<text>"."""
     out = []
     rules = [r for r in RULES.values() if _applies(r, file)]
-    for n, line in enumerate(text.split("\n"), 1):  # only \n, as editors and the whole-text rules count lines
+    lines = text.split("\n")  # only \n, as editors and the whole-text rules count lines
+    end = _frontmatter_end(lines)
+    for n, line in enumerate(lines, 1):
         for r in rules:
+            if r.frontmatter and not 1 < n < end:
+                continue
             if r.pattern and not r.whole and any(not (r.unless and r.unless.search(line, 0, m.start()))
                                                  for m in r.pattern.finditer(line)):
                 out.append(Finding(r.severity, r.id, file, n, _excerpt(line), r.source, r.message))
@@ -273,6 +285,13 @@ rule("broad-allowed-tools", "medium",
      rf"(?m)^allowed-tools[ \t]*:[^\n]*?{BROAD_BASH}|^allowed-tools[ \t]*:[ \t]*([>|][+-]?)?[ \t]*\r?\n(?:[ \t]+[^\n]*\n)*?[ \t]+[^\n]*?{BROAD_BASH}",
      "allowed-tools pre-approves any shell command, or a download, delete or interpreter command, without a prompt",
      "https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill", whole=True)
+
+
+rule("skill-hooks", "medium", r"""^(?-i:hooks|"hooks"|'hooks')[ \t]*:""",  # YAML keys are case-sensitive, may be quoted
+     "registers hooks when the skill, command or agent is invoked; their commands run on agent events for the rest of "
+     "the session, long after the skill's own turn, so read every command they run",
+     "https://code.claude.com/docs/en/hooks#hooks-in-skills-and-agents",
+     only=r"(^|[/\\])(SKILL\.md|(agents|commands)[/\\].+\.md)$", frontmatter=True)
 
 
 rule("shell-at-load", "low", r"(^|\s)!`[^`]+`|^\s*```!",
