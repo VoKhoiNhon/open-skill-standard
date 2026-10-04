@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The `graphify` adapter is tested with 0.9.75: `extract . --code-only`, `query`, `affected` and `update .` behave as before, and the session lifecycle runs end to end against it.
+
 ### Added
 - `open-skill audit --format sarif` writes a SARIF 2.1.0 log for code scanning: every rule with its source link and a `security-severity` (high 8.0, medium 5.0, low 2.0), and each finding with its file, line and excerpt. Paths under the current folder are relative to it, so a log made at a repository root uploads as is; each result names its group (the folder audited, or the source with `--installed`).
 - `open-skill lint --format sarif` writes the same kind of log for lint findings, one result per file (lint reports files, not lines).
