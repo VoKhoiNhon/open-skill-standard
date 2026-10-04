@@ -276,3 +276,35 @@ def test_folder_claude_code_skips_is_refused(reg, tmp_path, name):
     p = install.plan(src, reg.agents["claude-code"])
     assert p.action == "refuse" and "does not load" in p.reason
     assert install.plan(src, reg.agents["codex"]).action == "install"  # only Claude Code reserves the name
+
+
+def _refuse_links(monkeypatch):
+    def refuse(*a, **k):
+        raise PermissionError(1, "A required privilege is not held by the client")
+    monkeypatch.setattr(install.os, "symlink", refuse)
+
+
+def test_a_refused_symlink_install_says_how_to_proceed(reg, tmp_path, monkeypatch):
+    src = install.resolve_source(str(skill(tmp_path / "src" / "demo", "demo")))
+    p = install.plan(src, reg.agents["codex"], mode="symlink")
+    _refuse_links(monkeypatch)
+    with pytest.raises(OSError) as e:
+        install.apply(p)
+    assert "--symlink" in e.value.strerror and "Developer Mode" in e.value.strerror
+    assert not p.dest.exists() and install.manifest() == []
+
+
+@pytest.mark.symlinks
+def test_a_refused_relink_keeps_the_old_link(reg, tmp_path, monkeypatch):
+    import shutil
+    old = tmp_path / "old-cli/skills/open-skill-router"
+    shutil.copytree(REPO / "skills/open-skill-router", old)
+    dest = tmp_path / "home/.agents/skills/open-skill-router"
+    dest.parent.mkdir(parents=True)
+    dest.symlink_to(old, target_is_directory=True)
+    install._save([{"skill": "open-skill-router", "agent": "codex", "scope": "global", "dest": str(dest),
+                    "source": str(old), "kind": "core", "mode": "symlink", "version": "0.0.1", "files": {}}])
+    _refuse_links(monkeypatch)
+    with pytest.raises(OSError):
+        install.update()
+    assert dest.is_symlink() and os.readlink(dest) == str(old)

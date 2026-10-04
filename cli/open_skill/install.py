@@ -122,13 +122,27 @@ def _copy(src: Path, dest: Path) -> None:
         raise
 
 
+NO_SYMLINKS = ("this user cannot create symbolic links here (on Windows, turn on Developer Mode); install without "
+               "--symlink to copy the skill instead")
+
+
+def _symlink(target: Path, dest: Path) -> None:
+    """Link dest to the folder target, explaining a refused link rather than passing on the system's wording."""
+    try:
+        os.symlink(target, dest, target_is_directory=True)
+    except OSError as e:
+        if isinstance(e, PermissionError) or getattr(e, "winerror", None) == 1314:  # ERROR_PRIVILEGE_NOT_HELD
+            raise OSError(e.errno, NO_SYMLINKS, str(dest)) from e
+        raise
+
+
 def apply(p: Plan) -> None:
     """Carry out an install plan and record what was created. Plans that are not installs change nothing."""
     if p.action != "install":
         return
     p.dest.parent.mkdir(parents=True, exist_ok=True)
     if p.mode == "symlink":
-        os.symlink(p.source.path, p.dest, target_is_directory=True)
+        _symlink(p.source.path, p.dest)
     else:
         _copy(p.source.path, p.dest)
     rec = {"skill": p.source.name, "agent": p.agent, "scope": p.scope, "dest": str(p.dest),
@@ -217,8 +231,12 @@ def update(agent: str | None = None, dry_run: bool = False) -> list[str]:
         if dry_run:
             continue
         if not current and rec["mode"] == "symlink":
+            fresh = dest.with_name(dest.name + ".open-skill-new")  # link first, so a refused link loses nothing
+            if fresh.is_symlink():
+                fresh.unlink()
+            _symlink(new, fresh)
             dest.unlink()
-            os.symlink(new, dest, target_is_directory=True)
+            fresh.rename(dest)
         elif not current:
             _replace(dest, new)
         rec.update(source=str(new), version=__version__, files={} if rec["mode"] == "symlink" else _files(dest))
