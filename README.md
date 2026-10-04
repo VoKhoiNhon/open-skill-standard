@@ -268,6 +268,18 @@ open-skill audit --installed               # everything installed, grouped by so
 open-skill audit --installed --format json # for other tools
 ```
 
+For code scanning, `--format sarif` writes a SARIF 2.1.0 log (`open-skill lint` has it too) with a `security-severity` per rule, so GitHub ranks the alerts; paths are relative to the current folder, so run it at the repository root (files outside it, such as `--installed` skills, become `file://` URIs that code scanning cannot place in the repository):
+
+```yaml
+# in a GitHub Actions job with `permissions: security-events: write`, after installing open-skill
+- run: open-skill audit skills/ --format sarif > audit.sarif
+# the audit exits 1 on a high finding; upload the log anyway
+- uses: github/codeql-action/upload-sarif@v4
+  if: always()
+  with:
+    sarif_file: audit.sarif
+```
+
 It flags text that tries to override the user's or system's instructions, hide actions from the user, skip or fake approval, impersonate the system or an administrator, or reach for SSH keys, cloud credentials, `.env` files, browser profiles and password stores; downloads piped straight into a shell, decoded text run as a command, known exfiltration endpoints and hard-coded tokens or private keys; writes to the agent's own instructions, memory or settings (`~/.claude/CLAUDE.md`, `.claude/settings.json`), which outlive the skill; invisible Unicode and HTML comments that address the agent; unscoped shell grants in `allowed-tools` and commands that run while a skill loads; links that leave the skill folder and bundled executables. Each finding shows the file, line, an escaped excerpt, why it matters and the public source of the rule (OWASP Top 10 for LLM and for Agentic Applications, MITRE ATT&CK, Anthropic and Claude Code documentation). The command exits 1 on high-severity findings; `--strict` also fails on medium and low. `open-skill doctor` shows a one-line summary.
 
 This is a heuristic reviewer, not a guarantee. A finding can be harmless in context, and a clean report only means no rule matched: a careful attacker can phrase things the rules do not catch. Still read skills from unknown sources yourself, and prefer skills you or your organization maintain.
@@ -310,8 +322,8 @@ open-skill agents [--project .]     open-skill install <skill|folder> --agent a 
 open-skill remove <skill> --agent a [--project .] [--dry-run]    open-skill update [--agent a] [--dry-run]
 open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
 open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
-open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
-open-skill audit [paths] [--installed] [--format json] [--strict]
+open-skill validate | lint [paths] [--format json|sarif] | build [--check] | graph [--format mermaid|json|html] [--out file]
+open-skill audit [paths] [--installed] [--format json|sarif] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 open-skill session start --scope <glob> --task "..." | list [--prune] | end <id> | update [--session <id>] [--json]
 ```
@@ -331,6 +343,8 @@ These outputs are for other tools; the keys listed are always present (more may 
 | `open-skill lint --format json` | list of objects | `path`, `severity`, `rule`, `message`, `source` |
 | `open-skill lint --installed --format json` | object per source | `skills`, `errors`, `warnings`, `worst` |
 | `open-skill audit --format json` | object | `disclaimer`, `summary`, `groups` |
+| `open-skill audit --format sarif` | object | `version`, `runs` (a SARIF 2.1.0 log with one run) |
+| `open-skill lint --format sarif` | object | `version`, `runs` (a SARIF 2.1.0 log with one run) |
 | `open-skill graph --format json` | object | `version`, `nodes`, `edges` |
 | `open-skill eval routing --format json` | object | `cases`, `passed`, `pass_rate`, `by_role`, `results` |
 | `open-skill eval triggers --format json` | object per skill | `train`, `validation` |

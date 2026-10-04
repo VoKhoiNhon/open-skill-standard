@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill audit --format sarif` writes a SARIF 2.1.0 log for code scanning: every rule with its source link and a `security-severity` (high 8.0, medium 5.0, low 2.0), and each finding with its file, line and excerpt. Paths under the current folder are relative to it, so a log made at a repository root uploads as is; each result names its group (the folder audited, or the source with `--installed`).
+- `open-skill lint --format sarif` writes the same kind of log for lint findings, one result per file (lint reports files, not lines).
+
 ## [0.7.3] - 2026-10-01
 
 Sessions, a site and wider agent coverage: parallel agent sessions on one Graphify graph, a routing benchmark, new audit and lint rules for plugins and agent config, project skills found up to the repository root and in category folders, and Windows fixes.
