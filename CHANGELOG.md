@@ -11,6 +11,9 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill lint` warns about directory listing fields set on a marketplace entry (`marketplace-listing`); Anthropic's directory reads them from `plugin.json` only.
 - `open-skill audit` flags `skill-hooks` (medium): `hooks` (the key may be quoted) in the frontmatter of a SKILL.md, a command or an agent file. Claude Code registers them when the skill is invoked and runs their commands on agent events for the rest of the session, long after the skill's own turn. Only the frontmatter counts, so a skill that documents hooks in its body is not flagged.
 
+### Changed
+- The `spec-kit` adapter is tested with 1.1.0. `taskstoissues` no longer says it is moving to the `github` extension: upstream now keeps the core command and adds the extension's `github-taskstoissues` beside it.
+
 ## [0.7.3] - 2026-10-01
 
 Sessions, a site and wider agent coverage: parallel agent sessions on one Graphify graph, a routing benchmark, new audit and lint rules for plugins and agent config, project skills found up to the repository root and in category folders, and Windows fixes.
