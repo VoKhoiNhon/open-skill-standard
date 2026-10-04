@@ -399,7 +399,7 @@ def test_agents_lists_detected_agents_and_their_skills(capsys):
     code, out = run(capsys, "agents", "--json")
     by_id = {a["id"]: a for a in json.loads(out)}
     assert by_id["codex"]["detected"] is True and by_id["codex"]["skills"] >= 2
-    assert by_id["codex"]["install_to"]["global"].endswith(".agents/skills")
+    assert Path(by_id["codex"]["install_to"]["global"]).parts[-2:] == (".agents", "skills")
     assert by_id["codex"]["install_to"]["project"] is None  # no --project given
     assert by_id["demo-agent"]["docs"].startswith("https://")
 
@@ -545,4 +545,4 @@ def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, wh
     shutil.copytree(FIX / "repo", tmp_path / "r")
     (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text, encoding="utf-8")
     code = cli.main(["--registry", str(tmp_path / "r"), "validate"])
-    assert code == 1 and why in capsys.readouterr().err
+    assert code == 1 and why in capsys.readouterr().err.replace("\\", "/")  # Windows paths use backslashes

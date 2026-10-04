@@ -428,7 +428,7 @@ def test_shell_at_load_only_where_the_agent_runs_it(tmp_path):
     for rel in ("SKILL.md", "commands/review.md", "references/component-schemas.md", "README.md", "notes.txt"):
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / rel).write_text(line, encoding="utf-8")
-    hits = sorted(str(Path(f.file).relative_to(tmp_path)) for f in audit.audit_paths([tmp_path]) if f.rule == "shell-at-load")
+    hits = sorted(Path(f.file).relative_to(tmp_path).as_posix() for f in audit.audit_paths([tmp_path]) if f.rule == "shell-at-load")
     assert hits == ["SKILL.md", "commands/review.md"]
 
 
