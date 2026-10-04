@@ -132,6 +132,9 @@ rule("marketplace-desktop", "warning", "marketplace and plugin names are at most
      "not named org, org-provisioned or unknown, which Claude Desktop rejects", MARKETPLACE_REF + "#validation-messages")
 rule("marketplace-description", "warning", "marketplace.json has a `description` (or `metadata.description`)",
      MARKETPLACE_REF + "#top-level-fields")
+rule("marketplace-listing", "warning", "plugin entries do not set the directory listing fields (`icon`, `documentationUrl`, "
+     "`supportUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`), which belong in the plugin's own plugin.json",
+     PLUGIN_DOCS + "#directory-listing-fields")
 rule("marketplace-empty", "warning", "marketplace.json lists at least one plugin", MARKETPLACE_REF + "#validation-messages")
 rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
      PLUGIN_DOCS + "#name")
@@ -397,6 +400,9 @@ def lint_marketplace(path: Path) -> list[Finding]:
         if isinstance(pname, str) and pname in seen:
             add("marketplace-plugin", f"duplicate plugin name '{pname}'")
         seen.add(pname if isinstance(pname, str) else None)
+        for key in [k for k in ("icon", *LISTING_URLS) if k in p]:
+            add("marketplace-listing", f"plugins[{i}].{key} is read from plugin.json only; the validator reports it "
+                                       "as an unknown field here")
         src = p.get("source")
         for why in _source_problems(src) if "source" in p else []:
             add("marketplace-source", f"plugins[{i}].source: {why}")

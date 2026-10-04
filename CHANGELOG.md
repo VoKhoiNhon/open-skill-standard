@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - `open-skill lint` follows the current Claude Code plugins reference for `plugin.json`: names that pass as one of Anthropic's own plugins (`claude-…`, `anthropic-…`, `cc-plugin-…`, `official` beside `claude`) are an error (`plugin-reserved`) and `claude` or `anthropic` as a whole word a warning (`plugin-anthropic-word`); the directory listing fields `icon`, `documentationUrl`, `supportUrl`, `privacyPolicyUrl` and `termsOfServiceUrl` and the mod `types` path are known fields, with `icon` checked as an image inside the plugin and the links as https URLs (`plugin-listing`); a `homepage` that is not a URL is an error (`plugin-homepage`), since the plugin then fails to load; and it warns about a `CLAUDE.md` at the plugin root, which is never loaded (`plugin-claude-md`), a top-level `bin/` folder, which claude.ai and Cowork refuse to install (`plugin-bin`), and a default folder such as `commands/` that a manifest key silently replaces (`plugin-default-ignored`).
+- `open-skill lint` warns about directory listing fields set on a marketplace entry (`marketplace-listing`); Anthropic's directory reads them from `plugin.json` only.
 
 ## [0.7.3] - 2026-10-01
 

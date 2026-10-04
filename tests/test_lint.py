@@ -691,3 +691,10 @@ def test_default_folder_ignored_when_the_manifest_replaces_it(tmp_path, fields, 
     (tmp_path / "extra").mkdir()
     (tmp_path / "extra" / "reviewer.md").write_text("x", encoding="utf-8")
     assert ("plugin-default-ignored" in plugin_rules(tmp_path, **fields)) is fires
+
+
+def test_marketplace_entries_do_not_carry_listing_fields(tmp_path):
+    entry = {"name": "a", "source": "./a", "icon": "./logo.png", "supportUrl": "https://example.com/help"}
+    doc_ = {"name": "tools", "description": "d", "owner": {"name": "x"}, "plugins": [entry]}
+    found = [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
+    assert found == ["marketplace-listing", "marketplace-listing"]
