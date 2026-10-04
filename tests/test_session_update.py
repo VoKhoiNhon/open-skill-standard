@@ -242,6 +242,8 @@ def test_update_passes_a_failed_refresh_through_and_never_forces(graph_project, 
 
 
 def test_update_outside_git_skips_the_conflict_check(graph_project, fake_graphify, capsys):
+    for f in (graph_project / ".git").rglob("*"):
+        f.chmod(0o700)  # git's object files are read-only, and Windows refuses to delete read-only files
     shutil.rmtree(graph_project / ".git")
     code, out, err = _run(capsys, "update", "--project", str(graph_project), "--json")
     assert code == 0 and "conflict check skipped" in err
