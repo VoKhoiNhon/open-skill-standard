@@ -70,3 +70,20 @@ def test_doctor_shows_a_one_line_audit_summary(capsys):
     code, out = run(capsys, "doctor")
     (line,) = [x for x in out.splitlines() if "security audit" in x]
     assert "0 high, 0 medium, 0 low" in line and "open-skill audit --installed" in line
+
+
+def test_audit_sarif_is_a_code_scanning_log(capsys):
+    import json
+
+    code, out = run(capsys, "audit", str(AUDIT / "risky-skill"), "--format", "sarif")
+    doc = json.loads(out)
+    assert code == 1 and doc["version"] == "2.1.0"
+    (r,) = doc["runs"]
+    rules = r["tool"]["driver"]["rules"]
+    assert {x["id"] for x in rules} == set(audit.RULES)
+    assert r["results"] and all(rules[x["ruleIndex"]]["id"] == x["ruleId"] for x in r["results"])
+    high = next(x for x in r["results"] if x["level"] == "error")
+    assert rules[high["ruleIndex"]]["properties"]["security-severity"] == "8.0"
+    loc = high["locations"][0]["physicalLocation"]
+    assert loc["artifactLocation"]["uri"].endswith("/SKILL.md") and loc["region"]["startLine"] >= 1
+    assert all(x["properties"]["group"] == str(AUDIT / "risky-skill") for x in r["results"])

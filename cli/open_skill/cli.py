@@ -32,6 +32,9 @@ def cmd_validate(args):
 
 
 def cmd_lint(args):
+    if args.installed and args.format == "sarif":
+        print("--format sarif lists findings by file; the --installed report is a summary by source", file=sys.stderr)
+        return 2
     if args.installed:
         report = lint.health(scan.scan(_registry(args)))
         if args.format == "json":
@@ -52,6 +55,8 @@ def cmd_lint(args):
     errors = [f for f in findings if f.severity == "error"]
     if args.format == "json":
         _print([f.__dict__ for f in findings])
+    elif args.format == "sarif":
+        _print(lint.sarif_log(findings))
     else:
         for f in findings:
             print(f"{f.path}: {f.severity} [{f.rule}] {f.message} ({f.source})")
@@ -84,6 +89,8 @@ def cmd_audit(args):
     if args.format == "json":
         _print({"disclaimer": audit.DISCLAIMER, "summary": audit.summary(every),
                 "groups": {g: [f.__dict__ for f in found] for g, found in groups.items()}})
+    elif args.format == "sarif":
+        _print(audit.sarif_log(groups))
     else:
         print(_audit_report(groups))
     return 1 if audit.summary(every)["high"] or (args.strict and every) else 0
@@ -761,13 +768,15 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("paths", nargs="*")
     s.add_argument("--strict", action="store_true", help="fail on warnings too")
     s.add_argument("--installed", action="store_true", help="health report of every installed skill, by source")
-    s.add_argument("--format", choices=["text", "json"], default="text")
+    s.add_argument("--format", choices=["text", "json", "sarif"], default="text",
+                   help="sarif: a SARIF 2.1.0 log for code scanning (not with --installed)")
     s.set_defaults(fn=cmd_lint)
     s = sub.add_parser("audit", help="heuristic security review of skill folders; reads files, never runs them")
     s.add_argument("paths", nargs="*", help="skill folders or files (default: every installed skill)")
     s.add_argument("--installed", action="store_true", help="audit every installed skill, grouped by source")
     s.add_argument("--project", help="with --installed: also the project's own skills")
-    s.add_argument("--format", choices=["text", "json"], default="text")
+    s.add_argument("--format", choices=["text", "json", "sarif"], default="text",
+                   help="sarif: a SARIF 2.1.0 log for code scanning")
     s.add_argument("--strict", action="store_true", help="fail on medium and low findings too, not only high")
     s.set_defaults(fn=cmd_audit)
     s = sub.add_parser("scan", help="list installed skills")

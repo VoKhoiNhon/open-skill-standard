@@ -367,3 +367,14 @@ def audit_installed(installed) -> dict[str, list[Finding]]:
         if Path(inst.path).is_file():
             folders.setdefault(inst.id.split("/")[0], set()).add(str(Path(inst.path).parent))
     return {src: audit_paths(sorted(dirs)) for src, dirs in sorted(folders.items())}
+
+
+def sarif_log(groups: dict[str, list[Finding]], base: Path | None = None) -> dict:
+    """A SARIF 2.1.0 log of grouped findings; each result names its group (the folder or source) as a property."""
+    from . import sarif
+
+    rules = [{"id": r.id, "severity": r.severity, "text": r.message, "source": r.source, "security": True}
+             for r in RULES.values()]
+    results = [{"rule": f.rule, "severity": f.severity, "message": f.message, "path": f.file, "line": f.line,
+                "snippet": f.excerpt, "properties": {"group": g}} for g, found in groups.items() for f in found]
+    return sarif.log(rules, results, base)

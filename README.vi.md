@@ -284,6 +284,18 @@ open-skill audit --installed               # mọi skill đã cài, nhóm theo n
 open-skill audit --installed --format json # cho công cụ khác
 ```
 
+Để dùng với code scanning, `--format sarif` ghi một log SARIF 2.1.0 (`open-skill lint` cũng có) kèm `security-severity` cho từng luật để GitHub xếp hạng cảnh báo; đường dẫn tính từ thư mục hiện tại, nên hãy chạy ở thư mục gốc của repository (file nằm ngoài thư mục đó, như skill của `--installed`, thành URI `file://` mà code scanning không gắn được vào repository):
+
+```yaml
+# trong một job GitHub Actions có `permissions: security-events: write`, sau khi cài open-skill
+- run: open-skill audit skills/ --format sarif > audit.sarif
+# audit trả mã 1 khi có phát hiện high; vẫn tải log lên
+- uses: github/codeql-action/upload-sarif@v4
+  if: always()
+  with:
+    sarif_file: audit.sarif
+```
+
 Lệnh đánh dấu câu chữ tìm cách ghi đè chỉ dẫn của người dùng hay của hệ thống, giấu hành động khỏi người dùng, bỏ qua hoặc giả mạo sự đồng ý, mạo danh hệ thống hay quản trị viên, hoặc nhắm tới khoá SSH, thông tin đăng nhập cloud, file `.env`, dữ liệu trình duyệt và kho mật khẩu; script tải về rồi chạy ngay bằng shell, chuỗi được giải mã rồi chạy như lệnh, địa chỉ thường dùng để lấy trộm dữ liệu, và token hay khoá riêng viết thẳng trong file; lệnh ghi vào chỉ dẫn, bộ nhớ hay cấu hình của chính agent (`~/.claude/CLAUDE.md`, `.claude/settings.json`), vốn còn tác dụng sau khi skill chạy xong; ký tự Unicode vô hình và chú thích HTML nói với agent; quyền shell không giới hạn trong `allowed-tools`, hook mà skill đăng ký cho tới hết phiên, và lệnh chạy ngay khi skill được nạp; liên kết trỏ ra ngoài thư mục skill và file thực thi đi kèm. Mỗi phát hiện ghi file, dòng, đoạn trích đã được escape, lý do, và nguồn công khai của luật (OWASP Top 10 cho ứng dụng LLM và ứng dụng agent, MITRE ATT&CK, tài liệu của Anthropic và Claude Code). Lệnh trả mã 1 khi có phát hiện mức high; `--strict` coi cả medium và low là lỗi. `open-skill doctor` hiện một dòng tóm tắt.
 
 Đây là công cụ rà soát theo heuristic, không phải lời bảo đảm. Một phát hiện có thể vô hại trong ngữ cảnh của nó, và báo cáo sạch chỉ có nghĩa là không luật nào khớp: kẻ tấn công cẩn thận có thể viết theo cách các luật không bắt được. Vẫn hãy tự đọc skill từ nguồn lạ, và ưu tiên skill do bạn hoặc tổ chức của bạn duy trì.
@@ -332,8 +344,8 @@ open-skill agents [--project .]     open-skill install <skill|folder> --agent a 
 open-skill remove <skill> --agent a [--project .] [--dry-run]    open-skill update [--agent a] [--dry-run]
 open-skill init --role r[=w]        open-skill learn "<fact>" --applies-to skill:<id>,role:<id>
 open-skill feedback <route_id> --ran a,b --outcome ok|fail       open-skill forget <id>
-open-skill validate | lint [paths] | build [--check] | graph [--format mermaid|json|html] [--out file]
-open-skill audit [paths] [--installed] [--format json] [--strict]
+open-skill validate | lint [paths] [--format json|sarif] | build [--check] | graph [--format mermaid|json|html] [--out file]
+open-skill audit [paths] [--installed] [--format json|sarif] [--strict]
 open-skill adapter draft|check --source <name> --from <upstream checkout>
 open-skill session start --scope <glob> --task "..." | list [--prune] | end <id> | update [--session <id>] [--json]
 ```
@@ -353,6 +365,8 @@ Các đầu ra này dành cho công cụ khác; các khoá liệt kê luôn có 
 | `open-skill lint --format json` | list of objects | `path`, `severity`, `rule`, `message`, `source` |
 | `open-skill lint --installed --format json` | object per source | `skills`, `errors`, `warnings`, `worst` |
 | `open-skill audit --format json` | object | `disclaimer`, `summary`, `groups` |
+| `open-skill audit --format sarif` | object | `version`, `runs` (log SARIF 2.1.0 có một run) |
+| `open-skill lint --format sarif` | object | `version`, `runs` (log SARIF 2.1.0 có một run) |
 | `open-skill graph --format json` | object | `version`, `nodes`, `edges` |
 | `open-skill eval routing --format json` | object | `cases`, `passed`, `pass_rate`, `by_role`, `results` |
 | `open-skill eval triggers --format json` | object per skill | `train`, `validation` |
