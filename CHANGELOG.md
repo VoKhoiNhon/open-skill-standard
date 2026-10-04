@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- spec-kit is detected where its integration writes command files instead of skills: `.gemini/commands/speckit.<command>.toml` for Gemini CLI, `.opencode/commands/speckit.<command>.md` for OpenCode and `.agents/commands/speckit.<command>.md` for Amp, invoked as `/speckit.<command>`. Routes for those agents no longer call spec-kit missing in a project set up with `specify init`. Only the core commands are matched; extension commands keep their dotted names there.
+
 ### Changed
 - The `graphify` adapter is tested with 0.9.75: `extract . --code-only`, `query`, `affected` and `update .` behave as before, and the session lifecycle runs end to end against it.
 
