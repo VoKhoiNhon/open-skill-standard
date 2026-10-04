@@ -298,6 +298,21 @@ def test_lint_exit_codes_and_json(capsys, tmp_path):
     assert json.loads(out)[0]["severity"] == "warning"
 
 
+def test_lint_sarif_lists_findings_without_a_security_severity(capsys, tmp_path):
+    d = tmp_path / "s" / "warn-only"
+    d.mkdir(parents=True)
+    (d / "SKILL.md").write_text("---\nname: warn-only\ndescription: Does a thing.\nextra: x\n---\nbody\n", encoding="utf-8")
+    code, out = run(capsys, "lint", "--format", "sarif", str(tmp_path / "s"))
+    (r,) = json.loads(out)["runs"]
+    (res,) = r["results"]
+    rule = r["tool"]["driver"]["rules"][res["ruleIndex"]]
+    assert code == 0 and res["ruleId"] == rule["id"] == "unknown-field" and res["level"] == "warning"
+    assert "security-severity" not in rule["properties"] and rule["helpUri"].startswith("https://")
+    assert res["locations"][0]["physicalLocation"]["artifactLocation"]["uri"].endswith("warn-only/SKILL.md")
+    assert run(capsys, "lint", "--format", "sarif", "--strict", str(tmp_path / "s"))[0] == 1
+    assert run(capsys, "lint", "--installed", "--format", "sarif")[0] == 2
+
+
 def test_lint_installed_report(capsys):
     code, out = run(capsys, "lint", "--installed")
     assert code == 0 and "superpowers" in out and "harvested" in out
