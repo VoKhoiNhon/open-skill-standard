@@ -700,3 +700,28 @@ def test_agent_config_write_flags(text):
 ])
 def test_agent_config_write_ignores_reads_and_project_instructions(text):
     assert "agent-config-write" not in fired(text)
+
+
+HOOKS = "---\nname: fmt\ndescription: Formats code.\nhooks:\n  PostToolUse:\n    - matcher: Write\n---\nBody.\n"
+
+
+def test_skill_hooks_flags_hooks_in_skill_and_agent_frontmatter():
+    (f,) = [f for f in audit.audit_text(HOOKS, "fmt/SKILL.md") if f.rule == "skill-hooks"]
+    assert f.line == 4 and f.severity == "medium"
+    assert "skill-hooks" in {f.rule for f in audit.audit_text(HOOKS, "plugin/agents/reviewer.md")}
+    assert "skill-hooks" in {f.rule for f in audit.audit_text(HOOKS, ".claude/commands/fmt.md")}
+    for quoted in ('"hooks":', "'hooks' :"):
+        assert "skill-hooks" in {f.rule for f in audit.audit_text(HOOKS.replace("hooks:", quoted), "SKILL.md")}
+    assert "skill-hooks" in {f.rule for f in audit.audit_text("﻿" + HOOKS.replace("\n", "\r\n"), "x/SKILL.md")}
+
+
+@pytest.mark.parametrize("text,file", [
+    ("---\nname: fmt\ndescription: d\n---\nAdd this to settings:\n```yaml\nhooks:\n  Stop: []\n```\n", "SKILL.md"),
+    (HOOKS, "references/hooks.md"),                    # only SKILL.md and agent files register hooks
+    (HOOKS.replace("hooks:", "Hooks:"), "SKILL.md"),   # YAML keys are case-sensitive
+    (HOOKS.replace("hooks:", "  hooks:"), "SKILL.md"),  # nested under another key, not the skill's own
+    ("hooks:\n  Stop: []\n", "SKILL.md"),              # no frontmatter
+    ("---\nname: x\nhooks: {}\n", "SKILL.md"),         # frontmatter never closed
+])
+def test_skill_hooks_ignores_hooks_outside_frontmatter(text, file):
+    assert "skill-hooks" not in {f.rule for f in audit.audit_text(text, file)}

@@ -578,12 +578,12 @@ def plugin_rules(tmp_path, **fields):
     ({"mcpServers": "https://example.com/server.zip"}, ["plugin-path"]),
     ({"experimental": {"themes": "themes/"}}, ["plugin-path"]),
     ({"commands": {"about": {"source": "./commands/status.md", "content": "x"}}}, ["plugin-command"]),
-    ({"commands": {"about": {"description": "neither"}}}, ["plugin-command"]),
+    ({"commands": {"about": {"description": "neither"}}}, ["plugin-command", "plugin-default-ignored"]),
     ({"skills": 7}, ["plugin-path"]),
     ({"experimental": ["./styles/"]}, ["plugin-path"]),                 # an object, not a list
     ({"mcpServers": "HTTPS://example.com/s.mcpb"}, []),
-    ({"commands": {"about": {"source": 5}}}, ["plugin-command"]),
-    ({"commands": {"about": {"content": "x", "hint": "[file]"}}}, ["plugin-command"]),
+    ({"commands": {"about": {"source": 5}}}, ["plugin-command", "plugin-default-ignored"]),
+    ({"commands": {"about": {"content": "x", "hint": "[file]"}}}, ["plugin-command", "plugin-default-ignored"]),
     ({"colour": "blue"}, ["plugin-field"]),
     ({"themes": "./styles/"}, ["plugin-field"]),                        # loads, but belongs under experimental
 ])
@@ -629,3 +629,103 @@ def test_deeply_nested_manifest_is_reported_not_a_crash(tmp_path, name):
     p = write_json(tmp_path, name, "[" * 100_000 + "]" * 100_000)
     found = lint.lint_plugin(p) if name == "plugin.json" else lint.lint_marketplace(p)
     assert [f.rule for f in found] == ["manifest-json"]
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("tools", None),
+    ("claude-tools", "plugin-reserved"),
+    ("Claude_Code", "plugin-reserved"),            # case and separators do not matter
+    ("anthropics", "plugin-reserved"),
+    ("cc-plugin-git", "plugin-reserved"),
+    ("claude-mods", "plugin-reserved"),
+    ("official-claude-tools", "plugin-reserved"),  # official beside claude
+    ("tools-anthropic-official", "plugin-reserved"),
+    ("mcp-for-claude", "plugin-anthropic-word"),
+    ("my.claude.helper", "plugin-anthropic-word"),
+    ("claudette", None),
+    ("official-tools-for-claude", "plugin-anthropic-word"),  # official is not beside claude
+])
+def test_plugin_names_that_pass_as_anthropic_plugins(tmp_path, name, expected):
+    found = [r for r in plugin_rules(tmp_path, name=name) if r in ("plugin-reserved", "plugin-anthropic-word")]
+    assert found == ([expected] if expected else [])
+
+
+def test_directory_listing_fields_are_known_and_checked(tmp_path):
+    (tmp_path / "logo.png").write_bytes(b"\x89PNG")
+    urls = {k: "https://example.com/" + k for k in ("documentationUrl", "supportUrl", "privacyPolicyUrl", "termsOfServiceUrl")}
+    assert plugin_rules(tmp_path, icon="./logo.png", **urls) == []
+    assert plugin_rules(tmp_path, icon="./missing.png") == ["plugin-listing"]
+    assert plugin_rules(tmp_path, icon="./agents/reviewer.md") == ["plugin-listing"]  # not an image
+    assert plugin_rules(tmp_path, icon="https://example.com/logo.png") == ["plugin-listing"]
+    assert plugin_rules(tmp_path, supportUrl="http://example.com/help") == ["plugin-listing"]
+    assert plugin_rules(tmp_path, privacyPolicyUrl=5) == ["plugin-listing"]
+
+
+def test_homepage_must_parse_as_a_url(tmp_path):
+    assert plugin_rules(tmp_path, homepage="https://example.com/docs") == []
+    assert plugin_rules(tmp_path, homepage="example dot com") == ["plugin-homepage"]
+    assert plugin_rules(tmp_path, homepage=["https://example.com"]) == ["plugin-homepage"]
+
+
+def test_types_is_a_plugin_path(tmp_path):
+    (tmp_path / "mod.d.ts").write_text("x", encoding="utf-8")
+    assert plugin_rules(tmp_path, types="./mod.d.ts") == []
+    assert plugin_rules(tmp_path, types="./missing.d.ts") == ["plugin-path"]
+
+
+def test_plugin_root_claude_md_and_bin_are_flagged(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("x", encoding="utf-8")
+    (tmp_path / "bin").mkdir()
+    assert plugin_rules(tmp_path) == ["plugin-claude-md", "plugin-bin"]
+
+
+@pytest.mark.parametrize("fields,fires", [
+    ({"agents": ["./agents/reviewer.md"]}, False),         # names a file in the default folder
+    ({"agents": "./extra/reviewer.md"}, True),             # agents/ exists and is no longer scanned
+    ({"commands": ["./commands/", "./extra/"]}, False),
+    ({"commands": "./extra/"}, True),
+    ({"skills": ["./extra/"]}, False),                     # skills add to the default folder
+    ({"outputStyles": "./extra/"}, False),                 # no output-styles/ folder here
+])
+def test_default_folder_ignored_when_the_manifest_replaces_it(tmp_path, fields, fires):
+    (tmp_path / "extra").mkdir()
+    (tmp_path / "extra" / "reviewer.md").write_text("x", encoding="utf-8")
+    assert ("plugin-default-ignored" in plugin_rules(tmp_path, **fields)) is fires
+
+
+def test_marketplace_entries_do_not_carry_listing_fields(tmp_path):
+    entry = {"name": "a", "source": "./a", "icon": "./logo.png", "supportUrl": "https://example.com/help"}
+    doc_ = {"name": "tools", "description": "d", "owner": {"name": "x"}, "plugins": [entry]}
+    found = [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
+    assert found == ["marketplace-listing", "marketplace-listing"]
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("\uff43\uff4c\uff41\uff55\uff44\uff45-tools", "plugin-reserved"),  # fullwidth letters fold to ASCII
+    ("claude\u200b-tools", "plugin-reserved"),                               # zero-width characters are dropped
+    ("Claude\u2014Tools", "plugin-reserved"),                                # a Unicode dash is a separator
+])
+def test_plugin_reserved_names_in_disguise(tmp_path, name, expected):
+    assert expected in plugin_rules(tmp_path, name=name)
+
+
+@pytest.mark.parametrize("value", ["https://", "https:///path", "http:// x", "mailto:", 7])
+def test_homepage_and_listing_urls_need_a_host(tmp_path, value):
+    assert "plugin-homepage" in plugin_rules(tmp_path, homepage=value)
+    assert "plugin-listing" in plugin_rules(tmp_path, supportUrl=value)
+
+
+def test_default_folder_ignored_for_command_maps_and_monitors(tmp_path):
+    (tmp_path / "extra").mkdir()
+    (tmp_path / "extra" / "x.md").write_text("x", encoding="utf-8")
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, commands={"x": {"source": "./extra/x.md"}})
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, commands={"about": {"content": "About."}})
+    assert "plugin-default-ignored" not in plugin_rules(tmp_path, commands={"s": {"source": "./commands/status.md"}})
+    (tmp_path / "monitors").mkdir()
+    (tmp_path / "monitors" / "monitors.json").write_text("[]", encoding="utf-8")
+    (tmp_path / "config").mkdir(exist_ok=True)
+    (tmp_path / "config" / "m.json").write_text("[]", encoding="utf-8")
+    inline = [{"name": "m", "command": "x", "description": "d"}]
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, experimental={"monitors": "./config/m.json"})
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, experimental={"monitors": inline})
+    assert "plugin-default-ignored" not in plugin_rules(tmp_path, experimental={"monitors": "./monitors/monitors.json"})
