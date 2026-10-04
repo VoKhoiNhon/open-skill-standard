@@ -578,12 +578,12 @@ def plugin_rules(tmp_path, **fields):
     ({"mcpServers": "https://example.com/server.zip"}, ["plugin-path"]),
     ({"experimental": {"themes": "themes/"}}, ["plugin-path"]),
     ({"commands": {"about": {"source": "./commands/status.md", "content": "x"}}}, ["plugin-command"]),
-    ({"commands": {"about": {"description": "neither"}}}, ["plugin-command"]),
+    ({"commands": {"about": {"description": "neither"}}}, ["plugin-command", "plugin-default-ignored"]),
     ({"skills": 7}, ["plugin-path"]),
     ({"experimental": ["./styles/"]}, ["plugin-path"]),                 # an object, not a list
     ({"mcpServers": "HTTPS://example.com/s.mcpb"}, []),
-    ({"commands": {"about": {"source": 5}}}, ["plugin-command"]),
-    ({"commands": {"about": {"content": "x", "hint": "[file]"}}}, ["plugin-command"]),
+    ({"commands": {"about": {"source": 5}}}, ["plugin-command", "plugin-default-ignored"]),
+    ({"commands": {"about": {"content": "x", "hint": "[file]"}}}, ["plugin-command", "plugin-default-ignored"]),
     ({"colour": "blue"}, ["plugin-field"]),
     ({"themes": "./styles/"}, ["plugin-field"]),                        # loads, but belongs under experimental
 ])
@@ -698,3 +698,34 @@ def test_marketplace_entries_do_not_carry_listing_fields(tmp_path):
     doc_ = {"name": "tools", "description": "d", "owner": {"name": "x"}, "plugins": [entry]}
     found = [f.rule for f in lint.lint_marketplace(write_json(tmp_path, "marketplace.json", doc_))]
     assert found == ["marketplace-listing", "marketplace-listing"]
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("\uff43\uff4c\uff41\uff55\uff44\uff45-tools", "plugin-reserved"),  # fullwidth letters fold to ASCII
+    ("claude\u200b-tools", "plugin-reserved"),                               # zero-width characters are dropped
+    ("Claude\u2014Tools", "plugin-reserved"),                                # a Unicode dash is a separator
+])
+def test_plugin_reserved_names_in_disguise(tmp_path, name, expected):
+    assert expected in plugin_rules(tmp_path, name=name)
+
+
+@pytest.mark.parametrize("value", ["https://", "https:///path", "http:// x", "mailto:", 7])
+def test_homepage_and_listing_urls_need_a_host(tmp_path, value):
+    assert "plugin-homepage" in plugin_rules(tmp_path, homepage=value)
+    assert "plugin-listing" in plugin_rules(tmp_path, supportUrl=value)
+
+
+def test_default_folder_ignored_for_command_maps_and_monitors(tmp_path):
+    (tmp_path / "extra").mkdir()
+    (tmp_path / "extra" / "x.md").write_text("x", encoding="utf-8")
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, commands={"x": {"source": "./extra/x.md"}})
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, commands={"about": {"content": "About."}})
+    assert "plugin-default-ignored" not in plugin_rules(tmp_path, commands={"s": {"source": "./commands/status.md"}})
+    (tmp_path / "monitors").mkdir()
+    (tmp_path / "monitors" / "monitors.json").write_text("[]", encoding="utf-8")
+    (tmp_path / "config").mkdir(exist_ok=True)
+    (tmp_path / "config" / "m.json").write_text("[]", encoding="utf-8")
+    inline = [{"name": "m", "command": "x", "description": "d"}]
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, experimental={"monitors": "./config/m.json"})
+    assert "plugin-default-ignored" in plugin_rules(tmp_path, experimental={"monitors": inline})
+    assert "plugin-default-ignored" not in plugin_rules(tmp_path, experimental={"monitors": "./monitors/monitors.json"})
