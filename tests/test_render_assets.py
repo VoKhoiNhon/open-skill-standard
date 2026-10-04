@@ -58,6 +58,8 @@ def test_mask_writes_windows_paths_the_way_the_captures_show_them(tmp_path):
     out = ra._mask(f"home={t}\\home\\.open-skill\n  high [x] {t}\\project\\skill\\SKILL.md:9\n"
                    "  excerpt keeps \\x1b escapes", tmp_path)
     assert out == "home=~/.open-skill\n  high [x] ./skill/SKILL.md:9\n  excerpt keeps \\x1b escapes"
+    for text in ("the end.\\n next", '"said \\"hi.\\""', "a~\\b"):  # not paths: left alone
+        assert ra._mask(text, tmp_path) == text
 
 
 def test_wrap_keeps_every_line_within_the_terminal_width():

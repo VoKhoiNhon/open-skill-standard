@@ -131,7 +131,7 @@ def _symlink(target: Path, dest: Path) -> None:
     try:
         os.symlink(target, dest, target_is_directory=True)
     except OSError as e:
-        if isinstance(e, PermissionError) or getattr(e, "winerror", None) == 1314:  # ERROR_PRIVILEGE_NOT_HELD
+        if getattr(e, "winerror", None) == 1314:  # ERROR_PRIVILEGE_NOT_HELD; other errors keep their own wording
             raise OSError(e.errno, NO_SYMLINKS, str(dest)) from e
         raise
 
@@ -235,8 +235,17 @@ def update(agent: str | None = None, dry_run: bool = False) -> list[str]:
             if fresh.is_symlink():
                 fresh.unlink()
             _symlink(new, fresh)
-            dest.unlink()
-            fresh.rename(dest)
+            old = os.readlink(dest)
+            try:
+                dest.unlink()
+                fresh.rename(dest)
+            except OSError:
+                if not dest.is_symlink():  # put the old link back rather than leave the skill uninstalled
+                    os.symlink(old, dest, target_is_directory=True)
+                raise
+            finally:  # never leave a second link, which the agent would load as a duplicate skill
+                if fresh.is_symlink():
+                    fresh.unlink()
         elif not current:
             _replace(dest, new)
         rec.update(source=str(new), version=__version__, files={} if rec["mode"] == "symlink" else _files(dest))

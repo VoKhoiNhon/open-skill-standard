@@ -12,6 +12,7 @@ from pathlib import Path
 
 LOCK_FILE = "skills-lock.json"
 VERSION = 1
+SKIPPED_DIRS = (".git", "node_modules", "__pycache__", "__pypackages__")
 
 # The lock hash sorts files with JavaScript's localeCompare, which follows Unicode collation rather than code points:
 # punctuation before digits before letters, letters compared without case first and lowercase ahead of uppercase on a
@@ -29,10 +30,12 @@ def _collation_key(s: str):
 def folder_hash(folder: Path) -> str | None:
     """The lock's `computedHash`: SHA-256 over each file's /-separated relative path and bytes, in collation order,
     skipping `.git` and `node_modules` folders; links are neither files nor folders to it, so they are skipped.
+    `__pycache__` and `__pypackages__` are skipped too: npx skills never copies them, so they appear only when a
+    skill's scripts run, which is not an edit.
     None when a file name is not ASCII (its order cannot be reproduced) or a file cannot be read."""
     files = []
     for d, dirs, names in os.walk(folder):
-        dirs[:] = [x for x in dirs if x not in (".git", "node_modules") and not os.path.islink(os.path.join(d, x))]
+        dirs[:] = [x for x in dirs if x not in SKIPPED_DIRS and not os.path.islink(os.path.join(d, x))]
         for n in names:
             p = Path(d, n)
             if p.is_file() and not p.is_symlink():
@@ -67,8 +70,9 @@ def read(project: Path) -> dict[str, dict] | None:
 def check(project: Path, skill_dirs) -> dict[str, list[str]] | None:
     """Compare each locked skill with its copies in the project's skill folders (relative paths such as
     `.agents/skills`), or None without a lock. Returns {"ok", "changed", "missing", "unchecked"} lists of skill
-    names; a skill counts as changed when any copy no longer has the hash it was installed with, and as unchecked
-    when a copy cannot be hashed the way the lock was."""
+    names; a skill counts as changed when any copy no longer has the locked hash, and as unchecked when a copy cannot
+    be hashed the way the lock was. npx skills hashes the source folder, then copies it without `metadata.json` and
+    with links made into files, so such a skill differs from its lock without any edit: "changed" means "differs"."""
     lock = read(project)
     if lock is None:
         return None

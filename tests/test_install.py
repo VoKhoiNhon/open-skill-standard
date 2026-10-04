@@ -278,9 +278,13 @@ def test_folder_claude_code_skips_is_refused(reg, tmp_path, name):
     assert install.plan(src, reg.agents["codex"]).action == "install"  # only Claude Code reserves the name
 
 
-def _refuse_links(monkeypatch):
+class PrivilegeNotHeld(PermissionError):
+    winerror = 1314  # what Windows raises when the user may not create symbolic links
+
+
+def _refuse_links(monkeypatch, error=PrivilegeNotHeld):
     def refuse(*a, **k):
-        raise PermissionError(1, "A required privilege is not held by the client")
+        raise error(1, "A required privilege is not held by the client")
     monkeypatch.setattr(install.os, "symlink", refuse)
 
 
@@ -308,3 +312,32 @@ def test_a_refused_relink_keeps_the_old_link(reg, tmp_path, monkeypatch):
     with pytest.raises(OSError):
         install.update()
     assert dest.is_symlink() and os.readlink(dest) == str(old)
+
+
+def test_other_symlink_errors_keep_their_own_wording(reg, tmp_path, monkeypatch):
+    src = install.resolve_source(str(skill(tmp_path / "src" / "demo", "demo")))
+    p = install.plan(src, reg.agents["codex"], mode="symlink")
+    _refuse_links(monkeypatch, PermissionError)  # e.g. EACCES on a folder this user cannot write
+    with pytest.raises(PermissionError) as e:
+        install.apply(p)
+    assert "Developer Mode" not in str(e.value)
+
+
+@pytest.mark.symlinks
+def test_a_failed_relink_keeps_the_old_link_and_no_second_one(reg, tmp_path, monkeypatch):
+    import shutil
+    old = tmp_path / "old-cli/skills/open-skill-router"
+    shutil.copytree(REPO / "skills/open-skill-router", old)
+    dest = tmp_path / "home/.agents/skills/open-skill-router"
+    dest.parent.mkdir(parents=True)
+    dest.symlink_to(old, target_is_directory=True)
+    install._save([{"skill": "open-skill-router", "agent": "codex", "scope": "global", "dest": str(dest),
+                    "source": str(old), "kind": "core", "mode": "symlink", "version": "0.0.1", "files": {}}])
+
+    def fail(self, target):
+        raise OSError(16, "Device or resource busy")
+    monkeypatch.setattr(Path, "rename", fail)
+    with pytest.raises(OSError):
+        install.update()
+    assert [x.name for x in dest.parent.iterdir()] == ["open-skill-router"]
+    assert os.readlink(dest) == str(old)  # the old link is back
