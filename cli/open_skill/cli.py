@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, sessions, upgrade, userdata
+from . import __version__, agents, audit, evals, frontmatter, generate, graph_html, index, install, knowledge, lint, paths, registry, route, scan, sessions, skills_lock, upgrade, userdata
 
 
 def _registry(args):
@@ -425,6 +425,14 @@ def cmd_doctor(args):
         hint = "" if n else f"  → {next(iter((a.get('install') or {}).values()), 'see ' + a.get('upstream', ''))}"
         print(f"  {'✓' if n else '·'} {src:22} {n:3} installed / {len(a['skills'])} described{hint}")
     print(f"  harvested (no manifest): {by_src.get('harvested', 0)}")
+    project = Path(args.project or ".")
+    locked = skills_lock.check(project, [p["path"] for a in reg.agents.values() for p in a.get("project", [])])
+    if locked is not None:
+        n = sum(len(v) for v in locked.values())
+        parts = [f"{len(locked['changed'])} changed since install ({', '.join(locked['changed'])})"] if locked["changed"] else []
+        parts += [f"{len(locked['missing'])} not in a skill folder ({', '.join(locked['missing'])})"] if locked["missing"] else []
+        print(f"  {skills_lock.LOCK_FILE}: {n} skill(s) installed by npx skills"
+              + (f"; {'; '.join(parts)} → npx skills update" if parts else ", all as installed"))
     rep = lint.health(installed)
     errs = sum(r["errors"] for r in rep.values())
     warns = sum(r["warnings"] for r in rep.values())

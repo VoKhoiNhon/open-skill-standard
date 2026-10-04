@@ -53,7 +53,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.3 open-ski
 # yêu cầu bằng tiếng Việt cũng được: /open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
 ```
 
-`open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu.
+`open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu. Trong project có `skills-lock.json` do `npx skills` ghi, lệnh còn cho biết skill nào đã bị sửa sau khi cài hoặc không còn nằm trong thư mục skill.
 
 ## Dùng với mọi agent đọc được Agent Skills
 
