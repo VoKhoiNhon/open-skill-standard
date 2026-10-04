@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.4] - 2026-10-04
+
+Code scanning and plugin checks: SARIF output for audit and lint, `plugin.json` rules from the current Claude Code reference, an audit rule for hooks a skill registers, `skills-lock.json` checks in doctor, spec-kit command files for Gemini CLI, OpenCode and Amp, and Windows fixes.
+
 ### Added
 - spec-kit is detected where its integration writes command files instead of skills: `.gemini/commands/speckit.<command>.toml` for Gemini CLI, `.opencode/commands/speckit.<command>.md` for OpenCode and `.agents/commands/speckit.<command>.md` for Amp, invoked as `/speckit.<command>`. Routes for those agents no longer call spec-kit missing in a project set up with `specify init`. Only the core commands are matched; extension commands keep their dotted names there.
 - `open-skill doctor` reads the `skills-lock.json` that `npx skills` writes at a project root (in the current folder, or the one given with `--project`) and reports how many of its skills are as installed, which differ from it (edited since, or installed without files npx skills leaves out such as `metadata.json`) and which are no longer in any agent's project skill folder. The hash is computed as `npx skills` computes it, including its file order; a skill with non-ASCII or unreadable file names is reported as not checked rather than guessed.
@@ -294,7 +298,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.3...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.4...HEAD
+[0.7.4]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.0...v0.7.1
