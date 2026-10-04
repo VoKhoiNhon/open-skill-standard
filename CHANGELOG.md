@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill audit --format sarif` writes a SARIF 2.1.0 log for code scanning: every rule with its source link and a `security-severity` (high 8.0, medium 5.0, low 2.0), and each finding with its file, line and excerpt. Paths under the current folder are relative to it, so a log made at a repository root uploads as is; each result names its group (the folder audited, or the source with `--installed`).
+- `open-skill lint --format sarif` writes the same kind of log for lint findings, one result per file (lint reports files, not lines).
+- `open-skill lint` follows the current Claude Code plugins reference for `plugin.json`: names that pass as one of Anthropic's own plugins (`claude-…`, `anthropic-…`, `cc-plugin-…`, `official` beside `claude`) are an error (`plugin-reserved`) and `claude` or `anthropic` as a whole word a warning (`plugin-anthropic-word`); the directory listing fields `icon`, `documentationUrl`, `supportUrl`, `privacyPolicyUrl` and `termsOfServiceUrl` and the mod `types` path are known fields, with `icon` checked as an image inside the plugin and the links as https URLs (`plugin-listing`); a `homepage` that is not a URL is an error (`plugin-homepage`), since the plugin then fails to load; and it warns about a `CLAUDE.md` at the plugin root, which is never loaded (`plugin-claude-md`), a top-level `bin/` folder, which claude.ai and Cowork refuse to install (`plugin-bin`), and a default folder or file such as `commands/` or `monitors/monitors.json` that a manifest key silently replaces (`plugin-default-ignored`). Names are compared after folding fullwidth letters, dropping zero-width characters and treating Unicode dashes as separators.
+- `open-skill lint` warns about directory listing fields set on a marketplace entry (`marketplace-listing`); Anthropic's directory reads them from `plugin.json` only.
+
 ### Changed
 - The `spec-kit` adapter is tested with 1.1.0. `taskstoissues` no longer says it is moving to the `github` extension: upstream now keeps the core command and adds the extension's `github-taskstoissues` beside it.
 

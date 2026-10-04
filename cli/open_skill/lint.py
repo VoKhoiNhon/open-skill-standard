@@ -2,7 +2,7 @@
 
 import re
 import unicodedata
-from urllib.parse import unquote
+from urllib.parse import unquote, urlsplit
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -132,6 +132,9 @@ rule("marketplace-desktop", "warning", "marketplace and plugin names are at most
      "not named org, org-provisioned or unknown, which Claude Desktop rejects", MARKETPLACE_REF + "#validation-messages")
 rule("marketplace-description", "warning", "marketplace.json has a `description` (or `metadata.description`)",
      MARKETPLACE_REF + "#top-level-fields")
+rule("marketplace-listing", "warning", "plugin entries do not set the directory listing fields (`icon`, `documentationUrl`, "
+     "`supportUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`), which belong in the plugin's own plugin.json",
+     PLUGIN_DOCS + "#directory-listing-fields")
 rule("marketplace-empty", "warning", "marketplace.json lists at least one plugin", MARKETPLACE_REF + "#validation-messages")
 rule("plugin-name", "error", "plugin.json `name` is a non-empty string without spaces, @, :, slashes or control characters",
      PLUGIN_DOCS + "#name")
@@ -149,6 +152,24 @@ rule("plugin-user-config", "error", "`userConfig` maps identifiers (letters, dig
      "documented keys; `options` only on a plain string field, each 1-64 characters", PLUGIN_DOCS + "#user-configuration")
 rule("plugin-field", "warning", "plugin.json has only documented top-level fields; Claude Code strips the others, and "
      "`themes` and `monitors` belong under `experimental`", PLUGIN_DOCS + "#unrecognized-fields")
+rule("plugin-reserved", "error", "plugin.json `name` does not pass as one of Anthropic's own plugins: `claude`, "
+     "`anthropic`, `anthropics`, `claude-code`, `claude-mods`, a `claude-`, `anthropic-`, `anthropics-` or `cc-plugin-` "
+     "prefix, or `official` beside `claude` or `anthropic` (any case, any separators); `claude plugin init` and `tag` "
+     "refuse these names", PLUGIN_DOCS + "#name")
+rule("plugin-anthropic-word", "warning", "plugin.json `name` does not have `claude`, `anthropic` or `anthropics` as a whole "
+     "word, which reads as one of Anthropic's own plugins", PLUGIN_DOCS + "#name")
+rule("plugin-listing", "warning", "directory listing fields hold what Anthropic's directory reads: `icon` a ./ path to an "
+     "image file inside the plugin, `documentationUrl`, `supportUrl`, `privacyPolicyUrl` and `termsOfServiceUrl` https "
+     "URLs", PLUGIN_DOCS + "#directory-listing-fields")
+rule("plugin-homepage", "error", "plugin.json `homepage`, when present, is a string that parses as a URL; otherwise the "
+     "plugin fails to load", PLUGIN_DOCS + "#fields")
+rule("plugin-claude-md", "warning", "the plugin root has no CLAUDE.md, which is not loaded as context; put instructions in a "
+     "skill", PLUGIN_DOCS + "#standard-layout")
+rule("plugin-bin", "warning", "the plugin root has no `bin/` folder, which claude.ai and Cowork refuse to install",
+     PLUGIN_DOCS + "#standard-layout")
+rule("plugin-default-ignored", "warning", "a manifest key that replaces a default folder (`commands`, `agents`, "
+     "`outputStyles`, `workflows`, `experimental.themes`, `experimental.monitors`) names a path inside that default "
+     "(a command map, a `source` inside it) when the default exists; otherwise the default is ignored", PLUGIN_DOCS + "#how-each-key-combines-with-its-default-location")
 
 
 @dataclass
@@ -379,6 +400,9 @@ def lint_marketplace(path: Path) -> list[Finding]:
         if isinstance(pname, str) and pname in seen:
             add("marketplace-plugin", f"duplicate plugin name '{pname}'")
         seen.add(pname if isinstance(pname, str) else None)
+        for key in [k for k in ("icon", *LISTING_URLS) if k in p]:
+            add("marketplace-listing", f"plugins[{i}].{key} is read from plugin.json only; the validator reports it "
+                                       "as an unknown field here")
         src = p.get("source")
         for why in _source_problems(src) if "source" in p else []:
             add("marketplace-source", f"plugins[{i}].source: {why}")
@@ -492,23 +516,122 @@ def lint_plugin(path: Path) -> list[Finding]:
         out.append(_finding(path, "plugin-name-style", f"plugin name '{name}' is not kebab-case (my-plugin)"))
     if "version" in doc and not SEMVER.match(str(doc["version"])):
         out.append(_finding(path, "plugin-version", f"version '{doc['version']}' is not semantic (x.y.z)"))
+    if isinstance(name, str) and (reserved := _plugin_reserved(name)):
+        why = "is reserved: it passes as" if reserved == "plugin-reserved" else "reads as"
+        out.append(_finding(path, reserved, f"plugin name '{name}' {why} one of Anthropic's own"))
     if not doc.get("description"):
         out.append(_finding(path, "plugin-description", "add a description so people know what the plugin does"))
+    if "homepage" in doc and not _url(doc["homepage"]):
+        out.append(_finding(path, "plugin-homepage", f"homepage {doc['homepage']!r} is not a URL; the plugin fails to load"))
     root = path.parent.parent if path.parent.name == ".claude-plugin" else path.parent
-    for rule_id, why in _plugin_components(doc, root) + _user_config(doc.get("userConfig")):
+    checks = _plugin_components(doc, root) + _user_config(doc.get("userConfig")) + _listing(doc, root)
+    checks += [("plugin-default-ignored", why) for why in _default_ignored(doc, root)]
+    for rule_id, why in checks:
         out.append(_finding(path, rule_id, why))
+    if (root / "CLAUDE.md").is_file():
+        out.append(_finding(path, "plugin-claude-md", "CLAUDE.md at the plugin root is not loaded; move its instructions "
+                                                      "into a skill"))
+    if (root / "bin").is_dir():
+        out.append(_finding(path, "plugin-bin", "claude.ai and Cowork do not install a plugin with a top-level bin/ "
+                                                "folder; keep executables elsewhere if the plugin is for them"))
     for key in sorted(set(doc) - PLUGIN_FIELDS, key=str):
         why = "belongs under `experimental`" if key in ("themes", "monitors") else "is not a plugin.json field"
         out.append(_finding(path, "plugin-field", f"'{key}' {why}; Claude Code strips unknown top-level fields"))
     return out
 
 
+LISTING_URLS = ("documentationUrl", "supportUrl", "privacyPolicyUrl", "termsOfServiceUrl")
 PLUGIN_FIELDS = {"$schema", "name", "displayName", "version", "description", "author", "homepage", "repository", "license",
-                 "keywords", "metadata", "defaultEnabled", "dependencies", "settings", "userConfig", "channels", "skills",
-                 "commands", "agents", "hooks", "mcpServers", "lspServers", "outputStyles", "workflows", "experimental"}
+                 "keywords", "metadata", "icon", *LISTING_URLS, "defaultEnabled", "dependencies", "settings", "userConfig",
+                 "types", "channels", "skills", "commands", "agents", "hooks", "mcpServers", "lspServers", "outputStyles",
+                 "workflows", "experimental"}
 # Component key -> what each of its paths must be: "dir", "md" (a Markdown file) or "any".
 PLUGIN_PATHS = {"skills": "dir", "agents": "md", "outputStyles": "any", "workflows": "any", "commands": "any",
-                "hooks": "any", "mcpServers": "any", "lspServers": "any"}
+                "hooks": "any", "mcpServers": "any", "lspServers": "any", "types": "any"}
+SCHEME = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*\Z")
+IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg")
+# Keys that replace a default folder rather than add to it (plugins reference, "How each key combines").
+REPLACES_DEFAULT = {"commands": "commands", "agents": "agents", "outputStyles": "output-styles", "workflows": "workflows",
+                    "themes": "themes", "monitors": "monitors/monitors.json"}
+# Whole names, prefixes, and words that make a plugin name pass as or read as one of Anthropic's own.
+ANTHROPIC_NAMES = {"claude", "anthropic", "anthropics", "claude-code", "claude-mods"}
+ANTHROPIC_PREFIXES = ("claude-", "anthropic-", "anthropics-", "cc-plugin-")
+ANTHROPIC_WORDS = {"claude", "anthropic", "anthropics"}
+
+
+def _url(value, scheme: str | None = None) -> bool:
+    """Whether value parses as an absolute URL (with a host when it has //), optionally with the given scheme."""
+    if not isinstance(value, str) or any(c.isspace() for c in value):
+        return False
+    try:
+        parts = urlsplit(value)
+    except ValueError:  # a malformed IPv6 host
+        return False
+    if not SCHEME.match(parts.scheme) or (scheme and parts.scheme.lower() != scheme):
+        return False
+    return bool(parts.netloc) if value[len(parts.scheme) + 1:].startswith("//") else bool(parts.path)
+
+
+def _plugin_reserved(name: str) -> str | None:
+    """plugin-reserved, plugin-anthropic-word or None; case is ignored and a run of separators counts as one.
+    Fullwidth letters fold to ASCII, Unicode dashes count as separators and zero-width characters are dropped."""
+    folded = re.sub(r"[\u200b-\u200d\u2060\ufeff]", "", unicodedata.normalize("NFKC", name).lower())
+    spelled = re.sub(r"[\s._\-\u2010-\u2015\u2212]+", "-", folded).strip("-")
+    words = spelled.split("-")
+    beside = any(w == "official" and {words[j] for j in (i - 1, i + 1) if 0 <= j < len(words)} & {"claude", "anthropic"}
+                 for i, w in enumerate(words))
+    if spelled in ANTHROPIC_NAMES or spelled.startswith(ANTHROPIC_PREFIXES) or beside:
+        return "plugin-reserved"
+    return "plugin-anthropic-word" if ANTHROPIC_WORDS & set(words) else None
+
+
+def _listing(doc: dict, root: Path) -> list[tuple[str, str]]:
+    out = []
+    for key in LISTING_URLS:
+        if key in doc and not _url(doc[key], "https"):
+            out.append(("plugin-listing", f"{key} must be an https:// URL"))
+    icon = doc.get("icon")
+    if "icon" in doc:
+        ok = (isinstance(icon, str) and icon.startswith("./") and ".." not in icon.replace("\\", "/").split("/")
+              and (root / icon).is_file() and icon.lower().endswith(IMAGE_SUFFIXES))
+        if not ok:
+            out.append(("plugin-listing", f"icon {icon!r} must be a ./ path to an image file inside the plugin"))
+    return out
+
+
+def _paths_of(value) -> list[str] | None:
+    """The string paths of a path-or-list value, or None for inline objects and maps."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list) and all(isinstance(v, str) for v in value):
+        return value
+    return None
+
+
+def _default_ignored(doc: dict, root: Path) -> list[str]:
+    out = []
+    exp = doc.get("experimental") if isinstance(doc.get("experimental"), dict) else {}
+    for key, default in REPLACES_DEFAULT.items():
+        name = f"experimental.{key}" if key in EXPERIMENTAL_PATHS else key
+        value = exp.get(key) if key in EXPERIMENTAL_PATHS else doc.get(key)
+        if value is None or not (root / default).exists():
+            continue
+        if key == "commands" and isinstance(value, dict):  # an object map: its sources are the paths
+            paths = [e["source"] for e in value.values() if isinstance(e, dict) and isinstance(e.get("source"), str)]
+        elif key == "monitors" and isinstance(value, list):  # inline monitors replace the default file
+            paths = []
+        else:
+            paths = _paths_of(value)
+            if paths is None:  # a malformed value is plugin-path's to report
+                continue
+        norm = [p.replace("\\", "/").removeprefix("./").rstrip("/") for p in paths]
+        if not any(n == default or n.startswith(default + "/") for n in norm):
+            what = f"Default {default}" if key == "monitors" else f"Default {default}/ folder"
+            out.append(f"{what} is ignored because the manifest sets \"{name}\"; name a path inside it too to "
+                       "keep it")
+    return out
+
+
 EXPERIMENTAL_PATHS = {"themes": "any", "monitors": "any", "evals": "dir"}
 INLINE = {"hooks", "mcpServers", "lspServers"}  # also take inline objects
 USER_CONFIG_KEYS = {"type", "title", "description", "required", "default", "options", "multiple", "sensitive", "min", "max"}
@@ -629,3 +752,12 @@ def health(installed) -> dict[str, dict]:
         if errs:
             row["worst"].append(f"{inst.invoke}: {errs[0].rule}")
     return dict(sorted(report.items()))
+
+
+def sarif_log(findings: list[Finding], base=None) -> dict:
+    """A SARIF 2.1.0 log of lint findings; lint reports files, not lines, so results carry no region."""
+    from . import sarif
+
+    rules = [{"id": r.id, "severity": r.severity, "text": r.checks, "source": r.source} for r in RULES.values()]
+    return sarif.log(rules, [{"rule": f.rule, "severity": f.severity, "message": f.message, "path": f.path}
+                             for f in findings], base)
