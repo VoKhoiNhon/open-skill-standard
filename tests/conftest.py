@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -77,14 +78,48 @@ def fake_graphify(tmp_path, monkeypatch):
     """Put a stand-in `graphify` first on PATH; returns a setter for its exit code/stderr and the call log path."""
     bin_dir, log = tmp_path / "bin", tmp_path / "graphify-calls.log"
     bin_dir.mkdir()
-    script = bin_dir / "graphify"
+    program = bin_dir / "fake_graphify.py"
+    # A launcher Windows finds through PATHEXT, and a shell script elsewhere; both run the Python stand-in.
+    if os.name == "nt":
+        (bin_dir / "graphify.cmd").write_text(f'@"{sys.executable}" "{program}" %*\n', encoding="utf-8")
+    else:
+        launcher = bin_dir / "graphify"
+        launcher.write_text(f'#!/bin/sh\nexec "{sys.executable}" "{program}" "$@"\n', encoding="utf-8")
+        launcher.chmod(0o755)
 
     def configure(exit_code=0, stderr=""):
-        script.write_text(
-            f"#!/bin/sh\necho \"$(pwd -P) $*\" >> '{log}'\nprintf '%s' '{stderr}' >&2\nexit {exit_code}\n", encoding="utf-8")
-        script.chmod(0o755)
+        program.write_text(
+            "import os, sys\n"
+            f"with open({str(log)!r}, 'a', encoding='utf-8') as f:\n"
+            "    f.write(' '.join([os.path.realpath(os.getcwd()), *sys.argv[1:]]) + '\\n')\n"
+            f"sys.stderr.write({stderr!r})\n"
+            f"sys.exit({exit_code})\n", encoding="utf-8")
         return log
 
     configure()
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
     return configure
+
+
+def _can_symlink() -> bool:
+    """Whether this user may create symbolic links; Windows allows it only with Developer Mode or as administrator."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        try:
+            os.symlink(d, os.path.join(d, "link"), target_is_directory=True)
+        except (OSError, NotImplementedError):
+            return False
+    return True
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "symlinks: the test creates symbolic links")
+
+
+def pytest_collection_modifyitems(config, items):
+    marked = [item for item in items if "symlinks" in item.keywords]
+    if marked and not _can_symlink():
+        skip = pytest.mark.skip(reason="this user cannot create symbolic links (on Windows, turn on Developer Mode)")
+        for item in marked:
+            item.add_marker(skip)

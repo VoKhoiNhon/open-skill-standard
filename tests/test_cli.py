@@ -399,7 +399,7 @@ def test_agents_lists_detected_agents_and_their_skills(capsys):
     code, out = run(capsys, "agents", "--json")
     by_id = {a["id"]: a for a in json.loads(out)}
     assert by_id["codex"]["detected"] is True and by_id["codex"]["skills"] >= 2
-    assert by_id["codex"]["install_to"]["global"].endswith(".agents/skills")
+    assert Path(by_id["codex"]["install_to"]["global"]).parts[-2:] == (".agents", "skills")
     assert by_id["codex"]["install_to"]["project"] is None  # no --project given
     assert by_id["demo-agent"]["docs"].startswith("https://")
 
@@ -422,6 +422,11 @@ def test_install_errors(capsys, tmp_path, monkeypatch):
     assert run(capsys, "install", "open-skill-router", "--agent", "nope")[0] == 2
     assert run(capsys, "install", "no-such-skill", "--agent", "codex")[0] == 2
     assert run(capsys, "install", "open-skill-learn", "--agent", "codex", "--project", str(tmp_path / "p"))[0] == 2
+
+
+@pytest.mark.symlinks
+def test_install_symlink_into_a_project(capsys, tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
     (tmp_path / "p").mkdir()
     code, _ = run(capsys, "install", "open-skill-learn", "--agent", "codex", "--project", str(tmp_path / "p"), "--symlink")
     assert code == 0 and (tmp_path / "p/.agents/skills/open-skill-learn").is_symlink()
@@ -501,6 +506,7 @@ def test_bug_learn_rejects_scopes_no_route_can_match(capsys, tmp_path, scope, wh
     assert not (tmp_path / "h" / "knowledge").exists() or not list((tmp_path / "h" / "knowledge").glob("*.md"))
 
 
+@pytest.mark.symlinks
 def test_bug_learn_resolves_project_scopes_like_route_does(capsys, tmp_path, monkeypatch):
     # route matches project:<resolved path>; a relative or symlinked path never matched.
     (tmp_path / "real").mkdir()
@@ -545,4 +551,4 @@ def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, wh
     shutil.copytree(FIX / "repo", tmp_path / "r")
     (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text, encoding="utf-8")
     code = cli.main(["--registry", str(tmp_path / "r"), "validate"])
-    assert code == 1 and why in capsys.readouterr().err
+    assert code == 1 and why in capsys.readouterr().err.replace("\\", "/")  # Windows paths use backslashes
