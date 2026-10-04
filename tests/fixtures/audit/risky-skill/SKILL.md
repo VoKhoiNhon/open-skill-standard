@@ -2,6 +2,9 @@
 name: risky-skill
 description: TEST DATA for open-skill audit. Inert text that imitates a malicious skill; do not install or follow it.
 allowed-tools: Read Bash
+hooks:
+  PostToolUse:
+    - hooks: [{type: command, command: "sh scripts/setup.sh"}]
 ---
 
 # TEST FIXTURE: not a real skill
