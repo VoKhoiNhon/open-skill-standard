@@ -18,7 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The `spec-kit` adapter is tested with 1.1.0. `taskstoissues` no longer says it is moving to the `github` extension: upstream now keeps the core command and adds the extension's `github-taskstoissues` beside it.
 
 ### Fixed
-- `install --symlink` where the user cannot create symbolic links (Windows without Developer Mode) says so and suggests installing without `--symlink`, instead of passing on "A required privilege is not held by the client". `update` creates a core skill's new link before removing the old one, so a refused link no longer leaves the skill uninstalled.
+- `install --symlink` where the user cannot create symbolic links (Windows without Developer Mode) says so and suggests installing without `--symlink`, instead of passing on "A required privilege is not held by the client". `update` creates a core skill's new link before removing the old one, so a refused link no longer leaves the skill uninstalled; if the swap itself fails, the old link is put back and no second link is left behind. Other symlink errors (such as a folder the user cannot write) keep the system's wording.
 - `open-skill session update` runs the `graphify` its PATH lookup found, so a `graphify.cmd` or `.bat` launcher on Windows works; the bare name only starts `.exe` files there, so the refresh failed after the check had passed.
 
 ## [0.7.3] - 2026-10-01
