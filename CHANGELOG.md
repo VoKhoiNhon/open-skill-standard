@@ -4,9 +4,6 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-### Changed
-- The `graphify` adapter is tested with 0.9.75: `extract . --code-only`, `query`, `affected` and `update .` behave as before, and the session lifecycle runs end to end against it.
-
 ### Added
 - `open-skill audit --format sarif` writes a SARIF 2.1.0 log for code scanning: every rule with its source link and a `security-severity` (high 8.0, medium 5.0, low 2.0), and each finding with its file, line and excerpt. Paths under the current folder are relative to it, so a log made at a repository root uploads as is; each result names its group (the folder audited, or the source with `--installed`).
 - `open-skill lint --format sarif` writes the same kind of log for lint findings, one result per file (lint reports files, not lines).
@@ -15,7 +12,11 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill audit` flags `skill-hooks` (medium): `hooks` (the key may be quoted) in the frontmatter of a SKILL.md, a command or an agent file. Claude Code registers them when the skill is invoked and runs their commands on agent events for the rest of the session, long after the skill's own turn. Only the frontmatter counts, so a skill that documents hooks in its body is not flagged.
 
 ### Changed
+- The `graphify` adapter is tested with 0.9.75: `extract . --code-only`, `query`, `affected` and `update .` behave as before, and the session lifecycle runs end to end against it.
 - The `spec-kit` adapter is tested with 1.1.0. `taskstoissues` no longer says it is moving to the `github` extension: upstream now keeps the core command and adds the extension's `github-taskstoissues` beside it.
+
+### Fixed
+- `open-skill session update` runs the `graphify` its PATH lookup found, so a `graphify.cmd` or `.bat` launcher on Windows works; the bare name only starts `.exe` files there, so the refresh failed after the check had passed.
 
 ## [0.7.3] - 2026-10-01
 

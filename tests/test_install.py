@@ -108,6 +108,7 @@ def test_identical_existing_skill_is_left_alone_and_not_claimed(reg, tmp_path):
     assert install.manifest() == []  # open-skill did not create it, so it will never remove it
 
 
+@pytest.mark.symlinks
 def test_broken_link_at_the_target_is_refused(reg, tmp_path):
     target = tmp_path / "home/.agents/skills/open-skill-router"
     target.parent.mkdir(parents=True)
@@ -115,6 +116,7 @@ def test_broken_link_at_the_target_is_refused(reg, tmp_path):
     assert install.plan(install.resolve_source("open-skill-router"), reg.agents["codex"]).action == "refuse"
 
 
+@pytest.mark.symlinks
 def test_symlink_install_links_to_the_source(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/my-skill", "my-skill")))
     p = install.plan(src, reg.agents["gemini-cli"], mode="symlink")
@@ -168,6 +170,7 @@ def test_remove_dry_run_changes_nothing(reg, tmp_path):
     assert removed and (p.dest / "SKILL.md").exists() and len(install.manifest()) == 1
 
 
+@pytest.mark.symlinks
 def test_remove_never_follows_a_link_out_of_the_skill(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/linked", "linked")))
     (src.path / "sub").mkdir()
@@ -185,6 +188,7 @@ def test_remove_never_follows_a_link_out_of_the_skill(reg, tmp_path):
 
 
 
+@pytest.mark.symlinks
 def test_remove_symlink_install(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/linky", "linky")))
     p = install.plan(src, reg.agents["codex"], mode="symlink")
@@ -193,6 +197,7 @@ def test_remove_symlink_install(reg, tmp_path):
     assert not p.dest.is_symlink() and (src.path / "SKILL.md").exists()  # the link goes, its target stays
 
 
+@pytest.mark.symlinks
 def test_repointed_symlink_is_kept(reg, tmp_path):
     src = install.resolve_source(str(skill(tmp_path / "src/linky", "linky")))
     p = install.plan(src, reg.agents["codex"], mode="symlink")
@@ -250,6 +255,7 @@ def test_update_leaves_local_skills_to_the_user(reg, tmp_path):
     assert (p.dest / "notes.md").exists()
 
 
+@pytest.mark.symlinks
 def test_update_relinks_a_core_symlink_to_this_cli(reg, tmp_path):
     import shutil
     old = tmp_path / "old-cli/skills/open-skill-router"

@@ -301,11 +301,13 @@ def conflicts(project, reached: dict[str, str], exclude_id=None, now=None) -> li
 def update(project, session_id=None, install_hint=INSTALL_FALLBACK, now=None) -> dict:
     """Refresh the shared graph through Graphify, then report changed and affected files and scope conflicts."""
     project = Path(project)
-    if not shutil.which("graphify"):
+    exe = shutil.which("graphify")
+    if not exe:
         raise GraphifyMissing(f"graphify is not installed; install it with: {install_hint}")
     if not (project / GRAPH).is_file():
         raise GraphMissing("no graph yet; build it once with: graphify extract . --code-only")
-    p = subprocess.run(["graphify", "update", "."], cwd=project, capture_output=True,
+    # Run what the lookup found: on Windows it may be a graphify.cmd launcher, which a bare name does not start.
+    p = subprocess.run([exe, "update", "."], cwd=project, capture_output=True,
                        encoding="utf-8", errors="replace")  # Graphify locks
     if p.returncode != 0:
         raise RefreshFailed((p.stderr or p.stdout).strip())
