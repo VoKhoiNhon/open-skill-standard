@@ -25,7 +25,7 @@ def test_check_tells_as_installed_from_edited_and_missing():
 def test_hash_skips_git_and_node_modules(tmp_path):
     shutil.copytree(LOCKED / ".agents/skills/demo", tmp_path / "demo")
     before = skills_lock.folder_hash(tmp_path / "demo")
-    for extra in ("node_modules/x/index.js", ".git/HEAD"):
+    for extra in ("node_modules/x/index.js", ".git/HEAD", "scripts/__pycache__/run.cpython-313.pyc"):
         (tmp_path / "demo" / extra).parent.mkdir(parents=True)
         (tmp_path / "demo" / extra).write_text("x", encoding="utf-8")
     assert skills_lock.folder_hash(tmp_path / "demo") == before
@@ -59,7 +59,7 @@ def test_doctor_reports_the_lock(capsys, monkeypatch, tmp_path):
     cli.main(["doctor", "--project", str(LOCKED)])
     (line,) = [x for x in capsys.readouterr().out.splitlines() if "skills-lock.json" in x]
     assert "3 skill(s) installed by npx skills" in line
-    assert "1 changed since install → npx skills update (edited)" in line and "1 not in a skill folder (gone)" in line
+    assert "1 differ from the lock (edited, or installed without some files) → npx skills update (edited)" in line and "1 not in a skill folder (gone)" in line
 
 
 def test_non_ascii_file_names_are_unchecked_not_changed(tmp_path):
