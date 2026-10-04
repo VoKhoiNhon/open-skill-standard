@@ -629,3 +629,65 @@ def test_deeply_nested_manifest_is_reported_not_a_crash(tmp_path, name):
     p = write_json(tmp_path, name, "[" * 100_000 + "]" * 100_000)
     found = lint.lint_plugin(p) if name == "plugin.json" else lint.lint_marketplace(p)
     assert [f.rule for f in found] == ["manifest-json"]
+
+
+@pytest.mark.parametrize("name,expected", [
+    ("tools", None),
+    ("claude-tools", "plugin-reserved"),
+    ("Claude_Code", "plugin-reserved"),            # case and separators do not matter
+    ("anthropics", "plugin-reserved"),
+    ("cc-plugin-git", "plugin-reserved"),
+    ("claude-mods", "plugin-reserved"),
+    ("official-claude-tools", "plugin-reserved"),  # official beside claude
+    ("tools-anthropic-official", "plugin-reserved"),
+    ("mcp-for-claude", "plugin-anthropic-word"),
+    ("my.claude.helper", "plugin-anthropic-word"),
+    ("claudette", None),
+    ("official-tools-for-claude", "plugin-anthropic-word"),  # official is not beside claude
+])
+def test_plugin_names_that_pass_as_anthropic_plugins(tmp_path, name, expected):
+    found = [r for r in plugin_rules(tmp_path, name=name) if r in ("plugin-reserved", "plugin-anthropic-word")]
+    assert found == ([expected] if expected else [])
+
+
+def test_directory_listing_fields_are_known_and_checked(tmp_path):
+    (tmp_path / "logo.png").write_bytes(b"\x89PNG")
+    urls = {k: "https://example.com/" + k for k in ("documentationUrl", "supportUrl", "privacyPolicyUrl", "termsOfServiceUrl")}
+    assert plugin_rules(tmp_path, icon="./logo.png", **urls) == []
+    assert plugin_rules(tmp_path, icon="./missing.png") == ["plugin-listing"]
+    assert plugin_rules(tmp_path, icon="./agents/reviewer.md") == ["plugin-listing"]  # not an image
+    assert plugin_rules(tmp_path, icon="https://example.com/logo.png") == ["plugin-listing"]
+    assert plugin_rules(tmp_path, supportUrl="http://example.com/help") == ["plugin-listing"]
+    assert plugin_rules(tmp_path, privacyPolicyUrl=5) == ["plugin-listing"]
+
+
+def test_homepage_must_parse_as_a_url(tmp_path):
+    assert plugin_rules(tmp_path, homepage="https://example.com/docs") == []
+    assert plugin_rules(tmp_path, homepage="example dot com") == ["plugin-homepage"]
+    assert plugin_rules(tmp_path, homepage=["https://example.com"]) == ["plugin-homepage"]
+
+
+def test_types_is_a_plugin_path(tmp_path):
+    (tmp_path / "mod.d.ts").write_text("x", encoding="utf-8")
+    assert plugin_rules(tmp_path, types="./mod.d.ts") == []
+    assert plugin_rules(tmp_path, types="./missing.d.ts") == ["plugin-path"]
+
+
+def test_plugin_root_claude_md_and_bin_are_flagged(tmp_path):
+    (tmp_path / "CLAUDE.md").write_text("x", encoding="utf-8")
+    (tmp_path / "bin").mkdir()
+    assert plugin_rules(tmp_path) == ["plugin-claude-md", "plugin-bin"]
+
+
+@pytest.mark.parametrize("fields,fires", [
+    ({"agents": ["./agents/reviewer.md"]}, False),         # names a file in the default folder
+    ({"agents": "./extra/reviewer.md"}, True),             # agents/ exists and is no longer scanned
+    ({"commands": ["./commands/", "./extra/"]}, False),
+    ({"commands": "./extra/"}, True),
+    ({"skills": ["./extra/"]}, False),                     # skills add to the default folder
+    ({"outputStyles": "./extra/"}, False),                 # no output-styles/ folder here
+])
+def test_default_folder_ignored_when_the_manifest_replaces_it(tmp_path, fields, fires):
+    (tmp_path / "extra").mkdir()
+    (tmp_path / "extra" / "reviewer.md").write_text("x", encoding="utf-8")
+    assert ("plugin-default-ignored" in plugin_rules(tmp_path, **fields)) is fires
