@@ -284,7 +284,7 @@ open-skill audit --installed               # mọi skill đã cài, nhóm theo n
 open-skill audit --installed --format json # cho công cụ khác
 ```
 
-Để dùng với code scanning, `--format sarif` ghi một log SARIF 2.1.0 (`open-skill lint` cũng có) kèm `security-severity` cho từng luật để GitHub xếp hạng cảnh báo; đường dẫn tính từ thư mục hiện tại, nên hãy chạy ở thư mục gốc của repository:
+Để dùng với code scanning, `--format sarif` ghi một log SARIF 2.1.0 (`open-skill lint` cũng có) kèm `security-severity` cho từng luật để GitHub xếp hạng cảnh báo; đường dẫn tính từ thư mục hiện tại, nên hãy chạy ở thư mục gốc của repository (file nằm ngoài thư mục đó, như skill của `--installed`, thành URI `file://` mà code scanning không gắn được vào repository):
 
 ```yaml
 # trong một job GitHub Actions có `permissions: security-events: write`, sau khi cài open-skill

@@ -4,6 +4,7 @@ One run per log; the rule catalog is listed in full so a viewer can explain any 
 folder (normally the current folder, the repository root in CI) are written relative to it, others as file URIs.
 """
 
+import os
 from pathlib import Path
 from urllib.parse import quote
 
@@ -17,14 +18,15 @@ SECURITY_SEVERITY = {"high": "8.0", "medium": "5.0", "low": "2.0"}
 
 
 def _location(path: str, line: int, snippet: str, base: Path) -> dict:
-    p = Path(path)
-    if p.is_absolute():
+    # Relative paths are relative to the current folder, not to base, and may hold "..": normalize them first.
+    p = Path(os.path.abspath(path))
+    artifact = {"uri": p.as_uri()}
+    for candidate in (p, p.resolve()):  # resolved too, as base is, so a linked or short-named folder still matches
         try:
-            artifact = {"uri": quote(p.relative_to(base).as_posix()), "uriBaseId": "SRCROOT"}
+            artifact = {"uri": quote(candidate.relative_to(base).as_posix()), "uriBaseId": "SRCROOT"}
+            break
         except ValueError:
-            artifact = {"uri": p.as_uri()}
-    else:
-        artifact = {"uri": quote(p.as_posix()), "uriBaseId": "SRCROOT"}
+            pass
     physical = {"artifactLocation": artifact}
     if line >= 1:  # SARIF lines start at 1; file-level findings (links, binaries) carry no region
         physical["region"] = {"startLine": line, **({"snippet": {"text": snippet}} if snippet else {})}

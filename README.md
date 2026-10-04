@@ -268,7 +268,7 @@ open-skill audit --installed               # everything installed, grouped by so
 open-skill audit --installed --format json # for other tools
 ```
 
-For code scanning, `--format sarif` writes a SARIF 2.1.0 log (`open-skill lint` has it too) with a `security-severity` per rule, so GitHub ranks the alerts; paths are relative to the current folder, so run it at the repository root:
+For code scanning, `--format sarif` writes a SARIF 2.1.0 log (`open-skill lint` has it too) with a `security-severity` per rule, so GitHub ranks the alerts; paths are relative to the current folder, so run it at the repository root (files outside it, such as `--installed` skills, become `file://` URIs that code scanning cannot place in the repository):
 
 ```yaml
 # in a GitHub Actions job with `permissions: security-events: write`, after installing open-skill

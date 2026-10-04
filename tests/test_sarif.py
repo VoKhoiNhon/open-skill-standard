@@ -37,3 +37,13 @@ def test_file_level_findings_have_no_region(tmp_path):
 def test_unknown_rule_ids_have_no_rule_index(tmp_path):
     doc = sarif.log(RULES, [{"rule": "zzz", "severity": "error", "message": "m", "path": Path("p").as_posix()}], tmp_path)
     assert "ruleIndex" not in doc["runs"][0]["results"][0]
+
+
+def test_relative_paths_are_normalized_from_the_current_folder(tmp_path, monkeypatch):
+    (tmp_path / "repo" / "s").mkdir(parents=True)
+    monkeypatch.chdir(tmp_path / "repo")
+    doc = sarif.log(RULES, [{"rule": "b", "severity": "warning", "message": "m", "path": p}
+                            for p in ("./s/../s/SKILL.md", "../other/SKILL.md")])
+    first, second = (r["locations"][0]["physicalLocation"]["artifactLocation"] for r in doc["runs"][0]["results"])
+    assert first == {"uri": "s/SKILL.md", "uriBaseId": "SRCROOT"}
+    assert second == {"uri": (tmp_path / "other" / "SKILL.md").resolve().as_uri()}
