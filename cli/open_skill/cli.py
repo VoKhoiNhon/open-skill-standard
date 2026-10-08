@@ -417,7 +417,7 @@ def cmd_doctor(args):
     found = [a for a in reg.agents.values() if agents.detected(a)]
     seen = ", ".join(f"{a['id']} ({sum(a['id'] in i.agents for i in installed)} skills)" for a in found)
     print(f"  agents: {seen or 'none detected'} → open-skill agents")
-    for a in reg.agents.values():
+    for a in found:  # an agent that is not installed lists nothing, though it shares folders with others
         budget = a.get("listing_budget", {}).get("chars") if isinstance(a.get("listing_budget"), dict) else None
         if not (type(budget) is int and budget > 0):  # validate reports a bad overlay; doctor carries on
             continue

@@ -554,8 +554,10 @@ def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, wh
     assert code == 1 and why in capsys.readouterr().err.replace("\\", "/")  # Windows paths use backslashes
 
 
-def _home_with_skills(tmp_path, n, desc_len):
+def _home_with_skills(tmp_path, n, desc_len, agent_dir=".codex"):
     home = tmp_path / "home"
+    if agent_dir:
+        (home / agent_dir).mkdir(parents=True)  # the agent is installed
     for i in range(n):
         d = home / ".agents" / "skills" / f"skill-{i}"
         d.mkdir(parents=True)
@@ -570,6 +572,14 @@ def test_doctor_warns_when_codex_skill_list_passes_its_budget(capsys, monkeypatc
     cli.main(["doctor", "--project", str(tmp_path)])
     (line,) = [x for x in capsys.readouterr().out.splitlines() if "listing budget" in x]
     assert "codex" in line and "skill(s) take" in line and "8000" in line
+
+
+def test_doctor_does_not_warn_for_an_agent_that_is_not_installed(capsys, monkeypatch, tmp_path):
+    # ~/.agents/skills is shared by several agents; without Codex installed its budget does not apply.
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 10, 900, agent_dir=None)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    cli.main(["doctor", "--project", str(tmp_path)])
+    assert "listing budget" not in capsys.readouterr().out
 
 
 def test_doctor_is_quiet_within_the_budget(capsys, monkeypatch, tmp_path):
