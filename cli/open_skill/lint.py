@@ -20,6 +20,7 @@ PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engine
 CURSOR_SKILLS = "https://cursor.com/docs/context/skills"
 AMP_SKILLS = "https://ampcode.com/docs/customize/skills"
 MCP_SKILLS = "https://modelcontextprotocol.io/seps/2640-skills-extension"
+CODEX_SKILLS = "https://learn.chatgpt.com/docs/build-skills"
 
 PATTERNS = [
     ("reasoning-in-response", "error",
@@ -115,6 +116,10 @@ rule("field-cursor", "warning", "Cursor's `color` is one of " + ", ".join(CURSOR
 rule("field-amp", "warning", "Amp's `mcpServers` maps server names to their configuration", AMP_SKILLS)
 rule("metadata-reserved", "warning", "`metadata` keys do not start with `io.modelcontextprotocol/`, which MCP reserves "
      "for its extensions", MCP_SKILLS)
+rule("codex-metadata", "warning", "a skill's `agents/openai.yaml` (Codex app metadata) is a mapping of the documented "
+     "`interface`, `policy` and `dependencies` keys: text fields as strings, icons as files inside the skill, "
+     "`brand_color` as #RRGGBB, `allow_implicit_invocation` as a boolean and each dependency tool with a `type` and "
+     "`value`", CODEX_SKILLS)
 rule("field-license", "warning", "`license`, when present, is a string", SPEC)
 rule("body-tokens", "warning", "the SKILL.md body is under about 5000 tokens", SPEC)
 rule("length", "warning", "SKILL.md is under 500 lines", BEST)
@@ -330,6 +335,61 @@ def missing_mentions(body: str, base: Path) -> list[str]:
     return _absent((m.group(1) for m in MENTION.finditer(prose(body))), base)
 
 
+CODEX_KEYS = {"interface": {"display_name", "short_description", "icon_small", "icon_large", "brand_color",
+                            "default_prompt"},
+              "policy": {"allow_implicit_invocation"}, "dependencies": {"tools"}}
+HEX_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
+
+
+def lint_codex_metadata(path: Path) -> list[Finding]:
+    """Check a skill's agents/openai.yaml against the fields Codex documents."""
+    import yaml
+
+    skill = path.parent.parent
+    try:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8", errors="replace"))
+    except yaml.YAMLError as e:
+        return [_finding(path, "codex-metadata", f"not valid YAML: {str(e).splitlines()[0]}")]
+    if doc is None:
+        return []
+    if not isinstance(doc, dict):
+        return [_finding(path, "codex-metadata", "the file should be a mapping of interface, policy and dependencies")]
+    why = [f"unknown key '{k}'" for k in sorted(set(doc) - set(CODEX_KEYS), key=str)]
+    for section, keys in CODEX_KEYS.items():
+        value = doc.get(section)
+        if section not in doc or value is None:
+            continue
+        if not isinstance(value, dict):
+            why.append(f"{section} should be a mapping")
+            continue
+        why += [f"unknown key '{section}.{k}'" for k in sorted(set(value) - keys, key=str)]
+    interface = doc.get("interface") if isinstance(doc.get("interface"), dict) else {}
+    for key in sorted(CODEX_KEYS["interface"] & set(interface)):
+        v = interface[key]
+        if not isinstance(v, str):
+            why.append(f"interface.{key} should be a string")
+        elif key == "brand_color" and not HEX_COLOR.fullmatch(v):
+            why.append(f"interface.brand_color is {v!r}; use a hex color such as #3B82F6")
+        elif key.startswith("icon_") and "\\" in v:
+            why.append(f"interface.{key} '{v}' should use / between folders, which every platform reads")
+        elif key.startswith("icon_"):
+            target = (skill / v).resolve()
+            if (Path(v).is_absolute() or "://" in v or not target.is_relative_to(skill.resolve())
+                    or not target.is_file()):
+                why.append(f"interface.{key} '{v}' should be a file inside the skill folder")
+    policy = doc.get("policy") if isinstance(doc.get("policy"), dict) else {}
+    if "allow_implicit_invocation" in policy and not isinstance(policy["allow_implicit_invocation"], bool):
+        why.append("policy.allow_implicit_invocation should be true or false")
+    deps = doc.get("dependencies") if isinstance(doc.get("dependencies"), dict) else {}
+    tools = deps.get("tools")
+    if "tools" in deps and not isinstance(tools, list):
+        why.append("dependencies.tools should be a list")
+    for i, t in enumerate(tools if isinstance(tools, list) else []):
+        if not (isinstance(t, dict) and all(isinstance(t.get(k), str) and t.get(k) for k in ("type", "value"))):
+            why.append(f"dependencies.tools[{i}] needs a type and a value")
+    return [_finding(path, "codex-metadata", w) for w in why]
+
+
 def lint_file(path: Path) -> list[Finding]:
     path = Path(path)
     folder = path.parent.name if path.name == "SKILL.md" else None
@@ -340,6 +400,9 @@ def lint_file(path: Path) -> list[Finding]:
         out.append(_finding(path, "missing-reference", f"links to '{ref}', which does not exist"))
     for ref in missing_mentions(body, path.parent):
         out.append(_finding(path, "missing-mention", f"names '{ref}', which does not exist; link it if the skill ships it"))
+    codex = path.parent / "agents" / "openai.yaml"
+    if path.name == "SKILL.md" and codex.is_file():
+        out += lint_codex_metadata(codex)
     return out
 
 
