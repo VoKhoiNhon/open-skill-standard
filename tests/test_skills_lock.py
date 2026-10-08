@@ -58,7 +58,7 @@ def test_doctor_reports_the_lock(capsys, monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     cli.main(["doctor", "--project", str(LOCKED)])
     (line,) = [x for x in capsys.readouterr().out.splitlines() if "skills-lock.json" in x]
-    assert "3 skill(s) installed by npx skills" in line
+    assert "3 skill(s) installed by npx skills" in line and "skills-lock.json: " in line
     assert "1 differ from the lock (edited, or installed without some files) → npx skills update (edited)" in line and "1 not in a skill folder (gone)" in line
 
 
@@ -80,3 +80,39 @@ def test_an_unreadable_file_is_unchecked_not_a_crash(tmp_path, monkeypatch):
         raise PermissionError(13, "Permission denied", str(self))
     monkeypatch.setattr(Path, "read_bytes", refuse)
     assert skills_lock.folder_hash(tmp_path / "demo") is None
+
+
+def test_lock_is_found_up_to_the_repository_root(tmp_path):
+    # npx skills writes the lock where it runs, usually the repository root; doctor may run from a subfolder.
+    repo = tmp_path / "repo"
+    shutil.copytree(LOCKED, repo)
+    (repo / ".git").mkdir()
+    (repo / "src" / "app").mkdir(parents=True)
+    assert skills_lock.find(repo / "src" / "app") == repo.resolve()
+    assert skills_lock.find(repo) == repo.resolve()
+
+
+def test_lock_is_not_searched_above_the_repository_root(tmp_path):
+    shutil.copytree(LOCKED, tmp_path / "outer")
+    (tmp_path / "outer" / "repo" / ".git").mkdir(parents=True)
+    assert skills_lock.find(tmp_path / "outer" / "repo") is None
+
+
+def test_lock_outside_a_repository_is_only_read_in_the_folder_itself(tmp_path):
+    shutil.copytree(LOCKED, tmp_path / "p")
+    (tmp_path / "p" / "sub").mkdir()
+    assert skills_lock.find(tmp_path / "p" / "sub") is None
+    assert skills_lock.find(tmp_path / "p") == (tmp_path / "p").resolve()
+
+
+def test_doctor_reads_the_lock_at_the_repository_root(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    repo = tmp_path / "repo"
+    shutil.copytree(LOCKED, repo)
+    (repo / ".git").mkdir()
+    (repo / "pkg").mkdir()
+    cli.main(["doctor", "--project", str(repo / "pkg")])
+    (line,) = [x for x in capsys.readouterr().out.splitlines() if "skills-lock.json" in x]
+    assert "3 skill(s) installed by npx skills" in line and "1 not in a skill folder (gone)" in line
+    assert f"skills-lock.json (in {repo.resolve()}):" in line

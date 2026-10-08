@@ -17,6 +17,9 @@ SKILLS_REF = "https://github.com/agentskills/agentskills/blob/main/skills-ref/sr
 QUICK_VALIDATE = "https://github.com/anthropics/skills/blob/main/skills/skill-creator/scripts/quick_validate.py"
 OSS_SPEC = "https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPEC.md#7-skill-writing-rules"
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+CURSOR_SKILLS = "https://cursor.com/docs/context/skills"
+AMP_SKILLS = "https://ampcode.com/docs/customize/skills"
+MCP_SKILLS = "https://modelcontextprotocol.io/seps/2640-skills-extension"
 
 PATTERNS = [
     ("reasoning-in-response", "error",
@@ -44,6 +47,10 @@ SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "a
 # Extensions Claude Code documents in its frontmatter reference; everything else is probably a typo.
 AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
                 "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"}
+# Fields other agents document: Cursor's Custom Mode badge and Amp's per-skill MCP servers.
+OTHER_AGENT_FIELDS = {"icon", "color", "mcpServers"}
+CURSOR_COLORS = ("default", "green", "cyan", "blue", "purple", "magenta", "orange", "yellow", "red", "brand")
+MCP_RESERVED = "io.modelcontextprotocol/"  # metadata keys reserved for MCP extensions (SEP-2640)
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
 # Claude Code frontmatter values (skills reference, "Frontmatter reference"); YAML reads true/false as booleans.
 CLAUDE_CODE_VALUES = {"effort": ("low", "medium", "high", "xhigh", "max"), "context": ("fork",),
@@ -92,8 +99,8 @@ rule("name-matches-folder", "error", "`name` equals the name of the folder holdi
      SKILLS_REF)
 rule("frontmatter-description", "error", "`description` is a non-blank string of at most 1024 characters", SPEC)
 rule("description-angle-brackets", "error", "`description` has no `<` or `>`, which Anthropic's packager rejects", QUICK_VALIDATE)
-rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or one Claude Code documents",
-     CLAUDE_SKILLS + "#frontmatter-reference")
+rule("unknown-field", "warning", "every frontmatter key is an Agent Skills field or one Claude Code, Cursor (`icon`, "
+     "`color`) or Amp (`mcpServers`) documents", CLAUDE_SKILLS + "#frontmatter-reference")
 rule("field-compatibility", "error", "`compatibility`, when present, is a string of 1-500 characters", SPEC)
 rule("field-metadata", "error", "`metadata`, when present, maps string keys to string values", SPEC)
 rule("field-allowed-tools", "warning", "`allowed-tools`, when present, is one space-separated string", SPEC)
@@ -104,6 +111,10 @@ rule("listing-length", "warning", "`description` and `when_to_use` together fit 
      CLAUDE_SKILLS + "#frontmatter-reference")
 rule("folder-reserved", "warning", "the skill folder is not named `synced` (any case) or `anthropic-skills`, which Claude "
      "Code keeps for skills synced from claude.ai and skips", CLAUDE_SKILLS + "#where-skills-live")
+rule("field-cursor", "warning", "Cursor's `color` is one of " + ", ".join(CURSOR_COLORS), CURSOR_SKILLS)
+rule("field-amp", "warning", "Amp's `mcpServers` maps server names to their configuration", AMP_SKILLS)
+rule("metadata-reserved", "warning", "`metadata` keys do not start with `io.modelcontextprotocol/`, which MCP reserves "
+     "for its extensions", MCP_SKILLS)
 rule("field-license", "warning", "`license`, when present, is a string", SPEC)
 rule("body-tokens", "warning", "the SKILL.md body is under about 5000 tokens", SPEC)
 rule("length", "warning", "SKILL.md is under 500 lines", BEST)
@@ -222,13 +233,21 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
         add("frontmatter-description", f"description is {len(desc)} characters; the limit is 1024")
     elif "<" in desc or ">" in desc:
         add("description-angle-brackets", "description must not contain < or >; Anthropic's packager rejects it")
-    for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS):
-        add("unknown-field", f"'{key}' is neither an Agent Skills field nor one Claude Code documents; agents ignore it (put custom data under metadata)")
+    for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS - OTHER_AGENT_FIELDS, key=str):
+        add("unknown-field", f"'{key}' is neither an Agent Skills field nor one Claude Code, Cursor or Amp documents; agents ignore it (put custom data under metadata)")
+    if "color" in meta and meta["color"] not in CURSOR_COLORS:
+        add("field-cursor", f"color is {meta['color']!r}; Cursor accepts {', '.join(CURSOR_COLORS)}")
+    if "mcpServers" in meta and not (isinstance(meta["mcpServers"], dict) and meta["mcpServers"]):
+        add("field-amp", "mcpServers should map each server name to its command or url, as in Amp's mcp.json")
     if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):
         add("field-compatibility", "compatibility must be a string of 1-500 characters")
     md = meta.get("metadata")
     if "metadata" in meta and not (isinstance(md, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in md.items())):
         add("field-metadata", "metadata must map string keys to string values (quote numbers like \"1.0\")")
+    reserved = sorted(k for k in md if isinstance(k, str) and k.startswith(MCP_RESERVED)) if isinstance(md, dict) else []
+    if reserved:
+        add("metadata-reserved", f"metadata key(s) {', '.join(reserved)} use the {MCP_RESERVED} prefix MCP reserves "
+                                 "for its extensions; pick your own prefix")
     if "allowed-tools" in meta and not isinstance(meta["allowed-tools"], str):
         add("field-allowed-tools", "allowed-tools should be one space-separated string")
     if "license" in meta and not isinstance(meta["license"], str):

@@ -52,7 +52,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.4 open-ski
 /open-skill-router add a pipeline that loads orders into the warehouse
 ```
 
-`open-skill doctor` shows which frameworks are installed and the official command for each one that is missing. In a project where `npx skills` keeps a `skills-lock.json`, it also says which of those skills were edited since install or are no longer in a skill folder.
+`open-skill doctor` shows which frameworks are installed and the official command for each one that is missing. In a project where `npx skills` keeps a `skills-lock.json` (in the folder, or at the repository root above it), it also says which of those skills were edited since install or are no longer in a skill folder.
 
 ## Any agent that loads Agent Skills
 
@@ -67,7 +67,7 @@ The skills follow the [Agent Skills](https://agentskills.io) format, so they wor
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
-| Windsurf | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| Windsurf | `windsurf` | `~/.config/devin/skills` | `.devin/skills` |
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
 | Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 

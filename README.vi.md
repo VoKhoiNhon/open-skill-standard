@@ -53,7 +53,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.4 open-ski
 # yêu cầu bằng tiếng Việt cũng được: /open-skill-router thêm pipeline nạp dữ liệu đơn hàng vào warehouse
 ```
 
-`open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu. Trong project có `skills-lock.json` do `npx skills` ghi, lệnh còn cho biết skill nào đã bị sửa sau khi cài hoặc không còn nằm trong thư mục skill.
+`open-skill doctor` cho biết framework nào đã cài, và in lệnh cài chính thức cho framework còn thiếu. Trong project có `skills-lock.json` do `npx skills` ghi (ở thư mục đó, hoặc ở gốc repository phía trên), lệnh còn cho biết skill nào đã bị sửa sau khi cài hoặc không còn nằm trong thư mục skill.
 
 ## Dùng với mọi agent đọc được Agent Skills
 
@@ -68,7 +68,7 @@ Các skill theo định dạng [Agent Skills](https://agentskills.io), nên ch�
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
-| Windsurf | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| Windsurf | `windsurf` | `~/.config/devin/skills` | `.devin/skills` |
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
 | Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 
