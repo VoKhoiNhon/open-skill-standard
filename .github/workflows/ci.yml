@@ -15,7 +15,10 @@ jobs:
         python: ["3.11", "3.12", "3.13", "3.14"]
         include:
           - {os: macos-latest, python: "3.13"}
+          - {os: windows-latest, python: "3.13"}
     steps:
+      # Keep LF line endings on Windows, as on the other runners, so generated files compare byte for byte.
+      - run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
         with:
