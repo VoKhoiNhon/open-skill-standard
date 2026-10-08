@@ -797,6 +797,7 @@ dependencies:
     ("interface: {icon_small: ./missing.svg}\n", "icon_small"),
     ("interface: {icon_large: ../outside.png}\n", "icon_large"),
     ("interface: {display_name: 3}\n", "display_name"),
+    ("interface: {icon_small: 'assets\\\\logo.svg'}\n", "use /"),
     ("policy: {allow_implicit_invocation: 'no'}\n", "allow_implicit_invocation"),
     ("dependencies: {tools: {type: mcp}}\n", "dependencies.tools"),
     ("dependencies: {tools: [{value: docs}]}\n", "dependencies.tools[0]"),

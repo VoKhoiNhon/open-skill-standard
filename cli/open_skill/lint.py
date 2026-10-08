@@ -370,6 +370,8 @@ def lint_codex_metadata(path: Path) -> list[Finding]:
             why.append(f"interface.{key} should be a string")
         elif key == "brand_color" and not HEX_COLOR.fullmatch(v):
             why.append(f"interface.brand_color is {v!r}; use a hex color such as #3B82F6")
+        elif key.startswith("icon_") and "\\" in v:
+            why.append(f"interface.{key} '{v}' should use / between folders, which every platform reads")
         elif key.startswith("icon_"):
             target = (skill / v).resolve()
             if (Path(v).is_absolute() or "://" in v or not target.is_relative_to(skill.resolve())
