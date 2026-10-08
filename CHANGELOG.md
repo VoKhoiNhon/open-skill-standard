@@ -13,7 +13,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill doctor` finds `skills-lock.json` at the repository root when run from a subfolder (or given one with `--project`), where `npx skills` writes it, and checks the skill folders beside the lock. It looks no higher than the nearest folder with `.git`, and names the lock's folder when it is not the one given.
 
 ### Fixed
-- `remove` and `update` recognise a skill installed with `--symlink` on Windows. Windows reports a link's target with the `\?\` prefix of an extended-length path, so the link never matched the path recorded at install: `remove` kept it as changed by the user and `update` skipped it.
+- `remove` and `update` recognise a skill installed with `--symlink` on Windows. Windows reports a link's target with the `\\?\` prefix of an extended-length path, so the link never matched the path recorded at install: `remove` kept it as changed by the user and `update` skipped it.
 
 ## [0.7.4] - 2026-10-04
 
