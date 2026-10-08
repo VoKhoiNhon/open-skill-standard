@@ -82,6 +82,19 @@ def test_depth_defaults_to_one_level():
     assert agents.depth({**AGENT, "nested": {"depth": 5, "source": "https://example.com"}}) == 5
 
 
+def test_antigravity_cli_reads_the_shared_project_folder(tmp_path, monkeypatch):
+    # antigravity.google/docs/skills: workspace .agents/skills, global ~/.gemini/antigravity-cli/skills.
+    from open_skill import paths, registry
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    a = registry.load(paths.data_root()).agents["antigravity-cli"]
+    assert agents.folders(a, "global") == [tmp_path / ".gemini/antigravity-cli/skills"]
+    assert agents.folders(a, "project", tmp_path / "p") == [(tmp_path / "p").resolve() / ".agents/skills"]
+    assert not agents.detected(a)
+    (tmp_path / ".gemini/antigravity-cli").mkdir(parents=True)
+    assert agents.detected(a)
+
+
 def test_windsurf_installs_where_devin_desktop_prefers():
     # docs.devin.ai/desktop/cascade/skills: .devin/skills and ~/.config/devin/skills are preferred, the Windsurf
     # folders legacy but still read.
