@@ -88,7 +88,8 @@ def test_other_binary_assets_are_skipped(toy_rule, tmp_path):
     ("tools.zip", b"PK\x03\x04\x14\x00\x00\x00"), ("bundle.tar.gz", b"\x1f\x8b\x08\x00\x00\x00"),
     ("pack.7z", b"7z\xbc\xaf\x27\x1c\x00\x04"), ("pack.rar", b"Rar!\x1a\x07\x01\x00"),
     ("data.xz", b"\xfd7zXZ\x00\x00\x04"), ("lib.jar", b"PK\x03\x04\x0a\x00\x00\x00"),
-    ("logs.bz2", b"BZh91AY&SY\x00"),
+    ("logs.bz2", b"BZh91AY&SY\x00"), ("empty.zip", b"PK\x05\x06\x00\x00\x00\x00"),
+    ("part.zip", b"PK\x07\x08PK\x03\x04"), ("plain.tar", b"run.sh" + b"\x00" * 251 + b"ustar\x0000"),
 ])
 def test_bundled_archive_is_flagged(toy_rule, tmp_path, name, head):
     # Archive members are never audited, so a skill could ship anything inside one.
@@ -116,6 +117,16 @@ def test_bytecode_without_its_source_is_flagged(toy_rule, tmp_path):
     (tmp_path / "helper.pyc").write_bytes(PYC)
     found = audit.audit_paths([tmp_path])
     assert [(f.rule, f.severity) for f in found] == [("bytecode-file", "medium")] * 2
+
+
+@pytest.mark.parametrize("name", ["run.payload.pyc", "run.cpython-313.opt-9.pyc", "my.run.cpython-313.pyc", "run.x.y.pyc"])
+def test_bytecode_named_unlike_a_cache_is_flagged_beside_a_source(toy_rule, tmp_path, name):
+    # Python names its caches <module>.<tag>[.opt-N].pyc; any other name only borrows a source to hide behind.
+    (tmp_path / "__pycache__").mkdir()
+    (tmp_path / "run.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "my.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "__pycache__" / name).write_bytes(PYC)
+    assert [f.rule for f in audit.audit_paths([tmp_path])] == ["bytecode-file"]
 
 
 def test_bytecode_next_to_its_source_is_a_cache(toy_rule, tmp_path):

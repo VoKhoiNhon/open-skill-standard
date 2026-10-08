@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- `open-skill audit` flags an archive shipped with a skill (`archive-file`, low: zip, jar, gzip, bzip2, xz, 7z or rar, found by content), since nothing inside it is audited; Office and e-book files, which are zip files too, are not flagged. It also flags compiled Python without its source (`bytecode-file`, medium); a `.pyc` beside its `.py`, or in `__pycache__` under it, is a cache Python writes when the skill's scripts run and is not flagged.
+- `open-skill audit` flags an archive shipped with a skill (`archive-file`, low: zip, jar, tar, gzip, bzip2, xz, 7z or rar, found by content), since nothing inside it is audited; Office and e-book files, which are zip files too, are not flagged. It also flags compiled Python without its source (`bytecode-file`, medium); a `.pyc` beside its `.py`, or in `__pycache__` under it with the name Python gives a cache (`<module>.<tag>.pyc`), is a cache Python writes when the skill's scripts run and is not flagged.
 - `open-skill lint` knows the frontmatter fields Cursor and Amp document: Cursor's `icon` and `color` and Amp's `mcpServers` no longer warn as unknown. A `color` outside Cursor's palette (`default`, `green`, `cyan`, `blue`, `purple`, `magenta`, `orange`, `yellow`, `red`, `brand`) warns (`field-cursor`), as does an `mcpServers` that is not a mapping of servers (`field-amp`).
 - `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.
 
