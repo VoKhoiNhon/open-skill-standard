@@ -126,6 +126,17 @@ NO_SYMLINKS = ("this user cannot create symbolic links here (on Windows, turn on
                "--symlink to copy the skill instead")
 
 
+def link_target(link: Path) -> str:
+    """Where a symbolic link points, as the path it was made with. On Windows os.readlink returns the link's
+    substitute name, which carries the \\\\?\\ (or \\\\?\\UNC\\) prefix of an extended-length path."""
+    target = os.readlink(link)
+    if target.startswith("\\\\?\\UNC\\"):
+        return "\\\\" + target[8:]
+    if target.startswith("\\\\?\\"):
+        return target[4:]
+    return target
+
+
 def _symlink(target: Path, dest: Path) -> None:
     """Link dest to the folder target, explaining a refused link rather than passing on the system's wording."""
     try:
@@ -169,7 +180,7 @@ def remove(dest: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
     if rec is None:
         raise LookupError(f"{dest} was not installed by open-skill; nothing removed")
     if rec["mode"] == "symlink":
-        ours = dest.is_symlink() and os.readlink(dest) == rec["source"]
+        ours = dest.is_symlink() and link_target(dest) == rec["source"]
         if not dry_run:
             if ours:
                 dest.unlink()
@@ -215,7 +226,7 @@ def update(agent: str | None = None, dry_run: bool = False) -> list[str]:
             continue
         new = core[name]
         if rec["mode"] == "symlink":
-            if not (dest.is_symlink() and os.readlink(dest) == rec["source"]):
+            if not (dest.is_symlink() and link_target(dest) == rec["source"]):
                 out.append(f"skipped {dest}: you changed it since install; left as is")
                 continue
             current = rec["source"] == str(new)
@@ -235,7 +246,7 @@ def update(agent: str | None = None, dry_run: bool = False) -> list[str]:
             if fresh.is_symlink():
                 fresh.unlink()
             _symlink(new, fresh)
-            old = os.readlink(dest)
+            old = link_target(dest)
             try:
                 dest.unlink()
                 fresh.rename(dest)
