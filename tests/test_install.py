@@ -266,7 +266,7 @@ def test_update_relinks_a_core_symlink_to_this_cli(reg, tmp_path):
     install._save([{"skill": "open-skill-router", "agent": "codex", "scope": "global", "dest": str(dest),
                     "source": str(old), "kind": "core", "mode": "symlink", "version": "0.0.1", "files": {}}])
     assert install.update()[0].startswith("updated")
-    assert os.readlink(dest) == str(REPO / "skills/open-skill-router")
+    assert install.link_target(dest) == str(REPO / "skills/open-skill-router")
     assert old.is_dir()  # the old target is not ours to delete
 
 
@@ -311,7 +311,7 @@ def test_a_refused_relink_keeps_the_old_link(reg, tmp_path, monkeypatch):
     _refuse_links(monkeypatch)
     with pytest.raises(OSError):
         install.update()
-    assert dest.is_symlink() and os.readlink(dest) == str(old)
+    assert dest.is_symlink() and install.link_target(dest) == str(old)
 
 
 def test_other_symlink_errors_keep_their_own_wording(reg, tmp_path, monkeypatch):
@@ -340,4 +340,17 @@ def test_a_failed_relink_keeps_the_old_link_and_no_second_one(reg, tmp_path, mon
     with pytest.raises(OSError):
         install.update()
     assert [x.name for x in dest.parent.iterdir()] == ["open-skill-router"]
-    assert os.readlink(dest) == str(old)  # the old link is back
+    assert install.link_target(dest) == str(old)  # the old link is back
+
+
+@pytest.mark.parametrize("raw,want", [
+    ("\\\\?\\C:\\Users\\me\\skills\\demo", "C:\\Users\\me\\skills\\demo"),
+    ("\\\\?\\UNC\\server\\share\\demo", "\\\\server\\share\\demo"),
+    ("/home/me/skills/demo", "/home/me/skills/demo"),
+    ("relative\\demo", "relative\\demo"),
+])
+def test_link_target_drops_the_windows_long_path_prefix(monkeypatch, raw, want):
+    # On Windows os.readlink returns a link's substitute name, \\?\C:\..., not the path it was made with, so an
+    # install recorded as C:\... never matched its own link and remove and update left it alone.
+    monkeypatch.setattr(install.os, "readlink", lambda p: raw)
+    assert install.link_target(Path("x")) == want
