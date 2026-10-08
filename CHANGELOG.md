@@ -6,12 +6,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - SARIF logs from `audit` and `lint` give each result a `partialFingerprints` entry (`openSkillFinding/v1`) built from the rule, the file and the flagged text, not the line, so code scanning keeps the same alert when an edit above it moves it, and tells repeats of the same text in one file apart.
+- The specification has a section on skills served over MCP (§7.1): how a skill folder maps to the skills extension's `skill://` resources and listing (SEP-2640), and that such skills are outside the agent skill folders `scan`, `install` and `remove` work on. §7 now says `metadata` keys stay out of the `io.modelcontextprotocol/` prefix.
 - `open-skill lint` knows the frontmatter fields Cursor and Amp document: Cursor's `icon` and `color` and Amp's `mcpServers` no longer warn as unknown. A `color` outside Cursor's palette (`default`, `green`, `cyan`, `blue`, `purple`, `magenta`, `orange`, `yellow`, `red`, `brand`) warns (`field-cursor`), as does an `mcpServers` that is not a mapping of servers (`field-amp`).
 - `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.
 
 ### Changed
+- The `spec-kit` adapter is tested with 1.1.2: `specify init` writes the same ten core commands, in the same places, for the Claude Code, Codex, Copilot, Gemini CLI, OpenCode and Amp integrations.
+- The `graphify` adapter is tested with 0.9.80: `extract . --code-only`, `query`, `affected` and `update .` behave as before, and the session lifecycle runs end to end against it. Its `graph.json` now also records the graphify version and build commit, which sessions ignore.
 - `install --agent windsurf` writes to `.devin/skills` and `~/.config/devin/skills`, the folders Devin Desktop (Windsurf's new home) prefers; the Windsurf folders are still read by it and by `scan`. `/etc/devin/skills`, where an administrator installs skills on Linux, is scanned too.
 - `open-skill doctor` finds `skills-lock.json` at the repository root when run from a subfolder (or given one with `--project`), where `npx skills` writes it, and checks the skill folders beside the lock. It looks no higher than the nearest folder with `.git`, and names the lock's folder when it is not the one given.
+
+### Fixed
+- `remove` and `update` recognise a skill installed with `--symlink` on Windows. Windows reports a link's target with the `\\?\` prefix of an extended-length path, so the link never matched the path recorded at install: `remove` kept it as changed by the user and `update` skipped it.
 
 ## [0.7.4] - 2026-10-04
 
