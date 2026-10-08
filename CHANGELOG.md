@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- `open-skill doctor` warns when the skills an agent sees pass the size of its skill list. Codex lists skills in at most 2% of the context window, or 8,000 characters when it does not know it, so names and descriptions past that may be cut. Agent targets carry this as `listing_budget` (§4.6).
 - The specification has a section on skills served over MCP (§7.1): how a skill folder maps to the skills extension's `skill://` resources and listing (SEP-2640), and that such skills are outside the agent skill folders `scan`, `install` and `remove` work on. §7 now says `metadata` keys stay out of the `io.modelcontextprotocol/` prefix.
 - `open-skill lint` knows the frontmatter fields Cursor and Amp document: Cursor's `icon` and `color` and Amp's `mcpServers` no longer warn as unknown. A `color` outside Cursor's palette (`default`, `green`, `cyan`, `blue`, `purple`, `magenta`, `orange`, `yellow`, `red`, `brand`) warns (`field-cursor`), as does an `mcpServers` that is not a mapping of servers (`field-amp`).
 - `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.

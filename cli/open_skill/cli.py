@@ -417,6 +417,14 @@ def cmd_doctor(args):
     found = [a for a in reg.agents.values() if agents.detected(a)]
     seen = ", ".join(f"{a['id']} ({sum(a['id'] in i.agents for i in installed)} skills)" for a in found)
     print(f"  agents: {seen or 'none detected'} → open-skill agents")
+    for a in reg.agents.values():
+        budget = (a.get("listing_budget") or {}).get("chars")
+        seen_by = [i for i in installed if a["id"] in i.agents]
+        listed = sum(len(i.agents[a["id"]]) + len(i.description) for i in seen_by)
+        if budget and listed > budget:
+            print(f"  ! {a['id']} listing budget: {len(seen_by)} skill(s) take {listed} characters of names and "
+                  f"descriptions; it lists about {budget} when it does not know the context size, so some may be "
+                  f"cut → remove skills you do not use, or shorten descriptions")
     for a in found:
         if not any(i.id == "open-skill/open-skill-router" and a["id"] in i.agents for i in installed):
             print(f"  · {a['id']} does not see the open-skill router → open-skill install open-skill-router --agent {a['id']}")

@@ -552,3 +552,28 @@ def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, wh
     (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text, encoding="utf-8")
     code = cli.main(["--registry", str(tmp_path / "r"), "validate"])
     assert code == 1 and why in capsys.readouterr().err.replace("\\", "/")  # Windows paths use backslashes
+
+
+def _home_with_skills(tmp_path, n, desc_len):
+    home = tmp_path / "home"
+    for i in range(n):
+        d = home / ".agents" / "skills" / f"skill-{i}"
+        d.mkdir(parents=True)
+        (d / "SKILL.md").write_text(f"---\nname: skill-{i}\ndescription: {'d' * desc_len}\n---\nbody\n", encoding="utf-8")
+    return home
+
+
+def test_doctor_warns_when_codex_skill_list_passes_its_budget(capsys, monkeypatch, tmp_path):
+    # learn.chatgpt.com/docs/build-skills: the skill list takes at most 2% of the context, or 8,000 characters.
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 10, 900)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    cli.main(["doctor", "--project", str(tmp_path)])
+    (line,) = [x for x in capsys.readouterr().out.splitlines() if "listing budget" in x]
+    assert "codex" in line and "skill(s) take" in line and "8000" in line
+
+
+def test_doctor_is_quiet_within_the_budget(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 3, 100)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    cli.main(["doctor", "--project", str(tmp_path)])
+    assert "listing budget" not in capsys.readouterr().out
