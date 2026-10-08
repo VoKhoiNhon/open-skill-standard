@@ -11,4 +11,4 @@ project:
   - {path: ".agents/skills", source: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"}
 detect:
   - {path: "~/.copilot", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L375"}
-notes: Copilot CLI and VS Code invoke a skill as /skill-name; the coding agent picks skills itself. VS Code also reads ~/.claude/skills.
+notes: Copilot CLI and VS Code invoke a skill as /skill-name; the coding agent picks skills itself. VS Code also reads ~/.claude/skills, and with chat.useCustomizationsInParentRepositories turned on it reads the project folders of parent repository roots in a monorepo too, which scan does not assume. The chat.agentSkillsLocations setting is deprecated (only the Local agent reads it), so open-skill installs into the folders above rather than adding one there.
