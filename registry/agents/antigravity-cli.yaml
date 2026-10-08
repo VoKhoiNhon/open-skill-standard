@@ -1,0 +1,10 @@
+id: antigravity-cli
+name: Antigravity CLI
+docs: https://antigravity.google/docs/skills/
+global:
+  - {path: "~/.gemini/antigravity-cli/skills", source: "https://antigravity.google/docs/skills/"}
+project:
+  - {path: ".agents/skills", source: "https://antigravity.google/docs/skills/"}
+detect:
+  - {path: "~/.gemini/antigravity-cli", source: "https://github.com/vercel-labs/skills/blob/87a266971d9460a3d2606075b8e91edc83325472/src/agents.ts#L109"}
+notes: Google's CLI that replaced Gemini CLI for unpaid and Google One users on 2026-06-18. The agent loads a skill when a request matches its description, and each skill is also a slash command (/skill-name) in the interactive TUI. Plugins keep their skills under ~/.gemini/antigravity-cli/plugins/<name>/skills.
