@@ -233,6 +233,10 @@ def agent_schema(tax: dict) -> dict:
                         "properties": {"source": {"type": "string", "pattern": URL}},
                         "description": "the agent also reads its project folders in every parent folder up to the "
                                        "repository root"},
+            "listing_budget": {"type": "object", "required": ["chars", "source"], "additionalProperties": False,
+                               "properties": {"chars": {"type": "integer", "minimum": 1},
+                                              "source": {"type": "string", "pattern": URL}},
+                               "description": "the most characters of skill names and descriptions the agent lists"},
             "notes": {"type": "string"},
         },
     }

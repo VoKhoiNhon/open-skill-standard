@@ -552,3 +552,66 @@ def test_validate_reports_an_unreadable_registry_file(capsys, tmp_path, text, wh
     (tmp_path / "r" / "registry" / "roles" / "broken.yaml").write_text(text, encoding="utf-8")
     code = cli.main(["--registry", str(tmp_path / "r"), "validate"])
     assert code == 1 and why in capsys.readouterr().err.replace("\\", "/")  # Windows paths use backslashes
+
+
+def _home_with_skills(tmp_path, n, desc_len, agent_dir=".codex"):
+    home = tmp_path / "home"
+    if agent_dir:
+        (home / agent_dir).mkdir(parents=True)  # the agent is installed
+    for i in range(n):
+        d = home / ".agents" / "skills" / f"skill-{i}"
+        d.mkdir(parents=True)
+        (d / "SKILL.md").write_text(f"---\nname: skill-{i}\ndescription: {'d' * desc_len}\n---\nbody\n", encoding="utf-8")
+    return home
+
+
+def test_doctor_warns_when_codex_skill_list_passes_its_budget(capsys, monkeypatch, tmp_path):
+    # learn.chatgpt.com/docs/build-skills: the skill list takes at most 2% of the context, or 8,000 characters.
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 10, 900)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    cli.main(["doctor", "--project", str(tmp_path)])
+    (line,) = [x for x in capsys.readouterr().out.splitlines() if "listing budget" in x]
+    assert "codex" in line and "skill(s) take" in line and "8000" in line
+
+
+def test_doctor_does_not_warn_for_an_agent_that_is_not_installed(capsys, monkeypatch, tmp_path):
+    # ~/.agents/skills is shared by several agents; without Codex installed its budget does not apply.
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 10, 900, agent_dir=None)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    cli.main(["doctor", "--project", str(tmp_path)])
+    assert "listing budget" not in capsys.readouterr().out
+
+
+def test_doctor_is_quiet_within_the_budget(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 3, 100)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    cli.main(["doctor", "--project", str(tmp_path)])
+    assert "listing budget" not in capsys.readouterr().out
+
+
+def test_listing_budget_counts_only_skill_files(monkeypatch, tmp_path, capsys):
+    # A CLI found on PATH is offered to every agent but is not in any agent's skill list.
+    from open_skill import scan
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 1, 10)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    tool = scan.Installed("tool/run", "run", "command:tool", "x" * 9000, False, agents={"codex": "run"})
+    real = scan.scan
+    monkeypatch.setattr(scan, "scan", lambda *a, **k: real(*a, **k) + [tool])
+    cli.main(["doctor", "--project", str(tmp_path)])
+    assert "listing budget" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("budget", ["8000", {"chars": "10"}, {"chars": 0}])
+def test_a_bad_listing_budget_does_not_stop_doctor(monkeypatch, tmp_path, capsys, budget):
+    from open_skill import registry
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 3, 100)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    real = registry.load
+
+    def load(*a, **k):
+        reg = real(*a, **k)
+        reg.agents["codex"] = {**reg.agents["codex"], "listing_budget": budget}
+        return reg
+    monkeypatch.setattr(registry, "load", load)
+    assert cli.main(["doctor", "--project", str(tmp_path)]) == 0
+    assert "listing budget" not in capsys.readouterr().out
