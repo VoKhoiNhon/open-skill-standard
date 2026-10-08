@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- Antigravity CLI is a known agent (`antigravity-cli`): it reads `.agents/skills` in a project and `~/.gemini/antigravity-cli/skills`, so `scan`, `install --agent antigravity-cli` and `route --agent antigravity-cli` cover it. It replaced Gemini CLI for unpaid and Google One users on 2026-06-18; `gemini-cli` stays for those who still run it.
+
 ## [0.7.4] - 2026-10-04
 
 Code scanning and plugin checks: SARIF output for audit and lint, `plugin.json` rules from the current Claude Code reference, an audit rule for hooks a skill registers, `skills-lock.json` checks in doctor, spec-kit command files for Gemini CLI, OpenCode and Amp, and Windows fixes.

@@ -64,6 +64,7 @@ The skills follow the [Agent Skills](https://agentskills.io) format, so they wor
 | Codex | `codex` | `~/.agents/skills` | `.agents/skills` |
 | Cursor | `cursor` | `~/.cursor/skills` | `.agents/skills` |
 | Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
+| Antigravity CLI | `antigravity-cli` | `~/.gemini/antigravity-cli/skills` | `.agents/skills` |
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
