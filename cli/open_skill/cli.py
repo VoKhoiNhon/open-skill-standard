@@ -425,15 +425,17 @@ def cmd_doctor(args):
         hint = "" if n else f"  → {next(iter((a.get('install') or {}).values()), 'see ' + a.get('upstream', ''))}"
         print(f"  {'✓' if n else '·'} {src:22} {n:3} installed / {len(a['skills'])} described{hint}")
     print(f"  harvested (no manifest): {by_src.get('harvested', 0)}")
-    project = Path(args.project or ".")
-    locked = skills_lock.check(project, [p["path"] for a in reg.agents.values() for p in a.get("project", [])])
-    if locked is not None:
+    lock_root = skills_lock.find(Path(args.project or "."))
+    locked = lock_root and skills_lock.check(lock_root, [p["path"] for a in reg.agents.values()
+                                                         for p in a.get("project", [])])
+    if locked:
         n = sum(len(v) for v in locked.values())
         what = {"changed": "differ from the lock (edited, or installed without some files) → npx skills update",
                 "missing": "not in a skill folder",
                 "unchecked": "not checked (non-ASCII or unreadable file names)"}
         parts = [f"{len(locked[k])} {w} ({', '.join(locked[k])})" for k, w in what.items() if locked[k]]
-        print(f"  {skills_lock.LOCK_FILE}: {n} skill(s) installed by npx skills"
+        where = "" if lock_root == Path(args.project or ".").resolve() else f" (in {lock_root})"
+        print(f"  {skills_lock.LOCK_FILE}{where}: {n} skill(s) installed by npx skills"
               + (f"; {'; '.join(parts)}" if parts else ", all as installed"))
     rep = lint.health(installed)
     errs = sum(r["errors"] for r in rep.values())

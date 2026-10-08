@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- `open-skill doctor` finds `skills-lock.json` at the repository root when run from a subfolder (or given one with `--project`), where `npx skills` writes it, and checks the skill folders beside the lock. It looks no higher than the nearest folder with `.git`, and names the lock's folder when it is not the one given.
+
 ## [0.7.4] - 2026-10-04
 
 Code scanning and plugin checks: SARIF output for audit and lint, `plugin.json` rules from the current Claude Code reference, an audit rule for hooks a skill registers, `skills-lock.json` checks in doctor, spec-kit command files for Gemini CLI, OpenCode and Amp, and Windows fixes.
