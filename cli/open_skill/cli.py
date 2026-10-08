@@ -418,10 +418,12 @@ def cmd_doctor(args):
     seen = ", ".join(f"{a['id']} ({sum(a['id'] in i.agents for i in installed)} skills)" for a in found)
     print(f"  agents: {seen or 'none detected'} → open-skill agents")
     for a in reg.agents.values():
-        budget = (a.get("listing_budget") or {}).get("chars")
-        seen_by = [i for i in installed if a["id"] in i.agents]
+        budget = a.get("listing_budget", {}).get("chars") if isinstance(a.get("listing_budget"), dict) else None
+        if not (type(budget) is int and budget > 0):  # validate reports a bad overlay; doctor carries on
+            continue
+        seen_by = [i for i in installed if a["id"] in i.agents and Path(i.path).is_file()]  # CLI tools are not listed
         listed = sum(len(i.agents[a["id"]]) + len(i.description) for i in seen_by)
-        if budget and listed > budget:
+        if listed > budget:
             print(f"  ! {a['id']} listing budget: {len(seen_by)} skill(s) take {listed} characters of names and "
                   f"descriptions; it lists about {budget} when it does not know the context size, so some may be "
                   f"cut → remove skills you do not use, or shorten descriptions")

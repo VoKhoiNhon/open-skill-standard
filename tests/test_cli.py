@@ -577,3 +577,31 @@ def test_doctor_is_quiet_within_the_budget(capsys, monkeypatch, tmp_path):
     monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
     cli.main(["doctor", "--project", str(tmp_path)])
     assert "listing budget" not in capsys.readouterr().out
+
+
+def test_listing_budget_counts_only_skill_files(monkeypatch, tmp_path, capsys):
+    # A CLI found on PATH is offered to every agent but is not in any agent's skill list.
+    from open_skill import scan
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 1, 10)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    tool = scan.Installed("tool/run", "run", "command:tool", "x" * 9000, False, agents={"codex": "run"})
+    real = scan.scan
+    monkeypatch.setattr(scan, "scan", lambda *a, **k: real(*a, **k) + [tool])
+    cli.main(["doctor", "--project", str(tmp_path)])
+    assert "listing budget" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("budget", ["8000", {"chars": "10"}, {"chars": 0}])
+def test_a_bad_listing_budget_does_not_stop_doctor(monkeypatch, tmp_path, capsys, budget):
+    from open_skill import registry
+    monkeypatch.setenv("HOME", str(_home_with_skills(tmp_path, 3, 100)))
+    monkeypatch.setenv("OPEN_SKILL_HOME", str(tmp_path / "h"))
+    real = registry.load
+
+    def load(*a, **k):
+        reg = real(*a, **k)
+        reg.agents["codex"] = {**reg.agents["codex"], "listing_budget": budget}
+        return reg
+    monkeypatch.setattr(registry, "load", load)
+    assert cli.main(["doctor", "--project", str(tmp_path)]) == 0
+    assert "listing budget" not in capsys.readouterr().out
