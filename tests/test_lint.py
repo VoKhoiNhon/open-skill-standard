@@ -754,3 +754,64 @@ def test_mcp_reserved_metadata_keys_warn():
     found = lint.lint_text(fm('metadata: {"io.modelcontextprotocol/origin": "x", "io.modelcontextprotocol.skills/ok": "y"}'))
     assert [(f.rule, f.severity) for f in found] == [("metadata-reserved", "warning")]
     assert "io.modelcontextprotocol/origin" in found[0].message
+
+
+def _codex_skill(tmp_path, yaml_text):
+    d = tmp_path / "good-skill"
+    (d / "agents").mkdir(parents=True)
+    (d / "SKILL.md").write_text(fm(""), encoding="utf-8")
+    (d / "agents" / "openai.yaml").write_text(yaml_text, encoding="utf-8")
+    return d
+
+
+def test_valid_codex_metadata_is_clean(tmp_path):
+    # The example from learn.chatgpt.com/docs/build-skills, with the icons it names.
+    d = _codex_skill(tmp_path, """interface:
+  display_name: "Good skill"
+  short_description: "Does a thing"
+  icon_small: "./assets/small-logo.svg"
+  icon_large: "./assets/large-logo.png"
+  brand_color: "#3B82F6"
+  default_prompt: "Use the skill"
+policy:
+  allow_implicit_invocation: false
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "docs"
+      description: "Docs MCP server"
+      transport: "streamable_http"
+      url: "https://example.com/mcp"
+""")
+    (d / "assets").mkdir()
+    (d / "assets" / "small-logo.svg").write_text("<svg/>", encoding="utf-8")
+    (d / "assets" / "large-logo.png").write_bytes(b"\x89PNG")
+    assert [f.rule for f in lint.lint_paths([d])] == []
+
+
+@pytest.mark.parametrize("text,needle", [
+    ("interface: [a]\n", "interface"),
+    ("interfaces: {}\n", "unknown key 'interfaces'"),
+    ("interface: {display_nam: x}\n", "unknown key 'interface.display_nam'"),
+    ("interface: {brand_color: blue}\n", "brand_color"),
+    ("interface: {icon_small: ./missing.svg}\n", "icon_small"),
+    ("interface: {icon_large: ../outside.png}\n", "icon_large"),
+    ("interface: {display_name: 3}\n", "display_name"),
+    ("policy: {allow_implicit_invocation: 'no'}\n", "allow_implicit_invocation"),
+    ("dependencies: {tools: {type: mcp}}\n", "dependencies.tools"),
+    ("dependencies: {tools: [{value: docs}]}\n", "dependencies.tools[0]"),
+    ("- not a mapping\n", "mapping"),
+    ("interface: {display_name: [\n", "YAML"),
+])
+def test_codex_metadata_problems_warn(tmp_path, text, needle):
+    found = [f for f in lint.lint_paths([_codex_skill(tmp_path, text)]) if f.rule == "codex-metadata"]
+    assert len(found) == 1 and found[0].severity == "warning", [f.message for f in found]
+    assert needle in found[0].message
+    assert found[0].path.endswith("openai.yaml")
+
+
+def test_skill_without_codex_metadata_is_not_checked(tmp_path):
+    d = tmp_path / "good-skill"
+    d.mkdir()
+    (d / "SKILL.md").write_text(fm(""), encoding="utf-8")
+    assert lint.lint_paths([d]) == []
