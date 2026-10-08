@@ -52,6 +52,17 @@ def folder_hash(folder: Path) -> str | None:
     return h.hexdigest()
 
 
+def find(start: Path) -> Path | None:
+    """The folder whose lock applies to `start`: `start` itself, or the nearest parent up to the repository root (the
+    nearest folder with `.git`), where npx skills writes it when run there. Outside a repository only `start` counts."""
+    start = Path(start).resolve()
+    root = next((d for d in [start, *start.parents] if (d / ".git").exists()), None)
+    dirs = [start]
+    if root is not None and root != start:
+        dirs += start.parents[: start.parents.index(root) + 1]
+    return next((d for d in dirs if (d / LOCK_FILE).is_file()), None)
+
+
 def read(project: Path) -> dict[str, dict] | None:
     """Skill name -> lock entry, or None when the project has no readable lock (npx skills ignores a broken one too)."""
     try:
