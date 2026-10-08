@@ -131,3 +131,11 @@ def test_readme_img_tags_are_well_formed():
     for name in ("README.md", "README.vi.md"):
         for tag in re.findall(r"<img [^>]*>", (REPO / name).read_text(encoding="utf-8")):
             assert re.fullmatch(r'<img(?: [a-z-]+="[^"]*")+>', tag), f"{name}: malformed tag {tag[:80]}"
+
+
+def test_router_skill_names_every_agent_id():
+    # The router tells the model which --agent values exist; a missing one makes it leave --agent out.
+    text = (REPO / "skills/open-skill-router/SKILL.md").read_text(encoding="utf-8")
+    (line,) = [x for x in text.splitlines() if x.startswith("`--agent` is the coding agent")]
+    named = set(re.findall(r"`([a-z0-9-]+)`", line.split(";")[0]))
+    assert set(registry.load().agents) <= named
