@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.5] - 2026-10-08
+
+Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.
+
 ### Added
 - `open-skill doctor` warns when the skills an installed agent sees pass the size of its skill list. Codex lists skills in at most 2% of the context window, or 8,000 characters when it does not know it, so names and descriptions past that may be cut. Agent targets carry this as `listing_budget` (§4.6).
 - `open-skill audit` flags an archive shipped with a skill (`archive-file`, low: zip, jar, tar, gzip, bzip2, xz, 7z or rar, found by content), since nothing inside it is audited; Office, OpenDocument and e-book files, which are zip files too, and gzipped `.svgz` images are not flagged; macro-enabled Office files such as `.xlsm` are. It also flags compiled Python without its source (`bytecode-file`, medium); a `.pyc` beside its `.py`, or in `__pycache__` under it with the name Python gives a cache (`<module>.<tag>.pyc`), is a cache Python writes when the skill's scripts run and is not flagged, unless it is a hash-based `.pyc` that Python runs without checking it against the source.
@@ -318,7 +322,8 @@ Safe upgrades: pulling a new release never damages your notes or starter knowled
 
 First public release: taxonomy and schemas, registry (14 adapters, 28 role packs, 9 model profiles), `open-skill` CLI, four core skills, local knowledge layer, CI with routing evals and privacy guard.
 
-[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.4...HEAD
+[Unreleased]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.5...HEAD
+[0.7.5]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/VoKhoiNhon/open-skill-standard/compare/v0.7.1...v0.7.2
