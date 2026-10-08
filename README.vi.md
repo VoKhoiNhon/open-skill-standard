@@ -68,7 +68,7 @@ Các skill theo định dạng [Agent Skills](https://agentskills.io), nên ch�
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
-| Windsurf | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| Windsurf | `windsurf` | `~/.config/devin/skills` | `.devin/skills` |
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
 | Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 

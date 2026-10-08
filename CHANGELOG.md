@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.
 
 ### Changed
+- `install --agent windsurf` writes to `.devin/skills` and `~/.config/devin/skills`, the folders Devin Desktop (Windsurf's new home) prefers; the Windsurf folders are still read by it and by `scan`. `/etc/devin/skills`, where an administrator installs skills on Linux, is scanned too.
 - `open-skill doctor` finds `skills-lock.json` at the repository root when run from a subfolder (or given one with `--project`), where `npx skills` writes it, and checks the skill folders beside the lock. It looks no higher than the nearest folder with `.git`, and names the lock's folder when it is not the one given.
 
 ## [0.7.4] - 2026-10-04

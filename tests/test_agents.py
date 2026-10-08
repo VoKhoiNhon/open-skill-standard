@@ -80,3 +80,13 @@ def test_walk_up_outside_a_repository_reads_only_the_project(tmp_path):
 def test_depth_defaults_to_one_level():
     assert agents.depth(AGENT) == 1
     assert agents.depth({**AGENT, "nested": {"depth": 5, "source": "https://example.com"}}) == 5
+
+
+def test_windsurf_installs_where_devin_desktop_prefers():
+    # docs.devin.ai/desktop/cascade/skills: .devin/skills and ~/.config/devin/skills are preferred, the Windsurf
+    # folders legacy but still read.
+    from open_skill import paths, registry
+    a = registry.load(paths.data_root()).agents["windsurf"]
+    assert [f["path"] for f in a["project"]][:2] == [".devin/skills", ".windsurf/skills"]
+    assert [f["path"] for f in a["global"]][:2] == ["~/.config/devin/skills", "~/.codeium/windsurf/skills"]
+    assert "/etc/devin/skills" in [f["path"] for f in a["global"]]
