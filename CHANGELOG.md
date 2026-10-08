@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill lint` knows the frontmatter fields Cursor and Amp document: Cursor's `icon` and `color` and Amp's `mcpServers` no longer warn as unknown. A `color` outside Cursor's palette (`default`, `green`, `cyan`, `blue`, `purple`, `magenta`, `orange`, `yellow`, `red`, `brand`) warns (`field-cursor`), as does an `mcpServers` that is not a mapping of servers (`field-amp`).
+- `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.
+
 ## [0.7.4] - 2026-10-04
 
 Code scanning and plugin checks: SARIF output for audit and lint, `plugin.json` rules from the current Claude Code reference, an audit rule for hooks a skill registers, `skills-lock.json` checks in doctor, spec-kit command files for Gemini CLI, OpenCode and Amp, and Windows fixes.
