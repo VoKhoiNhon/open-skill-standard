@@ -4,6 +4,7 @@ One run per log; the rule catalog is listed in full so a viewer can explain any 
 folder (normally the current folder, the repository root in CI) are written relative to it, others as file URIs.
 """
 
+import hashlib
 import os
 from pathlib import Path
 from urllib.parse import quote
@@ -15,6 +16,16 @@ INFO_URI = "https://github.com/VoKhoiNhon/open-skill-standard"
 LEVEL = {"high": "error", "medium": "warning", "low": "note", "error": "error", "warning": "warning"}
 # GitHub code scanning ranks security alerts by this property: 7.0+ is high, 4.0–6.9 medium, below 4.0 low.
 SECURITY_SEVERITY = {"high": "8.0", "medium": "5.0", "low": "2.0"}
+FINGERPRINT = "openSkillFinding/v1"
+
+
+def _fingerprint(rule: str, uri: str, text: str, seen: dict) -> str:
+    """Stable across runs while the finding stays: rule, file and the flagged text with its whitespace collapsed,
+    not the line, so an edit above it keeps the alert. The nth repeat of the same text in a file is told apart
+    (so adding a copy above a finding renumbers it). Paths are relative to the base, so run from one folder."""
+    key = (rule, uri, " ".join(text.split()))
+    seen[key] = seen.get(key, 0) + 1
+    return hashlib.sha256("\0".join([*key, str(seen[key])]).encode("utf-8")).hexdigest()
 
 
 def _location(path: str, line: int, snippet: str, base: Path) -> dict:
@@ -45,10 +56,13 @@ def log(rules: list[dict], results: list[dict], base: Path | None = None) -> dic
             props["security-severity"] = SECURITY_SEVERITY[r["severity"]]
         driver_rules.append({"id": r["id"], "shortDescription": {"text": r["text"]}, "helpUri": r["source"],
                              "defaultConfiguration": {"level": LEVEL[r["severity"]]}, "properties": props})
-    out = []
+    out, seen = [], {}
     for f in results:
+        loc = _location(f["path"], f.get("line", 0), f.get("snippet", ""), base)
+        uri = loc["physicalLocation"]["artifactLocation"]["uri"]
         res = {"ruleId": f["rule"], "level": LEVEL[f["severity"]], "message": {"text": f["message"]},
-               "locations": [_location(f["path"], f.get("line", 0), f.get("snippet", ""), base)]}
+               "locations": [loc],
+               "partialFingerprints": {FINGERPRINT: _fingerprint(f["rule"], uri, f.get("snippet") or f["message"], seen)}}
         if f["rule"] in index:
             res["ruleIndex"] = index[f["rule"]]
         if f.get("properties"):
