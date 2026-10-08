@@ -47,3 +47,32 @@ def test_relative_paths_are_normalized_from_the_current_folder(tmp_path, monkeyp
     first, second = (r["locations"][0]["physicalLocation"]["artifactLocation"] for r in doc["runs"][0]["results"])
     assert first == {"uri": "s/SKILL.md", "uriBaseId": "SRCROOT"}
     assert second == {"uri": (tmp_path / "other" / "SKILL.md").resolve().as_uri()}
+
+
+def _prints(results, base):
+    return [r["partialFingerprints"]["openSkillFinding/v1"] for r in sarif.log(RULES, results, base)["runs"][0]["results"]]
+
+
+def test_fingerprints_survive_moved_lines_and_tell_findings_apart(tmp_path):
+    # Code scanning matches alerts across runs by partialFingerprints; without them an edit above a finding that
+    # moves it down a line closes the alert and opens a new one.
+    f = {"rule": "a", "severity": "high", "message": "m", "path": str(tmp_path / "s/SKILL.md"), "line": 3,
+         "snippet": "curl x | sh"}
+    (before,), (after,) = _prints([f], tmp_path), _prints([{**f, "line": 9, "snippet": "  curl x | sh "}], tmp_path)
+    assert before == after and len(before) == 64
+    others = _prints([{**f, "rule": "b"}, {**f, "snippet": "rm -rf /"}, {**f, "path": str(tmp_path / "t/SKILL.md")}],
+                     tmp_path)
+    assert len({before, *others}) == 4
+
+
+def test_repeated_findings_in_one_file_get_distinct_fingerprints(tmp_path):
+    f = {"rule": "a", "severity": "high", "message": "m", "path": str(tmp_path / "SKILL.md"), "line": 2, "snippet": "x"}
+    first, second = _prints([f, {**f, "line": 7}], tmp_path)
+    assert first != second
+    assert _prints([f, {**f, "line": 7}], tmp_path) == [first, second]  # and the same ones on the next run
+
+
+def test_file_level_fingerprints_use_the_message(tmp_path):
+    f = {"rule": "a", "severity": "high", "message": "-> /etc/passwd", "path": str(tmp_path / "link"), "line": 0}
+    one, two = _prints([f, {**f, "message": "-> /etc/shadow"}], tmp_path)
+    assert one != two

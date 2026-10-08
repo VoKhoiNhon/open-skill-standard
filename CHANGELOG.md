@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- SARIF logs from `audit` and `lint` give each result a `partialFingerprints` entry (`openSkillFinding/v1`) built from the rule, the file and the flagged text, not the line, so code scanning keeps the same alert when an edit above it moves it, and tells repeats of the same text in one file apart.
 - Antigravity CLI is a known agent (`antigravity-cli`): it reads `.agents/skills` in a project and `~/.gemini/antigravity-cli/skills`, so `scan`, `install --agent antigravity-cli` and `route --agent antigravity-cli` cover it. It replaced Gemini CLI for unpaid and Google One users on 2026-06-18; `gemini-cli` stays for those who still run it.
 - `open-skill lint` checks a skill's `agents/openai.yaml`, the metadata the Codex app reads (`codex-metadata`, warning): only the documented `interface`, `policy` and `dependencies` keys, text fields as strings, `icon_small` and `icon_large` as files inside the skill, `brand_color` as `#RRGGBB`, `allow_implicit_invocation` as a boolean and each `dependencies.tools` entry with a `type` and `value`.
 - The specification has a section on skills served over MCP (§7.1): how a skill folder maps to the skills extension's `skill://` resources and listing (SEP-2640), and that such skills are outside the agent skill folders `scan`, `install` and `remove` work on. §7 now says `metadata` keys stay out of the `io.modelcontextprotocol/` prefix.
