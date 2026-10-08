@@ -319,6 +319,15 @@ rule("native-executable", "medium", None,
      ANTHROPIC_SKILLS)
 NATIVE = (b"\x7fELF", b"\xfe\xed\xfa\xce", b"\xfe\xed\xfa\xcf", b"\xce\xfa\xed\xfe", b"\xcf\xfa\xed\xfe",
           b"\xca\xfe\xba\xbe", b"MZ")  # ELF, Mach-O (32/64-bit, both byte orders, universal), Windows PE
+rule("archive-file", "low", None,
+     "an archive ships with the skill; what is inside it is not audited, so unpack and review it before use",
+     ANTHROPIC_SKILLS)
+ARCHIVES = (b"PK\x03\x04", b"\x1f\x8b", b"7z\xbc\xaf\x27\x1c", b"Rar!\x1a\x07", b"\xfd7zXZ\x00")
+# Office and e-book files are zip archives too, but they are documents a skill fills in, not code it hides.
+DOCUMENT_SUFFIXES = {".docx", ".dotx", ".xlsx", ".xltx", ".xlsm", ".pptx", ".potx", ".odt", ".ods", ".odp", ".epub"}
+rule("bytecode-file", "medium", None,
+     "compiled Python ships without its source; it runs code nobody can review as text, so rebuild it from source",
+     ANTHROPIC_SKILLS)
 MAX_TEXT_BYTES = 5_000_000
 rule("unscanned-file", "low", None, "text file too large to audit; review it by hand", ANTHROPIC_SKILLS)
 
@@ -326,6 +335,13 @@ rule("unscanned-file", "low", None, "text file too large to audit; review it by 
 def _flag(rule_id: str, path: Path, excerpt: str) -> Finding:
     r = RULES[rule_id]
     return Finding(r.severity, r.id, str(path), 0, _excerpt(excerpt), r.source, r.message)
+
+
+def _has_source(pyc: Path) -> bool:
+    """A .pyc beside its .py (name.pyc) or in __pycache__ under it (name.cpython-313[.opt-1].pyc) is only a cache."""
+    if pyc.parent.name == "__pycache__":
+        return (pyc.parent.parent / (pyc.name.split(".")[0] + ".py")).is_file()
+    return pyc.with_suffix(".py").is_file()
 
 
 def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
@@ -338,6 +354,11 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
         return []
     with path.open("rb") as fh:
         head = fh.read(8192)
+    if path.suffix.lower() in (".pyc", ".pyo") and head[2:4] == b"\r\n":
+        return [] if _has_source(path) else [_flag("bytecode-file", path, head[:4].hex())]
+    bzip2 = head[:3] == b"BZh" and head[4:10] == b"1AY&SY"  # "BZh" alone also starts plain text
+    if (head.startswith(ARCHIVES) or bzip2) and path.suffix.lower() not in DOCUMENT_SUFFIXES:
+        return [_flag("archive-file", path, head[:4].hex())]
     enc = "utf-16" if head[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8"  # PowerShell writes UTF-16 with a BOM
     if enc == "utf-8" and b"\0" in head:  # binary: images and fonts are normal, programs deserve a look
         return [_flag("native-executable", path, head[:4].hex())] if head.startswith(NATIVE) else []

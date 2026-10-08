@@ -84,6 +84,51 @@ def test_other_binary_assets_are_skipped(toy_rule, tmp_path):
     assert audit.audit_paths([tmp_path]) == []
 
 
+@pytest.mark.parametrize("name,head", [
+    ("tools.zip", b"PK\x03\x04\x14\x00\x00\x00"), ("bundle.tar.gz", b"\x1f\x8b\x08\x00\x00\x00"),
+    ("pack.7z", b"7z\xbc\xaf\x27\x1c\x00\x04"), ("pack.rar", b"Rar!\x1a\x07\x01\x00"),
+    ("data.xz", b"\xfd7zXZ\x00\x00\x04"), ("lib.jar", b"PK\x03\x04\x0a\x00\x00\x00"),
+    ("logs.bz2", b"BZh91AY&SY\x00"),
+])
+def test_bundled_archive_is_flagged(toy_rule, tmp_path, name, head):
+    # Archive members are never audited, so a skill could ship anything inside one.
+    (tmp_path / name).write_bytes(head + b"\0" * 64)
+    assert [(f.rule, f.severity) for f in audit.audit_paths([tmp_path])] == [("archive-file", "low")]
+
+
+@pytest.mark.parametrize("name", ["template.docx", "sheet.xlsx", "deck.pptx", "doc.odt", "book.epub"])
+def test_office_documents_are_not_archives(toy_rule, tmp_path, name):
+    (tmp_path / name).write_bytes(b"PK\x03\x04\x14\x00\x06\x00" + b"\0" * 64)
+    assert audit.audit_paths([tmp_path]) == []
+
+
+def test_text_that_starts_like_bzip2_is_still_text(toy_rule, tmp_path):
+    (tmp_path / "notes.md").write_text("BZh is how bzip2 files start\n", encoding="utf-8")
+    assert audit.audit_paths([tmp_path]) == []
+
+
+PYC = b"\xf3\r\r\n" + b"\0" * 12 + b"\xe3danger"
+
+
+def test_bytecode_without_its_source_is_flagged(toy_rule, tmp_path):
+    (tmp_path / "scripts" / "__pycache__").mkdir(parents=True)
+    (tmp_path / "scripts" / "__pycache__" / "run.cpython-313.pyc").write_bytes(PYC)
+    (tmp_path / "helper.pyc").write_bytes(PYC)
+    found = audit.audit_paths([tmp_path])
+    assert [(f.rule, f.severity) for f in found] == [("bytecode-file", "medium")] * 2
+
+
+def test_bytecode_next_to_its_source_is_a_cache(toy_rule, tmp_path):
+    # Python writes __pycache__ when a skill's scripts run, so an installed skill often has it.
+    (tmp_path / "scripts" / "__pycache__").mkdir(parents=True)
+    (tmp_path / "scripts" / "run.py").write_text("print('hi')\n", encoding="utf-8")
+    (tmp_path / "scripts" / "__pycache__" / "run.cpython-313.pyc").write_bytes(PYC)
+    (tmp_path / "scripts" / "__pycache__" / "run.cpython-313.opt-1.pyc").write_bytes(PYC)
+    (tmp_path / "helper.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "helper.pyc").write_bytes(PYC)
+    assert audit.audit_paths([tmp_path]) == []
+
+
 def test_oversized_text_is_reported_as_unscanned(toy_rule, tmp_path, monkeypatch):
     monkeypatch.setattr(audit, "MAX_TEXT_BYTES", 100)
     (tmp_path / "big.md").write_text("x" * 200 + "\ndanger\n", encoding="utf-8")
