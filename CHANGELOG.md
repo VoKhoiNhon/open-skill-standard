@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- `install --agent windsurf` writes to `.devin/skills` and `~/.config/devin/skills`, the folders Devin Desktop (Windsurf's new home) prefers; the Windsurf folders are still read by it and by `scan`. `/etc/devin/skills`, where an administrator installs skills on Linux, is scanned too.
+
 ## [0.7.4] - 2026-10-04
 
 Code scanning and plugin checks: SARIF output for audit and lint, `plugin.json` rules from the current Claude Code reference, an audit rule for hooks a skill registers, `skills-lock.json` checks in doctor, spec-kit command files for Gemini CLI, OpenCode and Amp, and Windows fixes.
