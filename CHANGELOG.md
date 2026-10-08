@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill lint` knows the frontmatter fields Cursor and Amp document: Cursor's `icon` and `color` and Amp's `mcpServers` no longer warn as unknown. A `color` outside Cursor's palette (`default`, `green`, `cyan`, `blue`, `purple`, `magenta`, `orange`, `yellow`, `red`, `brand`) warns (`field-cursor`), as does an `mcpServers` that is not a mapping of servers (`field-amp`).
+- `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.
+
 ### Changed
 - `open-skill doctor` finds `skills-lock.json` at the repository root when run from a subfolder (or given one with `--project`), where `npx skills` writes it, and checks the skill folders beside the lock. It looks no higher than the nearest folder with `.git`, and names the lock's folder when it is not the one given.
 
