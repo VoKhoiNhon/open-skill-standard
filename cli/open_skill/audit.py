@@ -324,7 +324,9 @@ rule("archive-file", "low", None,
      ANTHROPIC_SKILLS)
 ARCHIVES = (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08", b"\x1f\x8b", b"7z\xbc\xaf\x27\x1c", b"Rar!\x1a\x07", b"\xfd7zXZ\x00")
 # Office and e-book files are zip archives too, but they are documents a skill fills in, not code it hides.
-DOCUMENT_SUFFIXES = {".docx", ".dotx", ".xlsx", ".xltx", ".xlsm", ".pptx", ".potx", ".odt", ".ods", ".odp", ".epub"}
+# Macro-enabled ones (.xlsm, .docm, .pptm) carry code, so they stay flagged; .svgz is a gzipped image.
+DOCUMENT_SUFFIXES = {".docx", ".dotx", ".xlsx", ".xltx", ".pptx", ".potx", ".ppsx", ".odt", ".ott", ".ods", ".odp",
+                     ".odg", ".epub", ".svgz"}
 rule("bytecode-file", "medium", None,
      "compiled Python ships without its source; it runs code nobody can review as text, so rebuild it from source",
      ANTHROPIC_SKILLS)
@@ -363,7 +365,9 @@ def audit_file(path: Path, root: Path | None = None) -> list[Finding]:
     with path.open("rb") as fh:
         head = fh.read(8192)
     if path.suffix.lower() in (".pyc", ".pyo") and head[2:4] == b"\r\n":
-        return [] if _has_source(path) else [_flag("bytecode-file", path, head[:4].hex())]
+        # PEP 552: flags 0b01 is a hash-based .pyc that Python runs without checking it against its source.
+        unchecked = int.from_bytes(head[4:8], "little") & 0b11 == 0b01
+        return [] if _has_source(path) and not unchecked else [_flag("bytecode-file", path, head[:8].hex())]
     bzip2 = head[:3] == b"BZh" and head[4:10] == b"1AY&SY"  # "BZh" alone also starts plain text
     tar = head[257:262] == b"ustar"  # a tar's magic follows the first file name, not at the start
     if (head.startswith(ARCHIVES) or bzip2 or tar) and path.suffix.lower() not in DOCUMENT_SUFFIXES:

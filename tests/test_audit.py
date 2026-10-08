@@ -97,7 +97,8 @@ def test_bundled_archive_is_flagged(toy_rule, tmp_path, name, head):
     assert [(f.rule, f.severity) for f in audit.audit_paths([tmp_path])] == [("archive-file", "low")]
 
 
-@pytest.mark.parametrize("name", ["template.docx", "sheet.xlsx", "deck.pptx", "doc.odt", "book.epub"])
+@pytest.mark.parametrize("name", ["template.docx", "sheet.xlsx", "deck.pptx", "doc.odt", "book.epub", "show.ppsx",
+                                  "drawing.odg"])
 def test_office_documents_are_not_archives(toy_rule, tmp_path, name):
     (tmp_path / name).write_bytes(b"PK\x03\x04\x14\x00\x06\x00" + b"\0" * 64)
     assert audit.audit_paths([tmp_path]) == []
@@ -106,6 +107,24 @@ def test_office_documents_are_not_archives(toy_rule, tmp_path, name):
 def test_text_that_starts_like_bzip2_is_still_text(toy_rule, tmp_path):
     (tmp_path / "notes.md").write_text("BZh is how bzip2 files start\n", encoding="utf-8")
     assert audit.audit_paths([tmp_path]) == []
+
+
+def test_macro_enabled_office_files_are_archives(toy_rule, tmp_path):
+    (tmp_path / "report.xlsm").write_bytes(b"PK\x03\x04\x14\x00\x06\x00" + b"\0" * 64)
+    assert [f.rule for f in audit.audit_paths([tmp_path])] == ["archive-file"]
+
+
+def test_gzipped_svg_is_an_image(toy_rule, tmp_path):
+    (tmp_path / "logo.svgz").write_bytes(b"\x1f\x8b\x08\x00\x00\x00" + b"\0" * 64)
+    assert audit.audit_paths([tmp_path]) == []
+
+
+def test_unchecked_hash_based_bytecode_is_flagged_beside_its_source(toy_rule, tmp_path):
+    # Python runs a hash-based .pyc with check_source off without comparing it to the .py next to it.
+    (tmp_path / "__pycache__").mkdir()
+    (tmp_path / "run.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "__pycache__" / "run.cpython-313.pyc").write_bytes(b"\xf3\r\r\n\x01\x00\x00\x00" + b"\0" * 8 + b"\xe3")
+    assert [f.rule for f in audit.audit_paths([tmp_path])] == ["bytecode-file"]
 
 
 PYC = b"\xf3\r\r\n" + b"\0" * 12 + b"\xe3danger"
