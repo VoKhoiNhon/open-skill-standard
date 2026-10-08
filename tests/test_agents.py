@@ -93,3 +93,13 @@ def test_antigravity_cli_reads_the_shared_project_folder(tmp_path, monkeypatch):
     assert not agents.detected(a)
     (tmp_path / ".gemini/antigravity-cli").mkdir(parents=True)
     assert agents.detected(a)
+
+
+def test_windsurf_installs_where_devin_desktop_prefers():
+    # docs.devin.ai/desktop/cascade/skills: .devin/skills and ~/.config/devin/skills are preferred, the Windsurf
+    # folders legacy but still read.
+    from open_skill import paths, registry
+    a = registry.load(paths.data_root()).agents["windsurf"]
+    assert [f["path"] for f in a["project"]][:2] == [".devin/skills", ".windsurf/skills"]
+    assert [f["path"] for f in a["global"]][:2] == ["~/.config/devin/skills", "~/.codeium/windsurf/skills"]
+    assert "/etc/devin/skills" in [f["path"] for f in a["global"]]

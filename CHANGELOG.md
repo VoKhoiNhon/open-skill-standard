@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - Antigravity CLI is a known agent (`antigravity-cli`): it reads `.agents/skills` in a project and `~/.gemini/antigravity-cli/skills`, so `scan`, `install --agent antigravity-cli` and `route --agent antigravity-cli` cover it. It replaced Gemini CLI for unpaid and Google One users on 2026-06-18; `gemini-cli` stays for those who still run it.
+- `open-skill lint` knows the frontmatter fields Cursor and Amp document: Cursor's `icon` and `color` and Amp's `mcpServers` no longer warn as unknown. A `color` outside Cursor's palette (`default`, `green`, `cyan`, `blue`, `purple`, `magenta`, `orange`, `yellow`, `red`, `brand`) warns (`field-cursor`), as does an `mcpServers` that is not a mapping of servers (`field-amp`).
+- `open-skill lint` warns about `metadata` keys that start with `io.modelcontextprotocol/` (`metadata-reserved`): the MCP skills extension (SEP-2640) reserves that prefix for its own extensions.
+
+### Changed
+- `install --agent windsurf` writes to `.devin/skills` and `~/.config/devin/skills`, the folders Devin Desktop (Windsurf's new home) prefers; the Windsurf folders are still read by it and by `scan`. `/etc/devin/skills`, where an administrator installs skills on Linux, is scanned too.
+- `open-skill doctor` finds `skills-lock.json` at the repository root when run from a subfolder (or given one with `--project`), where `npx skills` writes it, and checks the skill folders beside the lock. It looks no higher than the nearest folder with `.git`, and names the lock's folder when it is not the one given.
 
 ## [0.7.4] - 2026-10-04
 

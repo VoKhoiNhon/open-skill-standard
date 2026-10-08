@@ -729,3 +729,28 @@ def test_default_folder_ignored_for_command_maps_and_monitors(tmp_path):
     assert "plugin-default-ignored" in plugin_rules(tmp_path, experimental={"monitors": "./config/m.json"})
     assert "plugin-default-ignored" in plugin_rules(tmp_path, experimental={"monitors": inline})
     assert "plugin-default-ignored" not in plugin_rules(tmp_path, experimental={"monitors": "./monitors/monitors.json"})
+
+
+# Fields other agents document: Cursor (cursor.com/docs/context/skills) and Amp (ampcode.com/docs/customize/skills).
+@pytest.mark.parametrize("extra", ["icon: rocket", "color: cyan", "mcpServers: {db: {command: db-mcp}}"])
+def test_fields_other_agents_document_are_known(extra):
+    assert rules(fm(extra)) == []
+
+
+@pytest.mark.parametrize("value", ["teal", "Cyan", "1", "[blue]"])
+def test_cursor_color_outside_its_palette_warns(value):
+    found = lint.lint_text(fm(f"color: {value}"))
+    assert [(f.rule, f.severity) for f in found] == [("field-cursor", "warning")]
+    assert "default, green, cyan" in found[0].message
+
+
+@pytest.mark.parametrize("value", ["x", "[a]", "''"])
+def test_amp_mcp_servers_must_be_a_mapping(value):
+    assert rules(fm(f"mcpServers: {value}")) == ["field-amp"]
+
+
+def test_mcp_reserved_metadata_keys_warn():
+    # SEP-2640: metadata keys under io.modelcontextprotocol/ are reserved for MCP extensions, which define none yet.
+    found = lint.lint_text(fm('metadata: {"io.modelcontextprotocol/origin": "x", "io.modelcontextprotocol.skills/ok": "y"}'))
+    assert [(f.rule, f.severity) for f in found] == [("metadata-reserved", "warning")]
+    assert "io.modelcontextprotocol/origin" in found[0].message
