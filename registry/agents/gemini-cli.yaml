@@ -8,5 +8,6 @@ project:
   - {path: ".agents/skills", source: "https://geminicli.com/docs/cli/skills/"}
   - {path: ".gemini/skills", source: "https://geminicli.com/docs/cli/skills/"}
 detect:
-  - {path: "~/.gemini", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L366"}
-notes: Replaced by Antigravity CLI (antigravity-cli) for unpaid and Google One users on 2026-06-18; Gemini Code Assist licences keep it. The model activates skills itself; /skills lists, enables and disables them. Within a tier .agents/skills wins over .gemini/skills.
+  - {path: "~/.gemini/settings.json", source: "https://geminicli.com/docs/reference/configuration/"}
+  - {path: "~/.gemini/tmp", source: "https://geminicli.com/docs/reference/configuration/"}
+notes: Replaced by Antigravity CLI (antigravity-cli) for unpaid and Google One users on 2026-06-18; Gemini Code Assist licences keep it. The model activates skills itself; /skills lists, enables and disables them. Within a tier .agents/skills wins over .gemini/skills. It counts as installed by the settings file and session folder it writes, not by ~/.gemini, which the Antigravity apps create too.
