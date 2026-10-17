@@ -9,13 +9,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - Devin CLI (Devin for Terminal) is a known agent (`devin-cli`): it reads `.devin/skills`, `.agents/skills` and `.windsurf/skills` in a project and `~/.config/devin/skills`, `~/.agents/skills` and Windsurf's global folder, so `scan`, `install --agent devin-cli` and `route --agent devin-cli` cover it. On Windows its folder is `%APPDATA%\devin\skills`, which agent targets now reach through an `APPDATA` relocation.
-
-### Added
 - Antigravity, Google's IDE (Antigravity 2.0), is a known agent (`antigravity`): it reads `~/.gemini/config/skills` and the older `~/.gemini/antigravity/skills`, and `.agents/skills` and the older `.agent/skills` in a workspace, so `scan`, `install --agent antigravity` and `route --agent antigravity` cover it. It is separate from `antigravity-cli`, which has its own global folder.
-
-### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 - `open-skill lint` knows Devin CLI's frontmatter fields: `permissions`, `subagent` and `triggers` no longer warn as unknown. A `permissions` that does not map `allow`, `deny` and `ask` to lists of scopes, a `subagent` that is not a boolean, or `triggers` that are not `user` and/or `model` warn (`field-devin`).
+- `open-skill audit` also checks a file's frontmatter as YAML decodes it, which is what the agent reads: an invisible character or an instruction spelled with escapes (`\u200b`, `ign\x6fre`), folded across lines, hidden in a key or repeated through an alias is now found and reported at its top-level key. Text that stands on one line of the file is not reported twice.
+- `open-skill route` marks a chain step `user_only` when the installed skill sets `disable-model-invocation` (as spec-kit writes them with `specify init --integration-options="--no-model-invocation"`, since 1.2.0): the model cannot invoke it, so the router skill and `--explain` tell it to ask the user to type the skill. `scan` reads the flag as Claude Code does, `true`, `yes`, `on` or `1` in any case.
 
 ### Changed
 - Codex counts as installed when `/etc/codex` exists, where an administrator configures it for every user, as `npx skills` 1.7.2 detects it. Its notes say the skills CLI now installs Codex skills in `~/.agents/skills`, the folder `install --agent codex` already uses.
