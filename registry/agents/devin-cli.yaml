@@ -1,0 +1,17 @@
+id: devin-cli
+name: Devin CLI
+docs: https://docs.devin.ai/cli/extensibility/skills/overview
+global:
+  - {path: "~/.config/devin/skills", source: "https://docs.devin.ai/cli/extensibility/skills/overview"}
+  - {path: "~/.agents/skills", source: "https://docs.devin.ai/cli/extensibility/skills/overview"}
+  - {path: "~/.codeium/windsurf/skills", source: "https://docs.devin.ai/cli/extensibility/skills/overview"}
+project:
+  - {path: ".devin/skills", source: "https://docs.devin.ai/cli/extensibility/skills/creating-skills"}
+  - {path: ".agents/skills", source: "https://docs.devin.ai/cli/extensibility/skills/overview"}
+  - {path: ".windsurf/skills", source: "https://docs.devin.ai/cli/extensibility/skills/overview"}
+detect:
+  - {path: "~/.config/devin", source: "https://github.com/vercel-labs/skills/blob/671e8c320810d36fed80fac5f1a2c1bf7e82d812/src/agents.ts#L294"}
+relocate:
+  - {var: XDG_CONFIG_HOME, replaces: "~/.config", source: "https://github.com/vercel-labs/skills/blob/671e8c320810d36fed80fac5f1a2c1bf7e82d812/src/agents.ts#L292"}
+  - {var: APPDATA, replaces: "~/.config", source: "https://docs.devin.ai/cli/extensibility/skills/overview"}
+notes: Devin for Terminal. The agent invokes a skill on its own when it fits, and /skill-name invokes one. On Windows its global folder is %APPDATA%\devin\skills, which the APPDATA relocation covers. It shares .devin/skills and ~/.config/devin/skills with Devin Desktop (windsurf), and documents its own frontmatter fields (permissions, subagent, triggers). The Windsurf global folder it reads is ~/.codeium/<channel>/skills; open-skill reads the stable channel's.

@@ -19,6 +19,7 @@ OSS_SPEC = "https://github.com/VoKhoiNhon/open-skill-standard/blob/main/spec/SPE
 PRACTICES = "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
 CURSOR_SKILLS = "https://cursor.com/docs/context/skills"
 AMP_SKILLS = "https://ampcode.com/docs/customize/skills"
+DEVIN_SKILLS = "https://docs.devin.ai/cli/extensibility/skills/creating-skills"
 MCP_SKILLS = "https://modelcontextprotocol.io/seps/2640-skills-extension"
 CODEX_SKILLS = "https://learn.chatgpt.com/docs/build-skills"
 
@@ -48,8 +49,11 @@ SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "a
 # Extensions Claude Code documents in its frontmatter reference; everything else is probably a typo.
 AGENT_FIELDS = {"when_to_use", "argument-hint", "arguments", "disable-model-invocation", "user-invocable",
                 "disallowed-tools", "model", "effort", "context", "agent", "background", "hooks", "paths", "shell"}
-# Fields other agents document: Cursor's Custom Mode badge and Amp's per-skill MCP servers.
-OTHER_AGENT_FIELDS = {"icon", "color", "mcpServers"}
+# Fields other agents document: Cursor's Custom Mode badge, Amp's per-skill MCP servers, and Devin CLI's tool
+# permissions, subagent switch and who may invoke the skill.
+OTHER_AGENT_FIELDS = {"icon", "color", "mcpServers", "permissions", "subagent", "triggers"}
+DEVIN_PERMISSIONS = ("allow", "deny", "ask")
+DEVIN_TRIGGERS = ("user", "model")
 CURSOR_COLORS = ("default", "green", "cyan", "blue", "purple", "magenta", "orange", "yellow", "red", "brand")
 MCP_RESERVED = "io.modelcontextprotocol/"  # metadata keys reserved for MCP extensions (SEP-2640)
 CLAUDE_SKILLS = "https://code.claude.com/docs/en/skills"
@@ -114,6 +118,8 @@ rule("folder-reserved", "warning", "the skill folder is not named `synced` (any 
      "Code keeps for skills synced from claude.ai and skips", CLAUDE_SKILLS + "#where-skills-live")
 rule("field-cursor", "warning", "Cursor's `color` is one of " + ", ".join(CURSOR_COLORS), CURSOR_SKILLS)
 rule("field-amp", "warning", "Amp's `mcpServers` maps server names to their configuration", AMP_SKILLS)
+rule("field-devin", "warning", "Devin CLI's `permissions` maps allow, deny and ask to lists of scopes, `subagent` is a "
+     "boolean and `triggers` lists user and/or model", DEVIN_SKILLS)
 rule("metadata-reserved", "warning", "`metadata` keys do not start with `io.modelcontextprotocol/`, which MCP reserves "
      "for its extensions", MCP_SKILLS)
 rule("codex-metadata", "warning", "a skill's `agents/openai.yaml` (Codex app metadata) is a mapping of the documented "
@@ -218,6 +224,23 @@ def _spec_name(name: str) -> bool:
             and "--" not in name and all(c.isalnum() or c == "-" for c in name))
 
 
+def _devin_fields(meta: dict) -> list[str]:
+    """What is wrong with Devin CLI's `permissions`, `subagent` and `triggers`, which it reads by shape."""
+    out = []
+    perms = meta.get("permissions")
+    if "permissions" in meta and not (isinstance(perms, dict) and all(
+            k in DEVIN_PERMISSIONS and isinstance(v, list) and all(isinstance(x, str) for x in v)
+            for k, v in perms.items())):
+        out.append("permissions should map allow, deny and ask to lists of scopes such as Read(src/**), as Devin "
+                   "CLI reads them")
+    if "subagent" in meta and not isinstance(meta["subagent"], bool):
+        out.append("subagent should be true or false")
+    trig = meta.get("triggers")
+    if "triggers" in meta and not (isinstance(trig, list) and trig and all(t in DEVIN_TRIGGERS for t in trig)):
+        out.append("triggers should list user and/or model, who may invoke the skill in Devin CLI")
+    return out
+
+
 def _check_fields(meta: dict, folder: str | None, add) -> None:
     name = unicodedata.normalize("NFKC", frontmatter.text(meta, "name").strip())
     desc = frontmatter.text(meta, "description")
@@ -239,11 +262,13 @@ def _check_fields(meta: dict, folder: str | None, add) -> None:
     elif "<" in desc or ">" in desc:
         add("description-angle-brackets", "description must not contain < or >; Anthropic's packager rejects it")
     for key in sorted(set(meta) - SPEC_FIELDS - AGENT_FIELDS - OTHER_AGENT_FIELDS, key=str):
-        add("unknown-field", f"'{key}' is neither an Agent Skills field nor one Claude Code, Cursor or Amp documents; agents ignore it (put custom data under metadata)")
+        add("unknown-field", f"'{key}' is neither an Agent Skills field nor one Claude Code, Cursor, Amp or Devin documents; agents ignore it (put custom data under metadata)")
     if "color" in meta and meta["color"] not in CURSOR_COLORS:
         add("field-cursor", f"color is {meta['color']!r}; Cursor accepts {', '.join(CURSOR_COLORS)}")
     if "mcpServers" in meta and not (isinstance(meta["mcpServers"], dict) and meta["mcpServers"]):
         add("field-amp", "mcpServers should map each server name to its command or url, as in Amp's mcp.json")
+    for problem in _devin_fields(meta):
+        add("field-devin", problem)
     if "compatibility" in meta and not (isinstance(meta["compatibility"], str) and 1 <= len(meta["compatibility"]) <= 500):
         add("field-compatibility", "compatibility must be a string of 1-500 characters")
     md = meta.get("metadata")
