@@ -827,14 +827,14 @@ def _agent_plugin(tmp_path, skills_field: str, manifest: dict | None = None, age
     (manual / "SKILL.md").write_text("---\nname: release\ndescription: d\ndisable-model-invocation: true\n---\nGo.\n",
                                      encoding="utf-8")
     found = lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "tools", "description": "d", **(manifest or {})}))
-    return [(f.rule, os.path.basename(f.path), f.message) for f in found if f.rule == "plugin-agent-skills"]
+    return [(f.rule, os.path.basename(f.path), f.message) for f in found if f.rule == "subagent-skills"]
 
 
 def test_a_subagent_preloading_more_than_32_skills_warns(tmp_path):
     # Claude Code preloads at most the first 32 distinct names of a subagent's `skills` (code.claude.com/docs/en/sub-agents).
     names = [f"s{i}" for i in range(33)]
     ((rule, where, message),) = _agent_plugin(tmp_path, "skills: [" + ", ".join(names + ["s0"]) + "]")
-    assert (rule, where) == ("plugin-agent-skills", "helper.md")
+    assert (rule, where) == ("subagent-skills", "helper.md")
     assert "33" in message and "s32" in message
     assert _agent_plugin(tmp_path, "skills: [" + ", ".join(names[:32] + ["s0"]) + "]") == []
 
@@ -856,3 +856,16 @@ def test_subagents_named_in_the_manifest_are_checked_instead_of_the_folder(tmp_p
     assert _agent_plugin(tmp_path, many, {"agents": ["./team/lead.md"]}, agent="agents/helper.md") == []
     found = _agent_plugin(tmp_path, many, {"agents": ["./team/lead.md"]}, agent="team/lead.md")
     assert [w for _, w, _ in found] == ["lead.md"]
+
+
+def test_a_projects_subagents_are_checked_against_its_skills(tmp_path):
+    claude = tmp_path / "repo/.claude"
+    (claude / "agents").mkdir(parents=True)
+    (claude / "agents/helper.md").write_text("---\nname: helper\ndescription: d\nskills: [deploy, other]\n---\nHelp.\n",
+                                            encoding="utf-8")
+    (claude / "skills/deploy").mkdir(parents=True)
+    (claude / "skills/deploy/SKILL.md").write_text(
+        "---\nname: deploy\ndescription: Deploys.\ndisable-model-invocation: 'yes'\n---\nGo.\n", encoding="utf-8")
+    for target in (tmp_path / "repo", claude, claude / "agents"):
+        found = [(f.rule, os.path.basename(f.path)) for f in lint.lint_paths([target]) if f.rule == "subagent-skills"]
+        assert found == [("subagent-skills", "helper.md")], target

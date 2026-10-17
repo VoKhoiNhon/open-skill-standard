@@ -185,7 +185,7 @@ rule("plugin-claude-md", "warning", "the plugin root has no CLAUDE.md, which is 
      "skill", PLUGIN_DOCS + "#standard-layout")
 rule("plugin-bin", "warning", "the plugin root has no `bin/` folder, which claude.ai and Cowork refuse to install",
      PLUGIN_DOCS + "#standard-layout")
-rule("plugin-agent-skills", "warning", "a subagent's `skills` is a YAML list of at most 32 distinct skills, none of them "
+rule("subagent-skills", "warning", "a subagent's `skills` is a YAML list of at most 32 distinct skills, none of them "
      "set `disable-model-invocation: true`; Claude Code preloads only the first 32 and cannot preload those",
      SUBAGENT_DOCS + "#preload-skills-into-subagents")
 rule("plugin-default-ignored", "warning", "a manifest key that replaces a default folder (`commands`, `agents`, "
@@ -428,6 +428,11 @@ def lint_paths(paths) -> list[Finding]:
                 out += lint_file(f)
         for m in manifests:
             out += lint_marketplace(m) if m.name == "marketplace.json" else lint_plugin(m) if m.name == "plugin.json" else []
+        if p.is_dir():
+            agent_dirs = [p] if p.name == "agents" and p.parent.name == ".claude" else []
+            agent_dirs += [p / "agents"] if p.name == ".claude" else sorted(p.rglob(".claude/agents"))
+            for d in dict.fromkeys(a for a in agent_dirs if a.is_dir()):
+                out += lint_subagents(d)
     return out
 
 
@@ -616,7 +621,7 @@ def lint_plugin(path: Path) -> list[Finding]:
     for rule_id, why in checks:
         out.append(_finding(path, rule_id, why))
     for agent, why in _subagent_skills(doc, root, name if isinstance(name, str) else ""):
-        out.append(_finding(agent, "plugin-agent-skills", why))
+        out.append(_finding(agent, "subagent-skills", why))
     if (root / "CLAUDE.md").is_file():
         out.append(_finding(path, "plugin-claude-md", "CLAUDE.md at the plugin root is not loaded; move its instructions "
                                                       "into a skill"))
@@ -656,33 +661,43 @@ def _subagent_skills(doc: dict, root: Path, plugin: str) -> list[tuple[Path, str
         files = [root / p for p in paths]
     else:
         files = [] if "agents" in doc else sorted((root / "agents").glob("*.md"))
+    return [(f, why) for f in files for why in _preloads(f, root / "skills", ("", plugin))]
+
+
+def _preloads(agent: Path, skills: Path, owners: tuple[str, ...]) -> list[str]:
+    """Problems with the `skills` a subagent file preloads; `skills` holds the skills it can name, bare or as
+    `<owner>:<name>` for one of `owners`."""
+    try:
+        meta, _ = frontmatter.split(agent.read_text(encoding="utf-8", errors="replace"))
+    except (OSError, ValueError):
+        return []  # a missing path is plugin-path's to report; a subagent's frontmatter is not ours to judge
+    if "skills" not in meta:
+        return []
+    listed = meta["skills"]
+    if not isinstance(listed, list) or not all(isinstance(x, str) for x in listed):
+        return ["skills should be a YAML list of skill names"]
     out = []
-    for f in files:
-        try:
-            meta, _ = frontmatter.split(f.read_text(encoding="utf-8", errors="replace"))
-        except (OSError, ValueError):
-            continue  # a missing path is plugin-path's to report; a subagent's frontmatter is not ours to judge
-        if "skills" not in meta:
-            continue
-        skills = meta["skills"]
-        if not isinstance(skills, list) or not all(isinstance(x, str) for x in skills):
-            out.append((f, "skills should be a YAML list of skill names"))
-            continue
-        distinct = list(dict.fromkeys(skills))
-        if len(distinct) > SUBAGENT_PRELOAD:
-            dropped = ", ".join(distinct[SUBAGENT_PRELOAD:])
-            out.append((f, f"skills lists {len(distinct)} distinct skills; Claude Code preloads only the first "
-                           f"{SUBAGENT_PRELOAD}, so {dropped} {'is' if len(distinct) == SUBAGENT_PRELOAD + 1 else 'are'}"
-                           " not preloaded"))
-        for ref in distinct:
-            owner, _, short = ref.rpartition(":")
-            skill = root / "skills" / short / "SKILL.md"
-            if owner in ("", plugin) and skill.is_file():
-                skill_meta = frontmatter.parse(skill.read_text(encoding="utf-8", errors="replace"))[0]
-                if skill_meta.get("disable-model-invocation") is True:
-                    out.append((f, f"skills lists '{ref}', which sets disable-model-invocation: true; Claude Code "
-                                   "cannot preload it"))
+    distinct = list(dict.fromkeys(listed))
+    if len(distinct) > SUBAGENT_PRELOAD:
+        dropped = ", ".join(distinct[SUBAGENT_PRELOAD:])
+        out.append(f"skills lists {len(distinct)} distinct skills; Claude Code preloads only the first "
+                   f"{SUBAGENT_PRELOAD}, so {dropped} {'is' if len(distinct) == SUBAGENT_PRELOAD + 1 else 'are'}"
+                   " not preloaded")
+    for ref in distinct:
+        owner, _, short = ref.rpartition(":")
+        skill = skills / short / "SKILL.md"
+        if owner in owners and short and skill.is_file():
+            flag = frontmatter.parse(skill.read_text(encoding="utf-8", errors="replace"))[0].get("disable-model-invocation")
+            if flag is True or (isinstance(flag, str) and flag.strip().lower() in ("true", "yes", "on", "1")):
+                out.append(f"skills lists '{ref}', which sets disable-model-invocation: true; Claude Code cannot "
+                           "preload it")
     return out
+
+
+def lint_subagents(folder: Path) -> list[Finding]:
+    """A project's subagents (.claude/agents/*.md), checked against the project's skills (.claude/skills)."""
+    return [_finding(f, "subagent-skills", why) for f in sorted(Path(folder).glob("*.md"))
+            for why in _preloads(f, Path(folder).parent / "skills", ("",))]
 
 
 def _url(value, scheme: str | None = None) -> bool:
