@@ -869,3 +869,16 @@ def test_a_projects_subagents_are_checked_against_its_skills(tmp_path):
     for target in (tmp_path / "repo", claude, claude / "agents"):
         found = [(f.rule, os.path.basename(f.path)) for f in lint.lint_paths([target]) if f.rule == "subagent-skills"]
         assert found == [("subagent-skills", "helper.md")], target
+
+
+def test_subagent_skill_names_that_are_paths_are_not_followed(tmp_path):
+    assert _agent_plugin(tmp_path, 'skills: ["../skills/release", "tools:../release"]') == []
+
+
+def test_a_long_list_of_skills_past_the_preload_limit_is_summarized(tmp_path):
+    ((_, _, message),) = _agent_plugin(tmp_path, "skills: [" + ", ".join(f"s{i}" for i in range(40)) + "]")
+    assert "s32, s33, s34, s35, s36 and 3 more are not preloaded" in message
+
+
+def test_an_empty_skills_field_preloads_nothing(tmp_path):
+    assert _agent_plugin(tmp_path, "skills:") == []

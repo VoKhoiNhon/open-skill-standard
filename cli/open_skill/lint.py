@@ -671,22 +671,25 @@ def _preloads(agent: Path, skills: Path, owners: tuple[str, ...]) -> list[str]:
         meta, _ = frontmatter.split(agent.read_text(encoding="utf-8", errors="replace"))
     except (OSError, ValueError):
         return []  # a missing path is plugin-path's to report; a subagent's frontmatter is not ours to judge
-    if "skills" not in meta:
+    listed = meta.get("skills")
+    if listed is None:
         return []
-    listed = meta["skills"]
     if not isinstance(listed, list) or not all(isinstance(x, str) for x in listed):
-        return ["skills should be a YAML list of skill names"]
+        return ["skills should be a YAML list of skill names; quote a name YAML reads as something else, such as "
+                "off, yes or 1.0"]
     out = []
     distinct = list(dict.fromkeys(listed))
     if len(distinct) > SUBAGENT_PRELOAD:
-        dropped = ", ".join(distinct[SUBAGENT_PRELOAD:])
+        dropped = distinct[SUBAGENT_PRELOAD:]
+        named = ", ".join(dropped[:5]) + (f" and {len(dropped) - 5} more" if len(dropped) > 5 else "")
         out.append(f"skills lists {len(distinct)} distinct skills; Claude Code preloads only the first "
-                   f"{SUBAGENT_PRELOAD}, so {dropped} {'is' if len(distinct) == SUBAGENT_PRELOAD + 1 else 'are'}"
-                   " not preloaded")
+                   f"{SUBAGENT_PRELOAD}, so {named} {'is' if len(dropped) == 1 else 'are'} not preloaded")
     for ref in distinct:
         owner, _, short = ref.rpartition(":")
+        if not NAME_RX.match(short):
+            continue  # not a skill name, so not a folder to look in
         skill = skills / short / "SKILL.md"
-        if owner in owners and short and skill.is_file():
+        if owner in owners and skill.is_file():
             flag = frontmatter.parse(skill.read_text(encoding="utf-8", errors="replace"))[0].get("disable-model-invocation")
             if flag is True or (isinstance(flag, str) and flag.strip().lower() in ("true", "yes", "on", "1")):
                 out.append(f"skills lists '{ref}', which sets disable-model-invocation: true; Claude Code cannot "
