@@ -9,8 +9,9 @@ project:
   - {path: ".agents/skills", source: "https://learn.chatgpt.com/docs/build-skills"}
 detect:
   - {path: "~/.codex", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L230"}
+  - {path: "/etc/codex", source: "https://github.com/vercel-labs/skills/blob/671e8c320810d36fed80fac5f1a2c1bf7e82d812/src/agents.ts#L230"}
 relocate:
   - {var: CODEX_HOME, replaces: "~/.codex", source: "https://github.com/vercel-labs/skills/blob/3694740352eeef5cdd689af694c485f1ff62eec3/src/agents.ts#L10"}
 walk_up: {source: "https://learn.chatgpt.com/docs/build-skills"}
 listing_budget: {chars: 8000, source: "https://learn.chatgpt.com/docs/build-skills"}
-notes: Invoked by typing $ and the skill name, or through /skills. ~/.codex/skills is where the skills CLI installs today; /etc/codex/skills holds skills an administrator installs for every user.
+notes: Invoked by typing $ and the skill name, or through /skills. ~/.codex/skills is where the skills CLI installed before 1.7.2, which moved Codex to ~/.agents/skills; /etc/codex/skills holds skills an administrator installs for every user.
