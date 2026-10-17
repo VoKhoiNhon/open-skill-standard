@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- Codex counts as installed when `/etc/codex` exists, where an administrator configures it for every user, as `npx skills` 1.7.2 detects it. Its notes say the skills CLI now installs Codex skills in `~/.agents/skills`, the folder `install --agent codex` already uses.
+
 ### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 
