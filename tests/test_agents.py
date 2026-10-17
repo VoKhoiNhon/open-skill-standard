@@ -103,3 +103,38 @@ def test_windsurf_installs_where_devin_desktop_prefers():
     assert [f["path"] for f in a["project"]][:2] == [".devin/skills", ".windsurf/skills"]
     assert [f["path"] for f in a["global"]][:2] == ["~/.config/devin/skills", "~/.codeium/windsurf/skills"]
     assert "/etc/devin/skills" in [f["path"] for f in a["global"]]
+
+
+def test_antigravity_ide_reads_its_current_and_legacy_folders(tmp_path, monkeypatch):
+    # antigravity.google/docs/skills: global ~/.gemini/config/skills (legacy ~/.gemini/antigravity/skills),
+    # workspace .agents/skills and the older .agent/skills.
+    from open_skill import paths, registry
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    a = registry.load(paths.data_root()).agents["antigravity"]
+    assert agents.folders(a, "global") == [tmp_path / ".gemini/config/skills", tmp_path / ".gemini/antigravity/skills"]
+    project = (tmp_path / "p").resolve()
+    assert agents.folders(a, "project", tmp_path / "p") == [project / ".agents/skills", project / ".agent/skills"]
+    assert not agents.detected(a)
+    (tmp_path / ".gemini/antigravity-cli").mkdir(parents=True)
+    assert not agents.detected(a)  # the CLI alone is not the IDE
+    (tmp_path / ".gemini/antigravity").mkdir(parents=True)
+    assert agents.detected(a)
+
+
+def test_devin_cli_reads_its_folders_and_moves_to_appdata_on_windows(tmp_path, monkeypatch):
+    # docs.devin.ai/cli/extensibility/skills/overview: ~/.config/devin/skills, or %APPDATA%\devin\skills on Windows.
+    from open_skill import paths, registry
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+    monkeypatch.delenv("APPDATA", raising=False)
+    a = registry.load(paths.data_root()).agents["devin-cli"]
+    assert agents.folders(a, "global")[0] == tmp_path / ".config/devin/skills"
+    project = (tmp_path / "p").resolve()
+    assert agents.folders(a, "project", tmp_path / "p")[0] == project / ".devin/skills"
+    monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
+    assert agents.folders(a, "global")[0] == tmp_path / "Roaming/devin/skills"
+    assert not agents.detected(a)
+    (tmp_path / "Roaming/devin").mkdir(parents=True)
+    assert agents.detected(a)

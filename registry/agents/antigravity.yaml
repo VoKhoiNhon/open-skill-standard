@@ -1,0 +1,13 @@
+id: antigravity
+name: Antigravity
+docs: https://antigravity.google/docs/skills/
+global:
+  - {path: "~/.gemini/config/skills", source: "https://antigravity.google/docs/skills/"}
+  - {path: "~/.gemini/antigravity/skills", source: "https://antigravity.google/docs/skills/"}
+project:
+  - {path: ".agents/skills", source: "https://antigravity.google/docs/skills/"}
+  - {path: ".agent/skills", source: "https://antigravity.google/docs/skills/"}
+detect:
+  - {path: "~/.gemini/config/skills", source: "https://antigravity.google/docs/skills/"}
+  - {path: "~/.gemini/antigravity", source: "https://github.com/vercel-labs/skills/blob/671e8c320810d36fed80fac5f1a2c1bf7e82d812/src/agents.ts#L106"}
+notes: Google's agent-first IDE (Antigravity 2.0). The agent applies a skill when it fits the task, and /skill-name invokes one. ~/.gemini/antigravity/skills is the older global folder and .agent/skills the older workspace folder; both are still read. The Antigravity CLI is a separate agent (antigravity-cli) with its own global folder.

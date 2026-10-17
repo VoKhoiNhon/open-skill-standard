@@ -348,3 +348,16 @@ def test_bug_a_note_scoped_to_a_skills_invoke_name_is_attached(tmp_path):
 def test_target_phase_ties_follow_intent_not_generic_verbs(task, phase):
     tax = registry.load_taxonomy(Path(__file__).parents[1])
     assert route.target_phase(task, tax) == phase
+
+
+def test_a_skill_only_the_user_can_invoke_is_marked_in_the_chain(tmp_path):
+    # `specify init --integration-options="--no-model-invocation"` writes skills with disable-model-invocation: true;
+    # the model cannot call them, so the chain says the user has to type them.
+    p = proj(tmp_path, ".specify/memory/constitution.md", "specs/001-x/spec.md")
+    manual = [Installed(i.id, i.invoke, i.path, i.description, i.inferred, user_only=i.id.startswith("spec-kit/"))
+              for i in ALL]
+    r = route.route("build a new application for invoices", p, REG, manual, role="data-engineer")
+    plan = next(s for s in r["chain"] if s["id"] == "spec-kit/plan")
+    assert plan["user_only"] is True
+    assert all("user_only" not in s for s in r["chain"] if not s["id"].startswith("spec-kit/"))
+    assert ids(r) == ids(route.route("build a new application for invoices", p, REG, ALL, role="data-engineer"))

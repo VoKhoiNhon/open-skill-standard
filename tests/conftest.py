@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 # Env vars that move agent folders (registry/agents relocate entries). Tests use fixture homes only.
-RELOCATION_VARS = ("CLAUDE_CONFIG_DIR", "CODEX_HOME", "XDG_CONFIG_HOME")
+RELOCATION_VARS = ("APPDATA", "CLAUDE_CONFIG_DIR", "CODEX_HOME", "XDG_CONFIG_HOME")
 
 
 @pytest.fixture(autouse=True)

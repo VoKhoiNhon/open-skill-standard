@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -150,7 +151,7 @@ def test_describe_ignores_non_string_frontmatter(tmp_path):
         f"a{i}: &a{i} [" + ", ".join([f"*a{i-1}"] * 10) + "]" for i in range(1, 8)]).replace("a7:", "description:")
     (tmp_path / "odd").mkdir()
     (tmp_path / "odd" / "SKILL.md").write_text(f"---\nname: ~\n{bomb}\n---\nbody", encoding="utf-8")
-    assert scan._describe(tmp_path / "odd" / "SKILL.md") == ("odd", "")
+    assert scan._describe(tmp_path / "odd" / "SKILL.md") == ("odd", "", False)
 
 
 def test_skill_installed_under_its_frontmatter_name_maps_to_its_registry_id(tmp_path, monkeypatch):
@@ -218,6 +219,41 @@ def test_a_skill_folder_named_cache_is_not_a_plugin_cache(tmp_path, monkeypatch)
     assert "cache-tools" in by_invoke(scan.scan(registry.load()))
 
 
+def test_plugin_versions_compare_as_numbers(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    for version in ("9.0.0", "10.0.0"):
+        _skill(tmp_path / f".claude/plugins/cache/market/toolkit/{version}/skills/lint-helper", "lint-helper")
+    (found,) = [i for i in scan.scan(registry.load()) if i.invoke == "toolkit:lint-helper"]
+    assert "10.0.0" in Path(found.path).parts
+
+
+def test_a_skill_dropped_from_the_newest_plugin_version_is_gone(tmp_path, monkeypatch):
+    # The cache can keep an older version beside the one in use; only the newest version's skills are loaded.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    plugin = tmp_path / ".claude/plugins/cache/market/toolkit"
+    _skill(plugin / "1.0.0/skills/old-only", "old-only")
+    _skill(plugin / "2.0.0/skills/new-only", "new-only")
+    got = {i.invoke for i in scan.scan(registry.load())}
+    assert "toolkit:new-only" in got and "toolkit:old-only" not in got
+
+
+def test_plugin_versions_named_by_commit_use_the_newest_folder(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    plugin = tmp_path / ".claude/plugins/cache/market/toolkit"
+    _skill(plugin / "f00d/skills/old-only", "old-only")
+    _skill(plugin / "0abc/skills/new-only", "new-only")
+    os.utime(plugin / "f00d", (1_000_000, 1_000_000))
+    got = {i.invoke for i in scan.scan(registry.load())}
+    assert "toolkit:new-only" in got and "toolkit:old-only" not in got
+
+
+def test_an_empty_newer_version_folder_does_not_hide_the_plugin(tmp_path, monkeypatch):
+    # A folder the cache created for an update that has not been written yet is not the version in use.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    plugin = tmp_path / ".claude/plugins/cache/market/toolkit"
+    _skill(plugin / "1.0.0/skills/lint-helper", "lint-helper")
+    (plugin / "2.0.0").mkdir()
+    assert "toolkit:lint-helper" in by_invoke(scan.scan(registry.load()))
 def test_agents_that_read_claude_code_plugins_see_them_by_name(tmp_path, monkeypatch):
     # Amp loads skills from ~/.claude/plugins/cache too, and names a skill by its frontmatter name, not plugin:skill.
     monkeypatch.setenv("HOME", str(tmp_path))
@@ -241,3 +277,21 @@ def test_a_skill_amp_finds_first_keeps_its_name_over_a_plugin_skill(tmp_path, mo
     assert "amp" not in plugin.agents
     assert [i.path for i in scan.scan(registry.load(), agent="amp") if i.invoke == "lint-helper"] == [
         str(tmp_path / ".config/agents/skills/lint-helper/SKILL.md")]
+
+
+@pytest.mark.parametrize("value,expected", [("true", True), ("yes", True), ("'on'", True), ("false", False),
+                                            ("[true]", False)])
+def test_skills_the_model_may_not_invoke_are_user_only(tmp_path, monkeypatch, value, expected):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    folder = tmp_path / ".claude/skills/release"
+    folder.mkdir(parents=True)
+    (folder / "SKILL.md").write_text(f"---\nname: release\ndescription: d\ndisable-model-invocation: {value}\n---\n",
+                                     encoding="utf-8")
+    assert by_invoke(scan.scan(registry.load()))["release"].user_only is expected
+def test_superpowers_installed_as_an_antigravity_plugin_is_found(tmp_path, monkeypatch):
+    # `agy plugin install https://github.com/obra/superpowers` puts its skills under the CLI's plugins folder.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".gemini/antigravity-cli/plugins/superpowers/skills/brainstorming", "brainstorming")
+    got = {i.id: i for i in scan.scan(registry.load())}
+    assert got["superpowers/brainstorming"].agents == {"antigravity-cli": "brainstorming"}
+    assert got["superpowers/brainstorming"].inferred is False

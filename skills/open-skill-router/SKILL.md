@@ -36,7 +36,7 @@ open-skill route "<the user's request, in their words>" --phase <phase> --size <
 
 Pass `--phase` and `--size` when the conversation makes them clear; leave either out when you are unsure, and the CLI falls back to keyword detection. If the output says `"phase_from": "guessed"`, no keyword matched and the phase is a default: check it against the request and route again with `--phase` if it is wrong.
 
-`--agent` is the coding agent you are running in (`claude-code`, `codex`, `cursor`, `gemini-cli`, `antigravity-cli`, `github-copilot`, `opencode`, `goose`, `windsurf`, `amp`, `kiro-cli`; `open-skill agents` lists them). The chain then holds only skills that agent can load, under the names it invokes them by; leave it out if you are unsure. Pass `--model` only with the exact id your runtime gives you, not a guess; without it the CLI uses a generic profile. Pass `--role` only when the user stated one, as a role id from `references/roles/README.md` (`frontend-developer`, not `frontend`); otherwise the CLI uses their saved profile or project signals. The JSON output has `route_id` (for step 4), `chain` (ordered steps with `invoke`, `phase`, `why`, `effort`), `knowledge` (the user's lessons and preferences that apply), `missing` (useful skills that are not installed or need a project init), `advice`, and `model` (notes for the model you are running on).
+`--agent` is the coding agent you are running in (`claude-code`, `codex`, `cursor`, `gemini-cli`, `antigravity-cli`, `antigravity`, `github-copilot`, `opencode`, `goose`, `windsurf`, `devin-cli`, `amp`, `kiro-cli`; `open-skill agents` lists them). The chain then holds only skills that agent can load, under the names it invokes them by; leave it out if you are unsure. Pass `--model` only with the exact id your runtime gives you, not a guess; without it the CLI uses a generic profile. Pass `--role` only when the user stated one, as a role id from `references/roles/README.md` (`frontend-developer`, not `frontend`); otherwise the CLI uses their saved profile or project signals. The JSON output has `route_id` (for step 4), `chain` (ordered steps with `invoke`, `phase`, `why`, `effort`), `knowledge` (the user's lessons and preferences that apply), `missing` (useful skills that are not installed or need a project init), `advice`, and `model` (notes for the model you are running on).
 
 ## 2. Check it against the real request
 
@@ -44,6 +44,7 @@ The CLI ranks by your phase and size, the role, text relevance and project state
 
 If `advice` is `do directly`, skip the chain and just do the task.
 If a step has `ask`, it lists the two skill ids whose scores are close: ask the user one question with those two options.
+If a step has `user_only`, the skill does not let you invoke it: ask the user to type its `invoke` (for example `/speckit-plan`) and continue after it finishes.
 
 ## 3. Announce in one line, then start
 

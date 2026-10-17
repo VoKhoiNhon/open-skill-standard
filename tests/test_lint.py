@@ -379,7 +379,7 @@ def test_documented_claude_code_fields_are_known(key):
     assert "unknown-field" not in rules(fm(f"{key}: x"))
 
 
-@pytest.mark.parametrize("key", ["version", "homepage", "triggers", "descripton"])
+@pytest.mark.parametrize("key", ["version", "homepage", "tags", "descripton"])
 def test_undocumented_fields_warn(key):
     # The spec's own example keeps version under metadata; no agent reads a top-level one.
     assert rules(fm(f"{key}: x")) == ["unknown-field"]
@@ -748,6 +748,21 @@ def test_cursor_color_outside_its_palette_warns(value):
 @pytest.mark.parametrize("value", ["x", "[a]", "''"])
 def test_amp_mcp_servers_must_be_a_mapping(value):
     assert rules(fm(f"mcpServers: {value}")) == ["field-amp"]
+
+
+# Devin CLI's own fields (docs.devin.ai/cli/extensibility/skills/creating-skills).
+@pytest.mark.parametrize("extra", ["permissions: {allow: ['Read(src/**)'], deny: [exec], ask: ['Write(**)']}",
+                                   "permissions: {}", "subagent: true", "triggers: [user]", "triggers: [user, model]"])
+def test_devin_fields_are_known(extra):
+    assert rules(fm(extra)) == []
+
+
+@pytest.mark.parametrize("extra", ["permissions: [exec]", "permissions: {allow: exec}", "permissions: {block: [exec]}",
+                                   "permissions: {deny: [1]}", "subagent: maybe", "triggers: user",
+                                   "triggers: [user, agent]", "triggers: []"])
+def test_devin_fields_with_the_wrong_shape_warn(extra):
+    found = lint.lint_text(fm(extra))
+    assert [(f.rule, f.severity) for f in found] == [("field-devin", "warning")]
 
 
 def test_mcp_reserved_metadata_keys_warn():
