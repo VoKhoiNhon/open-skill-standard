@@ -56,7 +56,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.5 open-ski
 
 ## Any agent that loads Agent Skills
 
-The skills follow the [Agent Skills](https://agentskills.io) format, so they work in every agent that reads it. `registry/agents/` describes ten of them: where each loads skills, for the user and for a project, and how to tell it is installed. Every path cites the agent's documentation, or the line of [vercel-labs/skills](https://github.com/vercel-labs/skills) it comes from where the docs are silent.
+The skills follow the [Agent Skills](https://agentskills.io) format, so they work in every agent that reads it. `registry/agents/` describes thirteen of them: where each loads skills, for the user and for a project, and how to tell it is installed. Every path cites the agent's documentation, or the line of [vercel-labs/skills](https://github.com/vercel-labs/skills) it comes from where the docs are silent.
 
 | Agent | id | Installs to (user) | Installs to (project) |
 |---|---|---|---|
@@ -66,6 +66,7 @@ The skills follow the [Agent Skills](https://agentskills.io) format, so they wor
 | Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
 | Antigravity CLI | `antigravity-cli` | `~/.gemini/antigravity-cli/skills` | `.agents/skills` |
 | Antigravity | `antigravity` | `~/.gemini/config/skills` | `.agents/skills` |
+| Devin CLI | `devin-cli` | `~/.config/devin/skills` | `.devin/skills` |
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
@@ -73,7 +74,7 @@ The skills follow the [Agent Skills](https://agentskills.io) format, so they wor
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
 | Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 
-Each agent also reads other folders (Cursor, Copilot, OpenCode, Goose and Amp read Claude Code's, for example); `scan` knows them all and lists a skill once with every agent that sees it.
+Each agent also reads other folders (Cursor, Copilot, OpenCode, Goose and Amp read Claude Code's, and Amp also loads the skills of Claude Code plugins, for example); `scan` knows them all and lists a skill once with every agent that sees it.
 
 ```bash
 open-skill agents                                     # which agents are installed, what each sees
