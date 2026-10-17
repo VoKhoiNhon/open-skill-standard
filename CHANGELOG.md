@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
+
 ### Changed
 - The `graphify` adapter is tested with 0.9.92. Graphify now resolves Python calls made through a module name (`mod.fn()`), so its summary and the `open-skill-intel` skill keep codegraph only for TypeScript calls through a namespace import (`ns.fn()`), which it still misses.
 
