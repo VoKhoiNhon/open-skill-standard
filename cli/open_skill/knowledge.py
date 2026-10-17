@@ -89,7 +89,7 @@ def learn(text: str, applies_to: list[str], type_: str = "lesson", force: bool =
     path = _kdir() / f"{nid}.md"
     with paths.locked(home() / ".lock"):  # read-modify-write: two processes learning the same note must merge, not overwrite
         if path.exists():
-            meta, _ = frontmatter.parse(path.read_text(encoding="utf-8"))
+            meta, _ = frontmatter.parse(userdata.read_text(path))
             meta["applies_to"] = list(dict.fromkeys([*meta.get("applies_to", []), *applies_to]))
             meta["updated"] = dt.date.today().isoformat()
         else:
@@ -109,7 +109,7 @@ def forget(node_id: str) -> bool:
     path = _kdir() / f"{node_id}.md"
     if not path.exists():
         return False
-    meta, _ = frontmatter.parse(path.read_text(encoding="utf-8"))
+    meta, _ = frontmatter.parse(userdata.read_text(path))
     if meta.get("seed_id"):  # remember the choice so seed sync never brings it back, and drop its pending update
         with (home() / DISMISSED).open("a", encoding="utf-8") as f:
             f.write(meta["seed_id"] + "\n")
@@ -121,7 +121,7 @@ def forget(node_id: str) -> bool:
 def load_knowledge() -> list[dict]:
     out = []
     for p in sorted((home() / "knowledge").glob("*.md")):  # reading never creates the folder (see _prepare)
-        meta, body = frontmatter.parse(p.read_text(encoding="utf-8"))
+        meta, body = frontmatter.parse(userdata.read_text(p))
         if meta.get("id"):
             out.append({**meta, "text": body.strip()})
     return out
@@ -144,7 +144,7 @@ def load_profile() -> dict:
     if not p.exists():
         return {}
     try:
-        prof = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        prof = yaml.safe_load(userdata.read_text(p)) or {}
     except yaml.YAMLError as e:
         mark = getattr(e, "problem_mark", None)
         raise ProfileError(f"{p} is not valid YAML{f' (line {mark.line + 1})' if mark else ''}; "
@@ -236,7 +236,7 @@ def import_agent_memory(root: Path | None = None) -> int:
     for p in sorted(root.glob("*/memory/*.md")):
         if p.name == "MEMORY.md":
             continue
-        meta, body = frontmatter.parse(p.read_text(encoding="utf-8", errors="replace"))
+        meta, body = frontmatter.parse(p.read_text(encoding="utf-8", errors="replace"))  # not ours: never replaced
         text = body.strip()
         if not text or looks_sensitive(text):
             continue
@@ -258,7 +258,7 @@ def proposals() -> dict[str, str]:
     """seed id -> upstream text waiting for the user's decision."""
     out = {}
     for p in sorted((home() / PROPOSALS).glob("*.md")) if (home() / PROPOSALS).exists() else []:
-        meta, body = frontmatter.parse(p.read_text(encoding="utf-8"))
+        meta, body = frontmatter.parse(userdata.read_text(p))
         if meta.get("seed_id"):
             out[meta["seed_id"]] = body.strip()
     return out
@@ -266,14 +266,14 @@ def proposals() -> dict[str, str]:
 
 def dismissed_seeds() -> set[str]:
     p = home() / DISMISSED
-    return {line.strip() for line in p.read_text(encoding="utf-8").splitlines() if line.strip()} if p.exists() else set()
+    return {line.strip() for line in userdata.read_text(p).splitlines() if line.strip()} if p.exists() else set()
 
 
 def _seed_notes() -> list[tuple]:
     """(path, meta, body) for every note that came from a seed."""
     out = []
     for p in sorted((home() / "knowledge").glob("*.md")):
-        fm, body = userdata._split_note(p.read_text(encoding="utf-8"))
+        fm, body = userdata._split_note(userdata.read_text(p))
         meta = userdata.note_meta(fm)
         if meta and meta.get("source") == "seed":
             out.append((p, meta, body))
@@ -321,7 +321,7 @@ def sync_seeds(roles, seeds: dict[str, list], dry_run: bool = False) -> list[str
                 if not dry_run:
                     nid = learn(text, [f"role:{role}"], type_="pitfall", source="seed")
                     p = _kdir() / f"{nid}.md"
-                    fm, b = userdata._split_note(p.read_text(encoding="utf-8"))
+                    fm, b = userdata._split_note(userdata.read_text(p))
                     m = yaml.safe_load(fm)
                     m.update({"schema": userdata.SCHEMA_VERSION, "seed_id": sid, "seed_hash": userdata.text_hash(text)})
                     _save(p, m, b)

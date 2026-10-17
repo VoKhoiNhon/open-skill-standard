@@ -15,7 +15,7 @@ def skill(folder, name=None, description=DESC):
 
 
 def test_scan_reads_the_description_as_utf8(tmp_path):
-    assert scan._describe(skill(tmp_path / "summarize")) == ("summarize", DESC)
+    assert scan._describe(skill(tmp_path / "summarize")) == ("summarize", DESC, False)
 
 
 def test_lint_matches_a_non_ascii_name_to_its_folder(tmp_path):

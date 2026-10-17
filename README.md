@@ -56,7 +56,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.5 open-ski
 
 ## Any agent that loads Agent Skills
 
-The skills follow the [Agent Skills](https://agentskills.io) format, so they work in every agent that reads it. `registry/agents/` describes ten of them: where each loads skills, for the user and for a project, and how to tell it is installed. Every path cites the agent's documentation, or the line of [vercel-labs/skills](https://github.com/vercel-labs/skills) it comes from where the docs are silent.
+The skills follow the [Agent Skills](https://agentskills.io) format, so they work in every agent that reads it. `registry/agents/` describes thirteen of them: where each loads skills, for the user and for a project, and how to tell it is installed. Every path cites the agent's documentation, or the line of [vercel-labs/skills](https://github.com/vercel-labs/skills) it comes from where the docs are silent.
 
 | Agent | id | Installs to (user) | Installs to (project) |
 |---|---|---|---|
@@ -65,6 +65,8 @@ The skills follow the [Agent Skills](https://agentskills.io) format, so they wor
 | Cursor | `cursor` | `~/.cursor/skills` | `.agents/skills` |
 | Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
 | Antigravity CLI | `antigravity-cli` | `~/.gemini/antigravity-cli/skills` | `.agents/skills` |
+| Antigravity | `antigravity` | `~/.gemini/config/skills` | `.agents/skills` |
+| Devin CLI | `devin-cli` | `~/.config/devin/skills` | `.devin/skills` |
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
@@ -72,7 +74,7 @@ The skills follow the [Agent Skills](https://agentskills.io) format, so they wor
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
 | Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 
-Each agent also reads other folders (Cursor, Copilot, OpenCode, Goose and Amp read Claude Code's, for example); `scan` knows them all and lists a skill once with every agent that sees it.
+Each agent also reads other folders (Cursor, Copilot, OpenCode, Goose and Amp read Claude Code's, and Amp also loads the skills of Claude Code plugins, for example); `scan` knows them all and lists a skill once with every agent that sees it.
 
 ```bash
 open-skill agents                                     # which agents are installed, what each sees
@@ -257,7 +259,7 @@ On the 52 held-out requests, the router passes 67% [54–78%] of cases, against 
 
 ## Skill health
 
-`open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too. Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
+`open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too, and so are the skills a subagent preloads (in a plugin or in `.claude/agents/`). Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
 
 ## Security audit
 
@@ -281,7 +283,7 @@ For code scanning, `--format sarif` writes a SARIF 2.1.0 log (`open-skill lint` 
     sarif_file: audit.sarif
 ```
 
-It flags text that tries to override the user's or system's instructions, hide actions from the user, skip or fake approval, impersonate the system or an administrator, or reach for SSH keys, cloud credentials, `.env` files, browser profiles and password stores; downloads piped straight into a shell, decoded text run as a command, known exfiltration endpoints and hard-coded tokens or private keys; writes to the agent's own instructions, memory or settings (`~/.claude/CLAUDE.md`, `.claude/settings.json`), which outlive the skill; invisible Unicode and HTML comments that address the agent; unscoped shell grants in `allowed-tools`, hooks a skill registers for the rest of the session and commands that run while a skill loads; links that leave the skill folder and bundled executables. Each finding shows the file, line, an escaped excerpt, why it matters and the public source of the rule (OWASP Top 10 for LLM and for Agentic Applications, MITRE ATT&CK, Anthropic and Claude Code documentation). The command exits 1 on high-severity findings; `--strict` also fails on medium and low. `open-skill doctor` shows a one-line summary.
+It flags text that tries to override the user's or system's instructions, hide actions from the user, skip or fake approval, impersonate the system or an administrator, or reach for SSH keys, cloud credentials, `.env` files, browser profiles and password stores; downloads piped straight into a shell, decoded text run as a command, known exfiltration endpoints and hard-coded tokens or private keys; writes to the agent's own instructions, memory or settings (`~/.claude/CLAUDE.md`, `.claude/settings.json`), which outlive the skill; invisible Unicode and HTML comments that address the agent; unscoped shell grants in `allowed-tools`, hooks a skill registers for the rest of the session and commands that run while a skill loads; links that leave the skill folder and bundled executables. Frontmatter is also checked as YAML decodes it, so escapes, folded lines and aliases do not hide a match. Each finding shows the file, line, an escaped excerpt, why it matters and the public source of the rule (OWASP Top 10 for LLM and for Agentic Applications, MITRE ATT&CK, Anthropic and Claude Code documentation). The command exits 1 on high-severity findings; `--strict` also fails on medium and low. `open-skill doctor` shows a one-line summary.
 
 This is a heuristic reviewer, not a guarantee. A finding can be harmless in context, and a clean report only means no rule matched: a careful attacker can phrase things the rules do not catch. Still read skills from unknown sources yourself, and prefer skills you or your organization maintain.
 

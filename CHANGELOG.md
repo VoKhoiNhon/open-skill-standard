@@ -4,19 +4,26 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-### Fixed
-- Gemini CLI no longer counts as installed on a machine that only has Antigravity: both keep folders under `~/.gemini`, so `gemini-cli` is now detected by the settings file and session folder Gemini CLI writes (`~/.gemini/settings.json`, `~/.gemini/tmp`). `agents` and `doctor` no longer report it where it was never installed.
-
 ### Added
+- Devin CLI (Devin for Terminal) is a known agent (`devin-cli`): it reads `.devin/skills`, `.agents/skills` and `.windsurf/skills` in a project and `~/.config/devin/skills`, `~/.agents/skills` and Windsurf's global folder, so `scan`, `install --agent devin-cli` and `route --agent devin-cli` cover it. On Windows its folder is `%APPDATA%\devin\skills`, which agent targets now reach through an `APPDATA` relocation.
+- Antigravity, Google's IDE (Antigravity 2.0), is a known agent (`antigravity`): it reads `~/.gemini/config/skills` and the older `~/.gemini/antigravity/skills`, and `.agents/skills` and the older `.agent/skills` in a workspace, so `scan`, `install --agent antigravity` and `route --agent antigravity` cover it. It is separate from `antigravity-cli`, which has its own global folder.
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 - `open-skill lint` knows Devin CLI's frontmatter fields: `permissions`, `subagent` and `triggers` no longer warn as unknown. A `permissions` that does not map `allow`, `deny` and `ask` to lists of scopes, a `subagent` that is not a boolean, or `triggers` that are not `user` and/or `model` warn (`field-devin`).
+- `open-skill audit` also checks a file's frontmatter as YAML decodes it, which is what the agent reads: an invisible character or an instruction spelled with escapes (`\u200b`, `ign\x6fre`), folded across lines, hidden in a key or repeated through an alias is now found and reported at its top-level key. Text that stands on one line of the file is not reported twice.
+- `open-skill route` marks a chain step `user_only` when the installed skill sets `disable-model-invocation` (as spec-kit writes them with `specify init --integration-options="--no-model-invocation"`, since 1.2.0): the model cannot invoke it, so the router skill and `--explain` tell it to ask the user to type the skill. `scan` reads the flag as Claude Code does, `true`, `yes`, `on` or `1` in any case.
+- `open-skill lint` checks the `skills` a subagent preloads (`subagent-skills`, warning), in a plugin's subagents and in a project's `.claude/agents/`: it must be a YAML list, Claude Code preloads only its first 32 distinct names (since 2.1.295), and it cannot preload one of the plugin's or project's skills that sets `disable-model-invocation`. Subagents named by a plugin manifest's `agents` are checked instead of the `agents/` folder they replace.
 
 ### Changed
+- Codex counts as installed when `/etc/codex` exists, where an administrator configures it for every user, as `npx skills` 1.7.2 detects it. Its notes say the skills CLI now installs Codex skills in `~/.agents/skills`, the folder `install --agent codex` already uses.
 - The `graphify` adapter is tested with 0.9.92. Graphify now resolves Python calls made through a module name (`mod.fn()`), so its summary and the `open-skill-intel` skill keep codegraph only for TypeScript calls through a namespace import (`ns.fn()`), which it still misses.
 - The `superpowers` adapter is tested with 7.0.0, which keeps the same fifteen skills. Superpowers now installs as an Antigravity CLI plugin (`agy plugin install https://github.com/obra/superpowers`); the adapter lists that command, and `scan` finds the skills it puts under `~/.gemini/antigravity-cli/plugins/superpowers/skills` for `antigravity-cli`.
+- The `spec-kit` adapter is tested with 1.2.1: `specify init` writes the same core commands, in the same places, for the Claude Code, Codex, Copilot, Gemini CLI, OpenCode and Amp integrations. `taskstoissues` is deprecated again upstream in favour of the `github` extension's `github-taskstoissues`, and its description says so. Held-out routing is unchanged (35/52).
 
 ### Fixed
+- On Windows, two open-skill processes sharing `~/.open-skill` (two agents learning or routing at once) no longer fail with "Access is denied": Windows refuses to replace a file another process is reading, and to open one while it is being replaced, so those writes and reads of the user layer retry for up to two seconds.
 - SARIF fingerprints of findings that point at a whole file mask the numbers in the message, so trimming a too-long description ("description is 1100 characters") keeps the same code scanning alert instead of closing it and opening another. Such alerts get new fingerprints once, on the first run after upgrading.
+- `open-skill scan` reads only the newest version of each Claude Code plugin in the cache. Versions are compared as numbers, so `10.0.0` wins over `9.0.0`, and folders named by commit by which was written last; a skill that only an older cached version still holds is no longer listed.
+- Gemini CLI no longer counts as installed on a machine that only has Antigravity: both keep folders under `~/.gemini`, so `gemini-cli` is now detected by the settings file and session folder Gemini CLI writes (`~/.gemini/settings.json`, `~/.gemini/tmp`). `agents` and `doctor` no longer report it where it was never installed.
 
 ## [0.7.5] - 2026-10-08
 
