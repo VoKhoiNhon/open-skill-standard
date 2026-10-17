@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Antigravity, Google's IDE (Antigravity 2.0), is a known agent (`antigravity`): it reads `~/.gemini/config/skills` and the older `~/.gemini/antigravity/skills`, and `.agents/skills` and the older `.agent/skills` in a workspace, so `scan`, `install --agent antigravity` and `route --agent antigravity` cover it. It is separate from `antigravity-cli`, which has its own global folder.
+
+### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 - `open-skill lint` knows Devin CLI's frontmatter fields: `permissions`, `subagent` and `triggers` no longer warn as unknown. A `permissions` that does not map `allow`, `deny` and `ask` to lists of scopes, a `subagent` that is not a boolean, or `triggers` that are not `user` and/or `model` warn (`field-devin`).
 
