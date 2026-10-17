@@ -105,6 +105,17 @@ def test_windsurf_installs_where_devin_desktop_prefers():
     assert "/etc/devin/skills" in [f["path"] for f in a["global"]]
 
 
+def test_gemini_cli_is_not_detected_from_folders_antigravity_creates(tmp_path, monkeypatch):
+    # Antigravity keeps its own folders under ~/.gemini; Gemini CLI writes ~/.gemini/settings.json and ~/.gemini/tmp
+    # (geminicli.com/docs/reference/configuration).
+    from open_skill import paths, registry
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    a = registry.load(paths.data_root()).agents["gemini-cli"]
+    for folder in ("antigravity", "antigravity-cli", "config/skills", "skills"):
+        (tmp_path / ".gemini" / folder).mkdir(parents=True)
+    assert not agents.detected(a)
+    (tmp_path / ".gemini/settings.json").write_text("{}", encoding="utf-8")
 def test_antigravity_ide_reads_its_current_and_legacy_folders(tmp_path, monkeypatch):
     # antigravity.google/docs/skills: global ~/.gemini/config/skills (legacy ~/.gemini/antigravity/skills),
     # workspace .agents/skills and the older .agent/skills.

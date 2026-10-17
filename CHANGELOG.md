@@ -4,9 +4,6 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-### Fixed
-- On Windows, two open-skill processes sharing `~/.open-skill` (two agents learning or routing at once) no longer fail with "Access is denied": Windows refuses to replace a file another process is reading, and to open one while it is being replaced, so those writes and reads of the user layer retry for up to two seconds.
-
 ### Added
 - Devin CLI (Devin for Terminal) is a known agent (`devin-cli`): it reads `.devin/skills`, `.agents/skills` and `.windsurf/skills` in a project and `~/.config/devin/skills`, `~/.agents/skills` and Windsurf's global folder, so `scan`, `install --agent devin-cli` and `route --agent devin-cli` cover it. On Windows its folder is `%APPDATA%\devin\skills`, which agent targets now reach through an `APPDATA` relocation.
 - Antigravity, Google's IDE (Antigravity 2.0), is a known agent (`antigravity`): it reads `~/.gemini/config/skills` and the older `~/.gemini/antigravity/skills`, and `.agents/skills` and the older `.agent/skills` in a workspace, so `scan`, `install --agent antigravity` and `route --agent antigravity` cover it. It is separate from `antigravity-cli`, which has its own global folder.
@@ -23,8 +20,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - The `spec-kit` adapter is tested with 1.2.1: `specify init` writes the same core commands, in the same places, for the Claude Code, Codex, Copilot, Gemini CLI, OpenCode and Amp integrations. `taskstoissues` is deprecated again upstream in favour of the `github` extension's `github-taskstoissues`, and its description says so. Held-out routing is unchanged (35/52).
 
 ### Fixed
+- On Windows, two open-skill processes sharing `~/.open-skill` (two agents learning or routing at once) no longer fail with "Access is denied": Windows refuses to replace a file another process is reading, and to open one while it is being replaced, so those writes and reads of the user layer retry for up to two seconds.
 - SARIF fingerprints of findings that point at a whole file mask the numbers in the message, so trimming a too-long description ("description is 1100 characters") keeps the same code scanning alert instead of closing it and opening another. Such alerts get new fingerprints once, on the first run after upgrading.
 - `open-skill scan` reads only the newest version of each Claude Code plugin in the cache. Versions are compared as numbers, so `10.0.0` wins over `9.0.0`, and folders named by commit by which was written last; a skill that only an older cached version still holds is no longer listed.
+- Gemini CLI no longer counts as installed on a machine that only has Antigravity: both keep folders under `~/.gemini`, so `gemini-cli` is now detected by the settings file and session folder Gemini CLI writes (`~/.gemini/settings.json`, `~/.gemini/tmp`). `agents` and `doctor` no longer report it where it was never installed.
 
 ## [0.7.5] - 2026-10-08
 
