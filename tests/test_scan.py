@@ -245,3 +245,12 @@ def test_plugin_versions_named_by_commit_use_the_newest_folder(tmp_path, monkeyp
     os.utime(plugin / "f00d", (1_000_000, 1_000_000))
     got = {i.invoke for i in scan.scan(registry.load())}
     assert "toolkit:new-only" in got and "toolkit:old-only" not in got
+
+
+def test_an_empty_newer_version_folder_does_not_hide_the_plugin(tmp_path, monkeypatch):
+    # A folder the cache created for an update that has not been written yet is not the version in use.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    plugin = tmp_path / ".claude/plugins/cache/market/toolkit"
+    _skill(plugin / "1.0.0/skills/lint-helper", "lint-helper")
+    (plugin / "2.0.0").mkdir()
+    assert "toolkit:lint-helper" in by_invoke(scan.scan(registry.load()))

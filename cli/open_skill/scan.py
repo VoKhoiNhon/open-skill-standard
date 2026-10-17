@@ -61,16 +61,17 @@ def _plugin_parts(p: Path) -> int | None:
 
 def _newest(plugin: Path) -> str | None:
     """The version folder of a cached plugin that is in use: the highest version number, or the folder written last
-    when versions are named otherwise (by commit)."""
+    when versions are named otherwise (by commit). Empty folders, such as an update not yet written, do not count."""
     try:
-        dirs = [d for d in plugin.iterdir() if d.is_dir() and not d.name.startswith(".")]
+        dirs = {d.name: d.stat().st_mtime for d in plugin.iterdir()
+                if d.is_dir() and not d.name.startswith(".") and any(d.iterdir())}
     except OSError:
         return None
     if not dirs:
         return None
-    if all(VERSION.fullmatch(d.name) for d in dirs):
-        return max(dirs, key=lambda d: tuple(int(x) for x in d.name.split("."))).name
-    return max(dirs, key=lambda d: (d.stat().st_mtime, d.name)).name
+    if all(VERSION.fullmatch(name) for name in dirs):
+        return max(dirs, key=lambda name: tuple(int(x) for x in name.split(".")))
+    return max(dirs, key=lambda name: (dirs[name], name))
 
 
 def _latest_versions(paths: list[Path]) -> list[Path]:
