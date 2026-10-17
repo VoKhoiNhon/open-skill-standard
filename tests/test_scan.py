@@ -216,3 +216,12 @@ def test_a_skill_folder_named_cache_is_not_a_plugin_cache(tmp_path, monkeypatch)
     monkeypatch.setenv("HOME", str(tmp_path))
     _skill(tmp_path / ".agents/skills/cache", "cache-tools")
     assert "cache-tools" in by_invoke(scan.scan(registry.load()))
+
+
+def test_superpowers_installed_as_an_antigravity_plugin_is_found(tmp_path, monkeypatch):
+    # `agy plugin install https://github.com/obra/superpowers` puts its skills under the CLI's plugins folder.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".gemini/antigravity-cli/plugins/superpowers/skills/brainstorming", "brainstorming")
+    got = {i.id: i for i in scan.scan(registry.load())}
+    assert got["superpowers/brainstorming"].agents == {"antigravity-cli": "brainstorming"}
+    assert got["superpowers/brainstorming"].inferred is False

@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The `superpowers` adapter is tested with 7.0.0, which keeps the same fifteen skills. Superpowers now installs as an Antigravity CLI plugin (`agy plugin install https://github.com/obra/superpowers`); the adapter lists that command, and `scan` finds the skills it puts under `~/.gemini/antigravity-cli/plugins/superpowers/skills` for `antigravity-cli`.
+
 ## [0.7.5] - 2026-10-08
 
 Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.
