@@ -49,19 +49,45 @@ def _glob(pattern: str) -> list[Path]:
     return sorted(anchor.glob(str(p.relative_to(anchor))))
 
 
+VERSION = re.compile(r"\d+(\.\d+)*")
+
+
+def _plugin_parts(p: Path) -> int | None:
+    """Index of `skills` in a Claude Code plugin cache path (…/plugins/cache/<market>/<plugin>/<version>/skills/…)."""
+    parts = p.parts
+    i = parts.index("skills") if "skills" in parts else -1
+    return i if i >= 5 and parts[i - 4] == "cache" and parts[i - 5] == "plugins" else None
+
+
+def _newest(plugin: Path) -> str | None:
+    """The version folder of a cached plugin that is in use: the highest version number, or the folder written last
+    when versions are named otherwise (by commit). Empty folders, such as an update not yet written, do not count."""
+    try:
+        dirs = {d.name: d.stat().st_mtime for d in plugin.iterdir()
+                if d.is_dir() and not d.name.startswith(".") and any(d.iterdir())}
+    except OSError:
+        return None
+    if not dirs:
+        return None
+    if all(VERSION.fullmatch(name) for name in dirs):
+        return max(dirs, key=lambda name: tuple(int(x) for x in name.split(".")))
+    return max(dirs, key=lambda name: (dirs[name], name))
+
+
 def _latest_versions(paths: list[Path]) -> list[Path]:
-    """Keep only the newest plugin version when a cache holds several (…/<plugin>/<version>/skills/…)."""
-    best: dict[tuple, Path] = {}
+    """Keep only the skills of the newest version of each cached plugin, as the cache can keep older ones."""
+    newest: dict[Path, str | None] = {}
+    out = []
     for p in paths:
-        parts = p.parts
-        if "cache" in parts and "skills" in parts:
-            i = parts.index("skills")
-            key = parts[: i - 1] + parts[i:]
-            if key not in best or parts[i - 1] > best[key].parts[i - 1]:
-                best[key] = p
-        else:
-            best[(p,)] = p
-    return sorted(best.values())
+        i = _plugin_parts(p)
+        if i is not None:
+            plugin = Path(*p.parts[: i - 1])
+            if plugin not in newest:
+                newest[plugin] = _newest(plugin)
+            if newest[plugin] not in (None, p.parts[i - 1]):
+                continue
+        out.append(p)
+    return sorted(out)
 
 
 def _describe(path: Path) -> tuple[str, str]:
@@ -100,10 +126,20 @@ def _add(found: dict, key: str, item: Installed, seen_by: list[str]) -> None:
         found[key].agents.setdefault(aid, item.invoke)
 
 
+def _plugin_readers(reg, pattern: str) -> list[str]:
+    """Agents other than Claude Code that load skills from its plugin cache, when the pattern searches it."""
+    if "/.claude/plugins/cache/" not in pattern:
+        return []
+    return [aid for aid, a in reg.agents.items() if a.get("claude_plugins") and aid != DEFAULT_AGENT]
+
+
 def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Installed]:
     """Installed skills; with `agent`, only those that agent sees, named as it invokes them."""
     found: dict[str, Installed] = {}  # registry id (or invocation, for harvested skills) -> entry
     claimed: set[Path] = set()
+    # (entry key, agent, name) for plugin skills seen by agents that invoke them by name; they load the plugin
+    # cache after their own folders, so these are settled last
+    by_name: list[tuple[str, str, str]] = []
     for src, adapter in reg.adapters.items():
         known = {s["name"] for s in adapter.get("skills", [])}
         alias = {s["installed_as"]: s["name"] for s in adapter.get("skills", []) if "installed_as" in s}
@@ -128,7 +164,9 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                     claimed.add(path.resolve())
                     inv = rule["invoke"].format(name=folder)
                     # The first rule that finds a skill wins its path and, per agent, its invocation.
-                    _add(found, sid, Installed(sid, inv, str(path), _describe(path)[1], name not in known), seen_by)
+                    meta_name, desc = _describe(path)
+                    _add(found, sid, Installed(sid, inv, str(path), desc, name not in known), seen_by)
+                    by_name += [(sid, aid, meta_name) for aid in _plugin_readers(reg, rule["glob"])]
     for src, adapter in reg.adapters.items():
         env = adapter.get("available_env")
         if env and os.environ.get(env):
@@ -153,6 +191,10 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                 if free:
                     _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True), free)
                     taken |= {(a, inv) for a in free}
+                    by_name += [(inv, aid, name) for aid in _plugin_readers(reg, pattern)]
+    for key, aid, name in by_name:  # the first skill of a name wins, as these agents pick skills by name
+        if not any(i.agents.get(aid) == name for i in found.values()):
+            found[key].agents[aid] = name
     items = list(found.values())
     if agent:
         items = [i for i in items if agent in i.agents]
