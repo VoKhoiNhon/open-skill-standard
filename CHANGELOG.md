@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- `open-skill audit` also checks a file's frontmatter as YAML decodes it, which is what the agent reads: an invisible character or an instruction spelled with escapes (`\u200b`, `ign\x6fre`), folded across lines, hidden in a key or repeated through an alias is now found and reported at its top-level key. Text that stands on one line of the file is not reported twice.
+
+### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 
 ### Fixed

@@ -9,6 +9,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+import yaml
+
 DISCLAIMER = "heuristic review: every finding needs a human look, and a clean report does not mean a skill is safe"
 SEVERITIES = ("high", "medium", "low")
 ANTHROPIC_SKILLS = "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations"
@@ -83,6 +85,51 @@ def _frontmatter_end(lines: list[str]) -> int:
     return next((n for n, line in enumerate(lines[1:], 2) if line.rstrip() in ("---", "...")), 0)
 
 
+MAX_DECODED = 10_000  # strings read from one frontmatter; aliases can repeat a value far more often than that
+
+
+def _strings(value, seen: set) -> list[str]:
+    """Every string in a YAML value, keys included, each shared (aliased) list or mapping walked once."""
+    out, stack = [], [value]
+    while stack and len(out) < MAX_DECODED:
+        v = stack.pop()
+        if isinstance(v, str):
+            out.append(v)
+        elif isinstance(v, (dict, list)) and id(v) not in seen:
+            seen.add(id(v))
+            stack.extend(reversed([x for kv in v.items() for x in kv] if isinstance(v, dict) else v))
+    return out
+
+
+def _decoded_frontmatter(lines: list[str], end: int, rules: list[Rule], file: str) -> list[Finding]:
+    """Line rules over the frontmatter's text as YAML decodes it, which is what the agent reads: escapes such as
+    \\u200b or \\x6f, and lines folded into one, can hide a match from the line scan. Text that also stands on one
+    line of the file was scanned there; the rest is reported at its top-level key."""
+    try:
+        meta = yaml.safe_load("\n".join(lines[1:end - 1]))
+    except yaml.YAMLError:
+        return []
+    if not isinstance(meta, dict):
+        return []
+    raw = lines[1:end - 1]
+    out, seen, reported = [], set(), set()
+    for key, value in meta.items():
+        k = str(key)
+        line = next((n for n in range(2, end) if lines[n - 1].startswith((k + ":", f'"{k}":', f"'{k}':"))), 1)
+        for text in _strings([key, value], seen):
+            for piece in text.split("\n"):
+                if not piece.strip() or any(piece in r for r in raw):
+                    continue
+                for r in rules:
+                    if not r.pattern or r.whole or r.frontmatter or (r.id, line) in reported:
+                        continue
+                    if any(not (r.unless and r.unless.search(piece, 0, m.start())) for m in r.pattern.finditer(piece)):
+                        reported.add((r.id, line))
+                        out.append(Finding(r.severity, r.id, file, line, _excerpt(piece), r.source,
+                                           r.message + " (in frontmatter text as YAML decodes it)"))
+    return out
+
+
 def audit_text(text: str, file: str = "<text>") -> list[Finding]:
     """Findings for one file's text; rules limited to some files (only=) are skipped elsewhere, except for "<text>"."""
     out = []
@@ -101,6 +148,9 @@ def audit_text(text: str, file: str = "<text>") -> list[Finding]:
             for m in r.pattern.finditer(text):
                 out.append(Finding(r.severity, r.id, file, text.count("\n", 0, m.start()) + 1, _excerpt(m.group()),
                                    r.source, r.message))
+    if end:
+        found = {(f.rule, f.line) for f in out}
+        out += [f for f in _decoded_frontmatter(lines, end, rules, file) if (f.rule, f.line) not in found]
     return out
 
 
