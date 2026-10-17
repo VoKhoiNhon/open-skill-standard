@@ -294,6 +294,8 @@ def route(task: str, project_path: Path, reg, installed, role: str | None = None
                      native_winner=native and not c[0])
             step = {"phase": phase, "id": sid, "invoke": inst.invoke, "kind": (manifest or {}).get("kind", "skill"),
                     "score": round(score, 3), "why": why}
+            if inst.user_only:
+                step["user_only"] = True  # the model cannot invoke it; the user types it
             if len(valid) > 1 and valid[1][0] == native and valid[1][1] >= score * (1 - ASK_MARGIN):
                 # Only the phase that carries the user's intent is worth a question; elsewhere note the runner-up.
                 if phase == target:

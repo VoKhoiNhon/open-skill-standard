@@ -44,6 +44,7 @@ The CLI ranks by your phase and size, the role, text relevance and project state
 
 If `advice` is `do directly`, skip the chain and just do the task.
 If a step has `ask`, it lists the two skill ids whose scores are close: ask the user one question with those two options.
+If a step has `user_only`, the skill does not let you invoke it: ask the user to type its `invoke` (for example `/speckit-plan`) and continue after it finishes.
 
 ## 3. Announce in one line, then start
 

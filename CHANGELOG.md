@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- `open-skill route` marks a chain step `user_only` when the installed skill sets `disable-model-invocation` (as spec-kit writes them with `specify init --integration-options="--no-model-invocation"`, since 1.2.0): the model cannot invoke it, so the router skill and `--explain` tell it to ask the user to type the skill. `scan` reads the flag as Claude Code does, `true`, `yes`, `on` or `1` in any case.
+
+### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 
 ### Changed

@@ -27,6 +27,7 @@ class Installed:
     inferred: bool
     agent: str = DEFAULT_AGENT  # the agent `invoke` is valid for
     agents: dict[str, str] = field(default_factory=dict)  # every agent that sees the skill -> name it invokes
+    user_only: bool = False  # sets disable-model-invocation: only the user can invoke it
 
 
 def _expand(pattern: str, project: Path | None, agent: dict | None = None) -> str | None:
@@ -64,9 +65,16 @@ def _latest_versions(paths: list[Path]) -> list[Path]:
     return sorted(best.values())
 
 
-def _describe(path: Path) -> tuple[str, str]:
+TRUE_WORDS = {"true", "yes", "on", "1"}  # Claude Code reads these, in any case, as true (since 2.1.218)
+
+
+def _describe(path: Path) -> tuple[str, str, bool]:
+    """Name, description, and whether the skill keeps the model from invoking it (disable-model-invocation)."""
     meta, _ = frontmatter.parse(path.read_text(encoding="utf-8", errors="replace"))
-    return frontmatter.text(meta, "name") or path.parent.name, frontmatter.text(meta, "description")
+    flag = meta.get("disable-model-invocation")
+    user_only = flag is True or (type(flag) is int and flag == 1) or (
+        isinstance(flag, str) and flag.strip().lower() in TRUE_WORDS)
+    return frontmatter.text(meta, "name") or path.parent.name, frontmatter.text(meta, "description"), user_only
 
 
 def _targets(pattern: str, project: Path | None, reg, agent: str, nested: bool = False) -> list[tuple[str, list[str]]]:
@@ -138,8 +146,9 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                     claimed.add(path.resolve())
                     inv = rule["invoke"].format(name=folder)
                     # The first rule that finds a skill wins its path and, per agent, its invocation.
-                    meta_name, desc = _describe(path)
-                    _add(found, sid, Installed(sid, inv, str(path), desc, name not in known), seen_by)
+                    meta_name, desc, user_only = _describe(path)
+                    _add(found, sid, Installed(sid, inv, str(path), desc, name not in known, user_only=user_only),
+                         seen_by)
                     by_name += [(sid, aid, meta_name) for aid in _plugin_readers(reg, rule["glob"])]
     for src, adapter in reg.adapters.items():
         env = adapter.get("available_env")
@@ -158,12 +167,12 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
             for path in _latest_versions(_glob(pat)):
                 if path.resolve() in claimed:
                     continue
-                name, desc = _describe(path)
+                name, desc, user_only = _describe(path)
                 parts = path.parts
                 inv = f"{parts[parts.index('skills') - 2]}:{name}" if "/plugins/cache/" in pattern else name
                 free = [a for a in seen_by if (a, inv) not in taken]
                 if free:
-                    _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True), free)
+                    _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True, user_only=user_only), free)
                     taken |= {(a, inv) for a in free}
                     by_name += [(inv, aid, name) for aid in _plugin_readers(reg, pattern)]
     for key, aid, name in by_name:  # the first skill of a name wins, as these agents pick skills by name
