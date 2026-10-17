@@ -57,7 +57,7 @@ uvx --from git+https://github.com/VoKhoiNhon/open-skill-standard@v0.7.5 open-ski
 
 ## Dùng với mọi agent đọc được Agent Skills
 
-Các skill theo định dạng [Agent Skills](https://agentskills.io), nên chạy được trên mọi agent đọc định dạng này. `registry/agents/` mô tả mười agent: mỗi agent nạp skill từ thư mục nào (cho người dùng và cho project), và làm sao biết agent đó đã được cài. Mỗi đường dẫn đều ghi nguồn là tài liệu chính thức của agent, hoặc dòng mã tương ứng trong [vercel-labs/skills](https://github.com/vercel-labs/skills) khi tài liệu không nói.
+Các skill theo định dạng [Agent Skills](https://agentskills.io), nên chạy được trên mọi agent đọc định dạng này. `registry/agents/` mô tả mười ba agent: mỗi agent nạp skill từ thư mục nào (cho người dùng và cho project), và làm sao biết agent đó đã được cài. Mỗi đường dẫn đều ghi nguồn là tài liệu chính thức của agent, hoặc dòng mã tương ứng trong [vercel-labs/skills](https://github.com/vercel-labs/skills) khi tài liệu không nói.
 
 | Agent | id | Cài vào (người dùng) | Cài vào (project) |
 |---|---|---|---|
@@ -66,6 +66,8 @@ Các skill theo định dạng [Agent Skills](https://agentskills.io), nên ch�
 | Cursor | `cursor` | `~/.cursor/skills` | `.agents/skills` |
 | Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
 | Antigravity CLI | `antigravity-cli` | `~/.gemini/antigravity-cli/skills` | `.agents/skills` |
+| Antigravity | `antigravity` | `~/.gemini/config/skills` | `.agents/skills` |
+| Devin CLI | `devin-cli` | `~/.config/devin/skills` | `.devin/skills` |
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
@@ -73,7 +75,7 @@ Các skill theo định dạng [Agent Skills](https://agentskills.io), nên ch�
 | Amp | `amp` | `~/.config/agents/skills` | `.agents/skills` |
 | Kiro | `kiro-cli` | `~/.kiro/skills` | `.kiro/skills` |
 
-Mỗi agent còn đọc thêm vài thư mục khác (ví dụ Cursor, Copilot, OpenCode, Goose và Amp đọc cả thư mục của Claude Code); `scan` biết hết các thư mục này và liệt kê mỗi skill một lần, kèm mọi agent nhìn thấy nó.
+Mỗi agent còn đọc thêm vài thư mục khác (ví dụ Cursor, Copilot, OpenCode, Goose và Amp đọc cả thư mục của Claude Code, và Amp còn nạp skill của các plugin Claude Code); `scan` biết hết các thư mục này và liệt kê mỗi skill một lần, kèm mọi agent nhìn thấy nó.
 
 ```bash
 open-skill agents                                     # agent nào đã cài, mỗi agent thấy những skill nào
@@ -297,7 +299,7 @@ open-skill audit --installed --format json # cho công cụ khác
     sarif_file: audit.sarif
 ```
 
-Lệnh đánh dấu câu chữ tìm cách ghi đè chỉ dẫn của người dùng hay của hệ thống, giấu hành động khỏi người dùng, bỏ qua hoặc giả mạo sự đồng ý, mạo danh hệ thống hay quản trị viên, hoặc nhắm tới khoá SSH, thông tin đăng nhập cloud, file `.env`, dữ liệu trình duyệt và kho mật khẩu; script tải về rồi chạy ngay bằng shell, chuỗi được giải mã rồi chạy như lệnh, địa chỉ thường dùng để lấy trộm dữ liệu, và token hay khoá riêng viết thẳng trong file; lệnh ghi vào chỉ dẫn, bộ nhớ hay cấu hình của chính agent (`~/.claude/CLAUDE.md`, `.claude/settings.json`), vốn còn tác dụng sau khi skill chạy xong; ký tự Unicode vô hình và chú thích HTML nói với agent; quyền shell không giới hạn trong `allowed-tools`, hook mà skill đăng ký cho tới hết phiên, và lệnh chạy ngay khi skill được nạp; liên kết trỏ ra ngoài thư mục skill và file thực thi đi kèm. Mỗi phát hiện ghi file, dòng, đoạn trích đã được escape, lý do, và nguồn công khai của luật (OWASP Top 10 cho ứng dụng LLM và ứng dụng agent, MITRE ATT&CK, tài liệu của Anthropic và Claude Code). Lệnh trả mã 1 khi có phát hiện mức high; `--strict` coi cả medium và low là lỗi. `open-skill doctor` hiện một dòng tóm tắt.
+Lệnh đánh dấu câu chữ tìm cách ghi đè chỉ dẫn của người dùng hay của hệ thống, giấu hành động khỏi người dùng, bỏ qua hoặc giả mạo sự đồng ý, mạo danh hệ thống hay quản trị viên, hoặc nhắm tới khoá SSH, thông tin đăng nhập cloud, file `.env`, dữ liệu trình duyệt và kho mật khẩu; script tải về rồi chạy ngay bằng shell, chuỗi được giải mã rồi chạy như lệnh, địa chỉ thường dùng để lấy trộm dữ liệu, và token hay khoá riêng viết thẳng trong file; lệnh ghi vào chỉ dẫn, bộ nhớ hay cấu hình của chính agent (`~/.claude/CLAUDE.md`, `.claude/settings.json`), vốn còn tác dụng sau khi skill chạy xong; ký tự Unicode vô hình và chú thích HTML nói với agent; quyền shell không giới hạn trong `allowed-tools`, hook mà skill đăng ký cho tới hết phiên, và lệnh chạy ngay khi skill được nạp; liên kết trỏ ra ngoài thư mục skill và file thực thi đi kèm. Frontmatter còn được kiểm tra sau khi YAML giải mã, nên escape, dòng gập hay alias không che được nội dung. Mỗi phát hiện ghi file, dòng, đoạn trích đã được escape, lý do, và nguồn công khai của luật (OWASP Top 10 cho ứng dụng LLM và ứng dụng agent, MITRE ATT&CK, tài liệu của Anthropic và Claude Code). Lệnh trả mã 1 khi có phát hiện mức high; `--strict` coi cả medium và low là lỗi. `open-skill doctor` hiện một dòng tóm tắt.
 
 Đây là công cụ rà soát theo heuristic, không phải lời bảo đảm. Một phát hiện có thể vô hại trong ngữ cảnh của nó, và báo cáo sạch chỉ có nghĩa là không luật nào khớp: kẻ tấn công cẩn thận có thể viết theo cách các luật không bắt được. Vẫn hãy tự đọc skill từ nguồn lạ, và ưu tiên skill do bạn hoặc tổ chức của bạn duy trì.
 
