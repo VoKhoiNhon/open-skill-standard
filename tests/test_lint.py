@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from open_skill import lint
@@ -831,3 +832,68 @@ def test_skill_without_codex_metadata_is_not_checked(tmp_path):
     d.mkdir()
     (d / "SKILL.md").write_text(fm(""), encoding="utf-8")
     assert lint.lint_paths([d]) == []
+
+
+def _agent_plugin(tmp_path, skills_field: str, manifest: dict | None = None, agent: str = "agents/helper.md"):
+    (tmp_path / agent).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / agent).write_text(f"---\nname: helper\ndescription: d\n{skills_field}\n---\nHelp.\n", encoding="utf-8")
+    manual = tmp_path / "skills/release"
+    manual.mkdir(parents=True, exist_ok=True)
+    (manual / "SKILL.md").write_text("---\nname: release\ndescription: d\ndisable-model-invocation: true\n---\nGo.\n",
+                                     encoding="utf-8")
+    found = lint.lint_plugin(write_json(tmp_path, "plugin.json", {"name": "tools", "description": "d", **(manifest or {})}))
+    return [(f.rule, os.path.basename(f.path), f.message) for f in found if f.rule == "subagent-skills"]
+
+
+def test_a_subagent_preloading_more_than_32_skills_warns(tmp_path):
+    # Claude Code preloads at most the first 32 distinct names of a subagent's `skills` (code.claude.com/docs/en/sub-agents).
+    names = [f"s{i}" for i in range(33)]
+    ((rule, where, message),) = _agent_plugin(tmp_path, "skills: [" + ", ".join(names + ["s0"]) + "]")
+    assert (rule, where) == ("subagent-skills", "helper.md")
+    assert "33" in message and "s32" in message
+    assert _agent_plugin(tmp_path, "skills: [" + ", ".join(names[:32] + ["s0"]) + "]") == []
+
+
+def test_a_subagent_cannot_preload_a_skill_the_model_may_not_invoke(tmp_path):
+    for field in ("skills: [release]", "skills: [tools:release]"):
+        ((_, _, message),) = _agent_plugin(tmp_path, field)
+        assert "release" in message and "disable-model-invocation" in message
+    assert _agent_plugin(tmp_path, "skills: [other:release]") == []
+
+
+def test_subagent_skills_must_be_a_list(tmp_path):
+    ((_, _, message),) = _agent_plugin(tmp_path, "skills: a, b")
+    assert "YAML list" in message
+
+
+def test_subagents_named_in_the_manifest_are_checked_instead_of_the_folder(tmp_path):
+    many = "skills: [" + ", ".join(f"s{i}" for i in range(40)) + "]"
+    assert _agent_plugin(tmp_path, many, {"agents": ["./team/lead.md"]}, agent="agents/helper.md") == []
+    found = _agent_plugin(tmp_path, many, {"agents": ["./team/lead.md"]}, agent="team/lead.md")
+    assert [w for _, w, _ in found] == ["lead.md"]
+
+
+def test_a_projects_subagents_are_checked_against_its_skills(tmp_path):
+    claude = tmp_path / "repo/.claude"
+    (claude / "agents").mkdir(parents=True)
+    (claude / "agents/helper.md").write_text("---\nname: helper\ndescription: d\nskills: [deploy, other]\n---\nHelp.\n",
+                                            encoding="utf-8")
+    (claude / "skills/deploy").mkdir(parents=True)
+    (claude / "skills/deploy/SKILL.md").write_text(
+        "---\nname: deploy\ndescription: Deploys.\ndisable-model-invocation: 'yes'\n---\nGo.\n", encoding="utf-8")
+    for target in (tmp_path / "repo", claude, claude / "agents"):
+        found = [(f.rule, os.path.basename(f.path)) for f in lint.lint_paths([target]) if f.rule == "subagent-skills"]
+        assert found == [("subagent-skills", "helper.md")], target
+
+
+def test_subagent_skill_names_that_are_paths_are_not_followed(tmp_path):
+    assert _agent_plugin(tmp_path, 'skills: ["../skills/release", "tools:../release"]') == []
+
+
+def test_a_long_list_of_skills_past_the_preload_limit_is_summarized(tmp_path):
+    ((_, _, message),) = _agent_plugin(tmp_path, "skills: [" + ", ".join(f"s{i}" for i in range(40)) + "]")
+    assert "s32, s33, s34, s35, s36 and 3 more are not preloaded" in message
+
+
+def test_an_empty_skills_field_preloads_nothing(tmp_path):
+    assert _agent_plugin(tmp_path, "skills:") == []

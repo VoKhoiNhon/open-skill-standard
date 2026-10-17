@@ -259,7 +259,7 @@ On the 52 held-out requests, the router passes 67% [54–78%] of cases, against 
 
 ## Skill health
 
-`open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too. Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
+`open-skill lint` checks skills against the [Agent Skills specification](https://agentskills.io/specification) (name rules and folder match, field limits, referenced files) and against current prompting guidance; plugin manifests are checked too, and so are the skills a subagent preloads (in a plugin or in `.claude/agents/`). Only errors fail; `--strict` fails on warnings and `--format json` feeds other tools. `open-skill lint --installed` gives a health report of every installed skill, grouped by source.
 
 ## Security audit
 
