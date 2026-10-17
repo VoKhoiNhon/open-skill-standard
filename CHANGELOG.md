@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
+
 ## [0.7.5] - 2026-10-08
 
 Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.

@@ -216,3 +216,28 @@ def test_a_skill_folder_named_cache_is_not_a_plugin_cache(tmp_path, monkeypatch)
     monkeypatch.setenv("HOME", str(tmp_path))
     _skill(tmp_path / ".agents/skills/cache", "cache-tools")
     assert "cache-tools" in by_invoke(scan.scan(registry.load()))
+
+
+def test_agents_that_read_claude_code_plugins_see_them_by_name(tmp_path, monkeypatch):
+    # Amp loads skills from ~/.claude/plugins/cache too, and names a skill by its frontmatter name, not plugin:skill.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    cache = tmp_path / ".claude/plugins/cache"
+    _skill(cache / "official/superpowers/6.4.2/skills/brainstorming", "brainstorming")
+    _skill(cache / "market/toolkit/1.0.0/skills/lint-helper", "lint-helper")
+    got = {i.id: i for i in scan.scan(registry.load())}
+    assert got["superpowers/brainstorming"].agents == {"claude-code": "superpowers:brainstorming", "amp": "brainstorming"}
+    assert got["harvested/lint-helper"].agents == {"claude-code": "toolkit:lint-helper", "amp": "lint-helper"}
+    amp = {i.invoke: i for i in scan.scan(registry.load(), agent="amp")}
+    assert amp["brainstorming"].id == "superpowers/brainstorming" and "toolkit:lint-helper" not in amp
+
+
+def test_a_skill_amp_finds_first_keeps_its_name_over_a_plugin_skill(tmp_path, monkeypatch):
+    # Amp uses the first skill with a given name, and its own folders come before the plugin cache.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".config/agents/skills/lint-helper", "lint-helper")
+    _skill(tmp_path / ".claude/plugins/cache/market/toolkit/1.0.0/skills/lint-helper", "lint-helper")
+    got = scan.scan(registry.load())
+    plugin = next(i for i in got if i.invoke == "toolkit:lint-helper")
+    assert "amp" not in plugin.agents
+    assert [i.path for i in scan.scan(registry.load(), agent="amp") if i.invoke == "lint-helper"] == [
+        str(tmp_path / ".config/agents/skills/lint-helper/SKILL.md")]
