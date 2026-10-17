@@ -233,6 +233,10 @@ def agent_schema(tax: dict) -> dict:
                         "properties": {"source": {"type": "string", "pattern": URL}},
                         "description": "the agent also reads its project folders in every parent folder up to the "
                                        "repository root"},
+            "claude_plugins": {"type": "object", "required": ["source"], "additionalProperties": False,
+                               "properties": {"source": {"type": "string", "pattern": URL}},
+                               "description": "the agent also loads the skills of Claude Code plugins in "
+                                              "~/.claude/plugins/cache, by their name"},
             "listing_budget": {"type": "object", "required": ["chars", "source"], "additionalProperties": False,
                                "properties": {"chars": {"type": "integer", "minimum": 1},
                                               "source": {"type": "string", "pattern": URL}},
