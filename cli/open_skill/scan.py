@@ -126,10 +126,20 @@ def _add(found: dict, key: str, item: Installed, seen_by: list[str]) -> None:
         found[key].agents.setdefault(aid, item.invoke)
 
 
+def _plugin_readers(reg, pattern: str) -> list[str]:
+    """Agents other than Claude Code that load skills from its plugin cache, when the pattern searches it."""
+    if "/.claude/plugins/cache/" not in pattern:
+        return []
+    return [aid for aid, a in reg.agents.items() if a.get("claude_plugins") and aid != DEFAULT_AGENT]
+
+
 def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Installed]:
     """Installed skills; with `agent`, only those that agent sees, named as it invokes them."""
     found: dict[str, Installed] = {}  # registry id (or invocation, for harvested skills) -> entry
     claimed: set[Path] = set()
+    # (entry key, agent, name) for plugin skills seen by agents that invoke them by name; they load the plugin
+    # cache after their own folders, so these are settled last
+    by_name: list[tuple[str, str, str]] = []
     for src, adapter in reg.adapters.items():
         known = {s["name"] for s in adapter.get("skills", [])}
         alias = {s["installed_as"]: s["name"] for s in adapter.get("skills", []) if "installed_as" in s}
@@ -154,7 +164,9 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                     claimed.add(path.resolve())
                     inv = rule["invoke"].format(name=folder)
                     # The first rule that finds a skill wins its path and, per agent, its invocation.
-                    _add(found, sid, Installed(sid, inv, str(path), _describe(path)[1], name not in known), seen_by)
+                    meta_name, desc = _describe(path)
+                    _add(found, sid, Installed(sid, inv, str(path), desc, name not in known), seen_by)
+                    by_name += [(sid, aid, meta_name) for aid in _plugin_readers(reg, rule["glob"])]
     for src, adapter in reg.adapters.items():
         env = adapter.get("available_env")
         if env and os.environ.get(env):
@@ -179,6 +191,10 @@ def scan(reg, project: Path | None = None, agent: str | None = None) -> list[Ins
                 if free:
                     _add(found, inv, Installed(f"harvested/{name}", inv, str(path), desc, True), free)
                     taken |= {(a, inv) for a in free}
+                    by_name += [(inv, aid, name) for aid in _plugin_readers(reg, pattern)]
+    for key, aid, name in by_name:  # the first skill of a name wins, as these agents pick skills by name
+        if not any(i.agents.get(aid) == name for i in found.values()):
+            found[key].agents[aid] = name
     items = list(found.values())
     if agent:
         items = [i for i in items if agent in i.agents]

@@ -6,6 +6,7 @@ folder (normally the current folder, the repository root in CI) are written rela
 
 import hashlib
 import os
+import re
 from pathlib import Path
 from urllib.parse import quote
 
@@ -22,7 +23,9 @@ FINGERPRINT = "openSkillFinding/v1"
 def _fingerprint(rule: str, uri: str, text: str, seen: dict) -> str:
     """Stable across runs while the finding stays: rule, file and the flagged text with its whitespace collapsed,
     not the line, so an edit above it keeps the alert. The nth repeat of the same text in a file is told apart
-    (so adding a copy above a finding renumbers it). Paths are relative to the base, so run from one folder."""
+    (so adding a copy above a finding renumbers it). Paths are relative to the base, so run from one folder.
+    A finding without a snippet is keyed by its message with each number masked, as numbers there are measures
+    ("description is 1100 characters") that change while the finding stays."""
     key = (rule, uri, " ".join(text.split()))
     seen[key] = seen.get(key, 0) + 1
     return hashlib.sha256("\0".join([*key, str(seen[key])]).encode("utf-8")).hexdigest()
@@ -60,9 +63,9 @@ def log(rules: list[dict], results: list[dict], base: Path | None = None) -> dic
     for f in results:
         loc = _location(f["path"], f.get("line", 0), f.get("snippet", ""), base)
         uri = loc["physicalLocation"]["artifactLocation"]["uri"]
+        text = f.get("snippet") or re.sub(r"\d+", "#", f["message"])
         res = {"ruleId": f["rule"], "level": LEVEL[f["severity"]], "message": {"text": f["message"]},
-               "locations": [loc],
-               "partialFingerprints": {FINGERPRINT: _fingerprint(f["rule"], uri, f.get("snippet") or f["message"], seen)}}
+               "locations": [loc], "partialFingerprints": {FINGERPRINT: _fingerprint(f["rule"], uri, text, seen)}}
         if f["rule"] in index:
             res["ruleIndex"] = index[f["rule"]]
         if f.get("properties"):
