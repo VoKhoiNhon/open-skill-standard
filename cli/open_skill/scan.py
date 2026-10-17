@@ -49,19 +49,44 @@ def _glob(pattern: str) -> list[Path]:
     return sorted(anchor.glob(str(p.relative_to(anchor))))
 
 
+VERSION = re.compile(r"\d+(\.\d+)*")
+
+
+def _plugin_parts(p: Path) -> int | None:
+    """Index of `skills` in a Claude Code plugin cache path (…/plugins/cache/<market>/<plugin>/<version>/skills/…)."""
+    parts = p.parts
+    i = parts.index("skills") if "skills" in parts else -1
+    return i if i >= 5 and parts[i - 4] == "cache" and parts[i - 5] == "plugins" else None
+
+
+def _newest(plugin: Path) -> str | None:
+    """The version folder of a cached plugin that is in use: the highest version number, or the folder written last
+    when versions are named otherwise (by commit)."""
+    try:
+        dirs = [d for d in plugin.iterdir() if d.is_dir() and not d.name.startswith(".")]
+    except OSError:
+        return None
+    if not dirs:
+        return None
+    if all(VERSION.fullmatch(d.name) for d in dirs):
+        return max(dirs, key=lambda d: tuple(int(x) for x in d.name.split("."))).name
+    return max(dirs, key=lambda d: (d.stat().st_mtime, d.name)).name
+
+
 def _latest_versions(paths: list[Path]) -> list[Path]:
-    """Keep only the newest plugin version when a cache holds several (…/<plugin>/<version>/skills/…)."""
-    best: dict[tuple, Path] = {}
+    """Keep only the skills of the newest version of each cached plugin, as the cache can keep older ones."""
+    newest: dict[Path, str | None] = {}
+    out = []
     for p in paths:
-        parts = p.parts
-        if "cache" in parts and "skills" in parts:
-            i = parts.index("skills")
-            key = parts[: i - 1] + parts[i:]
-            if key not in best or parts[i - 1] > best[key].parts[i - 1]:
-                best[key] = p
-        else:
-            best[(p,)] = p
-    return sorted(best.values())
+        i = _plugin_parts(p)
+        if i is not None:
+            plugin = Path(*p.parts[: i - 1])
+            if plugin not in newest:
+                newest[plugin] = _newest(plugin)
+            if newest[plugin] not in (None, p.parts[i - 1]):
+                continue
+        out.append(p)
+    return sorted(out)
 
 
 def _describe(path: Path) -> tuple[str, str]:

@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- `open-skill scan` reads only the newest version of each Claude Code plugin in the cache. Versions are compared as numbers, so `10.0.0` wins over `9.0.0`, and folders named by commit by which was written last; a skill that only an older cached version still holds is no longer listed.
+
 ## [0.7.5] - 2026-10-08
 
 Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.
