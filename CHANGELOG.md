@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The `graphify` adapter is tested with 0.9.92. Graphify now resolves Python calls made through a module name (`mod.fn()`), so its summary and the `open-skill-intel` skill keep codegraph only for TypeScript calls through a namespace import (`ns.fn()`), which it still misses.
+
 ## [0.7.5] - 2026-10-08
 
 Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.

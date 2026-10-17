@@ -23,7 +23,7 @@ Get the needed fact with the fewest calls instead of guessing. Each kind of ques
 | What the user prefers or learned before | Their knowledge | `ls ~/.open-skill/knowledge/`, or the `knowledge` field of `open-skill route` |
 | Which skill can do X | The skill graph | `open-skill search "<need>"`; `open-skill doctor` for what is installed or missing |
 
-Inside a declared session, keep Graphify answers to the session's scope and report files outside it as other sessions' ground; keep codegraph for call-level questions, since Graphify misses calls made through a module name.
+Inside a declared session, keep Graphify answers to the session's scope and report files outside it as other sessions' ground; keep codegraph for call-level questions in TypeScript, since Graphify misses calls made through a namespace import (ns.fn()).
 
 Stop at the first source that answers; check a second one only when sources disagree or the fact is about to decide something hard to undo. Answer briefly with the source of each fact (file and line, table, URL). If the answer decides the next step, say what it is, or hand back to `open-skill-router`.
 
