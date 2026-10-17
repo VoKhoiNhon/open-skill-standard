@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 
+### Changed
+- The `graphify` adapter is tested with 0.9.92. Graphify now resolves Python calls made through a module name (`mod.fn()`), so its summary and the `open-skill-intel` skill keep codegraph only for TypeScript calls through a namespace import (`ns.fn()`), which it still misses.
+
 ### Fixed
 - SARIF fingerprints of findings that point at a whole file mask the numbers in the message, so trimming a too-long description ("description is 1100 characters") keeps the same code scanning alert instead of closing it and opening another. Such alerts get new fingerprints once, on the first run after upgrading.
 
