@@ -1,17 +1,20 @@
 source: superpowers
 upstream: https://github.com/obra/superpowers
 license: MIT
-tested_version: 6.4.2
+tested_version: 7.0.0
 summary: Execution discipline - design approval, plans, TDD, systematic debugging, verification.
 install:
   claude-plugin: "/plugin install superpowers@claude-plugins-official"
   claude-plugin-marketplace: "/plugin marketplace add obra/superpowers-marketplace && /plugin install superpowers@superpowers-marketplace"
   plugin@cursor: "/add-plugin superpowers"
   extension@gemini-cli: "gemini extensions install https://github.com/obra/superpowers"
+  plugin@antigravity-cli: "agy plugin install https://github.com/obra/superpowers"
   plugin@github-copilot: "copilot plugin marketplace add obra/superpowers-marketplace && copilot plugin install superpowers@superpowers-marketplace"
 detect:
   # Gemini CLI loads extensions from ~/.gemini/extensions and their skills from skills/ (geminicli.com/docs/extensions/reference).
   - {glob: "~/.gemini/extensions/superpowers/skills/{name}/SKILL.md", invoke: "{name}", agent: gemini-cli}
+  # Antigravity CLI keeps a plugin's skills under ~/.gemini/antigravity-cli/plugins/<name>/skills (antigravity.google/docs/skills).
+  - {glob: "~/.gemini/antigravity-cli/plugins/superpowers/skills/{name}/SKILL.md", invoke: "{name}", agent: antigravity-cli}
   - {glob: "~/.claude/plugins/cache/*/superpowers/*/skills/{name}/SKILL.md", invoke: "superpowers:{name}"}
   - {glob: "{skills}/{name}/SKILL.md", invoke: "{name}"}
   - {glob: "{project_skills}/{name}/SKILL.md", invoke: "{name}"}

@@ -9,6 +9,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
+- `open-skill lint` knows Devin CLI's frontmatter fields: `permissions`, `subagent` and `triggers` no longer warn as unknown. A `permissions` that does not map `allow`, `deny` and `ask` to lists of scopes, a `subagent` that is not a boolean, or `triggers` that are not `user` and/or `model` warn (`field-devin`).
+
+### Changed
+- Codex counts as installed when `/etc/codex` exists, where an administrator configures it for every user, as `npx skills` 1.7.2 detects it. Its notes say the skills CLI now installs Codex skills in `~/.agents/skills`, the folder `install --agent codex` already uses.
+- The `graphify` adapter is tested with 0.9.92. Graphify now resolves Python calls made through a module name (`mod.fn()`), so its summary and the `open-skill-intel` skill keep codegraph only for TypeScript calls through a namespace import (`ns.fn()`), which it still misses.
+- The `superpowers` adapter is tested with 7.0.0, which keeps the same fifteen skills. Superpowers now installs as an Antigravity CLI plugin (`agy plugin install https://github.com/obra/superpowers`); the adapter lists that command, and `scan` finds the skills it puts under `~/.gemini/antigravity-cli/plugins/superpowers/skills` for `antigravity-cli`.
+- The `spec-kit` adapter is tested with 1.2.1: `specify init` writes the same core commands, in the same places, for the Claude Code, Codex, Copilot, Gemini CLI, OpenCode and Amp integrations. `taskstoissues` is deprecated again upstream in favour of the `github` extension's `github-taskstoissues`, and its description says so. Held-out routing is unchanged (35/52).
+
+### Fixed
+- SARIF fingerprints of findings that point at a whole file mask the numbers in the message, so trimming a too-long description ("description is 1100 characters") keeps the same code scanning alert instead of closing it and opening another. Such alerts get new fingerprints once, on the first run after upgrading.
+- `open-skill scan` reads only the newest version of each Claude Code plugin in the cache. Versions are compared as numbers, so `10.0.0` wins over `9.0.0`, and folders named by commit by which was written last; a skill that only an older cached version still holds is no longer listed.
 
 ## [0.7.5] - 2026-10-08
 

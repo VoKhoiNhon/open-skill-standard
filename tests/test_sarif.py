@@ -76,3 +76,15 @@ def test_file_level_fingerprints_use_the_message(tmp_path):
     f = {"rule": "a", "severity": "high", "message": "-> /etc/passwd", "path": str(tmp_path / "link"), "line": 0}
     one, two = _prints([f, {**f, "message": "-> /etc/shadow"}], tmp_path)
     assert one != two
+
+
+def test_file_level_fingerprints_ignore_numbers_in_the_message(tmp_path):
+    # Lint reports a too-long description as "description is 1100 characters"; trimming it to 1090 is the same
+    # finding, so code scanning should keep the alert instead of closing it and opening another.
+    f = {"rule": "a", "severity": "warning", "message": "description is 1100 characters; the limit is 1024",
+         "path": str(tmp_path / "SKILL.md")}
+    (before,), (after,) = _prints([f], tmp_path), _prints([{**f, "message": f["message"].replace("1100", "1090")}],
+                                                           tmp_path)
+    assert before == after
+    (other,) = _prints([{**f, "message": "plugins[0].name is 70 characters"}], tmp_path)
+    assert other != before
