@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Devin CLI (Devin for Terminal) is a known agent (`devin-cli`): it reads `.devin/skills`, `.agents/skills` and `.windsurf/skills` in a project and `~/.config/devin/skills`, `~/.agents/skills` and Windsurf's global folder, so `scan`, `install --agent devin-cli` and `route --agent devin-cli` cover it. On Windows its folder is `%APPDATA%\devin\skills`, which agent targets now reach through an `APPDATA` relocation.
+
+### Added
 - Antigravity, Google's IDE (Antigravity 2.0), is a known agent (`antigravity`): it reads `~/.gemini/config/skills` and the older `~/.gemini/antigravity/skills`, and `.agents/skills` and the older `.agent/skills` in a workspace, so `scan`, `install --agent antigravity` and `route --agent antigravity` cover it. It is separate from `antigravity-cli`, which has its own global folder.
 
 ### Added
