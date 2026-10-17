@@ -255,7 +255,7 @@ def _explain(r) -> str:
     for i, s in enumerate(r["chain"], 1):
         lines.append(f"{i}. [{s['phase']}] {s['invoke']}  score={s['score']}  — {s['why']}")
         if s.get("user_only"):
-            lines.append(f"   only the user can invoke it: ask them to type {s['invoke']}")
+            lines.append(f"   only the user can invoke it: ask them to run {s['invoke']} themselves")
         if s.get("ask"):
             lines.append(f"   close call on the main step, ask the user: {' or '.join(s['ask'])}")
         losers = sorted((c for c in (d or {}).get("candidates", []) if c["phase"] == s["phase"] and c["outcome"] == "lower-score"),

@@ -623,4 +623,4 @@ def test_explain_says_when_only_the_user_can_invoke_a_step():
          "project": {"native": "spec-kit", "artifacts": []},
          "model": {"profile": "generic", "matched_by": "default", "effort": "medium", "addenda": []},
          "chain": [{"phase": "plan", "invoke": "speckit-plan", "score": 2.0, "why": "w", "user_only": True}]}
-    assert cli._explain(r).splitlines()[4] == "   only the user can invoke it: ask them to type speckit-plan"
+    assert cli._explain(r).splitlines()[4] == "   only the user can invoke it: ask them to run speckit-plan themselves"
