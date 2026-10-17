@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `open-skill lint` knows Devin CLI's frontmatter fields: `permissions`, `subagent` and `triggers` no longer warn as unknown. A `permissions` that does not map `allow`, `deny` and `ask` to lists of scopes, a `subagent` that is not a boolean, or `triggers` that are not `user` and/or `model` warn (`field-devin`).
+
 ## [0.7.5] - 2026-10-08
 
 Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.
