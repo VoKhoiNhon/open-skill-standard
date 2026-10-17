@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 - SARIF fingerprints of findings that point at a whole file mask the numbers in the message, so trimming a too-long description ("description is 1100 characters") keeps the same code scanning alert instead of closing it and opening another. Such alerts get new fingerprints once, on the first run after upgrading.
+- `open-skill scan` reads only the newest version of each Claude Code plugin in the cache. Versions are compared as numbers, so `10.0.0` wins over `9.0.0`, and folders named by commit by which was written last; a skill that only an older cached version still holds is no longer listed.
 
 ## [0.7.5] - 2026-10-08
 
