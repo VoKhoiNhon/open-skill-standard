@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- The `spec-kit` adapter is tested with 1.2.1: `specify init` writes the same core commands, in the same places, for the Claude Code, Codex, Copilot, Gemini CLI, OpenCode and Amp integrations. `taskstoissues` is deprecated again upstream in favour of the `github` extension's `github-taskstoissues`, and its description says so. Held-out routing is unchanged (35/52).
+
 ## [0.7.5] - 2026-10-08
 
 Agent coverage and file checks: Antigravity CLI as an agent, Windsurf skills in Devin Desktop's folders, lint for Codex app metadata and for fields Cursor and Amp document, audit rules for archives and bytecode, stable SARIF fingerprints, doctor checks for skill-list size and a repository-root `skills-lock.json`, the MCP skills extension in the specification, and Windows fixes.
