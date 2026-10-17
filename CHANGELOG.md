@@ -10,6 +10,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - The `graphify` adapter is tested with 0.9.92. Graphify now resolves Python calls made through a module name (`mod.fn()`), so its summary and the `open-skill-intel` skill keep codegraph only for TypeScript calls through a namespace import (`ns.fn()`), which it still misses.
+- The `superpowers` adapter is tested with 7.0.0, which keeps the same fifteen skills. Superpowers now installs as an Antigravity CLI plugin (`agy plugin install https://github.com/obra/superpowers`); the adapter lists that command, and `scan` finds the skills it puts under `~/.gemini/antigravity-cli/plugins/superpowers/skills` for `antigravity-cli`.
 
 ### Fixed
 - SARIF fingerprints of findings that point at a whole file mask the numbers in the message, so trimming a too-long description ("description is 1100 characters") keeps the same code scanning alert instead of closing it and opening another. Such alerts get new fingerprints once, on the first run after upgrading.

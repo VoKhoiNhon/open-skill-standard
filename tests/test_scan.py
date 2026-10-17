@@ -241,3 +241,12 @@ def test_a_skill_amp_finds_first_keeps_its_name_over_a_plugin_skill(tmp_path, mo
     assert "amp" not in plugin.agents
     assert [i.path for i in scan.scan(registry.load(), agent="amp") if i.invoke == "lint-helper"] == [
         str(tmp_path / ".config/agents/skills/lint-helper/SKILL.md")]
+
+
+def test_superpowers_installed_as_an_antigravity_plugin_is_found(tmp_path, monkeypatch):
+    # `agy plugin install https://github.com/obra/superpowers` puts its skills under the CLI's plugins folder.
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _skill(tmp_path / ".gemini/antigravity-cli/plugins/superpowers/skills/brainstorming", "brainstorming")
+    got = {i.id: i for i in scan.scan(registry.load())}
+    assert got["superpowers/brainstorming"].agents == {"antigravity-cli": "brainstorming"}
+    assert got["superpowers/brainstorming"].inferred is False
