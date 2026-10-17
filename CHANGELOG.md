@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Antigravity, Google's IDE (Antigravity 2.0), is a known agent (`antigravity`): it reads `~/.gemini/config/skills` and the older `~/.gemini/antigravity/skills`, and `.agents/skills` and the older `.agent/skills` in a workspace, so `scan`, `install --agent antigravity` and `route --agent antigravity` cover it. It is separate from `antigravity-cli`, which has its own global folder.
+
+### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 
 ## [0.7.5] - 2026-10-08

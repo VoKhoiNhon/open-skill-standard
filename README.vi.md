@@ -66,6 +66,7 @@ Các skill theo định dạng [Agent Skills](https://agentskills.io), nên ch�
 | Cursor | `cursor` | `~/.cursor/skills` | `.agents/skills` |
 | Gemini CLI | `gemini-cli` | `~/.gemini/skills` | `.agents/skills` |
 | Antigravity CLI | `antigravity-cli` | `~/.gemini/antigravity-cli/skills` | `.agents/skills` |
+| Antigravity | `antigravity` | `~/.gemini/config/skills` | `.agents/skills` |
 | GitHub Copilot (CLI, coding agent, VS Code) | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
 | OpenCode | `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
 | Goose | `goose` | `~/.agents/skills` | `.agents/skills` |
