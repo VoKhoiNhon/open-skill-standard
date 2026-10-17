@@ -2,7 +2,34 @@
 
 import os
 import tempfile
+import time
 from pathlib import Path
+
+# Windows refuses to replace a file another process has open, and to open one while it is being replaced; both
+# last a moment when two open-skill processes share the user layer, so they are retried for up to REPLACE_WAIT seconds.
+RETRY_REPLACE = os.name == "nt"
+REPLACE_WAIT = 2.0
+
+
+def _retry(action):
+    deadline, pause = time.monotonic() + REPLACE_WAIT, 0.005
+    while True:
+        try:
+            return action()
+        except PermissionError:
+            if not RETRY_REPLACE or time.monotonic() >= deadline:
+                raise
+            time.sleep(pause)
+            pause = min(pause * 2, 0.1)
+
+
+def _replace(src: str, dst: Path) -> None:
+    _retry(lambda: os.replace(src, dst))
+
+
+def read_text(path: Path, errors: str = "strict") -> str:
+    """Read a file of the user layer that atomic_write may be replacing in another process."""
+    return _retry(lambda: Path(path).read_text(encoding="utf-8", errors=errors))
 
 
 def atomic_write(path: Path, text: str) -> None:
@@ -15,7 +42,7 @@ def atomic_write(path: Path, text: str) -> None:
             f.write(text)
             f.flush()
             os.fsync(f.fileno())
-        os.replace(tmp, path)
+        _replace(tmp, path)
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
         raise
@@ -31,7 +58,7 @@ def data_version(home: Path) -> int:
     home = Path(home)
     vf = home / VERSION_FILE
     if vf.is_file():
-        return int(vf.read_text(encoding="utf-8").strip() or 0)
+        return int(read_text(vf).strip() or 0)
     return 0 if any((home / m).exists() for m in _MARKERS) else SCHEMA_VERSION
 
 
@@ -233,7 +260,7 @@ def _m0_to_1(home: Path, dry_run: bool) -> list[str]:
 
     changed = []
     for p in sorted((Path(home) / "knowledge").glob("*.md")):
-        fm, body = _split_note(p.read_text(encoding="utf-8"))
+        fm, body = _split_note(read_text(p))
         meta = note_meta(fm)
         if meta is None and fm:
             changed.append(f"left as is {p.name}: its frontmatter is not valid YAML")

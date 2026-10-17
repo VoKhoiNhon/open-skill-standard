@@ -99,7 +99,7 @@ def _files(root: Path) -> dict[str, str]:
 
 def manifest() -> list[dict]:
     f = paths.user_home() / MANIFEST
-    return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
+    return json.loads(userdata.read_text(f)) if f.is_file() else []
 
 
 def _save(records: list[dict]) -> None:

@@ -273,3 +273,53 @@ def test_two_processes_learning_at_once_lose_nothing(home, tmp_path):
     assert len([k for k in notes if "fact number" in k["text"]]) == 2 * n
     shared = next(k for k in notes if k["text"] == "Shared fact.")
     assert len(shared["applies_to"]) == 2 * n  # both processes' scopes merged into the one note
+
+
+def test_atomic_write_retries_a_replace_windows_refuses_while_the_file_is_open(tmp_path, monkeypatch):
+    # Windows will not replace a file another process has open; the reader closes it a moment later.
+    real, calls = os.replace, []
+
+    def busy(src, dst):
+        calls.append(dst)
+        if len(calls) < 3:
+            raise PermissionError(13, "Access is denied")
+        real(src, dst)
+
+    monkeypatch.setattr(userdata, "RETRY_REPLACE", True)
+    monkeypatch.setattr(userdata.os, "replace", busy)
+    userdata.atomic_write(tmp_path / "VERSION", "1\n")
+    assert (tmp_path / "VERSION").read_text(encoding="utf-8") == "1\n" and len(calls) == 3
+    assert [p.name for p in tmp_path.iterdir()] == ["VERSION"]
+
+
+def test_atomic_write_gives_up_on_a_replace_that_keeps_failing(tmp_path, monkeypatch):
+    def denied(src, dst):
+        raise PermissionError(13, "Access is denied")
+
+    monkeypatch.setattr(userdata, "RETRY_REPLACE", True)
+    monkeypatch.setattr(userdata, "REPLACE_WAIT", 0.05)
+    monkeypatch.setattr(userdata.os, "replace", denied)
+    with pytest.raises(PermissionError):
+        userdata.atomic_write(tmp_path / "VERSION", "1\n")
+    assert list(tmp_path.iterdir()) == []
+
+
+READER = """
+import sys, time
+from pathlib import Path
+from open_skill import userdata
+home, end = Path(sys.argv[2]), time.time() + 1.5
+while time.time() < end:
+    if sys.argv[1] == "write":
+        userdata.atomic_write(home / "VERSION", "1\\n")
+    else:
+        userdata.data_version(home)
+"""
+
+
+def test_writing_the_version_while_another_process_reads_it(tmp_path):
+    script = tmp_path / "rw.py"
+    script.write_text(READER, encoding="utf-8")
+    home = tmp_path / "h"
+    home.mkdir()
+    _run_together([str(script), "write", str(home)], [str(script), "read", str(home)])

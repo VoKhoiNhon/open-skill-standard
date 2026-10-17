@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- On Windows, two open-skill processes sharing `~/.open-skill` (two agents learning or routing at once) no longer fail with "Access is denied": Windows refuses to replace a file another process is reading, and to open one while it is being replaced, so those writes and reads of the user layer retry for up to two seconds.
+
 ### Added
 - Devin CLI (Devin for Terminal) is a known agent (`devin-cli`): it reads `.devin/skills`, `.agents/skills` and `.windsurf/skills` in a project and `~/.config/devin/skills`, `~/.agents/skills` and Windsurf's global folder, so `scan`, `install --agent devin-cli` and `route --agent devin-cli` cover it. On Windows its folder is `%APPDATA%\devin\skills`, which agent targets now reach through an `APPDATA` relocation.
 
