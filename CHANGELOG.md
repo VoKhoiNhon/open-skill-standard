@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- `open-skill lint` checks the `skills` a plugin's subagents preload (`plugin-agent-skills`, warning): it must be a YAML list, Claude Code preloads only its first 32 distinct names (since 2.1.295), and it cannot preload one of the plugin's skills that sets `disable-model-invocation: true`. Subagents named by the manifest's `agents` are checked instead of the `agents/` folder they replace.
+
+### Added
 - `open-skill scan` and `route --agent amp` count the skills of Claude Code plugins for Amp, which loads them from `~/.claude/plugins/cache` by their name (`brainstorming`, not `superpowers:brainstorming`) after its own folders, so a skill of the same name in those folders wins. Agent targets declare this with `claude_plugins` (§4.6).
 
 ## [0.7.5] - 2026-10-08

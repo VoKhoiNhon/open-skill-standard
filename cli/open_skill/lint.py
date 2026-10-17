@@ -89,6 +89,8 @@ def rule(id: str, severity: str, checks: str, source: str) -> None:
 
 MARKETPLACE_DOCS = "https://code.claude.com/docs/en/plugin-marketplaces"
 PLUGIN_DOCS = "https://code.claude.com/docs/en/plugins-reference"
+SUBAGENT_DOCS = "https://code.claude.com/docs/en/sub-agents"
+SUBAGENT_PRELOAD = 32  # distinct names a subagent's `skills` preloads (Claude Code 2.1.295)
 MARKETPLACE_REF = "https://code.claude.com/docs/en/plugins/marketplace-reference"
 rule("frontmatter", "error", "SKILL.md starts with a closed block of YAML frontmatter that is a mapping", SPEC)
 rule("frontmatter-name", "error", "`name` is a string of 1-64 lowercase letters, digits and single hyphens, not starting or"
@@ -183,6 +185,9 @@ rule("plugin-claude-md", "warning", "the plugin root has no CLAUDE.md, which is 
      "skill", PLUGIN_DOCS + "#standard-layout")
 rule("plugin-bin", "warning", "the plugin root has no `bin/` folder, which claude.ai and Cowork refuse to install",
      PLUGIN_DOCS + "#standard-layout")
+rule("plugin-agent-skills", "warning", "a subagent's `skills` is a YAML list of at most 32 distinct skills, none of them "
+     "set `disable-model-invocation: true`; Claude Code preloads only the first 32 and cannot preload those",
+     SUBAGENT_DOCS + "#preload-skills-into-subagents")
 rule("plugin-default-ignored", "warning", "a manifest key that replaces a default folder (`commands`, `agents`, "
      "`outputStyles`, `workflows`, `experimental.themes`, `experimental.monitors`) names a path inside that default "
      "(a command map, a `source` inside it) when the default exists; otherwise the default is ignored", PLUGIN_DOCS + "#how-each-key-combines-with-its-default-location")
@@ -610,6 +615,8 @@ def lint_plugin(path: Path) -> list[Finding]:
     checks += [("plugin-default-ignored", why) for why in _default_ignored(doc, root)]
     for rule_id, why in checks:
         out.append(_finding(path, rule_id, why))
+    for agent, why in _subagent_skills(doc, root, name if isinstance(name, str) else ""):
+        out.append(_finding(agent, "plugin-agent-skills", why))
     if (root / "CLAUDE.md").is_file():
         out.append(_finding(path, "plugin-claude-md", "CLAUDE.md at the plugin root is not loaded; move its instructions "
                                                       "into a skill"))
@@ -639,6 +646,43 @@ REPLACES_DEFAULT = {"commands": "commands", "agents": "agents", "outputStyles": 
 ANTHROPIC_NAMES = {"claude", "anthropic", "anthropics", "claude-code", "claude-mods"}
 ANTHROPIC_PREFIXES = ("claude-", "anthropic-", "anthropics-", "cc-plugin-")
 ANTHROPIC_WORDS = {"claude", "anthropic", "anthropics"}
+
+
+def _subagent_skills(doc: dict, root: Path, plugin: str) -> list[tuple[Path, str]]:
+    """Problems with the `skills` each of the plugin's subagents preloads. The manifest's `agents` paths replace the
+    default agents/ folder."""
+    paths = _paths_of(doc["agents"]) if "agents" in doc else None
+    if paths is not None:
+        files = [root / p for p in paths]
+    else:
+        files = [] if "agents" in doc else sorted((root / "agents").glob("*.md"))
+    out = []
+    for f in files:
+        try:
+            meta, _ = frontmatter.split(f.read_text(encoding="utf-8", errors="replace"))
+        except (OSError, ValueError):
+            continue  # a missing path is plugin-path's to report; a subagent's frontmatter is not ours to judge
+        if "skills" not in meta:
+            continue
+        skills = meta["skills"]
+        if not isinstance(skills, list) or not all(isinstance(x, str) for x in skills):
+            out.append((f, "skills should be a YAML list of skill names"))
+            continue
+        distinct = list(dict.fromkeys(skills))
+        if len(distinct) > SUBAGENT_PRELOAD:
+            dropped = ", ".join(distinct[SUBAGENT_PRELOAD:])
+            out.append((f, f"skills lists {len(distinct)} distinct skills; Claude Code preloads only the first "
+                           f"{SUBAGENT_PRELOAD}, so {dropped} {'is' if len(distinct) == SUBAGENT_PRELOAD + 1 else 'are'}"
+                           " not preloaded"))
+        for ref in distinct:
+            owner, _, short = ref.rpartition(":")
+            skill = root / "skills" / short / "SKILL.md"
+            if owner in ("", plugin) and skill.is_file():
+                skill_meta = frontmatter.parse(skill.read_text(encoding="utf-8", errors="replace"))[0]
+                if skill_meta.get("disable-model-invocation") is True:
+                    out.append((f, f"skills lists '{ref}', which sets disable-model-invocation: true; Claude Code "
+                                   "cannot preload it"))
+    return out
 
 
 def _url(value, scheme: str | None = None) -> bool:
