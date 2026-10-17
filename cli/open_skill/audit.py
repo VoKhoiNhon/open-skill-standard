@@ -85,7 +85,7 @@ def _frontmatter_end(lines: list[str]) -> int:
     return next((n for n, line in enumerate(lines[1:], 2) if line.rstrip() in ("---", "...")), 0)
 
 
-MAX_DECODED = 10_000  # strings read from one frontmatter; aliases can repeat a value far more often than that
+MAX_DECODED = 10_000  # strings read under one top-level key; aliases can repeat a value far more often than that
 
 
 def _strings(value, seen: set) -> list[str]:
@@ -111,14 +111,15 @@ def _decoded_frontmatter(lines: list[str], end: int, rules: list[Rule], file: st
         return []
     if not isinstance(meta, dict):
         return []
-    raw = lines[1:end - 1]
+    raw = "\n".join(lines[1:end - 1])  # a decoded piece holds no newline, so it is on a line iff it is in here
+    whole = {line.strip() for line in lines[1:end - 1]}  # the common case, a line of a block scalar, without a search
     out, seen, reported = [], set(), set()
     for key, value in meta.items():
         k = str(key)
         line = next((n for n in range(2, end) if lines[n - 1].startswith((k + ":", f'"{k}":', f"'{k}':"))), 1)
         for text in _strings([key, value], seen):
             for piece in text.split("\n"):
-                if not piece.strip() or any(piece in r for r in raw):
+                if not piece.strip() or piece.strip() in whole or piece in raw:
                     continue
                 for r in rules:
                     if not r.pattern or r.whole or r.frontmatter or (r.id, line) in reported:
